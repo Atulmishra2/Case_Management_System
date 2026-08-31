@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Case Management Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+    <div id="loginScreen" class="auth-shell">
+        <div class="login-card">
+            <div class="auth-header">
+                <div class="brand-pill">⚖️</div>
+                <h1>Case Management System</h1>
+                <p>Digital Legal Record & Case Tracking Platform</p>
+                <div class="creator-badge-card">
+                    <div class="creator-avatar-badge">👨‍⚖️</div>
+                    <div class="creator-card-details">
+                        <div class="creator-card-name">Atul Kumar Mishra</div>
+                        <div class="creator-card-role">Junior Advocate & Developer of this page</div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="loginForm" class="auth-form" action="javascript:void(0);" onsubmit="return handleAdminLogin(event);">
+                <label for="username">Username</label>
+                <input id="username" type="text" placeholder="Enter username" autocomplete="username" required>
+
+                <label for="password">Password</label>
+                <input id="password" type="password" placeholder="Enter password" autocomplete="current-password" required>
+
+                <button type="submit" class="primary-btn">Login as Admin</button>
+            </form>
+
+            <button type="button" id="guestModeBtn" class="secondary-btn">Continue as Guest</button>
+            <p id="demoNote" class="demo-note" style="cursor: pointer;" title="Click to autofill credentials">Demo login: <strong>admin</strong> / <strong>admin123</strong> <em>(click to fill)</em></p>
+            <p id="loginError" class="error-message" role="alert"></p>
+        </div>
+    </div>
+
+    <div id="guestScreen" class="guest-screen hidden">
+        <header class="guest-header-bar">
+            <div class="brand-badge-container">
+                <div class="brand-crest">⚖️</div>
+                <div class="brand-text-block">
+                    <div class="brand-title-line">
+                        <h1 class="brand-heading">Case Management System</h1>
+                        <span class="system-tag guest-tag">Guest Portal</span>
+                    </div>
+                    <div class="creator-identity-bar">
+                        <span class="creator-pill">Advocate & Developer</span>
+                        <span class="creator-name">Atul Kumar Mishra</span>
+                        <span class="creator-role-detail">(Junior Advocate & Developer of this page)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right-section">
+                <div class="user-chip">
+                    <span class="chip-avatar">👤</span>
+                    <div class="chip-info">
+                        <span class="chip-title">Guest Viewer</span>
+                        <span class="chip-status"><span class="status-dot"></span> Public Access</span>
+                    </div>
+                </div>
+                <button id="guestLogoutBtn" class="logout-btn">
+                    <span>Logout</span> ⎋
+                </button>
+            </div>
+        </header>
+
+        <div class="guest-content">
+            <div class="search-panel">
+                <h2>All Cases</h2>
+                <input type="text" id="guestSearch" placeholder="Search by case number, case name, client, or party..." aria-label="Search all cases">
+            </div>
+
+            <div class="search-results-panel">
+                <h3>Search Results</h3>
+                <div class="table-responsive">
+                    <table id="guestCasesTable" class="search-results-table">
+                        <thead>
+                            <tr>
+                                <th>Case Number</th>
+                                <th>Case Name</th>
+                                <th>Client</th>
+                                <th>Party Name</th>
+                                <th>Next Hearing (DD/MM/YYYY)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Complete Case Details Card Beneath Guest Search Table -->
+            <div id="guestCaseDetailsSection" class="case-details-wrapper">
+                <div class="case-details-header">
+                    <h3>📋 Case Full Details</h3>
+                    <span id="guestCaseTypeBadge" class="case-badge">Select a Case</span>
+                </div>
+                <div id="guestCaseDetailsEmpty" class="case-details-empty">
+                    <p>🔍 Search or click any case row in the table above to view all its details here.</p>
+                </div>
+                <div id="guestCaseDetailsContent" class="case-details-content hidden">
+                    <div class="case-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Case Number</span>
+                            <span class="detail-value" id="gDetailCaseNo">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Year</span>
+                            <span class="detail-value" id="gDetailCaseYear">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Case Type</span>
+                            <span class="detail-value" id="gDetailCaseType">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Court</span>
+                            <span class="detail-value" id="gDetailCourtName">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Filing Date (DD/MM/YYYY)</span>
+                            <span class="detail-value" id="gDetailFilingDate">—</span>
+                        </div>
+                        <div class="detail-item highlight-card">
+                            <span class="detail-label">Next Hearing (DD/MM/YYYY)</span>
+                            <span class="detail-value highlight" id="gDetailNextHearing">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Party / Case Name</span>
+                            <span class="detail-value" id="gDetailCaseName">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Client Name</span>
+                            <span class="detail-value" id="gDetailClient">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminScreen" class="page-shell hidden">
+        <!-- Header Bar -->
+        <header class="top-header">
+            <div class="header-left-section">
+                <button type="button" id="sidebarToggleBtn" class="mobile-menu-btn" aria-label="Toggle navigation menu">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="brand-badge-container">
+                    <div class="brand-crest">⚖️</div>
+                    <div class="brand-text-block">
+                        <div class="brand-title-line">
+                            <h1 class="brand-heading">Case Management System</h1>
+                            <span class="system-tag">Admin Console</span>
+                        </div>
+                        <div class="creator-identity-bar">
+                            <span class="creator-pill">Advocate & Developer</span>
+                            <span class="creator-name">Atul Kumar Mishra</span>
+                            <span class="creator-role-detail">(Junior Advocate & Developer of this page)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-right-section">
+                <div class="user-chip">
+                    <span class="chip-avatar">👨‍💼</span>
+                    <div class="chip-info">
+                        <span class="chip-title">Advocate Admin</span>
+                        <span class="chip-status"><span class="status-dot"></span> Online</span>
+                    </div>
+                </div>
+                <button id="adminLogoutBtn" class="logout-btn">
+                    <span>Logout</span> ⎋
+                </button>
+            </div>
+        </header>
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+        <!-- Sidebar navigation for switching between admin sections -->
+        <div class="sidebar">
+            <div class="sidebar-author-card">
+                <div class="author-avatar">👨‍⚖️</div>
+                <div class="author-details">
+                    <div class="author-name">Atul Kumar Mishra</div>
+                    <div class="author-title">Junior Advocate & Developer</div>
+                </div>
+            </div>
+            <h2>Admin Navigation</h2>
+            <a href="#" onclick="showTab('search', event)">🔎 Search</a>
+            <a href="#" onclick="showTab('calendar', event)">📅 Calendar View</a>
+            <a href="#" onclick="showTab('courts', event)">🏛️ Courts</a>
+            <a href="#" onclick="showTab('add', event)">➕ Add Case</a>
+            <a href="#" onclick="showTab('delete', event)">🗑️ Delete Case</a>
+            <a href="#" onclick="showTab('update', event)">✏️ Update Case</a>
+            <a href="#" onclick="showTab('hearing', event)">📅 Update Hearing</a>
+            <a href="#" onclick="showTab('undated', event)">❓ Undated Cases
+                <span id="undatedCount" class="badge"> 3</span>
+            </a>
+            <a href="#" onclick="showTab('civil', event)">
+                ⚖️ Civil Cases <span class="badge" id="civilCount">5</span>
+            </a>
+            <a href="#" onclick="showTab('criminal', event)">
+                🔒 Criminal Cases <span class="badge" id="criminalCount">3</span>
+            </a>
+            <a href="#" onclick="showTab('revenue', event)">
+                💰 Revenue Cases <span class="badge" id="revenueCount">2</span>
+            </a>
+        </div>
+
+        <!-- Main content area where each admin tab is displayed -->
+        <div class="content">
+            <!-- Search tab: used to search pending or existing cases by number or party name -->
+            <div id="search" class="tab active">
+                <div class="search-header">
+                    <h2>Search Bar</h2>
+                </div>
+                <div class="search-panel">
+                    <div class="search-input-wrapper">
+                        <input type="text" id="globalSearch" placeholder="Search by case number, party name, client, or court..." aria-label="Search cases">
+                        <button type="button" id="showAllCasesBtn" class="search-action-btn">📋 Show All Cases</button>
+                        <button type="button" id="clearSearchBtn" class="search-action-btn secondary" style="display: none;">✕ Clear</button>
+                    </div>
+                </div>
+                <div class="search-results-panel">
+                    <h3>Search Results</h3>
+                    <div class="table-responsive">
+                        <table class="search-results-table" border="1" width="100%" cellpadding="8">
+                            <thead>
+                                <tr>
+                                    <th>Case Number</th>
+                                    <th>Case Name</th>
+                                    <th>Client</th>
+                                    <th>Party Name</th>
+                                    <th>Case Type</th>
+                                    <th>Next Hearing (DD/MM/YYYY)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="7" class="no-results">No results yet. Type a case number or party name to search.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Complete Case Details Card Beneath Search Results Table -->
+                <div id="searchCaseDetailsSection" class="case-details-wrapper">
+                    <div class="case-details-header">
+                        <h3>📋 Complete Case Details</h3>
+                        <span id="searchCaseTypeBadge" class="case-badge">Select a Case</span>
+                    </div>
+
+                    <div id="searchCaseDetailsEmpty" class="case-details-empty">
+                        <p>🔍 Search or click on any case row in the table above to view all its details here.</p>
+                    </div>
+
+                    <div id="searchCaseDetailsContent" class="case-details-content hidden">
+                        <div class="case-details-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Case Number</span>
+                                <span class="detail-value" id="detailCaseNo">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Year</span>
+                                <span class="detail-value" id="detailCaseYear">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Case Type</span>
+                                <span class="detail-value" id="detailCaseType">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Court Name</span>
+                                <span class="detail-value" id="detailCourtName">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Filing Date (DD/MM/YYYY)</span>
+                                <span class="detail-value" id="detailFilingDate">—</span>
+                            </div>
+                            <div class="detail-item highlight-card">
+                                <span class="detail-label">Next Hearing (DD/MM/YYYY)</span>
+                                <span class="detail-value highlight" id="detailNextHearing">—</span>
+                            </div>
+
+                            <!-- General Specific Fields -->
+                            <div class="detail-item general-detail">
+                                <span class="detail-label">Plaintiff</span>
+                                <span class="detail-value" id="detailPlaintiff">—</span>
+                            </div>
+                            <div class="detail-item general-detail">
+                                <span class="detail-label">Defendant</span>
+                                <span class="detail-value" id="detailDefendant">—</span>
+                            </div>
+
+                            <!-- Criminal Specific Fields -->
+                            <div class="detail-item criminal-detail hidden">
+                                <span class="detail-label">Police Station</span>
+                                <span class="detail-value" id="detailPoliceStation">—</span>
+                            </div>
+                            <div class="detail-item criminal-detail hidden">
+                                <span class="detail-label">Section / Act</span>
+                                <span class="detail-value" id="detailCrimeSection">—</span>
+                            </div>
+                            <div class="detail-item criminal-detail hidden">
+                                <span class="detail-label">Crime Number</span>
+                                <span class="detail-value" id="detailCrimeNumber">—</span>
+                            </div>
+                            <div class="detail-item criminal-detail hidden">
+                                <span class="detail-label">Victim Name</span>
+                                <span class="detail-value" id="detailVictimName">—</span>
+                            </div>
+                            <div class="detail-item criminal-detail hidden">
+                                <span class="detail-label">Accused Name</span>
+                                <span class="detail-value" id="detailAccusedName">—</span>
+                            </div>
+
+                            <!-- Client Info -->
+                            <div class="detail-item">
+                                <span class="detail-label">Client Name</span>
+                                <span class="detail-value" id="detailClientName">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Client Contact</span>
+                                <span class="detail-value" id="detailClientNumber">—</span>
+                            </div>
+                        </div>
+
+                        <div class="case-details-actions">
+                            <button type="button" id="detailEditBtn" class="detail-action-btn primary">✏️ Update This Case</button>
+                            <button type="button" id="detailHearingBtn" class="detail-action-btn secondary">📅 Update Hearing</button>
+                            <button type="button" id="detailWhatsAppBtn" class="detail-action-btn whatsapp-action-btn">💬 Send WhatsApp Notice</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View Tab: visual monthly scheduler for court hearings -->
+            <div id="calendar" class="tab">
+                <div class="calendar-wrapper-card">
+                    <div class="calendar-top-bar">
+                        <div class="calendar-header-titles">
+                            <h2 id="calendarMonthYear">September 2026</h2>
+                            <p class="section-subtitle">Visual Court Hearing Scheduler & Case Appearances</p>
+                        </div>
+                        <div class="calendar-controls">
+                            <button type="button" id="calPrevMonthBtn" class="cal-nav-btn" title="Previous Month">◀ Prev</button>
+                            <button type="button" id="calTodayBtn" class="cal-today-btn">Today</button>
+                            <button type="button" id="calNextMonthBtn" class="cal-nav-btn" title="Next Month">Next ▶</button>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Hearing Summary Stats -->
+                    <div class="calendar-stats-row">
+                        <div class="cal-stat-chip">
+                            <span class="cal-stat-num" id="calTotalHearings">0</span>
+                            <span class="cal-stat-label">Total Hearings</span>
+                        </div>
+                        <div class="cal-stat-chip civil-chip">
+                            <span class="cal-stat-num" id="calCivilHearings">0</span>
+                            <span class="cal-stat-label">Civil Hearings</span>
+                        </div>
+                        <div class="cal-stat-chip criminal-chip">
+                            <span class="cal-stat-num" id="calCriminalHearings">0</span>
+                            <span class="cal-stat-label">Criminal Hearings</span>
+                        </div>
+                        <div class="cal-stat-chip revenue-chip">
+                            <span class="cal-stat-num" id="calRevenueHearings">0</span>
+                            <span class="cal-stat-label">Revenue Hearings</span>
+                        </div>
+                    </div>
+
+                    <!-- 7-Day Weekday Headers & Calendar Days Grid -->
+                    <div class="table-responsive">
+                        <div class="calendar-grid-wrapper">
+                            <div class="calendar-weekdays">
+                                <div>SUN</div>
+                                <div>MON</div>
+                                <div>TUE</div>
+                                <div>WED</div>
+                                <div>THU</div>
+                                <div>FRI</div>
+                                <div>SAT</div>
+                            </div>
+                            <div id="calendarGrid" class="calendar-days-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Selected Day Detailed Hearing Schedule Panel -->
+                    <div id="dayScheduleSection" class="day-schedule-card">
+                        <div class="day-schedule-header">
+                            <div>
+                                <h3 id="selectedDateTitle">📅 Hearings on Selected Date</h3>
+                                <p class="section-subtitle">Click on any date to inspect scheduled proceedings</p>
+                            </div>
+                            <div class="day-schedule-actions">
+                                <span id="selectedDateCountBadge" class="case-badge">Select a Day</span>
+                                <button type="button" id="printCauseListBtn" class="print-cause-btn" title="Print daily cause list for selected date">
+                                    <span>🖨️ Print Daily Cause List</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="dayScheduleList" class="day-schedule-list">
+                            <p class="empty-schedule-msg">Click on any calendar day to inspect its scheduled hearings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Case tab: form for creating a new case entry -->
+            <div id="add" class="tab">
+                <div class="form-container">
+                    <div class="section-header-row">
+                        <div>
+                            <h3>➕ Add New Case</h3>
+                            <p class="section-subtitle">Enter details below to register a new case into the system.</p>
+                        </div>
+                    </div>
+
+                    <form>
+                        <label for="caseTypeDropdown">Case Type</label>
+                        <select id="caseTypeDropdown" required>
+                            <option value="">-- Select Case Type --</option>
+                        </select>
+
+                        <div id="generalCaseForm" class="case-form-panel">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="caseNo">Case Number</label>
+                                    <input id="caseNo" type="text" placeholder="e.g. CIV-2026-010" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="caseYear">Year</label>
+                                    <input id="caseYear" type="number" placeholder="Year" min="1900" max="2100" value="2026" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="filingDate">Filing Date (DD/MM/YYYY)</label>
+                                    <input id="filingDate" type="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="courtName">Court Name</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="courtName" required>
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="addCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="plaintiff">Plaintiff</label>
+                                    <input id="plaintiff" type="text" placeholder="Enter Plaintiff Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="defendant">Defendant</label>
+                                    <input id="defendant" type="text" placeholder="Enter Defendant Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="clientName">Client Name</label>
+                                    <input id="clientName" type="text" placeholder="Enter Client Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="clientNumber">Client Number</label>
+                                    <input id="clientNumber" type="tel" placeholder="Enter Client Number" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="criminalCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="criminalCaseNumber">Case Number</label>
+                                    <input id="criminalCaseNumber" type="text" placeholder="e.g. CR-2026-010" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="crimeYear">Crime Year</label>
+                                    <input id="crimeYear" type="number" placeholder="Year" min="1900" max="2100" value="2026" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="policeStation">Police Station</label>
+                                    <input id="policeStation" type="text" placeholder="Enter Police Station" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="crimeSection">Section</label>
+                                    <input id="crimeSection" type="text" placeholder="e.g. IPC 302, IPC 379" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="crimeNumber">Crime / FIR Number</label>
+                                    <input id="crimeNumber" type="text" placeholder="Enter Crime Number" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="crimeFilingDate">Filing Date (DD/MM/YYYY)</label>
+                                    <input id="crimeFilingDate" type="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="victimName">Victim Name</label>
+                                    <input id="victimName" type="text" placeholder="Enter Victim Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="accusedName">Accused Name</label>
+                                    <input id="accusedName" type="text" placeholder="Enter Accused Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="criminalCourtName">Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="criminalCourtName" required>
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="addCriminalCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="criminalClientName">Client Name</label>
+                                    <input id="criminalClientName" type="text" placeholder="Enter Client Name" required>
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="criminalClientNumber">Client Number</label>
+                                    <input id="criminalClientNumber" type="tel" placeholder="Enter Client Number" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="primary-btn form-submit-btn">➕ Add Case Record</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Courts tab: manage the list of courts available in the case form -->
+            <div id="courts" class="tab">
+                <div class="form-container">
+                    <div class="section-header-row">
+                        <div class="section-title-box">
+                            <div class="section-icon-badge">🏛️</div>
+                            <div>
+                                <h3>Manage Courts Directory</h3>
+                                <p class="section-subtitle">Add and configure courts available across all case forms and judicial filings.</p>
+                            </div>
+                        </div>
+                        <span id="courtsTotalCountBadge" class="case-badge civil">6 Courts Configured</span>
+                    </div>
+
+                    <div class="court-add-card">
+                        <label for="courtInput">Add New Court</label>
+                        <div class="court-input-action-row">
+                            <div class="court-field-wrapper">
+                                <span class="court-field-icon">🏛️</span>
+                                <input type="text" id="courtInput" placeholder="Enter court name (e.g. Fast Track Special Court, Labour Court, NCLT)">
+                            </div>
+                            <button type="button" id="saveCourtBtn" class="court-submit-btn">
+                                <span>➕ Add Court</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="courtsTable" class="court-table" border="1" width="100%" cellpadding="8">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Sr. No.</th>
+                                    <th>Court Name</th>
+                                    <th style="width: 190px; text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Case tab: remove an existing case record -->
+            <div id="delete" class="tab">
+                <div class="form-container danger-container">
+                    <div class="danger-header">
+                        <div class="danger-icon">🗑️</div>
+                        <div>
+                            <h3>Delete Case Record</h3>
+                            <p class="section-subtitle">Permanently delete a case and its hearing logs from the database.</p>
+                        </div>
+                    </div>
+
+                    <div class="danger-alert-box">
+                        <span class="danger-alert-icon">⚠️</span>
+                        <div>
+                            <strong>Caution: Danger Zone</strong>
+                            <p>Deleting a case is irreversible. All linked case details and hearings will be permanently removed.</p>
+                        </div>
+                    </div>
+
+                    <div class="delete-input-group">
+                        <label for="deleteCaseNo">Enter Case Number to Delete</label>
+                        <div class="delete-search-row">
+                            <input type="text" id="deleteCaseNo" placeholder="e.g. CIV-2026-001 or CR-2026-003" autocomplete="off">
+                            <button type="button" id="deleteCaseBtn" class="danger-btn">🗑️ Delete Case Record</button>
+                        </div>
+                        <p id="deleteStatus" class="update-status-msg"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Case tab: modify an existing case record -->
+            <div id="update" class="tab">
+                <div class="form-container">
+                    <div class="section-header-row">
+                        <div>
+                            <h3>✏️ Update Case Details</h3>
+                            <p class="section-subtitle">Search and load an existing case to modify its information. Case Number and Year are locked for record integrity.</p>
+                        </div>
+                    </div>
+
+                    <div class="update-search-card">
+                        <label for="updateSearchInput">Search Case to Load Details</label>
+                        <div class="update-search-row">
+                            <input type="text" id="updateSearchInput" placeholder="Enter Case No (e.g. CIV-2026-001 or CR-2026-003)">
+                            <button type="button" id="updateSearchBtn" class="primary-btn">🔍 Load Case Details</button>
+                        </div>
+                        <p id="updateSearchStatus" class="update-status-msg"></p>
+                    </div>
+
+                    <form id="updateCaseForm">
+                        <label for="updateCaseTypeDropdown">Case Type</label>
+                        <select id="updateCaseTypeDropdown" required>
+                            <option value="">-- Select Case Type --</option>
+                        </select>
+
+                        <div id="updateGeneralCaseForm" class="case-form-panel">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="updateCaseNo">Case Number 🔒</label>
+                                    <input id="updateCaseNo" type="text" placeholder="Case Number (Locked)" readonly required class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCaseYear">Year 🔒</label>
+                                    <input id="updateCaseYear" type="number" placeholder="Year (Locked)" readonly required class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFilingDate">Filing Date (DD/MM/YYYY)</label>
+                                    <input id="updateFilingDate" type="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCourtName">Court Name</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="updateCourtName" required>
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="updateAddCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updatePlaintiff">Plaintiff</label>
+                                    <input id="updatePlaintiff" type="text" placeholder="Enter Plaintiff Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateDefendant">Defendant</label>
+                                    <input id="updateDefendant" type="text" placeholder="Enter Defendant Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateClientName">Client Name</label>
+                                    <input id="updateClientName" type="text" placeholder="Enter Client Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateClientNumber">Client Number</label>
+                                    <input id="updateClientNumber" type="tel" placeholder="Enter Client Number" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="updateCriminalCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="updateCriminalCaseNumber">Case Number 🔒</label>
+                                    <input id="updateCriminalCaseNumber" type="text" placeholder="Case Number (Locked)" readonly required class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCrimeYear">Crime Year 🔒</label>
+                                    <input id="updateCrimeYear" type="number" placeholder="Year (Locked)" readonly required class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updatePoliceStation">Police Station</label>
+                                    <input id="updatePoliceStation" type="text" placeholder="Enter Police Station" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCrimeSection">Section</label>
+                                    <input id="updateCrimeSection" type="text" placeholder="e.g. IPC 302, IPC 379" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCrimeNumber">Crime / FIR Number</label>
+                                    <input id="updateCrimeNumber" type="text" placeholder="Enter Crime Number" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCrimeFilingDate">Filing Date (DD/MM/YYYY)</label>
+                                    <input id="updateCrimeFilingDate" type="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateVictimName">Victim Name</label>
+                                    <input id="updateVictimName" type="text" placeholder="Enter Victim Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateAccusedName">Accused Name</label>
+                                    <input id="updateAccusedName" type="text" placeholder="Enter Accused Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCriminalCourtName">Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="updateCriminalCourtName" required>
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="updateAddCriminalCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCriminalClientName">Client Name</label>
+                                    <input id="updateCriminalClientName" type="text" placeholder="Enter Client Name" required>
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateCriminalClientNumber">Client Number</label>
+                                    <input id="updateCriminalClientNumber" type="tel" placeholder="Enter Client Number" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="primary-btn form-submit-btn">💾 Save Case Updates</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Update Hearing tab: track hearing date and status updates -->
+            <div id="hearing" class="tab">
+                <div class="form-container">
+                    <div class="section-header-row">
+                        <div>
+                            <h3>📅 Update Case Hearing</h3>
+                            <p class="section-subtitle">Set next hearing date, court appearance schedule, and hearing stage/process.</p>
+                        </div>
+                    </div>
+                    <form id="updateHearingForm">
+                        <div class="form-grid-2col">
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="hearingCaseNo">Case Number</label>
+                                <input type="text" id="hearingCaseNo" placeholder="e.g. CIV-2026-001 or CR-2026-003" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="hearingDate">Hearing Date (DD/MM/YYYY)</label>
+                                <input type="date" id="hearingDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="hearingProcess">Process / Stage</label>
+                                <input type="text" id="hearingProcess" placeholder="e.g. Arguments, Evidence, Notice, Bail" required>
+                            </div>
+                        </div>
+                        <button type="submit" id="hearingSubmitBtn" class="primary-btn form-submit-btn">📅 Save Hearing Schedule</button>
+                        <p id="hearingStatus" class="update-status-msg"></p>
+                    </form>
+
+                    <!-- Direct WhatsApp Notification Card -->
+                    <div id="hearingWhatsAppSection" class="whatsapp-notification-card hidden">
+                        <div class="whatsapp-card-content">
+                            <div class="whatsapp-icon-box">💬</div>
+                            <div class="whatsapp-info">
+                                <h4>Send WhatsApp Notice to Client</h4>
+                                <p id="whatsappClientSummary">Notify client with the newly scheduled hearing date and stage.</p>
+                            </div>
+                        </div>
+                        <button type="button" id="sendWhatsAppHearingBtn" class="whatsapp-send-btn">
+                            <span>💬 Send WhatsApp Notice</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Undated Cases tab: cases that do not have a hearing date recorded yet -->
+            <div id="undated" class="tab">
+                <h3>Undated Cases</h3>
+                <div class="table-responsive">
+                    <table id="undatedCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
+                        <thead>
+                            <tr>
+                                <th>Case Number</th>
+                                <th>Case Name</th>
+                                <th>Client</th>
+                                <th>Case Type</th>
+                                <th>Court</th>
+                                <th>Filing Date (DD/MM/YYYY)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- All Cases tab: lists every case in one combined table -->
+            <div id="all" class="tab">
+                <h3>All Cases</h3>
+                <div class="table-responsive">
+                    <table id="allCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
+                        <thead>
+                            <tr>
+                                <th>Case Number</th>
+                                <th>Case Name</th>
+                                <th>Client</th>
+                                <th>Case Type</th>
+                                <th>Filing Date (DD/MM/YYYY)</th>
+                                <th>Next Hearing (DD/MM/YYYY)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Civil Cases tab: list only civil cases -->
+            <div id="civil" class="tab">
+                <h3>Civil Cases</h3>
+                <div class="table-responsive">
+                    <table id="civilCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
+                        <thead>
+                            <tr>
+                                <th>Case No</th>
+                                <th>Case Name</th>
+                                <th>Client</th>
+                                <th>Filing Date (DD/MM/YYYY)</th>
+                                <th>Next Hearing (DD/MM/YYYY)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Criminal Cases tab: list only criminal cases -->
+            <div id="criminal" class="tab">
+                <h3>Criminal Cases</h3>
+                <div class="table-responsive">
+                    <table id="criminalCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
+                        <thead>
+                            <tr>
+                                <th>Case No</th>
+                                <th>Case Name</th>
+                                <th>Client</th>
+                                <th>Next Hearing (DD/MM/YYYY)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Revenue Cases tab: list only revenue cases -->
+            <div id="revenue" class="tab">
+                <h3>Revenue Cases</h3>
+                <div class="table-responsive">
+                    <table id="revenueCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
+                        <thead>
+                            <tr>
+                                <th>Case No</th>
+                                <th>Case Name</th>
+                                <th>Client</th>
+                                <th>Next Hearing (DD/MM/YYYY)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Daily Cause List Document (Optimized for A4 Print/PDF Export) -->
+    <div id="printableCauseList" class="printable-cause-list">
+        <div class="cause-list-header">
+            <div class="cause-crest">⚖️</div>
+            <div class="cause-header-text">
+                <h2>CHAMBERS OF ATUL KUMAR MISHRA</h2>
+                <div class="cause-advocate-title">Advocate & Legal Consultant</div>
+                <div class="cause-main-title">DAILY CAUSE LIST / COURT APPEARANCE BOARD</div>
+            </div>
+        </div>
+
+        <div class="cause-meta-box">
+            <div class="cause-meta-item">
+                <span class="cause-meta-label">DATE OF PROCEEDING:</span>
+                <span class="cause-meta-val" id="causeListPrintDate">—</span>
+            </div>
+            <div class="cause-meta-item">
+                <span class="cause-meta-label">DAY:</span>
+                <span class="cause-meta-val" id="causeListPrintDay">—</span>
+            </div>
+            <div class="cause-meta-item">
+                <span class="cause-meta-label">TOTAL MATTERS:</span>
+                <span class="cause-meta-val" id="causeListPrintTotal">0 Cases Listed</span>
+            </div>
+            <div class="cause-meta-item">
+                <span class="cause-meta-label">PRINTED ON:</span>
+                <span class="cause-meta-val" id="causeListPrintTimestamp">—</span>
+            </div>
+        </div>
+
+        <table class="cause-print-table">
+            <thead>
+                <tr>
+                    <th style="width: 45px; text-align: center;">Item</th>
+                    <th style="width: 140px;">Case Number & Type</th>
+                    <th>Case Title / Parties</th>
+                    <th style="width: 130px;">Court / Forum</th>
+                    <th style="width: 150px;">Stage / Purpose</th>
+                    <th style="width: 140px;">Client & Contact</th>
+                    <th style="width: 90px; text-align: center;">Notes</th>
+                </tr>
+            </thead>
+            <tbody id="causePrintTableBody">
+                <!-- Rows injected dynamically -->
+            </tbody>
+        </table>
+
+        <div class="cause-list-footer">
+            <div class="cause-footer-note">Generated via Case Management System • Atul Kumar Mishra, Junior Advocate & Developer</div>
+            <div class="cause-signature-line">
+                <span>Advocate Signature: _______________________</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="admin.js" defer></script>
+</body>
+
+</html>
