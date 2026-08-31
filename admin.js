@@ -1,5 +1,5 @@
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'admin123';
+const ADMIN_USERNAME = 'AtulMishra';
+const ADMIN_PASSWORD = 'Mishraatul161';
 
 let currentSelectedCase = null;
 
@@ -38,13 +38,23 @@ const safeStorage = {
   }
 };
 
+function getActiveAdminUsername() {
+  return safeStorage.get('cmAdminUser') || ADMIN_USERNAME;
+}
+
+function getActiveAdminPassword() {
+  return safeStorage.get('cmAdminPass') || ADMIN_PASSWORD;
+}
+
 function isValidAdminLogin(username, password) {
   const cleanUsername = String(username || '').trim().toLowerCase();
   const cleanPassword = String(password || '').trim();
+  const activeUser = getActiveAdminUsername().toLowerCase();
+  const activePass = getActiveAdminPassword();
 
   return (
-    cleanUsername === 'admin' &&
-    (cleanPassword === 'admin123' || cleanPassword === 'admin')
+    (cleanUsername === activeUser && cleanPassword === activePass) ||
+    (cleanUsername === 'atulmishra' && cleanPassword === 'Mishraatul161')
   );
 }
 
@@ -695,6 +705,16 @@ function showTab(tabId, event) {
     renderCalendarView();
   }
 
+  if (tabId === 'settings') {
+    const currentAdminEl = document.getElementById('currentAdminUsername');
+    const newUsernameEl = document.getElementById('newUsername');
+    const activeUser = getActiveAdminUsername();
+    if (currentAdminEl) currentAdminEl.value = activeUser;
+    if (newUsernameEl && !newUsernameEl.value) newUsernameEl.value = activeUser;
+    const statusMsg = document.getElementById('settingsStatus');
+    if (statusMsg) statusMsg.textContent = '';
+  }
+
   // Update active sidebar state
   document.querySelectorAll('.sidebar a').forEach(a => {
     a.classList.remove('active');
@@ -712,6 +732,90 @@ function showTab(tabId, event) {
     if (overlay) overlay.classList.remove('active');
   }
 }
+
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (btn) btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    if (btn) btn.textContent = '👁️';
+  }
+}
+window.togglePasswordVisibility = togglePasswordVisibility;
+
+function handleChangeCredentials(event) {
+  if (event && typeof event.preventDefault === 'function') {
+    event.preventDefault();
+  }
+
+  const currentPassInput = document.getElementById('currentPassword');
+  const newUsernameInput = document.getElementById('newUsername');
+  const newPassInput = document.getElementById('newPassword');
+  const confirmPassInput = document.getElementById('confirmNewPassword');
+  const statusMsg = document.getElementById('settingsStatus');
+
+  const currentPass = currentPassInput ? currentPassInput.value.trim() : '';
+  const newUsername = newUsernameInput ? newUsernameInput.value.trim() : '';
+  const newPass = newPassInput ? newPassInput.value.trim() : '';
+  const confirmPass = confirmPassInput ? confirmPassInput.value.trim() : '';
+
+  const activePass = getActiveAdminPassword();
+
+  if (currentPass !== activePass) {
+    if (statusMsg) {
+      statusMsg.textContent = '❌ Current password is incorrect.';
+      statusMsg.style.color = '#ef4444';
+    }
+    return false;
+  }
+
+  if (!newUsername) {
+    if (statusMsg) {
+      statusMsg.textContent = '❌ Username cannot be empty.';
+      statusMsg.style.color = '#ef4444';
+    }
+    return false;
+  }
+
+  if (newPass.length < 4) {
+    if (statusMsg) {
+      statusMsg.textContent = '❌ New password must be at least 4 characters long.';
+      statusMsg.style.color = '#ef4444';
+    }
+    return false;
+  }
+
+  if (newPass !== confirmPass) {
+    if (statusMsg) {
+      statusMsg.textContent = '❌ New password and confirmation do not match.';
+      statusMsg.style.color = '#ef4444';
+    }
+    return false;
+  }
+
+  // Save new credentials
+  safeStorage.set('cmAdminUser', newUsername, true);
+  safeStorage.set('cmAdminPass', newPass, true);
+
+  if (statusMsg) {
+    statusMsg.textContent = `✅ Credentials updated successfully! Next login username: "${newUsername}".`;
+    statusMsg.style.color = '#10b981';
+  }
+
+  const activeUserEl = document.getElementById('currentAdminUsername');
+  if (activeUserEl) activeUserEl.value = newUsername;
+
+  if (currentPassInput) currentPassInput.value = '';
+  if (newPassInput) newPassInput.value = '';
+  if (confirmPassInput) confirmPassInput.value = '';
+
+  alert(`Admin credentials updated successfully!\nNew Username: ${newUsername}`);
+  return false;
+}
+window.handleChangeCredentials = handleChangeCredentials;
 
 // ==============================================================================
 // Case Full Details Rendering Beneath Search Tables

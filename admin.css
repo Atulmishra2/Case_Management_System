@@ -2454,3 +2454,37 @@ html, body {
     font-weight: 700;
   }
 }
+
+/* ==============================================================================
+   Settings / Password Input Wrapper
+   ============================================================================== */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 42px !important;
+}
+
+.pwd-toggle-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  font-size: 15px;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+  line-height: 1;
+}
+
+.pwd-toggle-btn:hover {
+  opacity: 1;
+}

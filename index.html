@@ -45,7 +45,6 @@
             </form>
 
             <button type="button" id="guestModeBtn" class="secondary-btn">Continue as Guest</button>
-            <p id="demoNote" class="demo-note" style="cursor: pointer;" title="Click to autofill credentials">Demo login: <strong>admin</strong> / <strong>admin123</strong> <em>(click to fill)</em></p>
             <p id="loginError" class="error-message" role="alert"></p>
         </div>
     </div>
@@ -220,6 +219,9 @@
             </a>
             <a href="#" onclick="showTab('revenue', event)">
                 💰 Revenue Cases <span class="badge" id="revenueCount">2</span>
+            </a>
+            <a href="#" onclick="showTab('settings', event)">
+                🔐 Change Password
             </a>
         </div>
 
@@ -875,6 +877,58 @@
                         </thead>
                         <tbody></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Change Password & Credentials Tab -->
+            <div id="settings" class="tab">
+                <div class="form-container">
+                    <div class="section-header-row">
+                        <div class="section-title-box">
+                            <div class="section-icon-badge">🔐</div>
+                            <div>
+                                <h3>Admin Security & Password Settings</h3>
+                                <p class="section-subtitle">Update your advocate login username and password credentials.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="changePasswordForm" class="settings-form" action="javascript:void(0);" onsubmit="return handleChangeCredentials(event);">
+                        <div class="form-grid-2col">
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="currentAdminUsername">Active Username</label>
+                                <input type="text" id="currentAdminUsername" readonly class="locked-input" value="AtulMishra">
+                            </div>
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="currentPassword">Current Password</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" id="currentPassword" placeholder="Enter current password" required>
+                                    <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('currentPassword', this)" title="Show/Hide Password">👁️</button>
+                                </div>
+                            </div>
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="newUsername">New Username</label>
+                                <input type="text" id="newUsername" placeholder="Enter new username" required value="AtulMishra">
+                            </div>
+                            <div class="form-group">
+                                <label for="newPassword">New Password</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" id="newPassword" placeholder="Enter new password" required minlength="4">
+                                    <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('newPassword', this)" title="Show/Hide Password">👁️</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmNewPassword">Confirm New Password</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" id="confirmNewPassword" placeholder="Re-enter new password" required minlength="4">
+                                    <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('confirmNewPassword', this)" title="Show/Hide Password">👁️</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="primary-btn form-submit-btn">💾 Update Login Credentials</button>
+                        <p id="settingsStatus" class="update-status-msg"></p>
+                    </form>
                 </div>
             </div>
         </div>
