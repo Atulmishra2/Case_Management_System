@@ -184,6 +184,32 @@ html, body {
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
 }
 
+.remember-me-container {
+  margin: 10px 0 14px;
+  display: flex;
+  align-items: center;
+}
+
+.remember-me-label {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  user-select: none;
+  margin: 0 !important;
+}
+
+.remember-me-label input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: #2563eb;
+  cursor: pointer;
+  margin: 0;
+}
+
 .primary-btn:hover {
   background: linear-gradient(135deg, #334155, #1e293b);
   transform: translateY(-1px);

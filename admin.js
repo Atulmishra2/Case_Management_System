@@ -6,14 +6,23 @@ let currentSelectedCase = null;
 const safeStorage = {
   get(key) {
     try {
-      return window.sessionStorage ? window.sessionStorage.getItem(key) : (window.__storageFallback?.[key] || null);
+      const localVal = window.localStorage ? window.localStorage.getItem(key) : null;
+      if (localVal) return localVal;
+      const sessionVal = window.sessionStorage ? window.sessionStorage.getItem(key) : null;
+      if (sessionVal) return sessionVal;
+      return window.__storageFallback?.[key] || null;
     } catch (e) {
       return window.__storageFallback?.[key] || null;
     }
   },
-  set(key, value) {
+  set(key, value, persistent = true) {
     try {
-      if (window.sessionStorage) window.sessionStorage.setItem(key, value);
+      if (persistent && window.localStorage) {
+        window.localStorage.setItem(key, value);
+      }
+      if (window.sessionStorage) {
+        window.sessionStorage.setItem(key, value);
+      }
     } catch (e) {
       window.__storageFallback = window.__storageFallback || {};
       window.__storageFallback[key] = String(value);
@@ -21,6 +30,7 @@ const safeStorage = {
   },
   remove(key) {
     try {
+      if (window.localStorage) window.localStorage.removeItem(key);
       if (window.sessionStorage) window.sessionStorage.removeItem(key);
     } catch (e) {
       if (window.__storageFallback) delete window.__storageFallback[key];
@@ -617,7 +627,9 @@ function handleAdminLogin(event) {
 
   try {
     if (isValidAdminLogin(username, password)) {
-      safeStorage.set('cmUser', 'admin');
+      const rememberEl = document.getElementById('rememberMe');
+      const isPersistent = rememberEl ? rememberEl.checked : true;
+      safeStorage.set('cmUser', 'admin', isPersistent);
       setActiveScreen('adminScreen');
       if (errorBox) errorBox.textContent = '';
       if (form) form.reset();
