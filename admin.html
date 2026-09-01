@@ -22,7 +22,7 @@
                     <div class="creator-avatar-badge">👨‍⚖️</div>
                     <div class="creator-card-details">
                         <div class="creator-card-name">Atul Kumar Mishra</div>
-                        <div class="creator-card-role">Junior Advocate & Developer of this page</div>
+                        <div class="creator-card-role">Advocate & Developer of this page</div>
                     </div>
                 </div>
             </div>
@@ -61,7 +61,7 @@
                     <div class="creator-identity-bar">
                         <span class="creator-pill">Advocate & Developer</span>
                         <span class="creator-name">Atul Kumar Mishra</span>
-                        <span class="creator-role-detail">(Junior Advocate & Developer of this page)</span>
+                        <span class="creator-role-detail">(Advocate & Developer of this page)</span>
                     </div>
                 </div>
             </div>
@@ -170,7 +170,7 @@
                         <div class="creator-identity-bar">
                             <span class="creator-pill">Advocate & Developer</span>
                             <span class="creator-name">Atul Kumar Mishra</span>
-                            <span class="creator-role-detail">(Junior Advocate & Developer of this page)</span>
+                            <span class="creator-role-detail">(Advocate & Developer of this page)</span>
                         </div>
                     </div>
                 </div>
@@ -197,7 +197,7 @@
                 <div class="author-avatar">👨‍⚖️</div>
                 <div class="author-details">
                     <div class="author-name">Atul Kumar Mishra</div>
-                    <div class="author-title">Junior Advocate & Developer</div>
+                    <div class="author-title">Advocate & Developer</div>
                 </div>
             </div>
             <h2>Admin Navigation</h2>
@@ -247,16 +247,12 @@
                                 <tr>
                                     <th>Case Number</th>
                                     <th>Case Name</th>
-                                    <th>Client</th>
-                                    <th>Party Name</th>
-                                    <th>Case Type</th>
-                                    <th>Next Hearing (DD/MM/YYYY)</th>
-                                    <th>Action</th>
+                                    <th>Next Hearing Date</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="7" class="no-results">No results yet. Type a case number or party name to search.</td>
+                                    <td colspan="3" class="no-results">No results yet. Type a case number or party name to search.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -299,6 +295,18 @@
                             <div class="detail-item highlight-card">
                                 <span class="detail-label">Next Hearing (DD/MM/YYYY)</span>
                                 <span class="detail-value highlight" id="detailNextHearing">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Next Process / Stage</span>
+                                <span class="detail-value" id="detailHearingProcess">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Previous Hearing Date</span>
+                                <span class="detail-value" id="detailPrevHearing">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Previous Process / Stage</span>
+                                <span class="detail-value" id="detailPrevProcess">—</span>
                             </div>
 
                             <!-- General Specific Fields -->
@@ -348,6 +356,7 @@
                             <button type="button" id="detailEditBtn" class="detail-action-btn primary">✏️ Update This Case</button>
                             <button type="button" id="detailHearingBtn" class="detail-action-btn secondary">📅 Update Hearing</button>
                             <button type="button" id="detailWhatsAppBtn" class="detail-action-btn whatsapp-action-btn">💬 Send WhatsApp Notice</button>
+                            <button type="button" id="detailHistoryBtn" class="detail-action-btn history-action-btn">📜 Case History</button>
                         </div>
                     </div>
                 </div>
@@ -547,7 +556,7 @@
                 <div class="form-container">
                     <div class="section-header-row">
                         <div class="section-title-box">
-                            <div class="section-icon-badge">🏛️</div>
+                            <div class="section-icon-badge"></div>
                             <div>
                                 <h3>Manage Courts Directory</h3>
                                 <p class="section-subtitle">Add and configure courts available across all case forms and judicial filings.</p>
@@ -560,7 +569,6 @@
                         <label for="courtInput">Add New Court</label>
                         <div class="court-input-action-row">
                             <div class="court-field-wrapper">
-                                <span class="court-field-icon">🏛️</span>
                                 <input type="text" id="courtInput" placeholder="Enter court name (e.g. Fast Track Special Court, Labour Court, NCLT)">
                             </div>
                             <button type="button" id="saveCourtBtn" class="court-submit-btn">
@@ -620,7 +628,7 @@
                     <div class="section-header-row">
                         <div>
                             <h3>✏️ Update Case Details</h3>
-                            <p class="section-subtitle">Search and load an existing case to modify its information. Case Number and Year are locked for record integrity.</p>
+                            <p class="section-subtitle">Search and load an existing case to modify its information, including Case Number and all filing details.</p>
                         </div>
                     </div>
 
@@ -642,8 +650,8 @@
                         <div id="updateGeneralCaseForm" class="case-form-panel">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateCaseNo">Case Number 🔒</label>
-                                    <input id="updateCaseNo" type="text" placeholder="Case Number (Locked)" readonly required class="locked-input">
+                                    <label for="updateCaseNo">Case Number</label>
+                                    <input id="updateCaseNo" type="text" placeholder="Enter Case Number" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="updateCaseYear">Year 🔒</label>
@@ -684,8 +692,8 @@
                         <div id="updateCriminalCaseForm" class="case-form-panel hidden-case-form">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateCriminalCaseNumber">Case Number 🔒</label>
-                                    <input id="updateCriminalCaseNumber" type="text" placeholder="Case Number (Locked)" readonly required class="locked-input">
+                                    <label for="updateCriminalCaseNumber">Case Number</label>
+                                    <input id="updateCriminalCaseNumber" type="text" placeholder="Enter Case Number" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="updateCrimeYear">Crime Year 🔒</label>
@@ -982,9 +990,72 @@
         </table>
 
         <div class="cause-list-footer">
-            <div class="cause-footer-note">Generated via Case Management System • Atul Kumar Mishra, Junior Advocate & Developer</div>
+            <div class="cause-footer-note">Generated via Case Management System • Atul Kumar Mishra, Advocate & Developer</div>
             <div class="cause-signature-line">
                 <span>Advocate Signature: _______________________</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Case Hearing & Process History Modal Dialog -->
+    <div id="caseHistoryModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-header-info">
+                    <div class="modal-icon">📜</div>
+                    <div>
+                        <h3 id="historyModalTitle">Case Hearing & Process History</h3>
+                        <p id="historyModalSubtitle" class="modal-subtitle">Track previous court appearances, stages, and proceedings.</p>
+                    </div>
+                </div>
+                <button type="button" id="closeCaseHistoryModalBtn" class="modal-close-btn" aria-label="Close Case History">&times;</button>
+            </div>
+
+            <div class="modal-case-summary">
+                <div class="summary-chip">
+                    <span class="chip-label">Case No:</span>
+                    <strong id="modalCaseNo">—</strong>
+                </div>
+                <div class="summary-chip">
+                    <span class="chip-label">Case Title:</span>
+                    <strong id="modalCaseTitle">—</strong>
+                </div>
+                <div class="summary-chip">
+                    <span class="chip-label">Court:</span>
+                    <strong id="modalCourtName">—</strong>
+                </div>
+                <div class="summary-chip">
+                    <span class="chip-label">Next Hearing:</span>
+                    <span id="modalNextHearingBadge" class="case-badge civil">—</span>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="history-table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">#</th>
+                                <th style="width: 130px;">Hearing Date (DD/MM/YYYY)</th>
+                                <th style="width: 180px;">Process / Stage</th>
+                                <th style="width: 140px;">Status / Type</th>
+                                <th>Court Action & Proceedings</th>
+                            </tr>
+                        </thead>
+                        <tbody id="caseHistoryTableBody">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="caseHistoryEmpty" class="case-details-empty hidden">
+                    <p>ℹ️ No previous hearings recorded yet for this case.</p>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="modalUpdateHearingBtn" class="detail-action-btn secondary">📅 Update Next Hearing</button>
+                <button type="button" id="modalCloseBtn" class="detail-action-btn secondary-action">Close</button>
             </div>
         </div>
     </div>

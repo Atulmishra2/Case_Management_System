@@ -1,7 +1,7 @@
 # ⚖️ Case Management System
 
 > **Digital Legal Record, Court Hearing Scheduler & Client Portal**
-> Developed by **Atul Kumar Mishra** (Junior Advocate & Developer)
+> Developed by **Atul Kumar Mishra** (Advocate & Developer)
 > Chambers of **Mr. Sushil Kumar Mishra** (Senior Advocate)
 
 ---
@@ -19,7 +19,7 @@
    - **`🖨️ Print Daily Cause List`**: Instant 1-click generation of A4 print-ready court board with advocate signature block.
 
 3. **💬 Direct WhatsApp Client Hearing Notifications**:
-   - Instant WhatsApp notice generation featuring customized chamber header and contact details for **Mr. Sushil Kumar Mishra** (Senior Advocate) & **Mr. Atul Kumar Mishra** (Junior Advocate).
+   - Instant WhatsApp notice generation featuring customized chamber header and contact details for **Mr. Sushil Kumar Mishra** (Senior Advocate) & **Mr. Atul Kumar Mishra** (Advocate).
 
 4. **👤 Guest / Client Tracking Portal**:
    - Public read-only search portal allowing clients to track their next hearing date securely.
