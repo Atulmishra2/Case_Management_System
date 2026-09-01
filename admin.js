@@ -61,8 +61,8 @@ function isValidAdminLogin(username, password) {
 // ==============================================================================
 // Supabase Configuration
 // ==============================================================================
-const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://podehqyygbbabkimbcud.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_r8RXVVAf9UJfa9jtdamN_A_I5ZiDflg';
 
 const isSupabaseConfigured = Boolean(
   SUPABASE_URL &&
