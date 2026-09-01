@@ -1624,7 +1624,7 @@ Senior Advocate
 Contact Number: 9839810466
 
 *Mr. Atul Kumar Mishra*
-Junior Advocate
+Advocate
 Contact Number: 8318194561`;
 
   const waUrl = `https://wa.me/${cleanDigits}?text=${encodeURIComponent(message)}`;
