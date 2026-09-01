@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS public.criminalcases (
     next_hearing DATE,
     hearing_process TEXT, -- e.g. 'Bail Hearing', 'Framing of Charges', 'Evidence'
     case_status VARCHAR(50) DEFAULT 'Pending' NOT NULL, -- 'Pending', 'Bail Granted', 'Convicted', 'Acquitted'
+    remark TEXT, -- Disposal note or case remarks e.g. 'Disposed on merits', 'Bail granted'
     
     -- Timestamps
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,

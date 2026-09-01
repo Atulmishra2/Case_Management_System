@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS public.civilcases (
     next_hearing DATE,
     hearing_process TEXT,
     case_status VARCHAR(50) DEFAULT 'Pending' NOT NULL,
+    remark TEXT,
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -89,6 +90,7 @@ CREATE TABLE IF NOT EXISTS public.criminalcases (
     next_hearing DATE,
     hearing_process TEXT,
     case_status VARCHAR(50) DEFAULT 'Pending' NOT NULL,
+    remark TEXT,
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -237,3 +239,58 @@ VALUES
     ('Labour Court', 'Tribunal', 'Industrial Area'),
     ('Consumer Court', 'Tribunal', 'District Complex')
 ON CONFLICT (court_name) DO NOTHING;
+
+-- ==============================================================================
+-- 5. "case_todos" Table for Task & Hearing Deadline Tracker
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.case_todos (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    case_number VARCHAR(100) NOT NULL,
+    case_name TEXT,
+    task_title TEXT NOT NULL,
+    hearing_date DATE,
+    deadline_date DATE NOT NULL,
+    priority VARCHAR(20) DEFAULT 'medium',
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_case_todos_case_number ON public.case_todos (case_number);
+CREATE INDEX IF NOT EXISTS idx_case_todos_deadline_date ON public.case_todos (deadline_date);
+CREATE INDEX IF NOT EXISTS idx_case_todos_status ON public.case_todos (status);
+CREATE INDEX IF NOT EXISTS idx_case_todos_priority ON public.case_todos (priority);
+
+CREATE OR REPLACE FUNCTION public.handle_case_todos_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = timezone('utc'::text, now());
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_case_todos_updated_at ON public.case_todos;
+
+CREATE TRIGGER trigger_case_todos_updated_at
+BEFORE INSERT OR UPDATE ON public.case_todos
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_case_todos_updated_at();
+
+ALTER TABLE public.case_todos ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access to case_todos"
+ON public.case_todos FOR SELECT TO anon, authenticated USING (true);
+
+CREATE POLICY "Allow authenticated full access to case_todos"
+ON public.case_todos FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow anon insert to case_todos"
+ON public.case_todos FOR INSERT TO anon WITH CHECK (true);
+
+CREATE POLICY "Allow anon update to case_todos"
+ON public.case_todos FOR UPDATE TO anon USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow anon delete to case_todos"
+ON public.case_todos FOR DELETE TO anon USING (true);
+

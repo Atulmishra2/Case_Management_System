@@ -58,6 +58,6 @@ git push -u origin main
 ---
 
 ## 🔑 Default Login Credentials
-- **Username**: `admin`
-- **Password**: `admin123`
-- **Guest Access**: Click **"Continue as Guest"** on the login card.
+- **Username**: `AtulMishra`
+- **Password**: `Mishraatul161`
+- **Guest Access**: Click **"Continue as Guest"** on the login card (search by Case Number or Mobile Number for secure private access).

@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS public.civilcases (
     next_hearing DATE,
     hearing_process TEXT, -- Stage/Status of hearing e.g. 'Evidence', 'Arguments', 'Notice'
     case_status VARCHAR(50) DEFAULT 'Pending' NOT NULL, -- 'Pending', 'Disposed', 'Stayed', 'Transferred'
+    remark TEXT, -- Disposal note or case remarks e.g. 'Disposed on merits', 'Settled by compromise'
     
     -- Timestamps
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
