@@ -82,7 +82,7 @@
         <div class="guest-content">
             <div class="search-panel">
                 <h2>Track Case Hearing</h2>
-                <input type="text" id="guestSearch" placeholder="Enter your Case Number (e.g. CIV-2026-001) or Mobile Number..." aria-label="Search your case">
+                <input type="text" id="guestSearch" placeholder="Enter your Case Number or Mobile Number..." aria-label="Search your case">
             </div>
 
             <div class="search-results-panel">
@@ -536,11 +536,11 @@
                             <!-- Case info banner with dynamic preview -->
                             <div id="todoCaseInfoBanner" class="todo-case-preview-card hidden">
                                 <div class="todo-preview-card-badge-row">
-                                    <span id="todoBannerCaseType" class="case-badge civil">CIVIL</span>
-                                    <span id="todoBannerCaseNum" class="todo-preview-caseno">CIV-2026-001</span>
+                                    <span id="todoBannerCaseType" class="case-badge civil">—</span>
+                                    <span id="todoBannerCaseNum" class="todo-preview-caseno">—</span>
                                     <button type="button" class="todo-preview-change-btn" onclick="openTodoCaseDropdown(); document.getElementById('todoCaseSearchInput').focus();" title="Select different case">✏️ Change</button>
                                 </div>
-                                <h5 id="todoBannerCaseName" class="todo-preview-title">Case Title</h5>
+                                <h5 id="todoBannerCaseName" class="todo-preview-title">—</h5>
                                 <div class="todo-preview-meta-grid">
                                     <div class="todo-meta-pill">🏛️ <span id="todoBannerCourt">—</span></div>
                                     <div class="todo-meta-pill hearing">📅 Next Hearing: <span id="todoBannerHearing" class="highlight-date-text">—</span></div>
@@ -887,7 +887,7 @@
                     <div class="delete-input-group">
                         <label for="deleteSearchInput">Search Case to Delete (Case Number or Case Name)</label>
                         <div class="delete-search-row">
-                            <input type="text" id="deleteSearchInput" placeholder="e.g. CIV-2026-001 or Atul vs Mishra" autocomplete="off">
+                            <input type="text" id="deleteSearchInput" placeholder="Enter Case Number or Case Name" autocomplete="off">
                             <button type="button" id="deleteFindBtn" class="primary-btn search-action-btn">🔍 Find Case</button>
                         </div>
                         <p id="deleteStatus" class="update-status-msg"></p>
@@ -956,7 +956,7 @@
                     <div class="update-search-card">
                         <label for="updateSearchInput">Search Case to Load Details (Case Number or Case Name)</label>
                         <div class="update-search-row">
-                            <input type="text" id="updateSearchInput" placeholder="Enter Case Number or Case Name (e.g. CIV-2026-001 or Atul vs Mishra)">
+                            <input type="text" id="updateSearchInput" placeholder="Enter Case Number or Case Name">
                             <button type="button" id="updateSearchBtn" class="primary-btn search-action-btn">🔍 Load Case Details</button>
                         </div>
                         <p id="updateSearchStatus" class="update-status-msg"></p>
@@ -1120,7 +1120,7 @@
                             </div>
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="hearingCaseNo">Case Number</label>
-                                <input type="text" id="hearingCaseNo" placeholder="e.g. CIV-2026-001 or CR-2026-003" required>
+                                <input type="text" id="hearingCaseNo" placeholder="Enter Case Number" required>
                                 <small id="hearingCaseHelp" style="display: block; margin-top: 4px; color: #64748b;">Select an undated case from dropdown above, or type any case number directly.</small>
                             </div>
 
@@ -1141,7 +1141,12 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="hearingInfoPrevDate">Previous Hearing Date</label>
-                                        <input type="text" id="hearingInfoPrevDate" readonly class="locked-input highlight-date-input" value="—" placeholder="Previous hearing date">
+                                        <div style="display:flex; align-items:center; gap:6px;">
+                                            <input type="text" id="hearingInfoPrevDate" readonly class="locked-input highlight-date-input" value="—" placeholder="Previous hearing date" style="flex:1;">
+                                            <input type="date" id="hearingInfoPrevDateEdit" class="locked-input" style="display:none; flex:1;" title="Set correct previous hearing date">
+                                            <button type="button" id="editPrevDateBtn" title="Edit previous date" onclick="toggleEditPrevDate()" style="flex-shrink:0; padding:5px 9px; font-size:13px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; color:#475569;">✏️</button>
+                                            <button type="button" id="savePrevDateBtn" onclick="savePrevDateEdit()" style="display:none; flex-shrink:0; padding:5px 9px; font-size:13px; background:#4f46e5; color:#fff; border:none; border-radius:6px; cursor:pointer;">✔ Save</button>
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="hearingInfoPrevProcess">Previous Process / Stage</label>

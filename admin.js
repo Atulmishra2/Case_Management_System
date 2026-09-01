@@ -88,214 +88,14 @@ function ensureSupabaseClient() {
 }
 window.ensureSupabaseClient = ensureSupabaseClient;
 
-// Default demo dataset (used when Supabase is not connected or offline)
-const defaultFallbackCases = [
-  {
-    caseType: 'civil',
-    caseNo: 'CIV-2026-001',
-    caseYear: '2026',
-    filingDate: '2026-08-20',
-    plaintiff: 'Atul',
-    defendant: 'Mishra',
-    courtName: 'District Court',
-    clientName: 'Atul',
-    clientNumber: '9876543210',
-    nextHearing: '2026-09-15',
-    hearingProcess: 'Written Statement Filed',
-    caseStatus: 'Pending',
-    caseName: 'Atul vs Mishra',
-    partyName: 'Mishra'
-  },
-  {
-    caseType: 'civil',
-    caseNo: 'CIV-2026-002',
-    caseYear: '2026',
-    filingDate: '2026-08-22',
-    plaintiff: 'XYZ',
-    defendant: 'ABC',
-    courtName: 'High Court',
-    clientName: 'XYZ',
-    clientNumber: '9876543211',
-    nextHearing: '—',
-    hearingProcess: '',
-    caseStatus: 'Pending',
-    caseName: 'XYZ vs ABC',
-    partyName: 'ABC'
-  },
-  {
-    caseType: 'civil',
-    caseNo: 'CIV-2026-005',
-    caseYear: '2026',
-    filingDate: '2026-08-28',
-    plaintiff: 'Client',
-    defendant: 'Opponent',
-    courtName: 'District Court',
-    clientName: 'Client',
-    clientNumber: '9876543212',
-    nextHearing: '2026-10-02',
-    hearingProcess: 'Framing of Issues',
-    caseStatus: 'Pending',
-    caseName: 'Client vs Opponent',
-    partyName: 'Opponent'
-  },
-  {
-    caseType: 'criminal',
-    caseNo: 'CR-2026-003',
-    caseYear: '2026',
-    criminalCaseNumber: 'CR-2026-003',
-    crimeYear: '2026',
-    policeStation: 'Central Police Station',
-    crimeSection: 'IPC 302',
-    crimeFilingDate: '2026-08-10',
-    filingDate: '2026-08-10',
-    crimeNumber: 'CR-402',
-    victimName: 'State',
-    accusedName: 'Ram',
-    criminalCourtName: 'District Court',
-    courtName: 'District Court',
-    criminalClientName: 'State',
-    clientName: 'State',
-    criminalClientNumber: '9876543213',
-    clientNumber: '9876543213',
-    nextHearing: '2026-09-20',
-    hearingProcess: 'Bail Application Submitted',
-    caseStatus: 'Pending',
-    caseName: 'State vs Ram',
-    partyName: 'Ram'
-  },
-  {
-    caseType: 'revenue',
-    caseNo: 'REV-2026-004',
-    caseYear: '2026',
-    filingDate: '2026-08-15',
-    plaintiff: 'Govt',
-    defendant: 'Shyam',
-    courtName: 'District Court',
-    clientName: 'Govt',
-    clientNumber: '9876543214',
-    nextHearing: '2026-09-25',
-    hearingProcess: 'Notice Issued',
-    caseStatus: 'Pending',
-    caseName: 'Govt vs Shyam',
-    partyName: 'Shyam'
-  },
-  {
-    caseType: 'criminal',
-    caseNo: 'CR-2026-006',
-    caseYear: '2026',
-    criminalCaseNumber: 'CR-2026-006',
-    crimeYear: '2026',
-    policeStation: 'North Police Station',
-    crimeSection: 'IPC 379',
-    crimeFilingDate: '2026-08-18',
-    filingDate: '2026-08-18',
-    crimeNumber: 'CR-510',
-    victimName: 'State',
-    accusedName: 'Kumar',
-    criminalCourtName: 'High Court',
-    courtName: 'High Court',
-    criminalClientName: 'State',
-    clientName: 'State',
-    criminalClientNumber: '9876543215',
-    clientNumber: '9876543215',
-    nextHearing: '2026-10-12',
-    hearingProcess: 'Evidence Stage',
-    caseStatus: 'Pending',
-    caseName: 'State vs Kumar',
-    partyName: 'Kumar'
-  }
-];
-
-let defaultCourts = [
-  'District Court',
-  'High Court',
-  'Supreme Court',
-  'Family Court',
-  'Labour Court',
-  'Consumer Court'
-];
-
-let courts = [...defaultCourts];
-let allCaseRecords = [...defaultFallbackCases];
+// Dataset arrays (hydrated live from Supabase or user entries)
+const defaultFallbackCases = [];
+let defaultCourts = [];
+let courts = [];
+let allCaseRecords = [];
 let guestCases = [];
-
-// Demo / fallback hearings dataset (used when Supabase is offline or not configured)
-const defaultFallbackHearings = [
-  {
-    case_number: 'CIV-2026-001',
-    case_type: 'civil',
-    hearing_date: '2026-08-25',
-    process: 'Summons & Notice Served',
-    action_taken: 'Defendant appeared through counsel. Time granted to file Written Statement.',
-    court_name: 'District Court'
-  },
-  {
-    case_number: 'CIV-2026-001',
-    case_type: 'civil',
-    hearing_date: '2026-09-02',
-    process: 'Written Statement Filed',
-    action_taken: 'Written statement taken on record. Replication to be filed by next date.',
-    court_name: 'District Court'
-  },
-  {
-    case_number: 'CIV-2026-002',
-    case_type: 'civil',
-    hearing_date: '2026-08-28',
-    process: 'Initial Hearing & Notice',
-    action_taken: 'Court issued notice to respondent ABC. Awaiting appearance.',
-    court_name: 'High Court'
-  },
-  {
-    case_number: 'CR-2026-003',
-    case_type: 'criminal',
-    hearing_date: '2026-08-14',
-    process: 'Remand & Custody Hearing',
-    action_taken: 'Accused produced. Judicial remand extended for 14 days.',
-    court_name: 'District Court'
-  },
-  {
-    case_number: 'CR-2026-003',
-    case_type: 'criminal',
-    hearing_date: '2026-08-28',
-    process: 'Bail Application Submitted',
-    action_taken: 'Bail application filed under Sec 439 CrPC. Prosecution directed to produce case diary.',
-    court_name: 'District Court'
-  },
-  {
-    case_number: 'REV-2026-004',
-    case_type: 'revenue',
-    hearing_date: '2026-08-22',
-    process: 'Preliminary Hearing',
-    action_taken: 'Revenue inspection ordered. Local revenue inspector directed to submit spot inspection report.',
-    court_name: 'District Court'
-  },
-  {
-    case_number: 'CIV-2026-005',
-    case_type: 'civil',
-    hearing_date: '2026-09-05',
-    process: 'Pleadings Completed',
-    action_taken: 'Written statement and replication on record. Proposed issues submitted.',
-    court_name: 'District Court'
-  },
-  {
-    case_number: 'CR-2026-006',
-    case_type: 'criminal',
-    hearing_date: '2026-08-25',
-    process: 'Charge Framing',
-    action_taken: 'Charges framed against accused under IPC 379. Read over and explained. Plea of not guilty.',
-    court_name: 'High Court'
-  },
-  {
-    case_number: 'CR-2026-006',
-    case_type: 'criminal',
-    hearing_date: '2026-09-08',
-    process: 'Prosecution Witness 1 Examined',
-    action_taken: 'PW-1 examined and cross-examined in full. Adjourned for PW-2.',
-    court_name: 'High Court'
-  }
-];
-
-let allHearingRecords = [...defaultFallbackHearings];
+const defaultFallbackHearings = [];
+let allHearingRecords = [];
 
 function getSafeValue(value, fallback = '—') {
   if (value === null || value === undefined || value === '') return fallback;
@@ -568,16 +368,11 @@ async function fetchAllDataFromSupabase() {
         }
       });
     } else {
-      allHearingRecords = [...defaultFallbackHearings];
+      allHearingRecords = [];
     }
 
-    if (loadedCases.length > 0) {
-      allCaseRecords = loadedCases;
-      console.log(`Loaded ${allCaseRecords.length} cases from Supabase.`);
-    } else {
-      console.log('Supabase returned empty tables, initializing with default sample dataset.');
-      allCaseRecords = [...defaultFallbackCases];
-    }
+    allCaseRecords = loadedCases;
+    console.log(`Loaded ${allCaseRecords.length} cases from Supabase.`);
 
     // 4. Sync To-Do Tasks from case_todos
     if (todosRes && todosRes.data && !todosRes.error) {
@@ -603,9 +398,9 @@ async function fetchAllDataFromSupabase() {
     refreshAllCaseTables();
   } catch (error) {
     console.error('Supabase live fetch error:', error);
-    allCaseRecords = [...defaultFallbackCases];
-    allHearingRecords = [...defaultFallbackHearings];
-    courts = [...defaultCourts];
+    allCaseRecords = [];
+    allHearingRecords = [];
+    courts = [];
     renderCourtOptions();
     renderCriminalCourtOptions();
     renderCourtsTable();
@@ -1486,7 +1281,7 @@ function renderGuestTable(searchText = '') {
 
   // Client Privacy Protection: Do not list all clients' records to public viewers by default
   if (!query) {
-    tbody.innerHTML = '<tr><td colspan="6" class="no-results" style="padding: 35px 20px; font-size: 14.5px; color: #475569;">🔒 <strong>Private Client Portal:</strong> Please enter your <strong>Case Number</strong> (e.g. <em>CIV-2026-001</em>) or <strong>Mobile Number</strong> above to securely view your hearing schedule.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="no-results" style="padding: 35px 20px; font-size: 14.5px; color: #475569;">🔒 <strong>Private Client Portal:</strong> Please enter your <strong>Case Number</strong> or <strong>Mobile Number</strong> above to securely view your hearing schedule.</td></tr>';
     renderGuestCaseDetails(null);
     return;
   }
@@ -1694,6 +1489,20 @@ function renderHearingCaseInfo(caseNo) {
   setDisplayVal('hearingInfoPrevDate', prevDate);
   setDisplayVal('hearingInfoPrevProcess', prevProcess);
 
+  // Store reference for the "Edit Previous Date" button
+  _editingPrevHearingCaseNo = found.caseNo || found.criminalCaseNumber || '';
+  _editingPrevHearingRecord = latestPrev || null;
+
+  // Reset edit mode whenever a new case is loaded
+  const editEl  = document.getElementById('hearingInfoPrevDateEdit');
+  const saveBtn = document.getElementById('savePrevDateBtn');
+  const editBtn = document.getElementById('editPrevDateBtn');
+  const dispEl  = document.getElementById('hearingInfoPrevDate');
+  if (editEl)  editEl.style.display  = 'none';
+  if (saveBtn) saveBtn.style.display = 'none';
+  if (editBtn) { editBtn.textContent = '✏️'; editBtn.title = 'Edit previous date'; }
+  if (dispEl)  dispEl.style.display  = '';
+
   if (elBadge) {
     elBadge.style.display = 'inline-block';
     elBadge.textContent = caseType;
@@ -1702,6 +1511,99 @@ function renderHearingCaseInfo(caseNo) {
 }
 
 window.renderHearingCaseInfo = renderHearingCaseInfo;
+
+// ==============================================================================
+// Edit Previous Hearing Date (in Update Hearing tab)
+// ==============================================================================
+
+// Track the hearing record currently being edited
+let _editingPrevHearingCaseNo = null;
+let _editingPrevHearingRecord = null;
+
+function toggleEditPrevDate() {
+  const displayEl = document.getElementById('hearingInfoPrevDate');
+  const editEl    = document.getElementById('hearingInfoPrevDateEdit');
+  const editBtn   = document.getElementById('editPrevDateBtn');
+  const saveBtn   = document.getElementById('savePrevDateBtn');
+  if (!displayEl || !editEl) return;
+
+  const isEditing = editEl.style.display !== 'none';
+
+  if (isEditing) {
+    // Cancel – go back to display mode
+    editEl.style.display = 'none';
+    displayEl.style.display = '';
+    if (saveBtn) saveBtn.style.display = 'none';
+    if (editBtn) { editBtn.textContent = '✏️'; editBtn.title = 'Edit previous date'; }
+  } else {
+    // Enter edit mode – pre-fill with raw ISO date from the stored record
+    const rawDate = _editingPrevHearingRecord ? (_editingPrevHearingRecord.hearing_date || '') : '';
+    editEl.value = rawDate;
+    editEl.style.display = '';
+    displayEl.style.display = 'none';
+    if (saveBtn) saveBtn.style.display = '';
+    if (editBtn) { editBtn.textContent = '✕'; editBtn.title = 'Cancel edit'; }
+  }
+}
+window.toggleEditPrevDate = toggleEditPrevDate;
+
+async function savePrevDateEdit() {
+  const editEl    = document.getElementById('hearingInfoPrevDateEdit');
+  const displayEl = document.getElementById('hearingInfoPrevDate');
+  const editBtn   = document.getElementById('editPrevDateBtn');
+  const saveBtn   = document.getElementById('savePrevDateBtn');
+  const caseNoEl  = document.getElementById('hearingCaseNo');
+
+  if (!editEl || !editEl.value) {
+    showToastNotification('⚠️ Please select a valid date first.', 2200);
+    return;
+  }
+
+  const newDate  = editEl.value;           // YYYY-MM-DD
+  const caseNo   = caseNoEl ? caseNoEl.value.trim() : (_editingPrevHearingCaseNo || '');
+
+  if (!caseNo) {
+    showToastNotification('⚠️ No case selected. Please load a case first.', 2200);
+    return;
+  }
+
+  // Update in Supabase hearings table (update the most-recent past hearing for this case)
+  if (supabaseClient && _editingPrevHearingRecord && _editingPrevHearingRecord.id) {
+    try {
+      const { error } = await supabaseClient
+        .from('hearings')
+        .update({ hearing_date: newDate })
+        .eq('id', _editingPrevHearingRecord.id);
+      if (error) console.error('Supabase prev date update error:', error);
+    } catch (e) {
+      console.error('Supabase prev date update exception:', e);
+    }
+  }
+
+  // Update local allHearingRecords array
+  if (_editingPrevHearingRecord) {
+    _editingPrevHearingRecord.hearing_date = newDate;
+  }
+
+  // Refresh display
+  const formatted = formatDateDMY(newDate);
+  if (displayEl) {
+    displayEl.value = formatted;
+    displayEl.textContent = formatted;
+  }
+
+  // Return to read-only mode
+  if (editEl)   editEl.style.display   = 'none';
+  if (displayEl) displayEl.style.display = '';
+  if (saveBtn)  saveBtn.style.display  = 'none';
+  if (editBtn)  { editBtn.textContent = '✏️'; editBtn.title = 'Edit previous date'; }
+
+  showToastNotification(`✅ Previous date for ${caseNo} updated to ${formatted}`, 2500);
+
+  // Refresh tables so changed date reflects everywhere
+  refreshAllCaseTables();
+}
+window.savePrevDateEdit = savePrevDateEdit;
 
 // ==============================================================================
 // Clipboard Copy & Toast Notifications
