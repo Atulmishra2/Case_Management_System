@@ -648,20 +648,21 @@ async function deleteCaseFromSupabase(caseNumber) {
 }
 
 // Update Hearing in Supabase (or local fallback)
-async function updateHearingInSupabase(caseNumber, hearingDate, process) {
+async function updateHearingInSupabase(caseNumber, hearingDate, process, actionTaken = '') {
   // Determine case type from allCaseRecords for proper tagging
   const matchedCase = allCaseRecords.find(c =>
     (c.caseNo || '').toLowerCase() === caseNumber.toLowerCase() ||
     (c.criminalCaseNumber || '').toLowerCase() === caseNumber.toLowerCase()
   );
   const caseType = matchedCase?.caseType || 'civil';
+  const resolvedAction = actionTaken && actionTaken.trim() ? actionTaken.trim() : `Scheduled stage: ${process}`;
 
   const hearingPayload = {
     case_number: caseNumber,
     case_type: caseType,
     hearing_date: hearingDate,
     process: process,
-    action_taken: `Scheduled stage: ${process}`
+    action_taken: resolvedAction
   };
 
   // --- Supabase: upsert (update existing or insert new) ---
@@ -683,7 +684,7 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process) {
       if (existing && existing.length > 0) {
         // UPDATE existing hearing row
         const { error } = await supabaseClient.from('hearings')
-          .update({ process: process, action_taken: `Scheduled stage: ${process}` })
+          .update({ process: process, action_taken: resolvedAction })
           .eq('id', existing[0].id);
         dbError = error;
       } else {
@@ -1461,58 +1462,56 @@ function populateHearingCaseDropdown(selectedCaseNoToInclude = '') {
 
   const currentVal = selectedCaseNoToInclude || select.value || '';
 
-  // Filter only undated cases (cases without a next hearing date scheduled and not disposed)
-  const undatedCases = allCaseRecords.filter(c => {
+  // Separate into undated and active dated cases
+  const undatedCases = [];
+  const datedCases = [];
+
+  allCaseRecords.forEach(c => {
     const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
-    if (isDisposed) return false;
-    return !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || c.nextHearing.trim() === '';
+    if (isDisposed) return;
+    const isDated = c.nextHearing && c.nextHearing !== '—' && c.nextHearing !== 'null' && c.nextHearing.trim() !== '';
+    if (isDated) {
+      datedCases.push(c);
+    } else {
+      undatedCases.push(c);
+    }
   });
 
-  // If a specific case was requested (e.g. from calendar/search "Update Hearing" button)
-  // ensure it is present in the list even if it previously had a date scheduled
-  if (currentVal) {
-    const isAlreadyIncluded = undatedCases.some(c => {
-      const n1 = (c.caseNo || '').toLowerCase();
-      const n2 = (c.criminalCaseNumber || '').toLowerCase();
-      return n1 === currentVal.toLowerCase() || n2 === currentVal.toLowerCase();
-    });
-    if (!isAlreadyIncluded) {
-      const foundMatch = allCaseRecords.find(c => {
-        const n1 = (c.caseNo || '').toLowerCase();
-        const n2 = (c.criminalCaseNumber || '').toLowerCase();
-        return n1 === currentVal.toLowerCase() || n2 === currentVal.toLowerCase();
-      });
-      if (foundMatch) {
-        undatedCases.unshift(foundMatch);
-      }
-    }
-  }
-
-  const placeholderText = undatedCases.length === 0
-    ? '-- 🎉 No Undated Cases (All cases have hearings scheduled) --'
-    : `-- Select Undated Case (${undatedCases.length} Pending Schedule) --`;
-
-  select.innerHTML = `<option value="">${placeholderText}</option>`;
-
-  undatedCases.sort((a, b) => {
+  // Sort both groups by case number
+  const sortFn = (a, b) => {
     const numA = (a.caseNo || a.criminalCaseNumber || '').toUpperCase();
     const numB = (b.caseNo || b.criminalCaseNumber || '').toUpperCase();
     return numA.localeCompare(numB);
-  });
+  };
+  undatedCases.sort(sortFn);
+  datedCases.sort(sortFn);
 
-  undatedCases.forEach(c => {
-    const caseNum = c.caseNo || c.criminalCaseNumber || '';
-    if (!caseNum) return;
-    const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : ''));
-    const caseType = (c.caseType || 'civil').toUpperCase();
-    const isDated = c.nextHearing && c.nextHearing !== '—' && c.nextHearing !== 'null' && c.nextHearing.trim();
-    const opt = document.createElement('option');
-    opt.value = caseNum;
-    opt.textContent = isDated
-      ? `${caseNum} — ${caseName} [${caseType}] (Current: ${formatDateDMY(c.nextHearing)})`
-      : `❓ ${caseNum} — ${caseName} [${caseType}] (Undated)`;
-    select.appendChild(opt);
-  });
+  let html = `<option value="">-- Choose Case from List (${allCaseRecords.length} Total) --</option>`;
+
+  if (undatedCases.length > 0) {
+    html += `<optgroup label="❓ Undated Cases (${undatedCases.length} Awaiting First Schedule)">`;
+    undatedCases.forEach(c => {
+      const caseNum = c.caseNo || c.criminalCaseNumber || '';
+      const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : ''));
+      const caseType = (c.caseType || 'civil').toUpperCase();
+      html += `<option value="${escapeHtml(caseNum)}">❓ ${escapeHtml(caseNum)} — ${escapeHtml(caseName)} [${caseType}] (Undated)</option>`;
+    });
+    html += `</optgroup>`;
+  }
+
+  if (datedCases.length > 0) {
+    html += `<optgroup label="📅 Active Cases to Forward Next Date (${datedCases.length} Listed)">`;
+    datedCases.forEach(c => {
+      const caseNum = c.caseNo || c.criminalCaseNumber || '';
+      const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : ''));
+      const caseType = (c.caseType || 'civil').toUpperCase();
+      const curDateStr = formatDateDMY(c.nextHearing);
+      html += `<option value="${escapeHtml(caseNum)}">📅 ${escapeHtml(caseNum)} — ${escapeHtml(caseName)} [${caseType}] (Current: ${curDateStr})</option>`;
+    });
+    html += `</optgroup>`;
+  }
+
+  select.innerHTML = html;
 
   if (currentVal) {
     select.value = currentVal;
@@ -1555,13 +1554,18 @@ function renderHearingCaseInfo(caseNo) {
   };
 
   const elBadge = document.getElementById('hearingInfoBadge');
+  const clientTag = document.getElementById('hearingCaseClientTag');
+  const prevDateDisp = document.getElementById('hearingPrevDateDisplay');
 
   if (!query) {
     setDisplayVal('hearingInfoCaseName', '—');
     setDisplayVal('hearingInfoCourt', '—');
     setDisplayVal('hearingInfoPrevDate', '—');
     setDisplayVal('hearingInfoPrevProcess', '—');
+    if (prevDateDisp) prevDateDisp.textContent = '—';
+    if (clientTag) clientTag.textContent = 'Client: —';
     if (elBadge) elBadge.style.display = 'none';
+    updateHearingLivePreview();
     return;
   }
 
@@ -1576,13 +1580,18 @@ function renderHearingCaseInfo(caseNo) {
     setDisplayVal('hearingInfoCourt', '—');
     setDisplayVal('hearingInfoPrevDate', '—');
     setDisplayVal('hearingInfoPrevProcess', '—');
+    if (prevDateDisp) prevDateDisp.textContent = 'Case Not Found';
+    if (clientTag) clientTag.textContent = 'Client: —';
     if (elBadge) elBadge.style.display = 'none';
+    updateHearingLivePreview();
     return;
   }
 
   const caseName = found.caseName || (found.plaintiff ? `${found.plaintiff} vs ${found.defendant}` : (found.victimName ? `${found.victimName} vs ${found.accusedName}` : '—'));
   const courtName = found.courtName || found.criminalCourtName || 'District Court';
   const caseType = (found.caseType || 'civil').toUpperCase();
+  const clientName = found.clientName || found.criminalClientName || 'Client';
+  const clientNumber = found.clientNumber || found.criminalClientNumber || '';
 
   // Find previous hearing date and process from history
   const caseHistory = getCaseHearingHistory(found.caseNo || found.criminalCaseNumber || '');
@@ -1593,8 +1602,9 @@ function renderHearingCaseInfo(caseNo) {
     return true;
   });
   const latestPrev = prevHearings[0];
-  const prevDate = latestPrev ? formatDateDMY(latestPrev.hearing_date) : (found.previousHearing ? formatDateDMY(found.previousHearing) : '— (First Hearing)');
-  const prevProcess = latestPrev ? (latestPrev.process || '—') : (found.previousProcess || '—');
+  const prevDateRaw = latestPrev ? latestPrev.hearing_date : (found.previousHearing && found.previousHearing !== '—' ? found.previousHearing : null);
+  const prevDate = prevDateRaw ? formatDateDMY(prevDateRaw) : (currentNext ? `${formatDateDMY(currentNext)} (Current Fixed Date)` : '— (First Hearing)');
+  const prevProcess = latestPrev ? (latestPrev.process || '—') : (found.previousProcess || found.hearingProcess || '—');
 
   // Populate preview elements
   setDisplayVal('hearingInfoCaseName', caseName);
@@ -1602,28 +1612,133 @@ function renderHearingCaseInfo(caseNo) {
   setDisplayVal('hearingInfoPrevDate', prevDate);
   setDisplayVal('hearingInfoPrevProcess', prevProcess);
 
+  if (prevDateDisp) {
+    prevDateDisp.textContent = prevDateRaw ? formatDateDMY(prevDateRaw) : (currentNext ? formatDateDMY(currentNext) : 'First Hearing');
+  }
+
+  if (clientTag) {
+    clientTag.textContent = `Client: ${clientName} ${clientNumber ? '(' + clientNumber + ')' : ''}`;
+  }
+
+  // Pre-fill stage if already set
+  const processInput = document.getElementById('hearingProcess');
+  if (processInput && !processInput.value && found.hearingProcess) {
+    processInput.value = found.hearingProcess;
+  }
+
   // Store reference for the "Edit Previous Date" button
   _editingPrevHearingCaseNo = found.caseNo || found.criminalCaseNumber || '';
   _editingPrevHearingRecord = latestPrev || null;
 
-  // Reset edit mode whenever a new case is loaded
+  // Reset edit mode
   const editEl  = document.getElementById('hearingInfoPrevDateEdit');
   const saveBtn = document.getElementById('savePrevDateBtn');
   const editBtn = document.getElementById('editPrevDateBtn');
   const dispEl  = document.getElementById('hearingInfoPrevDate');
   if (editEl)  editEl.style.display  = 'none';
   if (saveBtn) saveBtn.style.display = 'none';
-  if (editBtn) { editBtn.textContent = '✏️'; editBtn.title = 'Edit previous date'; }
-  if (dispEl)  dispEl.style.display  = '';
+  if (editBtn) { editBtn.textContent = '✏️ Edit Previous Date'; editBtn.title = 'Edit previous date'; }
+  if (dispEl)  dispEl.style.display  = 'none';
 
   if (elBadge) {
     elBadge.style.display = 'inline-block';
     elBadge.textContent = caseType;
     elBadge.className = `case-badge ${(found.caseType || 'civil').toLowerCase()}`;
   }
+
+  updateHearingLivePreview();
 }
 
 window.renderHearingCaseInfo = renderHearingCaseInfo;
+
+// ── Quick Forward Next Date Preset Shortcut Handler ─────────────────────────
+function setHearingDateOffset(daysOffset) {
+  const target = new Date();
+  target.setDate(target.getDate() + daysOffset);
+
+  const yyyy = target.getFullYear();
+  const mm = String(target.getMonth() + 1).padStart(2, '0');
+  const dd = String(target.getDate()).padStart(2, '0');
+  const isoDate = `${yyyy}-${mm}-${dd}`;
+
+  const dateInput = document.getElementById('hearingDate');
+  if (dateInput) {
+    dateInput.value = isoDate;
+    updateHearingLivePreview();
+  }
+}
+
+window.setHearingDateOffset = setHearingDateOffset;
+
+// ── Quick Court Stage Preset Helper ─────────────────────────────────────────
+function setHearingStagePreset(stageText) {
+  const processInput = document.getElementById('hearingProcess');
+  if (processInput) {
+    processInput.value = stageText;
+    updateHearingLivePreview();
+  }
+}
+
+window.setHearingStagePreset = setHearingStagePreset;
+
+// ── Live Hearing Progression Preview Updater ─────────────────────────────────
+function updateHearingLivePreview() {
+  const dateInput = document.getElementById('hearingDate');
+  const processInput = document.getElementById('hearingProcess');
+  const dateVal = dateInput ? dateInput.value : '';
+  const processVal = processInput ? processInput.value.trim() : '';
+
+  const nextDateDisplay = document.getElementById('hearingNextDateDisplay');
+  const nextProcessDisplay = document.getElementById('hearingNextProcessDisplay');
+  const nextDayNameDisplay = document.getElementById('hearingNextDayNameDisplay');
+  const intervalDisplay = document.getElementById('hearingIntervalDisplay');
+  const dateReadableInput = document.getElementById('hearingDateReadable');
+
+  if (nextProcessDisplay) {
+    nextProcessDisplay.textContent = processVal || '— (Specify Stage)';
+  }
+
+  if (!dateVal) {
+    if (nextDateDisplay) nextDateDisplay.textContent = 'Select Date Below';
+    if (nextDayNameDisplay) nextDayNameDisplay.textContent = 'Choose date below';
+    if (intervalDisplay) intervalDisplay.textContent = '—';
+    if (dateReadableInput) dateReadableInput.value = '—';
+    return;
+  }
+
+  const daysOfWeek = ['Sunday (रविवार)', 'Monday (सोमवार)', 'Tuesday (मंगलवार)', 'Wednesday (बुधवार)', 'Thursday (गुरुवार)', 'Friday (शुक्रवार)', 'Saturday (शनिवार)'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  const parts = dateVal.split('-');
+  const selectedDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  const dayName = daysOfWeek[selectedDate.getDay()];
+  const formattedReadable = `${parts[2]} ${months[selectedDate.getMonth()]} ${parts[0]} (${dayName.split(' ')[0]})`;
+
+  if (dateReadableInput) dateReadableInput.value = formattedReadable;
+  if (nextDateDisplay) nextDateDisplay.textContent = formatDateDMY(dateVal);
+  if (nextDayNameDisplay) nextDayNameDisplay.textContent = dayName;
+
+  // Calculate day difference from today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  selectedDate.setHours(0, 0, 0, 0);
+  const diffTime = selectedDate.getTime() - today.getTime();
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+  if (intervalDisplay) {
+    if (diffDays === 0) {
+      intervalDisplay.textContent = '🎯 Today (आज)';
+    } else if (diffDays === 1) {
+      intervalDisplay.textContent = '⚡ Tomorrow (कल)';
+    } else if (diffDays > 1) {
+      intervalDisplay.textContent = `📅 In ${diffDays} Days (+${Math.round(diffDays / 7)} Wks)`;
+    } else {
+      intervalDisplay.textContent = `⚠️ Past Date (${Math.abs(diffDays)} Days ago)`;
+    }
+  }
+}
+
+window.updateHearingLivePreview = updateHearingLivePreview;
 
 // ==============================================================================
 // Edit Previous Hearing Date (in Update Hearing tab)
@@ -4214,6 +4329,18 @@ function initializeApp() {
     });
   }
 
+  // Live preview events for Hearing Date & Process inputs
+  const hearingDateInput = document.getElementById('hearingDate');
+  const hearingProcessInput = document.getElementById('hearingProcess');
+  if (hearingDateInput) {
+    hearingDateInput.addEventListener('input', updateHearingLivePreview);
+    hearingDateInput.addEventListener('change', updateHearingLivePreview);
+  }
+  if (hearingProcessInput) {
+    hearingProcessInput.addEventListener('input', updateHearingLivePreview);
+    hearingProcessInput.addEventListener('change', updateHearingLivePreview);
+  }
+
   const updateHearingForm = document.getElementById('updateHearingForm');
   if (updateHearingForm) {
     updateHearingForm.addEventListener('submit', async (e) => {
@@ -4221,17 +4348,18 @@ function initializeApp() {
       const caseNumber = document.getElementById('hearingCaseNo')?.value?.trim();
       const hearingDate = document.getElementById('hearingDate')?.value;
       const process = document.getElementById('hearingProcess')?.value?.trim();
+      const actionTaken = document.getElementById('hearingActionTaken')?.value?.trim() || '';
       const statusEl = document.getElementById('hearingStatus');
 
       if (!caseNumber || !hearingDate || !process) {
         if (statusEl) {
-          statusEl.textContent = 'Please fill all hearing fields.';
+          statusEl.textContent = 'Please fill all required hearing fields (Case Number, Date & Process).';
           statusEl.className = 'update-status-msg error';
         }
         return;
       }
 
-      await updateHearingInSupabase(caseNumber, hearingDate, process);
+      await updateHearingInSupabase(caseNumber, hearingDate, process, actionTaken);
 
       const foundCase = allCaseRecords.find(c => {
         const num1 = (c.caseNo || '').toLowerCase();
@@ -4256,13 +4384,14 @@ function initializeApp() {
       updateHearingForm.reset();
       if (hearingCaseSelect) hearingCaseSelect.value = '';
       renderHearingCaseInfo('');
+      updateHearingLivePreview();
 
       if (statusEl) {
-        statusEl.textContent = `📅 Hearing for "${caseNumber}" set to ${formatDateDMY(hearingDate)} (${process}) successfully!`;
+        statusEl.textContent = `📅 Hearing for "${caseNumber}" forwarded to ${formatDateDMY(hearingDate)} (${process}) successfully!`;
         statusEl.className = 'update-status-msg success';
       }
 
-      alert(`Hearing for Case ${caseNumber} updated successfully!`);
+      alert(`✅ Hearing for Case "${caseNumber}" has been updated and forwarded to ${formatDateDMY(hearingDate)} (${process}) successfully!`);
     });
   }
 

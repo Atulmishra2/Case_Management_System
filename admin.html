@@ -1122,68 +1122,193 @@
 
             <!-- Update Hearing tab: track hearing date and status updates -->
             <div id="hearing" class="tab">
-                <div class="form-container">
+                <div class="form-container hearing-tab-container">
                     <div class="section-header-row">
-                        <div>
-                            <h3>📅 Update Case Hearing</h3>
-                            <p class="section-subtitle">Set next hearing date, court appearance schedule, and hearing stage/process.</p>
+                        <div class="section-title-box">
+                            <div class="section-icon-badge">📅</div>
+                            <div>
+                                <h3>Update Case Hearing & Forward Next Date</h3>
+                                <p class="section-subtitle">Record court proceedings, manage hearing history, and forward the next appearance date with quick presets.</p>
+                            </div>
                         </div>
                     </div>
-                    <form id="updateHearingForm">
-                        <div class="form-grid-2col">
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="hearingCaseSelect">Select Undated Case (Cases without scheduled hearing)</label>
-                                <select id="hearingCaseSelect" class="form-select">
-                                    <option value="">-- Choose Undated Case from List --</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="hearingCaseNo">Case Number</label>
-                                <input type="text" id="hearingCaseNo" placeholder="Enter Case Number" required>
-                                <small id="hearingCaseHelp" style="display: block; margin-top: 4px; color: #64748b;">Select an undated case from dropdown above, or type any case number directly.</small>
-                            </div>
 
-                            <!-- Selected Case Details with Explicit Form Labels: Case Name, Court, Previous Date, Process -->
-                            <div id="hearingCaseInfoCard" class="hearing-selected-case-box" style="grid-column: 1 / -1;">
-                                <div class="hearing-box-header">
-                                    <span style="font-size: 13px; font-weight: 700; color: #1e293b;">📋 Selected Case Summary</span>
-                                    <span id="hearingInfoBadge" class="case-badge civil" style="display: none;">CIVIL</span>
-                                </div>
-                                <div class="form-grid-2col" style="margin-top: 10px; margin-bottom: 0;">
-                                    <div class="form-group">
-                                        <label for="hearingInfoCaseName">Case Name</label>
-                                        <input type="text" id="hearingInfoCaseName" readonly class="locked-input" value="—" placeholder="No case selected">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="hearingInfoCourt">Court</label>
-                                        <input type="text" id="hearingInfoCourt" readonly class="locked-input" value="—" placeholder="Court name">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="hearingInfoPrevDate">Previous Hearing Date</label>
-                                        <div style="display:flex; align-items:center; gap:6px;">
-                                            <input type="text" id="hearingInfoPrevDate" readonly class="locked-input highlight-date-input" value="—" placeholder="Previous hearing date" style="flex:1;">
-                                            <input type="date" id="hearingInfoPrevDateEdit" class="locked-input" style="display:none; flex:1;" title="Set correct previous hearing date">
-                                            <button type="button" id="editPrevDateBtn" title="Edit previous date" onclick="toggleEditPrevDate()" style="flex-shrink:0; padding:5px 9px; font-size:13px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; color:#475569;" title="Edit">✏️</button>
-                                            <button type="button" id="savePrevDateBtn" onclick="savePrevDateEdit()" style="display:none; flex-shrink:0; padding:5px 9px; font-size:13px; background:#4f46e5; color:#fff; border:none; border-radius:6px; cursor:pointer;">✔ Save</button>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="hearingInfoPrevProcess">Previous Process / Stage</label>
-                                        <input type="text" id="hearingInfoPrevProcess" readonly class="locked-input" value="—" placeholder="Previous process">
-                                    </div>
+                    <form id="updateHearingForm" class="hearing-forward-form">
+                        <!-- Step 1: Select or Lookup Case -->
+                        <div class="hearing-step-card">
+                            <div class="hearing-step-header">
+                                <span class="hearing-step-num">1</span>
+                                <div>
+                                    <h4 class="hearing-step-title">Select Case for Hearing Update</h4>
+                                    <p class="hearing-step-desc">Choose an undated case or any active case to forward to its next court date.</p>
                                 </div>
                             </div>
-
-                            <div class="form-group">
-                                <label for="hearingDate">New Hearing Date</label>
-                                <input type="date" id="hearingDate" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="hearingProcess">New Process / Stage</label>
-                                <input type="text" id="hearingProcess" placeholder="e.g. Arguments, Evidence, Notice, Bail" required>
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="hearingCaseSelect">Select from Active Cases List</label>
+                                    <select id="hearingCaseSelect" class="form-select">
+                                        <option value="">-- Choose Case from List --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="hearingCaseNo">Or Type / Search Case Number</label>
+                                    <input type="text" id="hearingCaseNo" placeholder="e.g. CIV-2026-001 or CR-2026-003" required>
+                                    <small id="hearingCaseHelp" style="display: block; margin-top: 4px; color: #64748b;">Type case number to instantly load case details.</small>
+                                </div>
                             </div>
                         </div>
-                        <button type="submit" id="hearingSubmitBtn" class="primary-btn form-submit-btn">📅 Save Hearing Schedule</button>
+
+                        <!-- Step 2: Hearing Progression Comparison View -->
+                        <div id="hearingCaseInfoCard" class="hearing-progression-card">
+                            <div class="hearing-box-header">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 14px; font-weight: 700; color: #1e293b;">📋 Case Hearing Progression</span>
+                                    <span id="hearingInfoBadge" class="case-badge civil" style="display: none;">CIVIL</span>
+                                </div>
+                                <span id="hearingCaseClientTag" class="hearing-client-pill">Client: —</span>
+                            </div>
+
+                            <div class="hearing-progression-grid">
+                                <!-- Previous / Current Appearance Box -->
+                                <div class="hearing-timeline-box prev-box">
+                                    <div class="timeline-box-tag">📌 Previous / Current Date (पिछली तारीख)</div>
+                                    <div class="timeline-date-display" id="hearingPrevDateDisplay">—</div>
+                                    <div class="timeline-meta-row">
+                                        <span class="timeline-meta-label">Stage:</span>
+                                        <span class="timeline-meta-val" id="hearingInfoPrevProcess">—</span>
+                                    </div>
+                                    <div class="timeline-meta-row">
+                                        <span class="timeline-meta-label">Court:</span>
+                                        <span class="timeline-meta-val" id="hearingInfoCourt">—</span>
+                                    </div>
+                                    <div class="timeline-meta-row">
+                                        <span class="timeline-meta-label">Case:</span>
+                                        <span class="timeline-meta-val" id="hearingInfoCaseName">—</span>
+                                    </div>
+                                    <div class="prev-edit-wrapper" style="margin-top: 8px;">
+                                        <input type="text" id="hearingInfoPrevDate" readonly class="locked-input highlight-date-input" value="—" style="display:none;">
+                                        <input type="date" id="hearingInfoPrevDateEdit" class="form-input" style="display:none; padding:4px 8px; font-size:12px;" title="Set correct previous hearing date">
+                                        <button type="button" id="editPrevDateBtn" title="Correct previous date" onclick="toggleEditPrevDate()" class="prev-date-edit-btn">✏️ Edit Previous Date</button>
+                                        <button type="button" id="savePrevDateBtn" onclick="savePrevDateEdit()" class="prev-date-save-btn" style="display:none;">✔ Save</button>
+                                    </div>
+                                </div>
+
+                                <!-- Arrow Indicator -->
+                                <div class="hearing-arrow-divider">
+                                    <div class="arrow-circle">➔</div>
+                                    <span class="arrow-label">Forward To</span>
+                                </div>
+
+                                <!-- Forwarded Next Appearance Box -->
+                                <div class="hearing-timeline-box next-box">
+                                    <div class="timeline-box-tag next-tag">🎯 Forwarded Next Date (अगली तारीख)</div>
+                                    <div class="timeline-date-display next-date" id="hearingNextDateDisplay">Select Date Below</div>
+                                    <div class="timeline-meta-row">
+                                        <span class="timeline-meta-label">Next Stage:</span>
+                                        <span class="timeline-meta-val" id="hearingNextProcessDisplay">—</span>
+                                    </div>
+                                    <div class="timeline-meta-row">
+                                        <span class="timeline-meta-label">Day & Time:</span>
+                                        <span class="timeline-meta-val highlight" id="hearingNextDayNameDisplay">Choose date below</span>
+                                    </div>
+                                    <div class="timeline-meta-row">
+                                        <span class="timeline-meta-label">Interval:</span>
+                                        <span class="timeline-meta-val" id="hearingIntervalDisplay">—</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Forward Next Hearing Date with Shortcuts -->
+                        <div class="hearing-step-card">
+                            <div class="hearing-step-header">
+                                <span class="hearing-step-num">2</span>
+                                <div>
+                                    <h4 class="hearing-step-title">Forward Next Hearing Date (अगली तारीख चुनें)</h4>
+                                    <p class="hearing-step-desc">Pick exact date or use 1-click quick forwarding shortcuts.</p>
+                                </div>
+                            </div>
+
+                            <!-- Fast Date Presets Toolbar -->
+                            <div class="hearing-presets-bar">
+                                <span class="presets-label">⚡ Quick Date Presets:</span>
+                                <div class="presets-buttons-wrap">
+                                    <button type="button" class="preset-pill" onclick="setHearingDateOffset(7)">⚡ +1 Week (7 Days)</button>
+                                    <button type="button" class="preset-pill" onclick="setHearingDateOffset(14)">📋 +2 Weeks (14 Days)</button>
+                                    <button type="button" class="preset-pill" onclick="setHearingDateOffset(21)">🗓️ +3 Weeks (21 Days)</button>
+                                    <button type="button" class="preset-pill" onclick="setHearingDateOffset(30)">📅 +1 Month (30 Days)</button>
+                                    <button type="button" class="preset-pill" onclick="setHearingDateOffset(60)">⏳ +2 Months (60 Days)</button>
+                                    <button type="button" class="preset-pill" onclick="setHearingDateOffset(1)">🎯 Tomorrow</button>
+                                    <button type="button" class="preset-pill" onclick="setHearingDateOffset(0)">📌 Today</button>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-2col" style="margin-top: 14px;">
+                                <div class="form-group">
+                                    <label for="hearingDate" style="font-weight: 700; color: #1e293b;">📅 Next Hearing Date <span style="color:#ef4444;">*</span></label>
+                                    <input type="date" id="hearingDate" required class="hearing-date-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hearingDateReadable">Selected Date Preview (Formatted)</label>
+                                    <input type="text" id="hearingDateReadable" readonly class="locked-input highlight-date-input" value="—" placeholder="Choose date to see preview">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Hearing Stage / Court Process with Quick Legal Pills -->
+                        <div class="hearing-step-card">
+                            <div class="hearing-step-header">
+                                <span class="hearing-step-num">3</span>
+                                <div>
+                                    <h4 class="hearing-step-title">Next Hearing Stage / Process (न्यायालयीन प्रक्रिया)</h4>
+                                    <p class="hearing-step-desc">Select court purpose or type specific hearing order.</p>
+                                </div>
+                            </div>
+
+                            <!-- Common Indian Court Stage Pills -->
+                            <div class="hearing-stage-presets-bar">
+                                <span class="presets-label">⚖️ Common Court Stages (Click to fill):</span>
+                                <div class="stage-pills-wrap">
+                                    <button type="button" class="stage-pill" onclick="setHearingStagePreset('Arguments / अंतिम बहस')">📋 Arguments (बहस)</button>
+                                    <button type="button" class="stage-pill" onclick="setHearingStagePreset('Evidence / साक्ष्य-गवाही')">📑 Evidence (साक्ष्य)</button>
+                                    <button type="button" class="stage-pill" onclick="setHearingStagePreset('Notice / Summons (नोटिस-समन)')">✉️ Notice (समन)</button>
+                                    <button type="button" class="stage-pill" onclick="setHearingStagePreset('Bail Hearing / ज़मानत सुनवाई')">⚖️ Bail Hearing (ज़मानत)</button>
+                                    <button type="button" class="stage-pill" onclick="setHearingStagePreset('Written Statement / जवाबदावा')">📝 Written Statement (W.S.)</button>
+                                    <button type="button" class="stage-pill" onclick="setHearingStagePreset('Framing of Issues / तनकीहात')">⚖️ Framing of Issues (तनकीहात)</button>
+                                    <button type="button" class="stage-pill" onclick="setHearingStagePreset('Cross Examination / जिरह')">🔍 Cross Examination (जिरह)</button>
+                                    <button type="button" class="stage-pill" onclick="setHearingStagePreset('Final Order / फैसला')">🏁 Final Order (फैसला)</button>
+                                    <button type="button" class="stage-pill" onclick="setHearingStagePreset('Compliance / अनुपालन')">✅ Compliance (अनुपालन)</button>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-2col" style="margin-top: 14px;">
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="hearingProcess" style="font-weight: 700; color: #1e293b;">Hearing Process / Stage Description <span style="color:#ef4444;">*</span></label>
+                                    <input type="text" id="hearingProcess" placeholder="e.g. Arguments, Evidence, Notice, Bail Hearing, Written Statement" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Optional Order & Session Notes -->
+                        <div class="hearing-step-card">
+                            <div class="hearing-step-header">
+                                <span class="hearing-step-num">4</span>
+                                <div>
+                                    <h4 class="hearing-step-title">Session Proceedings & Order Summary (Optional)</h4>
+                                    <p class="hearing-step-desc">Record court order summary, bench remarks, or next action items.</p>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 10px;">
+                                <label for="hearingActionTaken">Action Taken / Court Order Summary</label>
+                                <textarea id="hearingActionTaken" rows="2" placeholder="e.g. Defendant filed written statement. Court granted 2 weeks for counter affidavit." style="resize:vertical;"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="hearing-submit-row">
+                            <button type="submit" id="hearingSubmitBtn" class="primary-btn form-submit-btn hearing-big-submit">
+                                📅 Save Hearing & Forward Next Date
+                            </button>
+                        </div>
                         <p id="hearingStatus" class="update-status-msg"></p>
                     </form>
 
@@ -1192,7 +1317,7 @@
                         <div class="whatsapp-card-content">
                             <div class="whatsapp-icon-box">💬</div>
                             <div class="whatsapp-info">
-                                <h4>Send WhatsApp Notice to Client</h4>
+                                <h4>Send WhatsApp Court Notice to Client</h4>
                                 <p id="whatsappClientSummary">Notify client with the newly scheduled hearing date and stage.</p>
                             </div>
                         </div>
