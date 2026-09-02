@@ -430,7 +430,8 @@ async function addCaseToSupabase(newCase) {
           client_name: newCase.clientName,
           client_number: newCase.clientNumber,
           next_hearing: null,
-          case_status: 'Pending'
+          case_status: 'Pending',
+          remark: newCase.remark || ''
         };
         let { error } = await supabaseClient.from('criminalcases').insert([{
           ...payload,
@@ -464,7 +465,8 @@ async function addCaseToSupabase(newCase) {
           client_name: newCase.clientName,
           client_number: newCase.clientNumber,
           next_hearing: null,
-          case_status: 'Pending'
+          case_status: 'Pending',
+          remark: newCase.remark || ''
         };
         let { error } = await supabaseClient.from('civilcases').insert([{
           ...payload,
@@ -1552,7 +1554,9 @@ function renderGuestTable(searchText = '') {
       item.defendant,
       item.victimName,
       item.accusedName,
-      item.courtName
+      item.courtName,
+      item.partyName,
+      item.remark
     ].filter(Boolean).join(' ').toLowerCase();
     return haystack.includes(query);
   });
@@ -2152,7 +2156,7 @@ function filterCaseTables(forceShowAll = false) {
   }
 
   if (matches.length === 0) {
-    resultsBody.innerHTML = '<tr><td colspan="8" class="no-results">No cases found matching the specified filters. Try clearing or changing your filters.</td></tr>';
+    resultsBody.innerHTML = '<tr><td colspan="9" class="no-results">No cases found matching the specified filters. Try clearing or changing your filters.</td></tr>';
     renderSelectedCaseDetails(null);
     return;
   }
@@ -2172,11 +2176,16 @@ function filterCaseTables(forceShowAll = false) {
       ? '<span class="status-badge disposed">✅ Disposed</span>'
       : '<span class="status-badge pending">⏳ Pending</span>';
     const nextHearing = formatDateDMY(item.nextHearing);
+    const remark = item.remark || item.remarks || '';
+    const remarkHtml = remark
+      ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}">📝 ${escapeHtml(remark)}</span>`
+      : '<span style="color: #94a3b8;">—</span>';
 
     tr.innerHTML = `
       <td style="text-align: center;"><strong>${index + 1}</strong></td>
       <td class="copyable-case-no" title="Double-click to copy Case Number"><strong>${escapeHtml(caseNumber)}</strong></td>
       <td>${escapeHtml(caseName)}</td>
+      <td class="case-remark-cell">${remarkHtml}</td>
       <td>${escapeHtml(clientName)}</td>
       <td><span class="case-badge ${caseType}">${caseType.toUpperCase()}</span></td>
       <td>${escapeHtml(courtName)}</td>
@@ -2812,17 +2821,22 @@ function refreshAllCaseTables() {
   const allCasesTable = document.querySelector('#allCasesTable tbody');
   if (allCasesTable) {
     if (allCaseRecords.length === 0) {
-      allCasesTable.innerHTML = '<tr><td colspan="7" class="no-results">No cases registered.</td></tr>';
+      allCasesTable.innerHTML = '<tr><td colspan="8" class="no-results">No cases registered.</td></tr>';
     } else {
       allCasesTable.innerHTML = allCaseRecords.map(c => {
         const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
         const statusBadge = isDisposed
           ? '<span class="status-badge disposed">✅ Disposed</span>'
           : '<span class="status-badge pending">⏳ Pending</span>';
+        const remark = c.remark || c.remarks || '';
+        const remarkHtml = remark
+          ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}">📝 ${escapeHtml(remark)}</span>`
+          : '<span style="color: #94a3b8;">—</span>';
         return `
           <tr>
             <td><strong>${c.caseNo || c.criminalCaseNumber}</strong></td>
             <td>${c.caseName}</td>
+            <td class="case-remark-cell">${remarkHtml}</td>
             <td>${c.clientName}</td>
             <td><span class="case-badge ${c.caseType || 'civil'}">${(c.caseType || 'Civil').toUpperCase()}</span></td>
             <td>${statusBadge}</td>
@@ -4808,7 +4822,8 @@ function initializeApp() {
         partyName: accusedName,
         nextHearing: '—',
         caseStatus: 'Pending',
-        docLink: document.getElementById('criminalDocLink')?.value?.trim() || ''
+        docLink: document.getElementById('criminalDocLink')?.value?.trim() || '',
+        remark: document.getElementById('criminalCaseRemark')?.value?.trim() || ''
       };
     } else {
       const caseNo = document.getElementById('caseNo')?.value?.trim();
@@ -4834,7 +4849,8 @@ function initializeApp() {
         partyName: defendant || plaintiff,
         nextHearing: '—',
         caseStatus: 'Pending',
-        docLink: document.getElementById('caseDocLink')?.value?.trim() || ''
+        docLink: document.getElementById('caseDocLink')?.value?.trim() || '',
+        remark: document.getElementById('caseRemark')?.value?.trim() || ''
       };
     }
 
@@ -6275,8 +6291,86 @@ window.closeDbModal = closeDbModal;
 window.renderSearchCourtFilterOptions = renderSearchCourtFilterOptions;
 window.filterCaseTables = filterCaseTables;
 
+/* ==============================================================================
+   Progressive Web App (PWA) & Mobile Installation Management
+   ============================================================================== */
+let deferredInstallPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => {
+        console.log('✅ CMS Legal Service Worker registered with scope:', reg.scope);
+      })
+      .catch((err) => {
+        console.warn('⚠️ CMS Legal Service Worker registration note:', err);
+      });
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  console.log('📱 Captured beforeinstallprompt event');
+  updateInstallUiState(true);
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('🎉 PWA application successfully installed!');
+  deferredInstallPrompt = null;
+  updateInstallUiState(false);
+  alert('🎉 Case Management System has been added to your Home Screen!');
+});
+
+function updateInstallUiState(canPrompt) {
+  const installBtns = document.querySelectorAll('.pwa-install-banner-btn, .header-install-btn');
+  installBtns.forEach(btn => {
+    if (canPrompt) {
+      btn.style.display = 'inline-flex';
+    }
+  });
+}
+
+async function triggerPwaInstall() {
+  if (deferredInstallPrompt) {
+    try {
+      deferredInstallPrompt.prompt();
+      const choiceResult = await deferredInstallPrompt.userChoice;
+      console.log(`Install prompt outcome: ${choiceResult.outcome}`);
+      if (choiceResult.outcome === 'accepted') {
+        deferredInstallPrompt = null;
+        updateInstallUiState(false);
+      }
+    } catch (err) {
+      console.warn('Install prompt error:', err);
+      openPwaGuideModal();
+    }
+  } else {
+    openPwaGuideModal();
+  }
+}
+
+function openPwaGuideModal() {
+  const modal = document.getElementById('pwaGuideModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+  }
+}
+
+function closePwaGuideModal() {
+  const modal = document.getElementById('pwaGuideModal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+
+window.triggerPwaInstall = triggerPwaInstall;
+window.openPwaGuideModal = openPwaGuideModal;
+window.closePwaGuideModal = closePwaGuideModal;
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
   initializeApp();
 }
+

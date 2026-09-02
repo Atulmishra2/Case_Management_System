@@ -1,0 +1,24 @@
+{
+  "name": "case_management_system",
+  "version": "1.0.0",
+  "description": "> **Digital Legal Record, Court Hearing Scheduler & Client Portal**\r > Developed by **Atul Kumar Mishra** (Advocate & Developer)\r > Chambers of **Mr. Sushil Kumar Mishra** (Senior Advocate)",
+  "main": "admin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Atulmishra2/Case_Management_System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Atulmishra2/Case_Management_System/issues"
+  },
+  "homepage": "https://github.com/Atulmishra2/Case_Management_System#readme",
+  "devDependencies": {
+    "electron": "^44.1.1"
+  }
+}
