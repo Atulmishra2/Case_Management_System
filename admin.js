@@ -899,6 +899,14 @@ function showTab(tabId, event) {
     targetTab.classList.add('active');
   }
 
+  if (tabId === 'search') {
+    filterCaseTables();
+  }
+
+  if (tabId === 'causelist') {
+    initCauseListTab();
+  }
+
   if (tabId === 'calendar') {
     renderCalendarView();
   }
@@ -1322,7 +1330,23 @@ function closeCaseHistoryModal() {
   if (modal) modal.classList.add('hidden');
 }
 
+function openCaseHistoryModalByNo(caseNo) {
+  if (!caseNo) return;
+  const q = caseNo.trim().toLowerCase();
+  const found = allCaseRecords.find(c => {
+    const num1 = (c.caseNo || '').toLowerCase();
+    const num2 = (c.criminalCaseNumber || '').toLowerCase();
+    return num1 === q || num2 === q;
+  });
+  if (found) {
+    openCaseHistoryModal(found);
+  } else {
+    alert(`Case "${caseNo}" details could not be found.`);
+  }
+}
+
 window.openCaseHistoryModal = openCaseHistoryModal;
+window.openCaseHistoryModalByNo = openCaseHistoryModalByNo;
 window.closeCaseHistoryModal = closeCaseHistoryModal;
 window.getCaseHearingHistory = getCaseHearingHistory;
 
@@ -1900,21 +1924,36 @@ window.copyCaseNumberToClipboard = copyCaseNumberToClipboard;
 function filterCaseTables(forceShowAll = false) {
   const searchInput = document.getElementById('globalSearch');
   const courtFilter = document.getElementById('searchCourtFilter');
+  const typeFilter = document.getElementById('searchTypeFilter');
+  const statusFilter = document.getElementById('searchStatusFilter');
+  const dateFilter = document.getElementById('searchDateFilter');
+  const countBadge = document.getElementById('searchResultCountBadge');
+  const clearBtn = document.getElementById('clearSearchBtn');
+
   const query = (searchInput?.value || '').trim().toLowerCase();
   const selectedCourt = (courtFilter?.value || '').trim().toLowerCase();
+  const selectedType = (typeFilter?.value || '').trim().toLowerCase();
+  const selectedStatus = (statusFilter?.value || '').trim().toLowerCase();
+  const selectedDate = (dateFilter?.value || '').trim().toLowerCase();
+
   const resultsTable = document.querySelector('#search .search-results-table');
   const resultsBody = resultsTable?.querySelector('tbody');
-  const clearBtn = document.getElementById('clearSearchBtn');
 
   if (!resultsTable || !resultsBody) return;
 
+  const hasAnyFilter = query || selectedCourt || selectedType || selectedStatus || selectedDate;
   if (clearBtn) {
-    clearBtn.style.display = (query || selectedCourt) ? 'inline-flex' : 'none';
+    clearBtn.style.display = hasAnyFilter ? 'inline-flex' : 'none';
   }
 
   let matches = allCaseRecords;
 
-  // 1. Filter by Court
+  // 1. Filter by Case Type
+  if (selectedType) {
+    matches = matches.filter(c => (c.caseType || 'civil').toLowerCase() === selectedType);
+  }
+
+  // 2. Filter by Court
   if (selectedCourt) {
     matches = matches.filter(c => {
       const courtVal = (c.courtName || c.criminalCourtName || '').trim().toLowerCase();
@@ -1922,7 +1961,37 @@ function filterCaseTables(forceShowAll = false) {
     });
   }
 
-  // 2. Filter by Search Query
+  // 3. Filter by Case Status
+  if (selectedStatus) {
+    matches = matches.filter(c => {
+      const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
+      if (selectedStatus === 'disposed') return isDisposed;
+      if (selectedStatus === 'pending') return !isDisposed;
+      return true;
+    });
+  }
+
+  // 4. Filter by Hearing Schedule
+  if (selectedDate) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (selectedDate === 'today') {
+      matches = matches.filter(c => c.nextHearing && c.nextHearing === todayStr);
+    } else if (selectedDate === 'upcoming') {
+      const weekAhead = new Date();
+      weekAhead.setDate(weekAhead.getDate() + 7);
+      const weekAheadStr = weekAhead.toISOString().split('T')[0];
+      matches = matches.filter(c => {
+        if (!c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null') return false;
+        return c.nextHearing >= todayStr && c.nextHearing <= weekAheadStr;
+      });
+    } else if (selectedDate === 'undated') {
+      matches = matches.filter(c => !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || c.nextHearing.trim() === '');
+    } else if (selectedDate === 'scheduled') {
+      matches = matches.filter(c => c.nextHearing && c.nextHearing !== '—' && c.nextHearing !== 'null' && c.nextHearing.trim() !== '');
+    }
+  }
+
+  // 5. Filter by Search Query
   if (query) {
     matches = matches.filter(c => {
       const haystack = [
@@ -1935,20 +2004,29 @@ function filterCaseTables(forceShowAll = false) {
         c.accusedName,
         c.clientName,
         c.criminalClientName,
+        c.clientNumber,
+        c.criminalClientNumber,
         c.courtName,
         c.criminalCourtName,
         c.policeStation,
         c.crimeSection,
         c.crimeNumber,
-        c.caseType
+        c.caseType,
+        c.caseStatus,
+        c.remark,
+        c.hearingProcess
       ].filter(Boolean).join(' ').toLowerCase();
 
       return haystack.includes(query);
     });
   }
 
+  if (countBadge) {
+    countBadge.textContent = `Showing ${matches.length} of ${allCaseRecords.length} Cases`;
+  }
+
   if (matches.length === 0) {
-    resultsBody.innerHTML = '<tr><td colspan="5" class="no-results">No cases found matching the search or court filter.</td></tr>';
+    resultsBody.innerHTML = '<tr><td colspan="8" class="no-results">No cases found matching the specified filters. Try clearing or changing your filters.</td></tr>';
     renderSelectedCaseDetails(null);
     return;
   }
@@ -1961,13 +2039,22 @@ function filterCaseTables(forceShowAll = false) {
     const caseNumber = item.caseNo || item.criminalCaseNumber || '—';
     const caseName = item.caseName || (item.plaintiff ? `${item.plaintiff} vs ${item.defendant}` : (item.victimName ? `${item.victimName} vs ${item.accusedName}` : '—'));
     const courtName = item.courtName || item.criminalCourtName || '—';
+    const clientName = item.clientName || item.criminalClientName || '—';
+    const caseType = (item.caseType || 'civil').toLowerCase();
+    const isDisposed = (item.caseStatus || '').toLowerCase().includes('dispose');
+    const statusBadge = isDisposed
+      ? '<span class="status-badge disposed">✅ Disposed</span>'
+      : '<span class="status-badge pending">⏳ Pending</span>';
     const nextHearing = formatDateDMY(item.nextHearing);
 
     tr.innerHTML = `
-      <td><strong>${index + 1}</strong></td>
-      <td class="copyable-case-no" title="Double-click to copy Case Number"><strong>${caseNumber}</strong></td>
-      <td>${caseName}</td>
-      <td>${courtName}</td>
+      <td style="text-align: center;"><strong>${index + 1}</strong></td>
+      <td class="copyable-case-no" title="Double-click to copy Case Number"><strong>${escapeHtml(caseNumber)}</strong></td>
+      <td>${escapeHtml(caseName)}</td>
+      <td>${escapeHtml(clientName)}</td>
+      <td><span class="case-badge ${caseType}">${caseType.toUpperCase()}</span></td>
+      <td>${escapeHtml(courtName)}</td>
+      <td>${statusBadge}</td>
       <td><strong>${nextHearing}</strong></td>
     `;
 
@@ -1990,6 +2077,256 @@ function filterCaseTables(forceShowAll = false) {
 
   renderSelectedCaseDetails(matches[0]);
 }
+
+window.filterCaseTables = filterCaseTables;
+
+function setQuickCaseFilter(filterType) {
+  const searchInput = document.getElementById('globalSearch');
+  const typeFilter = document.getElementById('searchTypeFilter');
+  const courtFilter = document.getElementById('searchCourtFilter');
+  const statusFilter = document.getElementById('searchStatusFilter');
+  const dateFilter = document.getElementById('searchDateFilter');
+
+  if (searchInput) searchInput.value = '';
+  if (typeFilter) typeFilter.value = '';
+  if (courtFilter) courtFilter.value = '';
+  if (statusFilter) statusFilter.value = '';
+  if (dateFilter) dateFilter.value = '';
+
+  if (filterType === 'today' && dateFilter) {
+    dateFilter.value = 'today';
+  } else if (filterType === 'undated' && dateFilter) {
+    dateFilter.value = 'undated';
+  } else if (filterType === 'pending' && statusFilter) {
+    statusFilter.value = 'pending';
+  } else if (filterType === 'disposed' && statusFilter) {
+    statusFilter.value = 'disposed';
+  }
+
+  // Update quick chip active states
+  document.querySelectorAll('.quick-filter-chip').forEach(chip => {
+    chip.classList.remove('active');
+  });
+  if (event && event.target && event.target.classList) {
+    event.target.classList.add('active');
+  }
+
+  filterCaseTables();
+}
+
+window.setQuickCaseFilter = setQuickCaseFilter;
+
+// ==============================================================================
+// My Daily Cause List & Court Appearance Board Engine
+// ==============================================================================
+
+let currentCauseListDate = '';
+let currentCauseListCourt = '';
+
+function initCauseListTab() {
+  const dateInput = document.getElementById('causeListDateInput');
+  const courtSelect = document.getElementById('causeListCourtFilterSelect');
+
+  if (!currentCauseListDate) {
+    currentCauseListDate = new Date().toISOString().split('T')[0];
+  }
+  if (dateInput) {
+    dateInput.value = currentCauseListDate;
+  }
+
+  // Populate court options for cause list filter
+  if (courtSelect) {
+    const prevVal = courtSelect.value || '';
+    courtSelect.innerHTML = '<option value="">🏛️ All Courts</option>';
+    courts.forEach(court => {
+      const opt = document.createElement('option');
+      opt.value = court;
+      opt.textContent = court;
+      courtSelect.appendChild(opt);
+    });
+    if (prevVal) courtSelect.value = prevVal;
+  }
+
+  renderCauseListTable(currentCauseListDate, courtSelect ? courtSelect.value : '');
+}
+
+window.initCauseListTab = initCauseListTab;
+
+function setCauseListDateOffset(daysOffset) {
+  const target = new Date();
+  target.setDate(target.getDate() + daysOffset);
+
+  const yyyy = target.getFullYear();
+  const mm = String(target.getMonth() + 1).padStart(2, '0');
+  const dd = String(target.getDate()).padStart(2, '0');
+  currentCauseListDate = `${yyyy}-${mm}-${dd}`;
+
+  const dateInput = document.getElementById('causeListDateInput');
+  if (dateInput) {
+    dateInput.value = currentCauseListDate;
+  }
+
+  const courtSelect = document.getElementById('causeListCourtFilterSelect');
+  renderCauseListTable(currentCauseListDate, courtSelect ? courtSelect.value : '');
+}
+
+window.setCauseListDateOffset = setCauseListDateOffset;
+
+function renderCauseListTable(dateVal = currentCauseListDate, courtFilter = '') {
+  if (!dateVal) {
+    dateVal = new Date().toISOString().split('T')[0];
+  }
+  currentCauseListDate = dateVal;
+  currentCauseListCourt = (courtFilter || '').trim().toLowerCase();
+
+  const tbody = document.getElementById('causeListTableBody');
+  const bannerDateText = document.getElementById('causeListBannerDateText');
+  const bannerDayName = document.getElementById('causeListBannerDayName');
+
+  const totalBadge = document.getElementById('causeListTotalBadge');
+  const civilBadge = document.getElementById('causeListCivilBadge');
+  const criminalBadge = document.getElementById('causeListCriminalBadge');
+  const revenueBadge = document.getElementById('causeListRevenueBadge');
+  const navBadge = document.getElementById('causeListNavCount');
+
+  // Format date readable
+  const daysOfWeek = ['Sunday (रविवार)', 'Monday (सोमवार)', 'Tuesday (मंगलवार)', 'Wednesday (बुधवार)', 'Thursday (गुरुवार)', 'Friday (शुक्रवार)', 'Saturday (शनिवार)'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const parts = dateVal.split('-');
+  const dtObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  const dayName = daysOfWeek[dtObj.getDay()];
+  const formattedLong = `${parseInt(parts[2], 10)} ${months[dtObj.getMonth()]} ${parts[0]}`;
+
+  if (bannerDateText) bannerDateText.textContent = `Daily Listed Matters — ${formattedLong}`;
+  if (bannerDayName) bannerDayName.textContent = `Court Day: ${dayName}`;
+
+  // Find all cases listed for this date
+  let listedCases = allCaseRecords.filter(c => {
+    return c.nextHearing === dateVal;
+  });
+
+  // Filter by court if selected
+  if (currentCauseListCourt) {
+    listedCases = listedCases.filter(c => {
+      const ct = (c.courtName || c.criminalCourtName || '').trim().toLowerCase();
+      return ct === currentCauseListCourt;
+    });
+  }
+
+  // Update stats
+  const civilCount = listedCases.filter(c => (c.caseType || 'civil') === 'civil').length;
+  const criminalCount = listedCases.filter(c => (c.caseType || '') === 'criminal').length;
+  const revenueCount = listedCases.filter(c => (c.caseType || '') === 'revenue').length;
+
+  if (totalBadge) totalBadge.textContent = `${listedCases.length} Total Matters Listed`;
+  if (civilBadge) civilBadge.textContent = `${civilCount} Civil`;
+  if (criminalBadge) criminalBadge.textContent = `${criminalCount} Criminal`;
+  if (revenueBadge) revenueBadge.textContent = `${revenueCount} Revenue`;
+
+  // Update sidebar today count
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayListedCount = allCaseRecords.filter(c => c.nextHearing === todayStr).length;
+  if (navBadge) navBadge.textContent = String(todayListedCount);
+
+  if (!tbody) return;
+
+  if (listedCases.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" class="no-results" style="padding: 24px;">
+          🎉 No court appearances scheduled for <strong>${formattedLong}</strong> (${dayName.split(' ')[0]}).
+          <br><small style="color:#64748b; margin-top:4px; display:inline-block;">Select a different date above or pick a preset.</small>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  // Sort by court name and then case number
+  listedCases.sort((a, b) => {
+    const courtA = (a.courtName || a.criminalCourtName || '').toUpperCase();
+    const courtB = (b.courtName || b.criminalCourtName || '').toUpperCase();
+    if (courtA !== courtB) return courtA.localeCompare(courtB);
+    const numA = (a.caseNo || a.criminalCaseNumber || '').toUpperCase();
+    const numB = (b.caseNo || b.criminalCaseNumber || '').toUpperCase();
+    return numA.localeCompare(numB);
+  });
+
+  let html = '';
+  listedCases.forEach((c, idx) => {
+    const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+    const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
+    const courtName = c.courtName || c.criminalCourtName || 'District Court';
+    const caseType = (c.caseType || 'civil').toLowerCase();
+    const stage = c.hearingProcess || c.process || 'Scheduled Hearing';
+    const clientName = c.clientName || c.criminalClientName || 'Client';
+    const clientPhone = c.clientNumber || c.criminalClientNumber || '';
+
+    html += `
+      <tr>
+        <td style="text-align: center;"><span class="court-index-badge">#${idx + 1}</span></td>
+        <td class="copyable-case-no" title="Double-click to copy Case Number"><strong>${escapeHtml(caseNumber)}</strong></td>
+        <td><strong>${escapeHtml(caseName)}</strong></td>
+        <td><span class="case-badge ${caseType}">${caseType.toUpperCase()}</span></td>
+        <td>🏛️ ${escapeHtml(courtName)}</td>
+        <td><span style="font-weight:600; color:#1e40af;">${escapeHtml(stage)}</span></td>
+        <td>
+          <div>${escapeHtml(clientName)}</div>
+          ${clientPhone ? `<small style="color:#64748b;">📞 ${escapeHtml(clientPhone)}</small>` : ''}
+        </td>
+        <td style="text-align: center; white-space: nowrap;">
+          <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View case proceedings history">📜 Details</button>
+          <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date">📅 Forward Date</button>
+          <button type="button" class="whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="Send WhatsApp court notice to client">💬</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
+
+window.renderCauseListTable = renderCauseListTable;
+
+function sendDailyCauseListWhatsApp() {
+  const dateVal = currentCauseListDate || new Date().toISOString().split('T')[0];
+  const listedCases = allCaseRecords.filter(c => c.nextHearing === dateVal);
+
+  if (listedCases.length === 0) {
+    alert(`No court hearings are scheduled for ${formatDateDMY(dateVal)}.`);
+    return;
+  }
+
+  let msg = `*⚖️ CHAMBERS OF ATUL KUMAR MISHRA*\n`;
+  msg += `*DAILY COURT APPEARANCE BOARD / CAUSE LIST*\n`;
+  msg += `📅 *Date:* ${formatDateDMY(dateVal)}\n`;
+  msg += `📋 *Total Matters:* ${listedCases.length}\n`;
+  msg += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+  listedCases.forEach((c, idx) => {
+    const num = c.caseNo || c.criminalCaseNumber || 'Case';
+    const title = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : ''));
+    const court = c.courtName || c.criminalCourtName || 'District Court';
+    const stage = c.hearingProcess || 'Scheduled Hearing';
+    const client = c.clientName || c.criminalClientName || '';
+
+    msg += `*${idx + 1}. [${(c.caseType || 'Civil').toUpperCase()}] ${num}*\n`;
+    msg += `   • *Parties:* ${title}\n`;
+    msg += `   • *Court:* ${court}\n`;
+    msg += `   • *Stage:* ${stage}\n`;
+    if (client) msg += `   • *Client:* ${client}\n`;
+    msg += `\n`;
+  });
+
+  msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `_Advocate Atul Kumar Mishra_\nChambers & Legal Consultancy`;
+
+  const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+  window.open(waUrl, '_blank');
+}
+
+window.sendDailyCauseListWhatsApp = sendDailyCauseListWhatsApp;
+
 
 // ==============================================================================
 // Dashboard Tables Rendering
@@ -2175,10 +2512,13 @@ function refreshAllCaseTables() {
   // 8. Guest Mode Table
   renderGuestTable();
 
-  // 9. Global Search Filter
+  // 9. My Cases Filter Table
   filterCaseTables();
 
-  // 8. Interactive Calendar Scheduler
+  // 10. My Daily Cause List
+  renderCauseListTable();
+
+  // 11. Interactive Calendar Scheduler
   renderCalendarView();
 
   // 10. Populate Hearing Case Dropdown
@@ -3737,6 +4077,19 @@ function renderSearchCourtFilterOptions() {
     });
     if (prevCauseVal) causeListFilter.value = prevCauseVal;
   }
+
+  const causeListMainFilter = document.getElementById('causeListCourtFilterSelect');
+  if (causeListMainFilter) {
+    const prevMainVal = causeListMainFilter.value || '';
+    causeListMainFilter.innerHTML = '<option value="">🏛️ All Courts</option>';
+    Array.from(uniqueCourts).sort().forEach(court => {
+      const opt = document.createElement('option');
+      opt.value = court;
+      opt.textContent = court;
+      causeListMainFilter.appendChild(opt);
+    });
+    if (prevMainVal) causeListMainFilter.value = prevMainVal;
+  }
 }
 
 function renderCourtsTable() {
@@ -3917,13 +4270,19 @@ function initializeApp() {
     searchCourtFilter.addEventListener('change', () => filterCaseTables());
   }
 
-  const showAllCasesBtn = document.getElementById('showAllCasesBtn');
-  if (showAllCasesBtn) {
-    showAllCasesBtn.addEventListener('click', () => {
-      if (searchInput) searchInput.value = '';
-      if (searchCourtFilter) searchCourtFilter.value = '';
-      filterCaseTables();
-    });
+  const searchTypeFilter = document.getElementById('searchTypeFilter');
+  if (searchTypeFilter) {
+    searchTypeFilter.addEventListener('change', () => filterCaseTables());
+  }
+
+  const searchStatusFilter = document.getElementById('searchStatusFilter');
+  if (searchStatusFilter) {
+    searchStatusFilter.addEventListener('change', () => filterCaseTables());
+  }
+
+  const searchDateFilter = document.getElementById('searchDateFilter');
+  if (searchDateFilter) {
+    searchDateFilter.addEventListener('change', () => filterCaseTables());
   }
 
   const clearSearchBtn = document.getElementById('clearSearchBtn');
@@ -3931,7 +4290,25 @@ function initializeApp() {
     clearSearchBtn.addEventListener('click', () => {
       if (searchInput) searchInput.value = '';
       if (searchCourtFilter) searchCourtFilter.value = '';
+      if (searchTypeFilter) searchTypeFilter.value = '';
+      if (searchStatusFilter) searchStatusFilter.value = '';
+      if (searchDateFilter) searchDateFilter.value = '';
+      document.querySelectorAll('.quick-filter-chip').forEach(chip => chip.classList.remove('active'));
       filterCaseTables();
+    });
+  }
+
+  // Cause List Controls
+  const causeListDateInput = document.getElementById('causeListDateInput');
+  const causeListCourtFilterSelect = document.getElementById('causeListCourtFilterSelect');
+  if (causeListDateInput) {
+    causeListDateInput.addEventListener('change', (e) => {
+      renderCauseListTable(e.target.value, causeListCourtFilterSelect ? causeListCourtFilterSelect.value : '');
+    });
+  }
+  if (causeListCourtFilterSelect) {
+    causeListCourtFilterSelect.addEventListener('change', (e) => {
+      renderCauseListTable(causeListDateInput ? causeListDateInput.value : '', e.target.value);
     });
   }
 

@@ -205,7 +205,10 @@
                 </div>
             </div>
             <h2>Overview & Schedule</h2>
-            <a href="#" onclick="showTab('search', event)">🔎 Search Cases</a>
+            <a href="#" onclick="showTab('search', event)">📁 My Cases</a>
+            <a href="#" onclick="showTab('causelist', event)">
+                📜 My Cause List <span class="badge badge-upcoming" id="causeListNavCount">0</span>
+            </a>
             <a href="#" onclick="showTab('upcoming', event)">
                 📅 Upcoming (7 Days) <span class="badge badge-upcoming" id="upcomingNavCount">0</span>
             </a>
@@ -248,41 +251,96 @@
 
         <!-- Main content area where each admin tab is displayed -->
         <div class="content">
-            <!-- Search tab: used to search pending or existing cases by number or party name -->
+            <!-- My Cases tab: complete searchable and filterable registry of all cases -->
             <div id="search" class="tab active">
                 <div class="search-header">
-                    <h2>Search Bar & Dashboard</h2>
+                    <div>
+                        <h2>📁 My Cases Registry</h2>
+                        <p class="section-subtitle">Search, filter, and inspect your civil, criminal, and revenue cases across all courts.</p>
+                    </div>
                     <div class="search-header-actions">
-                        <button type="button" id="exportCsvBtn" class="search-action-btn secondary" title="Export all cases to Excel/CSV spreadsheet">📥 Export CSV</button>
+                        <button type="button" id="exportCsvBtn" class="search-action-btn secondary" title="Export all filtered cases to Excel/CSV spreadsheet">📥 Export CSV</button>
                     </div>
                 </div>
 
-                <div class="search-panel">
-                    <div class="search-input-wrapper">
-                        <input type="text" id="globalSearch" placeholder="Search by case number, party name, client, or court..." aria-label="Search cases">
-                        <select id="searchCourtFilter" class="search-filter-select" aria-label="Filter by Court">
-                            <option value="">🏛️ All Courts</option>
-                        </select>
-                        <button type="button" id="showAllCasesBtn" class="search-action-btn">📋 Show All Cases</button>
-                        <button type="button" id="clearSearchBtn" class="search-action-btn secondary" style="display: none;">✕ Clear</button>
+                <!-- Comprehensive Multi-Filter Bar in Header -->
+                <div class="my-cases-filter-card">
+                    <div class="filter-main-row">
+                        <div class="filter-search-wrap">
+                            <input type="text" id="globalSearch" placeholder="🔍 Search by Case No, Parties, Client, Sections, Police Station, Remarks..." aria-label="Search cases">
+                        </div>
+                    </div>
+                    <div class="filter-controls-row">
+                        <div class="filter-item">
+                            <label for="searchTypeFilter" class="filter-label">Case Type:</label>
+                            <select id="searchTypeFilter" class="filter-select">
+                                <option value="">⚖️ All Case Types</option>
+                                <option value="civil">⚖️ Civil Cases</option>
+                                <option value="criminal">🔒 Criminal Cases</option>
+                                <option value="revenue">💰 Revenue Cases</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="searchCourtFilter" class="filter-label">Court:</label>
+                            <select id="searchCourtFilter" class="filter-select">
+                                <option value="">🏛️ All Courts</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="searchStatusFilter" class="filter-label">Status:</label>
+                            <select id="searchStatusFilter" class="filter-select">
+                                <option value="">📋 All Statuses</option>
+                                <option value="pending">⏳ Pending Cases</option>
+                                <option value="disposed">✅ Disposed Cases</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="searchDateFilter" class="filter-label">Hearing Schedule:</label>
+                            <select id="searchDateFilter" class="filter-select">
+                                <option value="">📅 All Dates</option>
+                                <option value="today">📌 Today's Hearings</option>
+                                <option value="upcoming">⚡ Next 7 Days</option>
+                                <option value="undated">❓ Undated (No hearing date)</option>
+                                <option value="scheduled">🗓️ All Scheduled</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions-wrap">
+                            <button type="button" id="clearSearchBtn" class="filter-reset-btn" title="Reset all filters">✕ Reset</button>
+                        </div>
+                    </div>
+                    <div class="filter-stats-bar">
+                        <span id="searchResultCountBadge" class="filter-counter-badge">Showing 0 of 0 Cases</span>
+                        <div class="filter-quick-chips">
+                            <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('all')">All Cases</button>
+                            <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('today')">📌 Today</button>
+                            <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('undated')">❓ Undated</button>
+                            <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('pending')">⏳ Pending</button>
+                            <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('disposed')">✅ Disposed</button>
+                        </div>
                     </div>
                 </div>
+
                 <div class="search-results-panel">
-                    <h3>Search Results</h3>
+                    <div class="results-panel-header">
+                        <h3>📋 Cases List</h3>
+                    </div>
                     <div class="table-responsive">
-                        <table class="search-results-table" border="1" width="100%" cellpadding="8">
+                        <table class="search-results-table case-table" border="1" width="100%" cellpadding="8">
                             <thead>
                                 <tr>
-                                    <th style="width: 70px; text-align: center;">Sr. No.</th>
+                                    <th style="width: 60px; text-align: center;">Sr. No.</th>
                                     <th>Case Number</th>
-                                    <th>Case Name</th>
+                                    <th>Case Title / Parties</th>
+                                    <th>Client</th>
+                                    <th>Type</th>
                                     <th>Court</th>
-                                    <th>Next Date</th>
+                                    <th>Status</th>
+                                    <th>Next Hearing</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="5" class="no-results">Loading cases...</td>
+                                    <td colspan="8" class="no-results">Loading cases...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -404,6 +462,98 @@
                             <button type="button" id="detailHearingBtn" class="detail-action-btn secondary">📅 Update Hearing</button>
                             <button type="button" id="detailWhatsAppBtn" class="detail-action-btn whatsapp-action-btn">💬 Send WhatsApp Notice</button>
                             <button type="button" id="detailHistoryBtn" class="detail-action-btn history-action-btn">📜 Case History</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Cause List Tab: Court Appearance Board & Daily Matters Schedule -->
+            <div id="causelist" class="tab">
+                <div class="causelist-container">
+                    <div class="section-header-row">
+                        <div class="section-title-box">
+                            <div class="section-icon-badge">📜</div>
+                            <div>
+                                <h3>My Daily Cause List / Court Appearance Board</h3>
+                                <p class="section-subtitle">Chambers daily appearance register, court rooms, listed matters, and proceedings board.</p>
+                            </div>
+                        </div>
+                        <div class="causelist-header-actions">
+                            <button type="button" id="causeListPrintActionBtn" class="primary-btn causelist-btn" onclick="printDailyCauseList()" title="Print formal Cause List document on A4 / PDF">
+                                🖨️ Print Cause List (A4)
+                            </button>
+                            <button type="button" id="causeListWhatsAppActionBtn" class="whatsapp-send-btn causelist-btn" onclick="sendDailyCauseListWhatsApp()" title="Share today's cause list summary on WhatsApp">
+                                💬 WhatsApp Daily Schedule
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cause List Controls Toolbar -->
+                    <div class="causelist-toolbar-card">
+                        <div class="causelist-toolbar-row">
+                            <div class="causelist-date-selector">
+                                <label for="causeListDateInput" class="causelist-toolbar-label">Select Appearance Date:</label>
+                                <div class="causelist-date-input-wrap">
+                                    <input type="date" id="causeListDateInput" class="causelist-date-input">
+                                </div>
+                            </div>
+                            <div class="causelist-presets-wrap">
+                                <label class="causelist-toolbar-label">Quick Date:</label>
+                                <div class="causelist-preset-buttons">
+                                    <button type="button" class="preset-pill" onclick="setCauseListDateOffset(0)">📌 Today</button>
+                                    <button type="button" class="preset-pill" onclick="setCauseListDateOffset(1)">⚡ Tomorrow</button>
+                                    <button type="button" class="preset-pill" onclick="setCauseListDateOffset(2)">🗓️ In 2 Days</button>
+                                    <button type="button" class="preset-pill" onclick="setCauseListDateOffset(7)">📅 Next Week</button>
+                                </div>
+                            </div>
+                            <div class="causelist-court-filter-wrap">
+                                <label for="causeListCourtFilterSelect" class="causelist-toolbar-label">Filter by Court:</label>
+                                <select id="causeListCourtFilterSelect" class="form-select causelist-select">
+                                    <option value="">🏛️ All Courts</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cause List Summary Badges & Stats Bar -->
+                    <div class="causelist-stats-bar">
+                        <div class="causelist-date-banner">
+                            <span class="banner-icon">⚖️</span>
+                            <div>
+                                <h4 id="causeListBannerDateText">Listed Matters for Today</h4>
+                                <span id="causeListBannerDayName" class="banner-subtext">Loading day...</span>
+                            </div>
+                        </div>
+                        <div class="causelist-counters-group">
+                            <span id="causeListTotalBadge" class="causelist-stat-pill total">0 Total Matters</span>
+                            <span id="causeListCivilBadge" class="causelist-stat-pill civil">0 Civil</span>
+                            <span id="causeListCriminalBadge" class="causelist-stat-pill criminal">0 Criminal</span>
+                            <span id="causeListRevenueBadge" class="causelist-stat-pill revenue">0 Revenue</span>
+                        </div>
+                    </div>
+
+                    <!-- Daily Cause List Table -->
+                    <div class="causelist-table-card">
+                        <div class="table-responsive">
+                            <table id="causeListMainTable" class="case-table causelist-table" border="1" width="100%" cellpadding="8">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px; text-align: center;">Item #</th>
+                                        <th style="width: 130px;">Case Number</th>
+                                        <th>Case Title / Parties</th>
+                                        <th style="width: 100px;">Type</th>
+                                        <th>Court & Complex</th>
+                                        <th>Stage / Purpose</th>
+                                        <th>Client & Contact</th>
+                                        <th style="text-align: center; width: 140px;">Quick Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="causeListTableBody">
+                                    <tr>
+                                        <td colspan="8" class="no-results">Loading daily cause list...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
