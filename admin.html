@@ -239,6 +239,9 @@
                 ✅ Disposed Cases <span class="badge badge-disposed" id="disposedCount">0</span>
             </a>
 
+            <h2>Database & Cloud Sync</h2>
+            <a href="#" onclick="showTab('dbmanager', event)">🗄️ Supabase DB Manager</a>
+
             <h2>Settings</h2>
             <a href="#" onclick="showTab('settings', event)">🔐 Change Password</a>
         </div>
@@ -1102,11 +1105,11 @@
                                     <input id="updateCrimeDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="updateNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                    <label for="updateCriminalNextHearingDate" style="display:flex; align-items:center; gap:6px;">
                                         📅 Fix Next Hearing Date
                                         <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
                                     </label>
-                                    <input id="updateNextHearingDate" type="date" style="max-width: 280px;">
+                                    <input id="updateCriminalNextHearingDate" type="date" style="max-width: 280px;">
                                     <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
                                 </div>
                             </div>
@@ -1318,6 +1321,105 @@
                         </thead>
                         <tbody></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Supabase Database Manager Tab: Direct live data inspection & Full CRUD -->
+            <div id="dbmanager" class="tab">
+                <div class="dbmanager-container">
+                    <div class="section-header-row">
+                        <div class="section-title-box">
+                            <div class="section-icon-badge">🗄️</div>
+                            <div>
+                                <h3>Supabase Database Manager & Live CRUD</h3>
+                                <p class="section-subtitle">Live inspection & Create, Read, Update, Delete operations for all Supabase tables exactly as structured in cloud database.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DB Controls Toolbar -->
+                    <div class="db-toolbar-card">
+                        <div class="db-toolbar-row">
+                            <div class="db-table-selector-box">
+                                <label for="dbManagerTableSelect" class="db-toolbar-label">Select Supabase Table:</label>
+                                <select id="dbManagerTableSelect" class="form-select db-select">
+                                    <option value="civilcases">⚖️ civilcases (Civil, Revenue & Complaints)</option>
+                                    <option value="criminalcases">🔒 criminalcases (Criminal Cases & FIRs)</option>
+                                    <option value="hearings">📅 hearings (Hearing Dates & Session History)</option>
+                                    <option value="courts">🏛️ courts (Court Names & Jurisdictions)</option>
+                                    <option value="case_todos">📝 case_todos (Case Tasks & Deadlines)</option>
+                                </select>
+                            </div>
+                            <div class="db-search-box">
+                                <label for="dbManagerSearchInput" class="db-toolbar-label">Search Table Rows:</label>
+                                <div class="db-search-input-wrap">
+                                    <input type="text" id="dbManagerSearchInput" class="db-search-input" placeholder="Filter rows by any keyword, case number, or text...">
+                                    <button type="button" id="dbManagerSearchClearBtn" class="db-search-clear-btn" title="Clear search">✖</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="db-toolbar-actions-row">
+                            <div class="db-stats-group">
+                                <span id="dbManagerTableBadge" class="case-badge civil">Table: civilcases</span>
+                                <span id="dbManagerRowCountBadge" class="db-row-counter-badge">0 rows loaded</span>
+                                <span id="dbManagerLiveIndicator" class="db-live-badge">🟢 Supabase Live</span>
+                            </div>
+                            <div class="db-buttons-group">
+                                <button type="button" id="dbManagerRefreshBtn" class="secondary-btn db-action-btn" title="Fetch fresh records from Supabase">
+                                    🔄 Refresh
+                                </button>
+                                <button type="button" id="dbManagerAddBtn" class="primary-btn db-action-btn" title="Insert a new row into selected table">
+                                    ➕ Insert New Row
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add/Edit Record Form Modal / Card -->
+                    <div id="dbManagerFormModal" class="db-modal-backdrop hidden">
+                        <div class="db-modal-card">
+                            <div class="db-modal-header">
+                                <div class="db-modal-title-box">
+                                    <span id="dbModalIcon" class="db-modal-icon">➕</span>
+                                    <div>
+                                        <h4 id="dbModalTitle">Insert Record into civilcases</h4>
+                                        <p id="dbModalSubtitle" class="db-modal-subtitle">Fill in field values according to PostgreSQL column schema.</p>
+                                    </div>
+                                </div>
+                                <button type="button" id="dbModalCloseBtn" class="db-modal-close-btn" title="Close modal">✕</button>
+                            </div>
+                            <form id="dbRecordForm" class="db-record-form" onsubmit="return handleDbRecordFormSubmit(event);">
+                                <input type="hidden" id="dbRecordId" value="">
+                                <input type="hidden" id="dbRecordAction" value="create">
+                                <div id="dbDynamicFieldsGrid" class="form-grid-2col db-dynamic-fields-container">
+                                    <!-- Populated dynamically based on chosen table schema -->
+                                </div>
+                                <div class="db-modal-footer">
+                                    <button type="button" id="dbModalCancelBtn" class="secondary-btn">Cancel</button>
+                                    <button type="submit" id="dbModalSubmitBtn" class="primary-btn">💾 Save Record to Database</button>
+                                </div>
+                            </form>
+                            <p id="dbModalStatusMsg" class="update-status-msg"></p>
+                        </div>
+                    </div>
+
+                    <!-- Table Data Container -->
+                    <div class="db-table-card">
+                        <div class="table-responsive db-table-wrapper">
+                            <table id="dbManagerTable" class="case-table db-raw-table">
+                                <thead>
+                                    <tr id="dbManagerTableHead">
+                                        <!-- Populated dynamically based on table columns -->
+                                    </tr>
+                                </thead>
+                                <tbody id="dbManagerTableBody">
+                                    <tr>
+                                        <td colspan="10" class="no-results">Loading Supabase table data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 

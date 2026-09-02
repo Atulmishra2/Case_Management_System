@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS public.civilcases (
     hearing_process TEXT,
     case_status VARCHAR(50) DEFAULT 'Pending' NOT NULL,
     remark TEXT,
+    doc_link TEXT,
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -91,6 +92,7 @@ CREATE TABLE IF NOT EXISTS public.criminalcases (
     hearing_process TEXT,
     case_status VARCHAR(50) DEFAULT 'Pending' NOT NULL,
     remark TEXT,
+    doc_link TEXT,
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -152,6 +154,7 @@ CREATE TABLE IF NOT EXISTS public.hearings (
 CREATE INDEX IF NOT EXISTS idx_hearings_case_number ON public.hearings (case_number);
 CREATE INDEX IF NOT EXISTS idx_hearings_hearing_date ON public.hearings (hearing_date);
 CREATE INDEX IF NOT EXISTS idx_hearings_next_hearing_date ON public.hearings (next_hearing_date);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_hearings_case_date_unique ON public.hearings (case_number, hearing_date);
 
 CREATE OR REPLACE FUNCTION public.handle_hearings_updated_at()
 RETURNS TRIGGER AS $$

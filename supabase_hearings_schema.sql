@@ -42,6 +42,9 @@ CREATE INDEX IF NOT EXISTS idx_hearings_case_number ON public.hearings (case_num
 CREATE INDEX IF NOT EXISTS idx_hearings_hearing_date ON public.hearings (hearing_date);
 CREATE INDEX IF NOT EXISTS idx_hearings_next_hearing_date ON public.hearings (next_hearing_date);
 
+-- Prevent duplicate hearings for same case on same date
+CREATE UNIQUE INDEX IF NOT EXISTS idx_hearings_case_date_unique ON public.hearings (case_number, hearing_date);
+
 -- ==============================================================================
 -- 4. Auto-update Trigger for "updated_at" Field
 -- ==============================================================================
