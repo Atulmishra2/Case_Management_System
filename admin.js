@@ -505,6 +505,10 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           case_status: targetCase.caseStatus || 'Pending',
           updated_at: new Date().toISOString()
         };
+        // Include next_hearing correction if provided
+        if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
+          basePayload.next_hearing = targetCase.nextHearing;
+        }
         try {
           const { error } = await supabaseClient.from('criminalcases').update({
             ...basePayload,
@@ -535,6 +539,10 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           case_status: targetCase.caseStatus || 'Pending',
           updated_at: new Date().toISOString()
         };
+        // Include next_hearing correction if provided
+        if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
+          basePayload.next_hearing = targetCase.nextHearing;
+        }
         try {
           const { error } = await supabaseClient.from('civilcases').update({
             ...basePayload,
@@ -3280,6 +3288,13 @@ function loadCaseForUpdate(caseNoToFind) {
     setVal('updateCaseDocLink', found.docLink || '');
   }
 
+  // Pre-fill Fix Next Hearing Date with the case's current nextHearing date
+  const nextHearingFixEl = document.getElementById('updateNextHearingDate');
+  if (nextHearingFixEl) {
+    const existingDate = found.nextHearing && found.nextHearing !== '—' ? found.nextHearing : '';
+    nextHearingFixEl.value = existingDate;
+  }
+
   if (statusEl) {
     statusEl.textContent = `✅ Case "${currentlyLoadedOriginalCaseNo}" loaded. You can update the Case Number and other details below.`;
     statusEl.className = 'update-status-msg success';
@@ -3377,6 +3392,12 @@ async function handleUpdateCaseSubmit(e) {
     targetCase.clientNumber = document.getElementById('updateClientNumber')?.value || '';
     targetCase.caseName = `${targetCase.plaintiff} vs ${targetCase.defendant}`;
     targetCase.partyName = targetCase.defendant || targetCase.plaintiff;
+  }
+
+  // Read "Fix Next Hearing Date" — only apply if user entered a value
+  const fixNextHearingDate = document.getElementById('updateNextHearingDate')?.value?.trim() || '';
+  if (fixNextHearingDate) {
+    targetCase.nextHearing = fixNextHearingDate;
   }
 
   // Update in live Supabase database & cascade to hearings table

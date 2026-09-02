@@ -1315,9 +1315,19 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-bottom: 20px;
   padding-bottom: 14px;
   border-bottom: 1.5px solid #f1f5f9;
+}
+
+.case-details-header > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .case-details-header h3 {
@@ -1326,6 +1336,9 @@ html, body {
   font-weight: 800;
   color: #0f172a;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .case-details-empty {
@@ -4454,4 +4467,616 @@ html, body {
   max-width: 380px;
   margin: 0 auto;
   line-height: 1.5;
+}
+
+/* ==============================================================================
+   COMPREHENSIVE MOBILE & RESPONSIVE IMPROVEMENTS
+   Breakpoints: 1024px (tablet), 768px (mobile), 480px (small phone), 360px (xs)
+   ============================================================================== */
+
+/* ── Tablet (≤ 1024px) ────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+
+  .section-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .section-header-row > div:last-child {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .form-container {
+    padding: 22px 18px;
+  }
+
+  .stats-row,
+  .summary-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .hearing-selected-case-box {
+    padding: 14px 16px;
+  }
+
+  .search-input-wrapper {
+    flex-wrap: wrap;
+  }
+
+  .delete-preview-section {
+    padding: 14px;
+  }
+}
+
+/* ── Mobile (≤ 768px) — master block ─────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* === Stats / Summary Row === */
+  .stats-row,
+  .summary-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card,
+  .summary-stat-card {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+
+  .stat-card h3,
+  .stat-number {
+    font-size: 22px;
+  }
+
+  .stat-card p,
+  .stat-label {
+    font-size: 11.5px;
+  }
+
+  /* === Section headers === */
+  .section-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  /* === Case Details Header (Search tab) === */
+  .case-details-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+
+  .case-details-header > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .case-details-header h3 {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  #searchAddTodoBtn {
+    flex-shrink: 0;
+    height: 38px;
+    padding: 0 12px;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+
+  .section-header-row > div > h3 {
+    font-size: 18px;
+  }
+
+  .section-header-row > div > p {
+    font-size: 12px;
+  }
+
+  .section-header-row > div:last-child {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .section-header-row button {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: center;
+    height: 42px;
+    font-size: 13px;
+  }
+
+  /* === Export CSV button row === */
+  .export-csv-row,
+  .cause-list-filter-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .export-csv-row button,
+  #exportCsvBtn {
+    width: 100%;
+    height: 44px;
+    justify-content: center;
+  }
+
+  /* === Hearing Info Case Summary Box === */
+  .hearing-selected-case-box {
+    padding: 12px 12px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+
+  .hearing-box-header {
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  /* === Delete Case Section === */
+  .danger-alert-box {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+
+  .danger-alert-icon {
+    display: none;
+  }
+
+  .delete-preview-section {
+    padding: 12px;
+  }
+
+  .delete-preview-card {
+    border-radius: 12px;
+    padding: 14px 12px;
+  }
+
+  .delete-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .delete-card-header h4 {
+    font-size: 16px;
+  }
+
+  .delete-action-footer {
+    margin-top: 14px;
+  }
+
+  /* === Update Case Form === */
+  .case-status-card {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+
+  .status-header-row {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .dispose-action-btn {
+    width: 100%;
+    height: 42px;
+    justify-content: center;
+  }
+
+  /* === Courts Section === */
+  .section-title-box {
+    gap: 10px;
+  }
+
+  .section-icon-badge {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    border-radius: 10px;
+  }
+
+  /* === Upcoming Hearings Widget === */
+  .upcoming-board-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .upcoming-board-filter-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .upcoming-board-filter-row select,
+  #causeListCourtFilter {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* === Print Cause List button === */
+  .print-cause-btn {
+    width: 100%;
+    height: 44px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  /* === History Modal === */
+  .modal-overlay {
+    align-items: flex-end;
+  }
+
+  .modal-card {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    max-height: 88vh;
+  }
+
+  .modal-header {
+    padding: 16px 16px 12px;
+  }
+
+  .modal-body {
+    padding: 14px 16px;
+  }
+
+  .modal-footer {
+    padding: 12px 16px;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .modal-footer button {
+    width: 100%;
+    height: 46px;
+  }
+
+  .modal-case-summary {
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 14px;
+  }
+
+  /* === Change Password section === */
+  #changePassword .form-container,
+  .change-password-card {
+    padding: 18px 14px;
+  }
+
+  /* === Document Link fields === */
+  .doc-link-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .doc-link-row input {
+    width: 100%;
+  }
+
+  /* === To-Do Tab: responsive layout === */
+  .todo-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .todo-form-panel,
+  .todo-list-panel {
+    padding: 18px 14px;
+    border-radius: 14px;
+  }
+
+  .todo-list-panel {
+    min-height: unset;
+  }
+
+  .todo-priority-selector {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .todo-priority-chip {
+    padding: 7px 6px;
+    font-size: 12px;
+  }
+
+  .todo-filter-group {
+    gap: 6px;
+  }
+
+  .todo-filter-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .todo-item {
+    padding: 12px 12px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+
+  .todo-item-top {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .todo-item-actions {
+    align-self: flex-end;
+  }
+
+  .todo-meta-row {
+    gap: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .todo-preview-card-badge-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .todo-preview-caseno {
+    font-size: 12px;
+  }
+
+  .todo-shortcut-pill {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  /* === Edit Date Button Row in Update Hearing tab === */
+  #hearingCaseInfoCard .form-grid-2col {
+    grid-template-columns: 1fr;
+  }
+
+  [id="hearingInfoPrevDate"],
+  [id="hearingInfoPrevDateEdit"] {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* === WhatsApp notice card === */
+  .whatsapp-notification-card {
+    border-radius: 12px;
+  }
+
+  .whatsapp-card-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* === Cause list filter row === */
+  #causeListCourtFilter {
+    width: 100%;
+    font-size: 15px;
+  }
+}
+
+/* ── Small phones (≤ 480px) ───────────────────────────────────────────────── */
+@media (max-width: 480px) {
+
+  /* Stats: stack to single column on very small phones */
+  .stats-row,
+  .summary-stats-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .stat-card,
+  .summary-stat-card {
+    padding: 12px 10px;
+    border-radius: 10px;
+  }
+
+  .stat-card h3,
+  .stat-number {
+    font-size: 20px;
+  }
+
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  /* Reduce heading sizes */
+  h3 { font-size: 16px; }
+  h4 { font-size: 14.5px; }
+
+  .form-container {
+    padding: 14px 10px;
+    border-radius: 12px;
+  }
+
+  .todo-form-panel,
+  .todo-list-panel {
+    padding: 14px 10px;
+    border-radius: 12px;
+  }
+
+  .todo-priority-selector {
+    gap: 5px;
+  }
+
+  .todo-priority-chip {
+    font-size: 11.5px;
+    padding: 6px 4px;
+  }
+
+  .section-icon-badge {
+    display: none;
+  }
+
+  .danger-icon {
+    display: none;
+  }
+
+  .hearing-selected-case-box {
+    padding: 10px;
+  }
+
+  .modal-card {
+    max-height: 93vh;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .todo-case-preview-card {
+    padding: 10px 12px;
+  }
+
+  .todo-preview-title {
+    font-size: 13px;
+  }
+
+  .todo-combobox-results {
+    max-height: 220px;
+  }
+
+  /* Tables on tiny screens - allow full horizontal scroll */
+  .table-responsive {
+    margin: 0 -4px;
+    border-radius: 8px;
+  }
+
+  table.search-results-table,
+  table.case-table,
+  table.court-table {
+    min-width: 480px;
+  }
+
+  .case-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-item {
+    padding: 8px 10px;
+  }
+
+  /* Calendar reduced on tiny screen */
+  .calendar-wrapper-card {
+    padding: 14px 10px;
+    border-radius: 12px;
+  }
+
+  .cal-day-cell {
+    min-height: 44px;
+    padding: 2px 1px;
+    border-radius: 5px;
+  }
+
+  .day-hearing-pill {
+    display: none;
+  }
+}
+
+/* ── Extra-small (≤ 360px) ────────────────────────────────────────────────── */
+@media (max-width: 360px) {
+
+  .stats-row,
+  .summary-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .todo-priority-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .todo-priority-chip {
+    padding: 9px 12px;
+    justify-content: flex-start;
+  }
+
+  .modal-footer {
+    padding: 10px 12px;
+  }
+
+  .form-container {
+    padding: 12px 8px;
+  }
+
+  .todo-form-panel,
+  .todo-list-panel {
+    padding: 12px 8px;
+  }
+
+  .search-input-wrapper input,
+  #guestSearch {
+    height: 46px;
+    font-size: 15px;
+    padding: 12px 14px;
+  }
+}
+
+/* ── Touch friendliness: ensure all tap targets ≥ 44px ────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+
+  .sidebar a {
+    min-height: 44px;
+    padding: 11px 14px;
+  }
+
+  .table-view-btn,
+  .table-action-btn {
+    min-height: 36px;
+    padding: 6px 10px;
+  }
+
+  .todo-combobox-item {
+    min-height: 48px;
+    padding: 10px 14px;
+  }
+
+  .todo-filter-btn {
+    min-height: 40px;
+    padding: 8px 14px;
+  }
+
+  .todo-shortcut-pill {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .cal-day-cell {
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(37, 99, 235, 0.15);
+  }
+
+  /* Remove hover transforms on touch (prevent sticky states) */
+  .todo-item:hover {
+    transform: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+
+  .todo-combobox-item:hover {
+    transform: none;
+  }
+
+  .todo-shortcut-pill:hover {
+    transform: none;
+  }
+
+  button:hover,
+  .primary-btn:hover,
+  .danger-btn:hover,
+  .search-action-btn:hover {
+    transform: none;
+  }
 }
