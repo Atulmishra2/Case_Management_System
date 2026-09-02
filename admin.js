@@ -433,14 +433,21 @@ async function addCaseToSupabase(newCase) {
           case_status: 'Pending',
           remark: newCase.remark || ''
         };
-        let { error } = await supabaseClient.from('criminalcases').insert([{
-          ...payload,
-          doc_link: newCase.docLink || ''
-        }]);
-        // Fallback: retry without doc_link if column doesn't exist
-        if (error && (error.message?.includes('doc_link') || error.code === 'PGRST204')) {
-          const retryResult = await supabaseClient.from('criminalcases').insert([payload]);
-          error = retryResult.error;
+        let insertObj = { ...payload, doc_link: newCase.docLink || '' };
+        let { error } = await supabaseClient.from('criminalcases').insert([insertObj]);
+        // Fallback: retry without optional columns if column doesn't exist in older Supabase schema
+        if (error && (error.message?.includes('doc_link') || error.message?.includes('remark') || error.code === 'PGRST204')) {
+          delete insertObj.doc_link;
+          let retry1 = await supabaseClient.from('criminalcases').insert([insertObj]);
+          if (!retry1.error) {
+            error = null;
+          } else if (retry1.error.message?.includes('remark') || retry1.error.code === 'PGRST204') {
+            delete insertObj.remark;
+            let retry2 = await supabaseClient.from('criminalcases').insert([insertObj]);
+            error = retry2.error;
+          } else {
+            error = retry1.error;
+          }
         }
         // Check for unique constraint violation (duplicate case number)
         if (error) {
@@ -468,14 +475,21 @@ async function addCaseToSupabase(newCase) {
           case_status: 'Pending',
           remark: newCase.remark || ''
         };
-        let { error } = await supabaseClient.from('civilcases').insert([{
-          ...payload,
-          doc_link: newCase.docLink || ''
-        }]);
-        // Fallback: retry without doc_link if column doesn't exist
-        if (error && (error.message?.includes('doc_link') || error.code === 'PGRST204')) {
-          const retryResult = await supabaseClient.from('civilcases').insert([payload]);
-          error = retryResult.error;
+        let insertObj = { ...payload, doc_link: newCase.docLink || '' };
+        let { error } = await supabaseClient.from('civilcases').insert([insertObj]);
+        // Fallback: retry without optional columns if column doesn't exist in older Supabase schema
+        if (error && (error.message?.includes('doc_link') || error.message?.includes('remark') || error.code === 'PGRST204')) {
+          delete insertObj.doc_link;
+          let retry1 = await supabaseClient.from('civilcases').insert([insertObj]);
+          if (!retry1.error) {
+            error = null;
+          } else if (retry1.error.message?.includes('remark') || retry1.error.code === 'PGRST204') {
+            delete insertObj.remark;
+            let retry2 = await supabaseClient.from('civilcases').insert([insertObj]);
+            error = retry2.error;
+          } else {
+            error = retry1.error;
+          }
         }
         // Check for unique constraint violation (duplicate case number)
         if (error) {
