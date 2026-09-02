@@ -813,7 +813,26 @@ function setActiveScreen(screenId) {
       element.classList.toggle('hidden', id !== screenId);
     }
   });
+
+  if (screenId === 'adminScreen') {
+    restoreActiveAdminTab();
+  }
 }
+
+function restoreActiveAdminTab() {
+  let targetTab = 'home';
+  const hash = (window.location.hash || '').replace(/^#/, '').trim();
+  const storedTab = safeStorage.get('cmActiveTab') || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('cmActiveTab') : null);
+
+  if (hash && document.getElementById(hash)) {
+    targetTab = hash;
+  } else if (storedTab && document.getElementById(storedTab)) {
+    targetTab = storedTab;
+  }
+
+  showTab(targetTab, null, 'restore');
+}
+window.restoreActiveAdminTab = restoreActiveAdminTab;
 
 function handleAdminLogin(event) {
   if (event) {
@@ -860,6 +879,21 @@ function handleAdminLogin(event) {
 window.handleAdminLogin = handleAdminLogin;
 window.isValidAdminLogin = isValidAdminLogin;
 
+function handleAdminLogout() {
+  safeStorage.remove('cmUser');
+  try {
+    sessionStorage.removeItem('cmActiveTab');
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  } catch (e) {}
+  setActiveScreen('loginScreen');
+  const form = document.getElementById('loginForm');
+  if (form) form.reset();
+  const errorBox = document.getElementById('loginError');
+  if (errorBox) errorBox.textContent = '';
+}
+
 function handleGuestLogin(event) {
   if (event && typeof event.preventDefault === 'function') {
     event.preventDefault();
@@ -885,10 +919,37 @@ function handleLogout(event) {
   if (errorBox) errorBox.textContent = '';
 }
 
-function showTab(tabId, event) {
-  if (event) {
+let tabNavigationHistory = [];
+let tabForwardHistory = [];
+let currentActiveTabId = 'home';
+
+function showTab(tabId, event, navType = 'navigate') {
+  if (event && event.preventDefault) {
     event.preventDefault();
   }
+
+  // Handle history stacks
+  if (navType === 'navigate') {
+    if (currentActiveTabId && currentActiveTabId !== tabId) {
+      tabNavigationHistory.push(currentActiveTabId);
+      if (tabNavigationHistory.length > 40) tabNavigationHistory.shift();
+      tabForwardHistory = []; // Reset forward history on new navigation
+    }
+  }
+
+  currentActiveTabId = tabId;
+  updateNavigationButtons();
+
+  // Persist current active tab for page refresh retention
+  try {
+    safeStorage.set('cmActiveTab', tabId);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('cmActiveTab', tabId);
+    }
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', '#' + tabId);
+    }
+  } catch (e) {}
 
   document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.remove('active');
@@ -897,6 +958,10 @@ function showTab(tabId, event) {
   const targetTab = document.getElementById(tabId);
   if (targetTab) {
     targetTab.classList.add('active');
+  }
+
+  if (tabId === 'home') {
+    renderHomeDashboard();
   }
 
   if (tabId === 'search') {
@@ -955,6 +1020,56 @@ function showTab(tabId, event) {
     if (overlay) overlay.classList.remove('active');
   }
 }
+
+function goPreviousTab() {
+  if (tabNavigationHistory.length > 0) {
+    const previousTabId = tabNavigationHistory.pop();
+    if (previousTabId) {
+      if (currentActiveTabId) {
+        tabForwardHistory.push(currentActiveTabId);
+      }
+      showTab(previousTabId, null, 'back');
+    }
+  }
+}
+
+function goForwardTab() {
+  if (tabForwardHistory.length > 0) {
+    const nextTabId = tabForwardHistory.pop();
+    if (nextTabId) {
+      if (currentActiveTabId) {
+        tabNavigationHistory.push(currentActiveTabId);
+      }
+      showTab(nextTabId, null, 'forward');
+    }
+  }
+}
+
+function updateNavigationButtons() {
+  const backBtn = document.getElementById('bottomNavBackBtn');
+  const forwardBtn = document.getElementById('bottomNavForwardBtn');
+  const homeBtn = document.getElementById('bottomNavHomeBtn');
+
+  if (backBtn) {
+    const hasBack = tabNavigationHistory.length > 0;
+    backBtn.disabled = !hasBack;
+    backBtn.classList.toggle('disabled', !hasBack);
+  }
+
+  if (forwardBtn) {
+    const hasForward = tabForwardHistory.length > 0;
+    forwardBtn.disabled = !hasForward;
+    forwardBtn.classList.toggle('disabled', !hasForward);
+  }
+
+  if (homeBtn) {
+    homeBtn.classList.toggle('active', currentActiveTabId === 'home');
+  }
+}
+
+window.goPreviousTab = goPreviousTab;
+window.goForwardTab = goForwardTab;
+window.updateNavigationButtons = updateNavigationButtons;
 
 function togglePasswordVisibility(inputId, btn) {
   const input = document.getElementById(inputId);
@@ -1939,12 +2054,23 @@ function filterCaseTables(forceShowAll = false) {
   const resultsTable = document.querySelector('#search .search-results-table');
   const resultsBody = resultsTable?.querySelector('tbody');
 
-  if (!resultsTable || !resultsBody) return;
+  const totalStatEl = document.getElementById('myCasesTotalStat');
+  const pendingStatEl = document.getElementById('myCasesPendingStat');
+  const todayStatEl = document.getElementById('myCasesTodayStat');
+  const undatedStatEl = document.getElementById('myCasesUndatedStat');
+  const disposedStatEl = document.getElementById('myCasesDisposedStat');
 
-  const hasAnyFilter = query || selectedCourt || selectedType || selectedStatus || selectedDate;
-  if (clearBtn) {
-    clearBtn.style.display = hasAnyFilter ? 'inline-flex' : 'none';
-  }
+  const todayStr = new Date().toISOString().split('T')[0];
+  const pendingCount = allCaseRecords.filter(c => !(c.caseStatus || '').toLowerCase().includes('dispose')).length;
+  const disposedCount = allCaseRecords.filter(c => (c.caseStatus || '').toLowerCase().includes('dispose')).length;
+  const todayCount = allCaseRecords.filter(c => c.nextHearing === todayStr).length;
+  const undatedCount = allCaseRecords.filter(c => !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !c.nextHearing.trim()).length;
+
+  if (totalStatEl) totalStatEl.textContent = String(allCaseRecords.length);
+  if (pendingStatEl) pendingStatEl.textContent = String(pendingCount);
+  if (todayStatEl) todayStatEl.textContent = String(todayCount);
+  if (undatedStatEl) undatedStatEl.textContent = String(undatedCount);
+  if (disposedStatEl) disposedStatEl.textContent = String(disposedCount);
 
   let matches = allCaseRecords;
 
@@ -2080,7 +2206,7 @@ function filterCaseTables(forceShowAll = false) {
 
 window.filterCaseTables = filterCaseTables;
 
-function setQuickCaseFilter(filterType) {
+function setQuickCaseFilter(filterType, evt = null) {
   const searchInput = document.getElementById('globalSearch');
   const typeFilter = document.getElementById('searchTypeFilter');
   const courtFilter = document.getElementById('searchCourtFilter');
@@ -2104,11 +2230,14 @@ function setQuickCaseFilter(filterType) {
   }
 
   // Update quick chip active states
-  document.querySelectorAll('.quick-filter-chip').forEach(chip => {
-    chip.classList.remove('active');
-  });
-  if (event && event.target && event.target.classList) {
-    event.target.classList.add('active');
+  const chips = document.querySelectorAll('.quick-filter-chip');
+  chips.forEach(chip => chip.classList.remove('active'));
+
+  const activeEvt = evt || (typeof window !== 'undefined' && window.event ? window.event : null);
+  if (activeEvt && activeEvt.target && activeEvt.target.classList && activeEvt.target.classList.contains('quick-filter-chip')) {
+    activeEvt.target.classList.add('active');
+  } else if (filterType === 'all' && chips[0]) {
+    chips[0].classList.add('active');
   }
 
   filterCaseTables();
@@ -2329,6 +2458,205 @@ window.sendDailyCauseListWhatsApp = sendDailyCauseListWhatsApp;
 
 
 // ==============================================================================
+// Executive Home Dashboard Engine
+// ==============================================================================
+
+function renderHomeDashboard() {
+  const greetingEl = document.getElementById('homeHeroGreeting');
+  const dateEl = document.getElementById('homeHeroDate');
+
+  const totalEl = document.getElementById('homeTotalCases');
+  const breakdownEl = document.getElementById('homePortfolioBreakdown');
+  const todayEl = document.getElementById('homeTodayCases');
+  const upcomingEl = document.getElementById('homeUpcomingCases');
+  const pendingEl = document.getElementById('homePendingCases');
+  const pendingPercentEl = document.getElementById('homePendingPercent');
+  const undatedEl = document.getElementById('homeUndatedCases');
+  const disposedEl = document.getElementById('homeDisposedCases');
+  const disposedPercentEl = document.getElementById('homeDisposedPercent');
+
+  const shortcutCivil = document.getElementById('shortcutCivilCount');
+  const shortcutCriminal = document.getElementById('shortcutCriminalCount');
+  const shortcutRevenue = document.getElementById('shortcutRevenueCount');
+
+  const todayTbody = document.getElementById('homeTodayTableBody');
+  const todayBoardDate = document.getElementById('homeTodayBoardDate');
+  const tasksContainer = document.getElementById('homeTasksListContainer');
+
+  // 1. Dynamic Greeting
+  const now = new Date();
+  const hours = now.getHours();
+  let timeGreeting = 'Good Day';
+  if (hours < 12) timeGreeting = 'Good Morning';
+  else if (hours < 17) timeGreeting = 'Good Afternoon';
+  else timeGreeting = 'Good Evening';
+
+  const daysOfWeek = ['Sunday (रविवार)', 'Monday (सोमवार)', 'Tuesday (मंगलवार)', 'Wednesday (बुधवार)', 'Thursday (गुरुवार)', 'Friday (शुक्रवार)', 'Saturday (शनिवार)'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const dayName = daysOfWeek[now.getDay()];
+  const formattedDate = `${dayName}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+  if (greetingEl) greetingEl.textContent = `${timeGreeting}, Advocate Atul Mishra`;
+  if (dateEl) dateEl.textContent = `${formattedDate} • Chambers Legal Practice Management`;
+  if (todayBoardDate) todayBoardDate.textContent = `Appearances for ${dayName.split(' ')[0]}, ${now.getDate()} ${months[now.getMonth()]}`;
+
+  // 2. Calculations & Robust Date Matching
+  const todayStr = now.toISOString().split('T')[0];
+  const weekAhead = new Date();
+  weekAhead.setDate(weekAhead.getDate() + 7);
+  const weekAheadStr = weekAhead.toISOString().split('T')[0];
+
+  const totalCount = allCaseRecords.length;
+  const civilCount = allCaseRecords.filter(c => (c.caseType || 'civil').toLowerCase() === 'civil').length;
+  const criminalCount = allCaseRecords.filter(c => (c.caseType || '').toLowerCase() === 'criminal').length;
+  const revenueCount = allCaseRecords.filter(c => (c.caseType || '').toLowerCase() === 'revenue').length;
+
+  const todayCases = allCaseRecords.filter(c => {
+    if (!c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null') return false;
+    const str = String(c.nextHearing).trim();
+    if (str === todayStr) return true;
+
+    const ymd = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+    if (ymd) {
+      const formatted = `${ymd[1]}-${String(ymd[2]).padStart(2, '0')}-${String(ymd[3]).padStart(2, '0')}`;
+      return formatted === todayStr;
+    }
+    const dmy = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+    if (dmy) {
+      const formatted = `${dmy[3]}-${String(dmy[2]).padStart(2, '0')}-${String(dmy[1]).padStart(2, '0')}`;
+      return formatted === todayStr;
+    }
+    return false;
+  });
+
+  const upcomingCases = allCaseRecords.filter(c => {
+    if (!c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null') return false;
+    return c.nextHearing >= todayStr && c.nextHearing <= weekAheadStr;
+  });
+
+  const disposedCount = allCaseRecords.filter(c => (c.caseStatus || '').toLowerCase().includes('dispose')).length;
+  const pendingCount = totalCount - disposedCount;
+  const undatedCount = allCaseRecords.filter(c => !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !c.nextHearing.trim()).length;
+
+  const pendingPercent = totalCount > 0 ? Math.round((pendingCount / totalCount) * 100) : 0;
+  const disposedPercent = totalCount > 0 ? Math.round((disposedCount / totalCount) * 100) : 0;
+
+  // 3. Update KPI Card Values
+  if (totalEl) totalEl.textContent = String(totalCount);
+  if (breakdownEl) breakdownEl.innerHTML = `<span>${civilCount} Civil</span> • <span>${criminalCount} Criminal</span> • <span>${revenueCount} Revenue</span>`;
+  if (todayEl) todayEl.textContent = String(todayCases.length);
+  if (upcomingEl) upcomingEl.textContent = String(upcomingCases.length);
+  if (pendingEl) pendingEl.textContent = String(pendingCount);
+  if (pendingPercentEl) pendingPercentEl.textContent = `${pendingPercent}% of total caseload`;
+  if (undatedEl) undatedEl.textContent = String(undatedCount);
+  if (disposedEl) disposedEl.textContent = String(disposedCount);
+  if (disposedPercentEl) disposedPercentEl.textContent = `${disposedPercent}% Resolution Rate`;
+
+  // 4. Update Shortcuts
+  if (shortcutCivil) shortcutCivil.textContent = `${civilCount} Cases`;
+  if (shortcutCriminal) shortcutCriminal.textContent = `${criminalCount} Cases`;
+  if (shortcutRevenue) shortcutRevenue.textContent = `${revenueCount} Cases`;
+
+  // 5. Populate Today's Court Appearance Board Table
+  if (todayTbody) {
+    if (todayCases.length === 0) {
+      todayTbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="no-results" style="padding: 24px;">
+            🎉 No court hearings are listed for today (${dayName.split(' ')[0]}).
+            <br><small style="color: #64748b; margin-top: 6px; display: inline-block;">
+              <a href="javascript:void(0);" onclick="showTab('upcoming')" style="color: #2563eb; font-weight: 600;">View upcoming week appearances ➔</a>
+            </small>
+          </td>
+        </tr>
+      `;
+    } else {
+      // Sort by court name and then case number
+      todayCases.sort((a, b) => {
+        const courtA = (a.courtName || a.criminalCourtName || '').toUpperCase();
+        const courtB = (b.courtName || b.criminalCourtName || '').toUpperCase();
+        if (courtA !== courtB) return courtA.localeCompare(courtB);
+        const numA = (a.caseNo || a.criminalCaseNumber || '').toUpperCase();
+        const numB = (b.caseNo || b.criminalCaseNumber || '').toUpperCase();
+        return numA.localeCompare(numB);
+      });
+
+      let html = '';
+      todayCases.forEach((c, idx) => {
+        const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+        const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
+        const courtName = c.courtName || c.criminalCourtName || 'District Court';
+        const caseType = (c.caseType || 'civil').toLowerCase();
+        const stage = c.hearingProcess || c.process || 'Listed Hearing';
+        const clientName = c.clientName || c.criminalClientName || '—';
+        const clientPhone = c.clientNumber || c.criminalClientNumber || '';
+
+        html += `
+          <tr>
+            <td style="text-align: center;"><span class="court-index-badge">#${idx + 1}</span></td>
+            <td class="copyable-case-no" title="Double-click to copy Case Number">
+              <strong>${escapeHtml(caseNumber)}</strong>
+              <div><span class="case-badge ${caseType}" style="font-size: 9px; padding: 1px 6px;">${caseType.toUpperCase()}</span></div>
+            </td>
+            <td><strong>${escapeHtml(caseName)}</strong></td>
+            <td>🏛️ ${escapeHtml(courtName)}</td>
+            <td><span style="color: #1e40af; font-weight: 700;">${escapeHtml(stage)}</span></td>
+            <td>
+              <div>${escapeHtml(clientName)}</div>
+              ${clientPhone ? `<small style="color: #64748b;">📞 ${escapeHtml(clientPhone)}</small>` : ''}
+            </td>
+            <td style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View proceedings details">📜</button>
+              <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date">📅 Forward</button>
+              <button type="button" class="whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="WhatsApp notice to client">💬</button>
+            </td>
+          </tr>
+        `;
+      });
+      todayTbody.innerHTML = html;
+    }
+  }
+
+  // 6. Populate Priority Tasks Widget
+  if (tasksContainer) {
+    const pendingTasks = (caseTasks || []).filter(t => (t.status || '').toLowerCase() !== 'done');
+    if (pendingTasks.length === 0) {
+      tasksContainer.innerHTML = `
+        <div class="home-empty-tasks">
+          <span>🎉</span>
+          <p>All tasks and deadlines are up-to-date.</p>
+          <button type="button" class="primary-btn" style="margin-top: 6px; padding: 6px 12px; font-size: 12px;" onclick="showTab('todo')">➕ Add New Task</button>
+        </div>
+      `;
+    } else {
+      let taskHtml = '';
+      pendingTasks.slice(0, 5).forEach(t => {
+        const isUrgent = (t.priority || '').toLowerCase() === 'high';
+        const priorityBadge = isUrgent
+          ? '<span style="background: #fee2e2; color: #dc2626; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">URGENT</span>'
+          : '<span style="background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;">TASK</span>';
+
+        taskHtml += `
+          <div class="home-task-card">
+            <div class="home-task-info">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                ${priorityBadge}
+                <span class="home-task-title">${escapeHtml(t.taskTitle || t.task || 'Legal Action')}</span>
+              </div>
+              <span class="home-task-meta">Case: <strong>${escapeHtml(t.caseNo || 'General')}</strong> • Due: ${formatDateDMY(t.deadlineDate || t.deadline)}</span>
+            </div>
+            <button type="button" class="table-view-btn" onclick="showTab('todo')" title="Manage task">Manage</button>
+          </div>
+        `;
+      });
+      tasksContainer.innerHTML = taskHtml;
+    }
+  }
+}
+
+window.renderHomeDashboard = renderHomeDashboard;
+
+// ==============================================================================
 // Dashboard Tables Rendering
 // ==============================================================================
 
@@ -2512,13 +2840,16 @@ function refreshAllCaseTables() {
   // 8. Guest Mode Table
   renderGuestTable();
 
-  // 9. My Cases Filter Table
+  // 9. Home Executive Dashboard
+  renderHomeDashboard();
+
+  // 10. My Cases Filter Table
   filterCaseTables();
 
-  // 10. My Daily Cause List
+  // 11. My Daily Cause List
   renderCauseListTable();
 
-  // 11. Interactive Calendar Scheduler
+  // 12. Interactive Calendar Scheduler
   renderCalendarView();
 
   // 10. Populate Hearing Case Dropdown
@@ -3569,23 +3900,54 @@ function renderDaySchedule(day, month, year, hearings) {
 window.renderCalendarView = renderCalendarView;
 window.renderDaySchedule = renderDaySchedule;
 
-function printDailyCauseList() {
-  if (!selectedCalendarDate) {
-    alert('Please select a date on the calendar first.');
-    return;
+function printDailyCauseList(targetDateStr = '') {
+  // If targetDateStr is passed as a MouseEvent/PointerEvent from event listeners, sanitize to empty string
+  if (typeof targetDateStr !== 'string') {
+    targetDateStr = '';
   }
 
-  const { day, month, year } = selectedCalendarDate;
-  const dateFormatted = `${String(day).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
-  const dateObj = new Date(year, month, day);
-  const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+  let y = null, m = null, d = null, fullDateFormatted = '', weekday = '';
 
-  // Filter hearings on this day
+  if (targetDateStr && targetDateStr.includes('-')) {
+    const parts = targetDateStr.split('-');
+    y = parseInt(parts[0], 10);
+    m = parseInt(parts[1], 10) - 1;
+    d = parseInt(parts[2], 10);
+  } else if (typeof currentCauseListDate !== 'undefined' && currentCauseListDate && String(currentCauseListDate).includes('-')) {
+    const parts = String(currentCauseListDate).split('-');
+    y = parseInt(parts[0], 10);
+    m = parseInt(parts[1], 10) - 1;
+    d = parseInt(parts[2], 10);
+  } else if (typeof selectedCalendarDate !== 'undefined' && selectedCalendarDate) {
+    d = selectedCalendarDate.day;
+    m = selectedCalendarDate.month;
+    y = selectedCalendarDate.year;
+  } else {
+    const now = new Date();
+    y = now.getFullYear();
+    m = now.getMonth();
+    d = now.getDate();
+  }
+
+  const dateObj = new Date(y, m, d);
+  fullDateFormatted = `${String(d).padStart(2, '0')}/${String(m + 1).padStart(2, '0')}/${y}`;
+  const weekdayEnglish = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+  const weekdayHindiMap = {
+    Sunday: 'रविवार', Monday: 'सोमवार', Tuesday: 'मंगलवार',
+    Wednesday: 'बुधवार', Thursday: 'गुरुवार', Friday: 'शुक्रवार', Saturday: 'शनिवार'
+  };
+  weekday = `${weekdayEnglish} (${weekdayHindiMap[weekdayEnglish] || ''})`;
+
+  const dateMatchYMD = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+  // Filter hearings on this day across allCaseRecords
   const hearingsOnDay = allCaseRecords.filter(c => {
     if (!c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null') return false;
     const str = String(c.nextHearing).trim();
-    let hYear = null, hMonth = null, hDay = null;
+    if (str === dateMatchYMD) return true;
 
+    // Check d/m/y or y/m/d fallback
+    let hYear = null, hMonth = null, hDay = null;
     const ymd = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
     if (ymd) {
       hYear = parseInt(ymd[1], 10);
@@ -3599,15 +3961,24 @@ function printDailyCauseList() {
         hYear = parseInt(dmy[3], 10);
       }
     }
-
-    return hYear === year && hMonth === month && hDay === day;
+    return hYear === y && hMonth === m && hDay === d;
   });
 
-  // Filter by selected court if specified
-  const courtFilterVal = document.getElementById('causeListCourtFilter')?.value || '';
+  // Filter by court if selected in either dropdown
+  const courtFilterVal = (document.getElementById('causeListCourtFilterSelect')?.value || document.getElementById('causeListCourtFilter')?.value || '').trim().toLowerCase();
   const filteredHearings = courtFilterVal
-    ? hearingsOnDay.filter(c => (c.courtName || c.criminalCourtName || '').toLowerCase() === courtFilterVal.toLowerCase())
+    ? hearingsOnDay.filter(c => (c.courtName || c.criminalCourtName || '').trim().toLowerCase() === courtFilterVal)
     : hearingsOnDay;
+
+  // Sort by Court Name and then Case Number
+  filteredHearings.sort((a, b) => {
+    const courtA = (a.courtName || a.criminalCourtName || '').toUpperCase();
+    const courtB = (b.courtName || b.criminalCourtName || '').toUpperCase();
+    if (courtA !== courtB) return courtA.localeCompare(courtB);
+    const numA = (a.caseNo || a.criminalCaseNumber || '').toUpperCase();
+    const numB = (b.caseNo || b.criminalCaseNumber || '').toUpperCase();
+    return numA.localeCompare(numB);
+  });
 
   // Populate Printable Document
   const printDateEl = document.getElementById('causeListPrintDate');
@@ -3616,10 +3987,10 @@ function printDailyCauseList() {
   const printTimestampEl = document.getElementById('causeListPrintTimestamp');
   const printTbody = document.getElementById('causePrintTableBody');
 
-  if (printDateEl) printDateEl.textContent = dateFormatted;
+  if (printDateEl) printDateEl.textContent = fullDateFormatted;
   if (printDayEl) printDayEl.textContent = weekday;
   if (printTotalEl) {
-    const courtSuffix = courtFilterVal ? ` — ${courtFilterVal}` : '';
+    const courtSuffix = courtFilterVal ? ` (${courtFilterVal.toUpperCase()})` : '';
     printTotalEl.textContent = `${filteredHearings.length} Matter${filteredHearings.length === 1 ? '' : 's'} Listed${courtSuffix}`;
   }
   if (printTimestampEl) {
@@ -3630,7 +4001,7 @@ function printDailyCauseList() {
   if (printTbody) {
     if (filteredHearings.length === 0) {
       const courtNote = courtFilterVal ? ` in ${courtFilterVal}` : '';
-      printTbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 25px 10px; font-weight: bold; color: #64748b;">No court hearings scheduled on ${dateFormatted} (${weekday})${courtNote}.</td></tr>`;
+      printTbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 25px 10px; font-weight: bold; color: #64748b;">No court hearings scheduled on ${fullDateFormatted} (${weekday})${courtNote}.</td></tr>`;
     } else {
       printTbody.innerHTML = filteredHearings.map((h, idx) => {
         const caseNo = h.caseNo || h.criminalCaseNumber || '—';
@@ -3638,8 +4009,8 @@ function printDailyCauseList() {
         const court = h.courtName || h.criminalCourtName || 'District Court';
         const stage = h.hearingProcess || h.process || 'Scheduled Proceeding';
         const client = h.clientName || h.criminalClientName || '—';
-        const clientPhone = (h.clientNumber || h.criminalClientNumber) ? `<br><small style="color: #475569;">📞 ${h.clientNumber || h.criminalClientNumber}</small>` : '';
-        const caseName = h.caseName || (h.plaintiff ? `${h.plaintiff} vs ${h.defendant}` : `${h.victimName} vs ${h.accusedName}`);
+        const clientPhone = (h.clientNumber || h.criminalClientNumber) ? `<br><small style="color: #475569; font-weight: 600;">📞 ${h.clientNumber || h.criminalClientNumber}</small>` : '';
+        const caseName = h.caseName || (h.plaintiff ? `${h.plaintiff} vs ${h.defendant}` : (h.victimName ? `${h.victimName} vs ${h.accusedName}` : '—'));
 
         return `
           <tr>
@@ -3929,8 +4300,7 @@ async function handleUpdateCaseSubmit(e) {
   if (caseType === 'criminal') {
     targetCase.criminalCaseNumber = newCaseNumber;
     targetCase.policeStation = document.getElementById('updatePoliceStation')?.value || '';
-    targetCase.crimeSection = document.getElementById('updateCrimeSection')?.value || '';
-    targetCase.crimeFilingDate = document.getElementById('updateCrimeFilingDate')?.value || '';
+    targetCase.crimeFilingDate = document.getElementById('updateCrimeFilingDate')?.value || targetCase.crimeFilingDate || targetCase.filingDate || '';
     targetCase.filingDate = targetCase.crimeFilingDate;
     targetCase.crimeNumber = document.getElementById('updateCrimeNumber')?.value || '';
     targetCase.victimName = document.getElementById('updateVictimName')?.value || '';
@@ -3944,7 +4314,7 @@ async function handleUpdateCaseSubmit(e) {
     targetCase.caseName = `${targetCase.victimName} vs ${targetCase.accusedName}`;
     targetCase.partyName = targetCase.accusedName;
   } else {
-    targetCase.filingDate = document.getElementById('updateFilingDate')?.value || '';
+    targetCase.filingDate = document.getElementById('updateFilingDate')?.value || targetCase.filingDate || '';
     targetCase.plaintiff = document.getElementById('updatePlaintiff')?.value || '';
     targetCase.defendant = document.getElementById('updateDefendant')?.value || '';
     targetCase.courtName = document.getElementById('updateCourtName')?.value || '';
@@ -4258,6 +4628,14 @@ function initializeApp() {
         closeMobileSidebar();
       }
     });
+  });
+
+  // Listen to browser hash navigation
+  window.addEventListener('hashchange', () => {
+    const hashTab = (window.location.hash || '').replace(/^#/, '').trim();
+    if (hashTab && document.getElementById(hashTab) && hashTab !== currentActiveTabId) {
+      showTab(hashTab, null, 'restore');
+    }
   });
 
   const searchInput = document.getElementById('globalSearch');
@@ -5149,7 +5527,245 @@ function initDbManagerTab() {
     currentDbTable = select.value || 'civilcases';
   }
   fetchAndRenderDbTable(currentDbTable);
+  populateDbModifierCaseSelect();
 }
+
+function populateDbModifierCaseSelect() {
+  const typeSelect = document.getElementById('dbModCaseType');
+  const caseSelect = document.getElementById('dbModCaseSelect');
+  const datalist = document.getElementById('dbModCaseDatalist');
+  const searchInput = document.getElementById('dbModCaseSearchInput');
+  const hiddenId = document.getElementById('dbModSelectedCaseId');
+  if (!typeSelect) return;
+
+  const targetType = typeSelect.value || 'civil';
+  const isCriminal = targetType === 'criminal';
+
+  const cases = allCaseRecords.filter(c => {
+    const ct = String(c.caseType || '').toLowerCase();
+    return isCriminal ? ct === 'criminal' : ct !== 'criminal';
+  });
+
+  let selectHtml = '<option value="">-- Choose from List --</option>';
+  let datalistHtml = '';
+
+  cases.forEach(c => {
+    const caseNo = c.caseNo || c.criminalCaseNumber || 'No Case Number';
+    const year = c.year || c.caseYear || c.crimeYear || '—';
+    const filingDate = c.filingDate || c.crimeFilingDate || '';
+    const title = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : ''));
+    const id = c.id || '';
+    const label = `${caseNo} (Year: ${year}) ${title ? '— ' + title : ''}`;
+    
+    selectHtml += `<option value="${escapeHtml(id)}" data-caseno="${escapeHtml(caseNo)}" data-year="${escapeHtml(year)}" data-filingdate="${escapeHtml(filingDate)}">${escapeHtml(label)}</option>`;
+    datalistHtml += `<option value="${escapeHtml(caseNo)} — ${escapeHtml(title || 'Matter')} (${escapeHtml(year)})"></option>`;
+  });
+
+  if (caseSelect) caseSelect.innerHTML = selectHtml;
+  if (datalist) datalist.innerHTML = datalistHtml;
+  
+  // Clear inputs
+  if (searchInput) searchInput.value = '';
+  if (hiddenId) hiddenId.value = '';
+  const caseNoInput = document.getElementById('dbModNewCaseNo');
+  const yearInput = document.getElementById('dbModNewYear');
+  const filingDateInput = document.getElementById('dbModNewFilingDate');
+  const statusMsg = document.getElementById('dbModStatusMsg');
+  if (caseNoInput) caseNoInput.value = '';
+  if (yearInput) yearInput.value = '';
+  if (filingDateInput) filingDateInput.value = '';
+  if (statusMsg) statusMsg.textContent = '';
+}
+
+function onDbModifierCaseSearch(typedVal) {
+  const query = (typedVal || '').trim().toLowerCase();
+  const hiddenId = document.getElementById('dbModSelectedCaseId');
+  const caseSelect = document.getElementById('dbModCaseSelect');
+  const caseNoInput = document.getElementById('dbModNewCaseNo');
+  const yearInput = document.getElementById('dbModNewYear');
+  const filingDateInput = document.getElementById('dbModNewFilingDate');
+  const statusMsg = document.getElementById('dbModStatusMsg');
+  if (statusMsg) statusMsg.textContent = '';
+
+  if (!query) {
+    if (hiddenId) hiddenId.value = '';
+    if (caseSelect) caseSelect.value = '';
+    if (caseNoInput) caseNoInput.value = '';
+    if (yearInput) yearInput.value = '';
+    if (filingDateInput) filingDateInput.value = '';
+    return;
+  }
+
+  const typeSelect = document.getElementById('dbModCaseType');
+  const isCriminal = (typeSelect?.value || 'civil') === 'criminal';
+  const cases = allCaseRecords.filter(c => {
+    const ct = String(c.caseType || '').toLowerCase();
+    return isCriminal ? ct === 'criminal' : ct !== 'criminal';
+  });
+
+  // Find exact or closest match
+  const matched = cases.find(c => {
+    const num = (c.caseNo || c.criminalCaseNumber || '').toLowerCase();
+    const title = (c.caseName || '').toLowerCase();
+    const fullTag = `${num} — ${title}`.toLowerCase();
+    return num === query || fullTag.startsWith(query) || num.startsWith(query) || (query.length >= 3 && fullTag.includes(query));
+  });
+
+  if (matched) {
+    if (hiddenId) hiddenId.value = matched.id;
+    if (caseSelect) caseSelect.value = matched.id;
+    const caseNo = matched.caseNo || matched.criminalCaseNumber || '';
+    const year = matched.year || matched.caseYear || matched.crimeYear || '';
+    const filingDate = matched.filingDate || matched.crimeFilingDate || '';
+
+    if (caseNoInput) caseNoInput.value = caseNo;
+    if (yearInput) yearInput.value = (year && year !== '—') ? parseInt(year, 10) || '' : '';
+    if (filingDateInput) filingDateInput.value = filingDate;
+  }
+}
+
+function onDbModifierCaseSelected(selectedId) {
+  const caseSelect = document.getElementById('dbModCaseSelect');
+  const searchInput = document.getElementById('dbModCaseSearchInput');
+  const hiddenId = document.getElementById('dbModSelectedCaseId');
+  const caseNoInput = document.getElementById('dbModNewCaseNo');
+  const yearInput = document.getElementById('dbModNewYear');
+  const filingDateInput = document.getElementById('dbModNewFilingDate');
+  const statusMsg = document.getElementById('dbModStatusMsg');
+  if (statusMsg) statusMsg.textContent = '';
+  if (!caseSelect) return;
+
+  const idToLoad = selectedId || caseSelect.value;
+  if (idToLoad) {
+    if (hiddenId) hiddenId.value = idToLoad;
+    const matched = allCaseRecords.find(c => String(c.id) === String(idToLoad));
+    if (matched) {
+      const caseNo = matched.caseNo || matched.criminalCaseNumber || '';
+      const year = matched.year || matched.caseYear || matched.crimeYear || '';
+      const filingDate = matched.filingDate || matched.crimeFilingDate || '';
+      const title = matched.caseName || '';
+
+      if (searchInput) searchInput.value = `${caseNo} — ${title || 'Matter'} (${year})`;
+      if (caseNoInput) caseNoInput.value = caseNo;
+      if (yearInput) yearInput.value = (year && year !== '—') ? parseInt(year, 10) || '' : '';
+      if (filingDateInput) filingDateInput.value = filingDate;
+    }
+  } else {
+    if (hiddenId) hiddenId.value = '';
+    if (searchInput) searchInput.value = '';
+    if (caseNoInput) caseNoInput.value = '';
+    if (yearInput) yearInput.value = '';
+    if (filingDateInput) filingDateInput.value = '';
+  }
+}
+
+async function executeDbCaseNumberYearUpdate() {
+  const typeSelect = document.getElementById('dbModCaseType');
+  const hiddenId = document.getElementById('dbModSelectedCaseId');
+  const caseSelect = document.getElementById('dbModCaseSelect');
+  const caseNoInput = document.getElementById('dbModNewCaseNo');
+  const yearInput = document.getElementById('dbModNewYear');
+  const filingDateInput = document.getElementById('dbModNewFilingDate');
+  const syncHearingsCheckbox = document.getElementById('dbModSyncHearings');
+  const statusMsg = document.getElementById('dbModStatusMsg');
+  const submitBtn = document.getElementById('dbModSubmitBtn');
+
+  const recordId = hiddenId?.value || caseSelect?.value;
+
+  if (!recordId) {
+    alert('Please type or select a case to modify.');
+    return;
+  }
+
+  const newCaseNo = (caseNoInput?.value || '').trim();
+  const newYearVal = parseInt(yearInput?.value, 10);
+  const newFilingDate = (filingDateInput?.value || '').trim();
+
+  if (!newCaseNo) {
+    alert('Please enter a valid New Case Number.');
+    caseNoInput?.focus();
+    return;
+  }
+
+  if (isNaN(newYearVal) || newYearVal < 1950 || newYearVal > 2099) {
+    alert('Please enter a valid 4-digit Filing / Case Year (e.g. 2024).');
+    yearInput?.focus();
+    return;
+  }
+
+  const loadedCase = allCaseRecords.find(c => String(c.id) === String(recordId));
+  const oldCaseNo = loadedCase ? (loadedCase.caseNo || loadedCase.criminalCaseNumber) : '';
+  const isCriminal = (typeSelect?.value || 'civil') === 'criminal';
+  const tableName = isCriminal ? 'criminalcases' : 'civilcases';
+
+  if (statusMsg) {
+    statusMsg.style.color = '#2F68A1';
+    statusMsg.textContent = '⏳ Saving updates directly to Supabase...';
+  }
+  if (submitBtn) submitBtn.disabled = true;
+
+  try {
+    const updatePayload = {
+      case_number: newCaseNo,
+      year: newYearVal,
+      filing_date: newFilingDate || null,
+      updated_at: new Date().toISOString()
+    };
+    if (isCriminal) {
+      updatePayload.crime_year = newYearVal;
+      updatePayload.crime_filing_date = newFilingDate || null;
+    } else {
+      updatePayload.case_year = newYearVal;
+    }
+
+    if (supabaseClient) {
+      const { error: updateErr } = await supabaseClient
+        .from(tableName)
+        .update(updatePayload)
+        .eq('id', recordId);
+
+      if (updateErr) {
+        throw updateErr;
+      }
+
+      // If sync hearings is enabled, cascade case_number update to hearings table
+      if (syncHearingsCheckbox?.checked && oldCaseNo && oldCaseNo !== newCaseNo) {
+        const { error: hearingErr } = await supabaseClient
+          .from('hearings')
+          .update({ case_number: newCaseNo, updated_at: new Date().toISOString() })
+          .eq('case_number', oldCaseNo);
+        if (hearingErr) {
+          console.warn('Hearings cascading update notice:', hearingErr);
+        }
+      }
+    }
+
+    // Refresh application database records in memory
+    await fetchAllDataFromSupabase();
+    await fetchAndRenderDbTable(tableName);
+    populateDbModifierCaseSelect();
+
+    if (statusMsg) {
+      statusMsg.style.color = '#10B981';
+      statusMsg.textContent = `✅ Successfully updated Case Number to "${newCaseNo}", Year to ${newYearVal}, and Filing Date to ${newFilingDate || '—'}!`;
+    }
+    alert(`✅ Case details (Case Number, Year & Filing Date) updated successfully in Supabase table "${tableName}"!`);
+  } catch (err) {
+    console.error('Error updating case details:', err);
+    if (statusMsg) {
+      statusMsg.style.color = '#EF4444';
+      statusMsg.textContent = `❌ Update failed: ${err.message || err}`;
+    }
+    alert(`❌ Failed to update case in Supabase: ${err.message || err}`);
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
+}
+
+window.populateDbModifierCaseSelect = populateDbModifierCaseSelect;
+window.onDbModifierCaseSearch = onDbModifierCaseSearch;
+window.onDbModifierCaseSelected = onDbModifierCaseSelected;
+window.executeDbCaseNumberYearUpdate = executeDbCaseNumberYearUpdate;
 
 async function fetchAndRenderDbTable(tableName = currentDbTable) {
   currentDbTable = tableName;

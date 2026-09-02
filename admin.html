@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin.css?v=2.7">
 </head>
 
 <body>
@@ -205,6 +205,7 @@
                 </div>
             </div>
             <h2>Overview & Schedule</h2>
+            <a href="#" onclick="showTab('home', event)" class="active">🏠 Home Dashboard</a>
             <a href="#" onclick="showTab('search', event)">📁 My Cases</a>
             <a href="#" onclick="showTab('causelist', event)">
                 📜 My Cause List <span class="badge badge-upcoming" id="causeListNavCount">0</span>
@@ -251,68 +252,314 @@
 
         <!-- Main content area where each admin tab is displayed -->
         <div class="content">
-            <!-- My Cases tab: complete searchable and filterable registry of all cases -->
-            <div id="search" class="tab active">
-                <div class="search-header">
-                    <div>
-                        <h2>📁 My Cases Registry</h2>
-                        <p class="section-subtitle">Search, filter, and inspect your civil, criminal, and revenue cases across all courts.</p>
+            <!-- Home Dashboard Tab: Professional Executive Overview -->
+            <div id="home" class="tab active">
+                <div class="home-dashboard-container">
+                    <!-- Hero Welcome Header Card -->
+                    <div class="home-hero-card">
+                        <div class="hero-main-content">
+                            <div class="hero-left-section">
+                                <div class="hero-emblem-badge">⚖️</div>
+                                <div class="hero-text-block">
+                                    <div class="hero-chambers-tag">CHAMBERS OF ADVOCATE ATUL KUMAR MISHRA</div>
+                                    <h1 class="hero-greeting" id="homeHeroGreeting">Good Day, Advocate Atul Mishra</h1>
+                                    <p class="hero-subtext" id="homeHeroDate">Legal Practice Management & Real-Time Case Tracker</p>
+                                </div>
+                            </div>
+                            <div class="hero-right-section">
+                                <div class="hero-status-pill">
+                                    <span class="live-dot"></span>
+                                    <span>Supabase Cloud Connected</span>
+                                </div>
+                                <div class="hero-actions-bar">
+                                    <button type="button" class="hero-btn-primary" onclick="showTab('add')">➕ New Case</button>
+                                    <button type="button" class="hero-btn-secondary" onclick="showTab('hearing')">📅 Forward Hearing</button>
+                                    <button type="button" class="hero-btn-secondary" onclick="showTab('causelist')">📜 Daily Cause List</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="search-header-actions">
-                        <button type="button" id="exportCsvBtn" class="search-action-btn secondary" title="Export all filtered cases to Excel/CSV spreadsheet">📥 Export CSV</button>
+
+                    <!-- Executive KPI Statistics Grid -->
+                    <div class="home-kpi-grid">
+                        <!-- Total Portfolio Card -->
+                        <div class="home-kpi-card total-kpi" onclick="showTab('search')">
+                            <div class="kpi-header">
+                                <span class="kpi-title">Total Case Registry</span>
+                                <span class="kpi-icon">📁</span>
+                            </div>
+                            <div class="kpi-value" id="homeTotalCases">0</div>
+                            <div class="kpi-footer" id="homePortfolioBreakdown">
+                                <span>0 Civil</span> • <span>0 Criminal</span> • <span>0 Revenue</span>
+                            </div>
+                        </div>
+
+                        <!-- Listed Today Card -->
+                        <div class="home-kpi-card today-kpi" onclick="showTab('causelist')">
+                            <div class="kpi-header">
+                                <span class="kpi-title">Today's Court Listings</span>
+                                <span class="kpi-icon">📌</span>
+                            </div>
+                            <div class="kpi-value" id="homeTodayCases">0</div>
+                            <div class="kpi-footer">
+                                <span class="kpi-link">Open Cause List ➔</span>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming 7 Days Card -->
+                        <div class="home-kpi-card upcoming-kpi" onclick="showTab('upcoming')">
+                            <div class="kpi-header">
+                                <span class="kpi-title">Upcoming (7 Days)</span>
+                                <span class="kpi-icon">⚡</span>
+                            </div>
+                            <div class="kpi-value" id="homeUpcomingCases">0</div>
+                            <div class="kpi-footer">
+                                <span>Next 7 days court sessions</span>
+                            </div>
+                        </div>
+
+                        <!-- Pending Litigation Card -->
+                        <div class="home-kpi-card pending-kpi" onclick="showTab('search')">
+                            <div class="kpi-header">
+                                <span class="kpi-title">Active Pending Cases</span>
+                                <span class="kpi-icon">⏳</span>
+                            </div>
+                            <div class="kpi-value" id="homePendingCases">0</div>
+                            <div class="kpi-footer">
+                                <span id="homePendingPercent">0% of total caseload</span>
+                            </div>
+                        </div>
+
+                        <!-- Undated Cases Card -->
+                        <div class="home-kpi-card undated-kpi" onclick="showTab('undated')">
+                            <div class="kpi-header">
+                                <span class="kpi-title">Undated Cases</span>
+                                <span class="kpi-icon">❓</span>
+                            </div>
+                            <div class="kpi-value" id="homeUndatedCases">0</div>
+                            <div class="kpi-footer">
+                                <span class="kpi-warning">Needs hearing schedule</span>
+                            </div>
+                        </div>
+
+                        <!-- Disposed Cases Card -->
+                        <div class="home-kpi-card disposed-kpi" onclick="showTab('disposed')">
+                            <div class="kpi-header">
+                                <span class="kpi-title">Disposed / Resolved</span>
+                                <span class="kpi-icon">✅</span>
+                            </div>
+                            <div class="kpi-value" id="homeDisposedCases">0</div>
+                            <div class="kpi-footer">
+                                <span id="homeDisposedPercent">0% Resolution Rate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Today's Listed Court Appearances Board (Full-Width Executive Card) -->
+                    <div class="home-panel-card home-today-board-card">
+                        <div class="home-panel-header">
+                            <div class="panel-title-wrap">
+                                <span class="panel-icon">⚖️</span>
+                                <div>
+                                    <h3>Today's Court Appearance Board</h3>
+                                    <p class="panel-subtitle" id="homeTodayBoardDate">Scheduled hearings for today</p>
+                                </div>
+                            </div>
+                            <button type="button" class="secondary-btn panel-action-btn" onclick="showTab('causelist')">Open Daily Cause List ➔</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="search-results-table case-table" border="1" width="100%" cellpadding="8">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px; text-align: center;">Sr. No.</th>
+                                        <th>Case Number</th>
+                                        <th>Case Title / Parties</th>
+                                        <th>Court</th>
+                                        <th>Stage / Purpose</th>
+                                        <th>Client</th>
+                                        <th style="text-align: center; width: 140px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="homeTodayTableBody">
+                                    <tr>
+                                        <td colspan="7" class="no-results">Loading today's court matters...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Balanced Grid: Priority Tasks & Chambers Directory -->
+                    <div class="home-bottom-grid">
+                        <!-- Priority Tasks Board -->
+                        <div class="home-panel-card">
+                            <div class="home-panel-header">
+                                <div class="panel-title-wrap">
+                                    <span class="panel-icon">📝</span>
+                                    <div>
+                                        <h3>Priority Tasks & Deadlines</h3>
+                                        <p class="panel-subtitle">Upcoming action items & legal filings</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="secondary-btn panel-action-btn" onclick="showTab('todo')">Manage Tasks ➔</button>
+                            </div>
+                            <div id="homeTasksListContainer" class="home-tasks-list">
+                                <div class="home-empty-tasks">
+                                    <span>🎉</span>
+                                    <p>Loading pending tasks...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chambers Quick Jump Directory -->
+                        <div class="home-panel-card">
+                            <div class="home-panel-header">
+                                <div class="panel-title-wrap">
+                                    <span class="panel-icon">🏛️</span>
+                                    <div>
+                                        <h3>Quick Registers & Tools</h3>
+                                        <p class="panel-subtitle">Instant jump to specialized registers</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="secondary-btn panel-action-btn" onclick="showTab('search')">All Cases ➔</button>
+                            </div>
+                            <div class="shortcuts-grid">
+                                <div class="shortcut-box" onclick="showTab('civil')">
+                                    <span class="shortcut-icon">⚖️</span>
+                                    <div>
+                                        <strong>Civil Register</strong>
+                                        <small id="shortcutCivilCount">0 Cases</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-box" onclick="showTab('criminal')">
+                                    <span class="shortcut-icon">🔒</span>
+                                    <div>
+                                        <strong>Criminal Register</strong>
+                                        <small id="shortcutCriminalCount">0 Cases</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-box" onclick="showTab('revenue')">
+                                    <span class="shortcut-icon">💰</span>
+                                    <div>
+                                        <strong>Revenue Register</strong>
+                                        <small id="shortcutRevenueCount">0 Cases</small>
+                                    </div>
+                                </div>
+                                <div class="shortcut-box" onclick="showTab('calendar')">
+                                    <span class="shortcut-icon">🗓️</span>
+                                    <div>
+                                        <strong>Court Calendar</strong>
+                                        <small>Monthly diary</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Cases tab: complete searchable and filterable registry of all cases -->
+            <div id="search" class="tab">
+                <div class="my-cases-header-card">
+                    <div class="my-cases-header-top">
+                        <div class="section-title-box">
+                            <div class="section-icon-badge">📁</div>
+                            <div>
+                                <h2>My Cases Registry</h2>
+                                <p class="section-subtitle">Comprehensive dashboard to search, filter, and manage your active and disposed cases.</p>
+                            </div>
+                        </div>
+                        <div class="my-cases-header-actions">
+                            <button type="button" class="primary-btn my-cases-action-btn" onclick="showTab('add')" title="Register a new civil or criminal case">
+                                ➕ Add Case
+                            </button>
+                            <button type="button" id="exportCsvBtn" class="secondary-btn my-cases-action-btn" title="Export all filtered cases to Excel/CSV spreadsheet">
+                                📥 Export CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Summary Counters Bar -->
+                    <div class="my-cases-summary-bar">
+                        <div class="summary-stat-box total">
+                            <span class="summary-stat-label">Total Registry</span>
+                            <span class="summary-stat-number" id="myCasesTotalStat">0</span>
+                        </div>
+                        <div class="summary-stat-box pending">
+                            <span class="summary-stat-label">⏳ Pending Cases</span>
+                            <span class="summary-stat-number" id="myCasesPendingStat">0</span>
+                        </div>
+                        <div class="summary-stat-box today">
+                            <span class="summary-stat-label">📌 Listed Today</span>
+                            <span class="summary-stat-number" id="myCasesTodayStat">0</span>
+                        </div>
+                        <div class="summary-stat-box undated">
+                            <span class="summary-stat-label">❓ Undated</span>
+                            <span class="summary-stat-number" id="myCasesUndatedStat">0</span>
+                        </div>
+                        <div class="summary-stat-box disposed">
+                            <span class="summary-stat-label">✅ Disposed</span>
+                            <span class="summary-stat-number" id="myCasesDisposedStat">0</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Comprehensive Multi-Filter Bar in Header -->
+                <!-- Modern Multi-Filter Control Center -->
                 <div class="my-cases-filter-card">
                     <div class="filter-main-row">
-                        <div class="filter-search-wrap">
-                            <input type="text" id="globalSearch" placeholder="🔍 Search by Case No, Parties, Client, Sections, Police Station, Remarks..." aria-label="Search cases">
+                        <div class="filter-search-box">
+                            <span class="filter-search-icon">🔍</span>
+                            <input type="text" id="globalSearch" placeholder="Search by Case No, Parties, Client, Sections, Police Station, Remarks..." aria-label="Search cases">
                         </div>
                     </div>
-                    <div class="filter-controls-row">
+
+                    <div class="filter-controls-grid">
                         <div class="filter-item">
-                            <label for="searchTypeFilter" class="filter-label">Case Type:</label>
+                            <label for="searchTypeFilter" class="filter-label">⚖️ Case Type</label>
                             <select id="searchTypeFilter" class="filter-select">
-                                <option value="">⚖️ All Case Types</option>
-                                <option value="civil">⚖️ Civil Cases</option>
-                                <option value="criminal">🔒 Criminal Cases</option>
-                                <option value="revenue">💰 Revenue Cases</option>
+                                <option value="">All Case Types</option>
+                                <option value="civil">Civil Cases</option>
+                                <option value="criminal">Criminal Cases</option>
+                                <option value="revenue">Revenue Cases</option>
                             </select>
                         </div>
                         <div class="filter-item">
-                            <label for="searchCourtFilter" class="filter-label">Court:</label>
+                            <label for="searchCourtFilter" class="filter-label">🏛️ Court Complex</label>
                             <select id="searchCourtFilter" class="filter-select">
-                                <option value="">🏛️ All Courts</option>
+                                <option value="">All Courts</option>
                             </select>
                         </div>
                         <div class="filter-item">
-                            <label for="searchStatusFilter" class="filter-label">Status:</label>
+                            <label for="searchStatusFilter" class="filter-label">🚦 Case Status</label>
                             <select id="searchStatusFilter" class="filter-select">
-                                <option value="">📋 All Statuses</option>
+                                <option value="">All Statuses</option>
                                 <option value="pending">⏳ Pending Cases</option>
                                 <option value="disposed">✅ Disposed Cases</option>
                             </select>
                         </div>
                         <div class="filter-item">
-                            <label for="searchDateFilter" class="filter-label">Hearing Schedule:</label>
+                            <label for="searchDateFilter" class="filter-label">📅 Hearing Schedule</label>
                             <select id="searchDateFilter" class="filter-select">
-                                <option value="">📅 All Dates</option>
+                                <option value="">All Hearing Dates</option>
                                 <option value="today">📌 Today's Hearings</option>
                                 <option value="upcoming">⚡ Next 7 Days</option>
                                 <option value="undated">❓ Undated (No hearing date)</option>
                                 <option value="scheduled">🗓️ All Scheduled</option>
                             </select>
                         </div>
-                        <div class="filter-actions-wrap">
-                            <button type="button" id="clearSearchBtn" class="filter-reset-btn" title="Reset all filters">✕ Reset</button>
+                        <div class="filter-actions-item">
+                            <button type="button" id="clearSearchBtn" class="filter-reset-btn" title="Reset all filters">✕ Reset Filters</button>
                         </div>
                     </div>
+
                     <div class="filter-stats-bar">
-                        <span id="searchResultCountBadge" class="filter-counter-badge">Showing 0 of 0 Cases</span>
+                        <div class="filter-counter-wrap">
+                            <span id="searchResultCountBadge" class="filter-counter-badge">Showing 0 of 0 Cases</span>
+                        </div>
                         <div class="filter-quick-chips">
-                            <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('all')">All Cases</button>
-                            <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('today')">📌 Today</button>
+                            <span class="chips-label">Quick Presets:</span>
+                            <button type="button" class="quick-filter-chip active" onclick="setQuickCaseFilter('all')">✨ All Cases</button>
+                            <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('today')">📌 Listed Today</button>
                             <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('undated')">❓ Undated</button>
                             <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('pending')">⏳ Pending</button>
                             <button type="button" class="quick-filter-chip" onclick="setQuickCaseFilter('disposed')">✅ Disposed</button>
@@ -322,7 +569,7 @@
 
                 <div class="search-results-panel">
                     <div class="results-panel-header">
-                        <h3>📋 Cases List</h3>
+                        <h3>📋 Cases Register Table</h3>
                     </div>
                     <div class="table-responsive">
                         <table class="search-results-table case-table" border="1" width="100%" cellpadding="8">
@@ -982,7 +1229,7 @@
                 <div class="form-container">
                     <div class="section-header-row">
                         <div class="section-title-box">
-                            <div class="section-icon-badge"></div>
+                            <div class="section-icon-badge">🏛️</div>
                             <div>
                                 <h3>Manage Courts Directory</h3>
                                 <p class="section-subtitle">Add and configure courts available across all case forms and judicial filings.</p>
@@ -992,10 +1239,19 @@
                     </div>
 
                     <div class="court-add-card">
-                        <label for="courtInput">Add New Court</label>
+                        <div class="search-card-header">
+                            <div class="search-header-info">
+                                <span class="search-card-badge-icon">🏛️</span>
+                                <div>
+                                    <h4 class="search-card-heading">Add New Court to Directory</h4>
+                                    <p class="search-card-subheading">Enter judicial forum name (e.g. Fast Track Special Court, Labour Court, NCLT, High Court)</p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="court-input-action-row">
-                            <div class="court-field-wrapper">
-                                <input type="text" id="courtInput" placeholder="Enter court name (e.g. Fast Track Special Court, Labour Court, NCLT)">
+                            <div class="search-field-box">
+                                <span class="search-field-prefix-icon">⚖️</span>
+                                <input type="text" id="courtInput" placeholder="Enter court name (e.g. Fast Track Special Court, Labour Court, NCLT, Family Court)...">
                             </div>
                             <button type="button" id="saveCourtBtn" class="court-submit-btn">
                                 <span>➕ Add Court</span>
@@ -1037,11 +1293,24 @@
                         </div>
                     </div>
 
-                    <div class="delete-input-group">
-                        <label for="deleteSearchInput">Search Case to Delete (Case Number or Case Name)</label>
+                    <div class="delete-search-card">
+                        <div class="search-card-header">
+                            <div class="search-header-info">
+                                <span class="search-card-badge-icon danger-badge-icon">🗑️</span>
+                                <div>
+                                    <h4 class="search-card-heading">Search Case to Delete</h4>
+                                    <p class="search-card-subheading">Enter Case Number or Case Name to preview and confirm case removal</p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="delete-search-row">
-                            <input type="text" id="deleteSearchInput" placeholder="Enter Case Number or Case Name" autocomplete="off">
-                            <button type="button" id="deleteFindBtn" class="primary-btn search-action-btn">🔍 Find Case</button>
+                            <div class="search-field-box">
+                                <span class="search-field-prefix-icon">🔎</span>
+                                <input type="text" id="deleteSearchInput" placeholder="Enter Case Number or Case Name..." autocomplete="off">
+                            </div>
+                            <button type="button" id="deleteFindBtn" class="primary-btn search-action-btn delete-action-btn">
+                                <span>🔍 Find Case</span>
+                            </button>
                         </div>
                         <p id="deleteStatus" class="update-status-msg"></p>
                     </div>
@@ -1107,10 +1376,23 @@
                     </div>
 
                     <div class="update-search-card">
-                        <label for="updateSearchInput">Search Case to Load Details (Case Number or Case Name)</label>
+                        <div class="search-card-header">
+                            <div class="search-header-info">
+                                <span class="search-card-badge-icon">🔍</span>
+                                <div>
+                                    <h4 class="search-card-heading">Search Case to Load Details</h4>
+                                    <p class="search-card-subheading">Enter Case Number, Plaintiff, Defendant, or Client Name to fetch and edit record</p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="update-search-row">
-                            <input type="text" id="updateSearchInput" placeholder="Enter Case Number or Case Name">
-                            <button type="button" id="updateSearchBtn" class="primary-btn search-action-btn">🔍 Load Case Details</button>
+                            <div class="search-field-box">
+                                <span class="search-field-prefix-icon">🔎</span>
+                                <input type="text" id="updateSearchInput" placeholder="Enter Case Number, Plaintiff, Defendant, or Client Name..." autocomplete="off">
+                            </div>
+                            <button type="button" id="updateSearchBtn" class="primary-btn search-action-btn">
+                                <span>🔍 Load Case Details</span>
+                            </button>
                         </div>
                         <p id="updateSearchStatus" class="update-status-msg"></p>
                     </div>
@@ -1148,16 +1430,12 @@
                         <div id="updateGeneralCaseForm" class="case-form-panel">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateCaseNo">Case Number</label>
-                                    <input id="updateCaseNo" type="text" placeholder="Enter Case Number" required>
+                                    <label for="updateCaseNo">Case Number 🔒</label>
+                                    <input id="updateCaseNo" type="text" placeholder="Case Number (Locked)" readonly required class="locked-input" title="Case Number is locked. Use Supabase DB Manager to modify Case Number.">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateCaseYear">Year 🔒</label>
                                     <input id="updateCaseYear" type="number" placeholder="Year (Locked)" readonly required class="locked-input">
-                                </div>
-                                <div class="form-group">
-                                    <label for="updateFilingDate">Filing Date</label>
-                                    <input id="updateFilingDate" type="date" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="updateCourtName">Court Name</label>
@@ -1202,8 +1480,8 @@
                         <div id="updateCriminalCaseForm" class="case-form-panel hidden-case-form">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateCriminalCaseNumber">Case Number</label>
-                                    <input id="updateCriminalCaseNumber" type="text" placeholder="Enter Case Number" required>
+                                    <label for="updateCriminalCaseNumber">Case Number 🔒</label>
+                                    <input id="updateCriminalCaseNumber" type="text" placeholder="Case Number (Locked)" readonly required class="locked-input" title="Case Number is locked. Use Supabase DB Manager to modify Case Number.">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateCrimeYear">Crime Year 🔒</label>
@@ -1220,10 +1498,6 @@
                                 <div class="form-group">
                                     <label for="updateCrimeNumber">Crime / FIR Number</label>
                                     <input id="updateCrimeNumber" type="text" placeholder="Enter Crime Number" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="updateCrimeFilingDate">Filing Date</label>
-                                    <input id="updateCrimeFilingDate" type="date" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="updateVictimName">Victim Name</label>
@@ -1650,6 +1924,71 @@
                         </div>
                     </div>
 
+                    <!-- Dedicated Tool: Update Case Number, Filing Year & Filing Date -->
+                    <div class="db-case-modifier-card">
+                        <div class="db-modifier-header">
+                            <div class="modifier-title-box">
+                                <span class="modifier-icon">🔄</span>
+                                <div>
+                                    <h4>Modify Case Number, Filing Year & Filing Date</h4>
+                                    <p class="modifier-subtitle">Select or type any Civil or Criminal case to update its Case Number, Filing Year, and Filing Date with automatic cascading updates to linked hearings in Supabase.</p>
+                                </div>
+                            </div>
+                            <span class="db-live-badge">⚡ Direct Supabase Sync</span>
+                        </div>
+                        
+                        <div class="db-modifier-form-grid">
+                            <div class="modifier-form-group">
+                                <label for="dbModCaseType" class="db-toolbar-label">1. Case Category / Table:</label>
+                                <select id="dbModCaseType" class="form-select db-select" onchange="populateDbModifierCaseSelect()">
+                                    <option value="civil">⚖️ Civil, Revenue & Complaints (civilcases)</option>
+                                    <option value="criminal">🔒 Criminal Cases & FIRs (criminalcases)</option>
+                                </select>
+                            </div>
+
+                            <div class="modifier-form-group" style="grid-column: span 2;">
+                                <label for="dbModCaseSearchInput" class="db-toolbar-label">2. Search / Type or Select Existing Case:</label>
+                                <div class="modifier-case-picker-row" style="display: flex; gap: 8px;">
+                                    <input type="text" id="dbModCaseSearchInput" list="dbModCaseDatalist" class="db-search-input" placeholder="Type Case Number, Party Name, or choose..." oninput="onDbModifierCaseSearch(this.value)" autocomplete="off">
+                                    <datalist id="dbModCaseDatalist"></datalist>
+                                    <select id="dbModCaseSelect" class="form-select db-select" style="max-width: 220px;" onchange="onDbModifierCaseSelected(this.value)">
+                                        <option value="">-- Choose from List --</option>
+                                    </select>
+                                </div>
+                                <input type="hidden" id="dbModSelectedCaseId" value="">
+                            </div>
+
+                            <div class="modifier-form-group">
+                                <label for="dbModNewCaseNo" class="db-toolbar-label">3. New Case Number:</label>
+                                <input type="text" id="dbModNewCaseNo" class="db-search-input" placeholder="e.g. OS/45/2024 or CR-2024-102">
+                            </div>
+
+                            <div class="modifier-form-group">
+                                <label for="dbModNewYear" class="db-toolbar-label">4. New Filing / Case Year:</label>
+                                <input type="number" id="dbModNewYear" class="db-search-input" placeholder="e.g. 2024" min="1950" max="2099">
+                            </div>
+
+                            <div class="modifier-form-group">
+                                <label for="dbModNewFilingDate" class="db-toolbar-label">5. New Filing Date:</label>
+                                <input type="date" id="dbModNewFilingDate" class="db-search-input">
+                            </div>
+
+                            <div class="modifier-form-group modifier-checkbox-group" style="grid-column: 1 / -1;">
+                                <label class="remember-me-label" style="margin-top: 6px !important;">
+                                    <input type="checkbox" id="dbModSyncHearings" checked>
+                                    <span>Also update linked hearing records in <code>hearings</code> table</span>
+                                </label>
+                            </div>
+
+                            <div class="modifier-action-group" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; flex-wrap: wrap;">
+                                <span id="dbModStatusMsg" class="update-status-msg" style="margin: 0; text-align: left; flex: 1;"></span>
+                                <button type="button" id="dbModSubmitBtn" class="primary-btn db-action-btn" onclick="executeDbCaseNumberYearUpdate()" style="width: auto; padding: 10px 24px;">
+                                    💾 Save Case Number, Year & Filing Date
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Add/Edit Record Form Modal / Card -->
                     <div id="dbManagerFormModal" class="db-modal-backdrop hidden">
                         <div class="db-modal-card">
@@ -1749,7 +2088,21 @@
                     </form>
                 </div>
             </div>
-        </div>
+        <!-- Fixed Bottom Navigation Bar (Back Arrow, Home, Forward Arrow) -->
+        <footer class="fixed-bottom-nav" id="fixedBottomNav" aria-label="Quick Page Navigation">
+            <button type="button" class="bottom-nav-btn" id="bottomNavBackBtn" onclick="goPreviousTab()" title="Go Back to Previous Tab" disabled>
+                <span class="bottom-nav-icon">◀</span>
+                <span class="bottom-nav-label">Back</span>
+            </button>
+            <button type="button" class="bottom-nav-btn home-nav-btn" id="bottomNavHomeBtn" onclick="showTab('home', event)" title="Go to Home Dashboard">
+                <span class="bottom-nav-icon">🏠</span>
+                <span class="bottom-nav-label">Home</span>
+            </button>
+            <button type="button" class="bottom-nav-btn" id="bottomNavForwardBtn" onclick="goForwardTab()" title="Go Forward to Next Tab" disabled>
+                <span class="bottom-nav-icon">▶</span>
+                <span class="bottom-nav-label">Forward</span>
+            </button>
+        </footer>
     </div>
 
     <!-- Printable Daily Cause List Document (Optimized for A4 Print/PDF Export) -->
