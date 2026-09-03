@@ -1555,6 +1555,17 @@ function showTab(tabId, event, navType = 'navigate') {
     targetTab.classList.add('active');
   }
 
+  // Auto-close mobile sidebar drawer on tab switch
+  if (window.innerWidth <= 992) {
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+    if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+  }
+
+  // Smooth scroll to top for comfortable mobile navigation
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
   if (tabId === 'home') {
     renderHomeDashboard();
   }
