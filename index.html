@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -8,9 +9,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css?v=2.7">
+    <!-- Tailwind CSS (with preflight disabled to preserve existing inputs & buttons) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: false,
+            }
+        }
+    </script>
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="admin.css?v=4.0">
     <!-- PWA & Mobile Web App Meta Tags -->
-    <meta name="theme-color" content="#2F68A1">
+    <meta name="theme-color" content="#FFFFFF">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -51,7 +63,7 @@
                     </label>
                 </div>
 
-                <button type="submit" class="primary-btn">Login as Admin</button>
+                <button type="submit" class="primary-btn form-submit-btn"><i class="fa-solid fa-paper-plane"></i> Submit Login</button>
             </form>
 
             <button type="button" id="guestModeBtn" class="secondary-btn">Continue as Guest</button>
@@ -63,35 +75,20 @@
     </div>
 
     <div id="guestScreen" class="guest-screen hidden">
-        <header class="guest-header-bar">
-            <div class="brand-badge-container">
-                <div class="brand-crest">⚖️</div>
-                <div class="brand-text-block">
-                    <div class="brand-title-line">
-                        <h1 class="brand-heading">Case Management System</h1>
+        <header class="guest-header-bar materialize-nav">
+            <div class="nav-wrapper">
+                <div class="header-left-section">
+                    <div class="brand-logo casebook-brand">
+                        <i class="fa-solid fa-scale-balanced brand-fa-icon"></i>
+                        <span class="brand-name">CaseBook</span>
                         <span class="system-tag guest-tag">Guest Portal</span>
                     </div>
-                    <div class="creator-identity-bar">
-                        <span class="creator-pill">Advocate & Developer</span>
-                        <span class="creator-name">Atul Kumar Mishra</span>
-                        <span class="creator-role-detail">(Advocate & Developer of this page)</span>
-                    </div>
                 </div>
-            </div>
-            <div class="header-right-section">
-                <button type="button" class="header-install-btn" onclick="triggerPwaInstall()" title="Install App to Home Screen">
-                    📲 <span>Install App</span>
-                </button>
-                <div class="user-chip">
-                    <span class="chip-avatar">👤</span>
-                    <div class="chip-info">
-                        <span class="chip-title">Guest Viewer</span>
-                        <span class="chip-status"><span class="status-dot"></span> Public Access</span>
-                    </div>
+                <div class="header-right-section nav-right-actions">
+                    <button id="guestLogoutBtn" class="logout-btn nav-logout-btn" title="Exit Guest Portal">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
+                    </button>
                 </div>
-                <button id="guestLogoutBtn" class="logout-btn">
-                    <span>Logout</span> ⎋
-                </button>
             </div>
         </header>
 
@@ -103,9 +100,9 @@
 
             <div class="search-results-panel">
                 <h3>Search Results</h3>
-                <div class="table-responsive">
-                    <table id="guestCasesTable" class="search-results-table">
-                        <thead>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="guestCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 search-results-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                             <tr>
                                 <th>Case Number</th>
                                 <th>Case Name</th>
@@ -174,99 +171,99 @@
     </div>
 
     <div id="adminScreen" class="page-shell hidden">
-        <!-- Header Bar -->
-        <header class="top-header">
-            <div class="header-left-section">
-                <button type="button" id="sidebarToggleBtn" class="mobile-menu-btn" aria-label="Toggle navigation menu">
-                    <span></span><span></span><span></span>
-                </button>
-                <div class="brand-badge-container">
-                    <div class="brand-crest">⚖️</div>
-                    <div class="brand-text-block">
-                        <div class="brand-title-line">
-                            <h1 class="brand-heading">Case Management System</h1>
-                            <span class="system-tag">Admin Console</span>
-                        </div>
-                        <div class="creator-identity-bar">
-                            <span class="creator-pill">Advocate & Developer</span>
-                            <span class="creator-name">Atul Kumar Mishra</span>
-                            <span class="creator-role-detail">(Advocate & Developer of this page)</span>
-                        </div>
-                    </div>
+        <!-- Header Bar: Clean CaseBook Navbar (#00695c) -->
+        <header class="top-header materialize-nav">
+            <div class="nav-wrapper">
+                <div class="header-left-section">
+                    <button type="button" id="sidebarToggleBtn" class="mobile-menu-btn" aria-label="Toggle navigation menu">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <a href="javascript:void(0);" onclick="showTab('home')" class="brand-logo casebook-brand">
+                        <i class="fa-solid fa-scale-balanced brand-fa-icon"></i>
+                        <span class="brand-name">CaseBook</span>
+                    </a>
                 </div>
-            </div>
-            
-            <div class="header-right-section">
-                <button type="button" class="header-install-btn" onclick="triggerPwaInstall()" title="Install App to Home Screen">
-                    📲 <span>Install App</span>
-                </button>
-                <div class="user-chip">
-                    <span class="chip-avatar">👨‍💼</span>
-                    <div class="chip-info">
-                        <span class="chip-title">Advocate Admin</span>
-                        <span class="chip-status"><span class="status-dot"></span> Online</span>
-                    </div>
+                
+                <div class="header-right-section nav-right-actions">
+                    <button id="adminLogoutBtn" class="logout-btn nav-logout-btn" title="Logout from CaseBook">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
+                    </button>
                 </div>
-                <button id="adminLogoutBtn" class="logout-btn">
-                    <span>Logout</span> ⎋
-                </button>
             </div>
         </header>
         <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-        <!-- Sidebar navigation for switching between admin sections -->
-        <div class="sidebar">
-            <div class="sidebar-author-card">
-                <div class="author-avatar">👨‍⚖️</div>
+        <!-- Sidebar Navigation: Materialize Sidenav (#00695c) -->
+        <div class="sidebar sidenav">
+            <div class="user-view sidebar-author-card">
+                <div class="author-avatar circle"><i class="fa-solid fa-user-tie"></i></div>
                 <div class="author-details">
-                    <div class="author-name">Atul Kumar Mishra</div>
-                    <div class="author-title">Advocate & Developer</div>
+                    <span class="author-name name">Atul Kumar Mishra</span>
+                    <span class="author-title email">Advocate & Developer</span>
+                    <span class="author-jurisdiction">District & High Courts</span>
                 </div>
             </div>
-            <h2>Overview & Schedule</h2>
-            <a href="#" onclick="showTab('home', event)" class="active">🏠 Home Dashboard</a>
-            <a href="#" onclick="showTab('search', event)">📁 My Cases</a>
+
+            <div class="subheader">Overview & Schedule</div>
+            <a href="#" onclick="showTab('home', event)" class="active"><i class="fa-solid fa-house nav-icon"></i> Home Dashboard</a>
+            <a href="#" onclick="showTab('search', event)"><i class="fa-solid fa-folder-open nav-icon"></i> My Cases</a>
             <a href="#" onclick="showTab('causelist', event)">
-                📜 My Cause List <span class="badge badge-upcoming" id="causeListNavCount">0</span>
+                <i class="fa-solid fa-scroll nav-icon"></i> My Cause List <span class="badge badge-upcoming" id="causeListNavCount">0</span>
             </a>
             <a href="#" onclick="showTab('upcoming', event)">
-                📅 Upcoming (7 Days) <span class="badge badge-upcoming" id="upcomingNavCount">0</span>
+                <i class="fa-solid fa-calendar-days nav-icon"></i> Upcoming (7 Days) <span class="badge badge-upcoming" id="upcomingNavCount">0</span>
             </a>
-            <a href="#" onclick="showTab('calendar', event)">🗓️ Calendar Scheduler</a>
+            <a href="#" onclick="showTab('calendar', event)"><i class="fa-solid fa-calendar nav-icon"></i> Calendar Scheduler</a>
             <a href="#" onclick="showTab('todo', event)">
-                📝 To-Do & Deadlines <span class="badge badge-todo" id="todoNavCount">0</span>
+                <i class="fa-solid fa-clipboard-check nav-icon"></i> To-Do & Deadlines <span class="badge badge-todo" id="todoNavCount">0</span>
             </a>
 
-            <h2>Case Workflow</h2>
-            <a href="#" onclick="showTab('add', event)">➕ Add New Case</a>
-            <a href="#" onclick="showTab('update', event)">✏️ Update Case</a>
-            <a href="#" onclick="showTab('hearing', event)">📅 Update Hearing</a>
-            <a href="#" onclick="showTab('delete', event)">🗑️ Delete Case</a>
-            <a href="#" onclick="showTab('courts', event)">🏛️ Manage Courts</a>
+            <div class="divider"></div>
+            <div class="subheader">Case Workflow</div>
+            <a href="#" onclick="showTab('add', event)"><i class="fa-solid fa-folder-plus nav-icon"></i> Add New Case</a>
+            <a href="#" onclick="showTab('update', event)"><i class="fa-solid fa-pen-to-square nav-icon"></i> Update Case</a>
+            <a href="#" onclick="showTab('hearing', event)"><i class="fa-solid fa-calendar-check nav-icon"></i> Update Hearing</a>
+            <a href="#" onclick="showTab('delete', event)"><i class="fa-solid fa-trash-can nav-icon"></i> Delete Case</a>
+            <a href="#" onclick="showTab('courts', event)"><i class="fa-solid fa-landmark nav-icon"></i> Manage Courts</a>
 
-            <h2>Case Registers</h2>
-            <a href="#" onclick="showTab('all', event)">📋 All Cases</a>
+            <div class="divider"></div>
+            <div class="subheader">Case Registers</div>
+            <a href="#" onclick="showTab('all', event)"><i class="fa-solid fa-list-check nav-icon"></i> All Cases</a>
             <a href="#" onclick="showTab('undated', event)">
-                ❓ Undated Cases <span class="badge badge-undated" id="undatedCount">0</span>
+                <i class="fa-solid fa-circle-question nav-icon"></i> Undated Cases <span class="badge badge-undated" id="undatedCount">0</span>
             </a>
             <a href="#" onclick="showTab('civil', event)">
-                ⚖️ Civil Cases <span class="badge badge-civil" id="civilCount">0</span>
+                <i class="fa-solid fa-scale-balanced nav-icon"></i> Civil Cases <span class="badge badge-civil" id="civilCount">0</span>
             </a>
-            <a href="#" onclick="showTab('criminal', event)">
-                🔒 Criminal Cases <span class="badge badge-criminal" id="criminalCount">0</span>
+            <a href="#" onclick="showTab('state', event)">
+                <i class="fa-solid fa-gavel nav-icon"></i> State Cases <span class="badge badge-criminal" id="stateCount">0</span>
+            </a>
+            <a href="#" onclick="showTab('family', event)">
+                <i class="fa-solid fa-people-roof nav-icon"></i> Family Cases <span class="badge badge-todo" id="familyCount">0</span>
             </a>
             <a href="#" onclick="showTab('revenue', event)">
-                💰 Revenue Cases <span class="badge badge-revenue" id="revenueCount">0</span>
+                <i class="fa-solid fa-wheat-awn nav-icon"></i> Revenue Cases <span class="badge badge-revenue" id="revenueCount">0</span>
+            </a>
+            <a href="#" onclick="showTab('misccivil', event)">
+                <i class="fa-solid fa-file-contract nav-icon"></i> Misc Civil <span class="badge" id="miscCivilCount">0</span>
+            </a>
+            <a href="#" onclick="showTab('misccriminal', event)">
+                <i class="fa-solid fa-shield-halved nav-icon"></i> Misc Criminal <span class="badge" id="miscCriminalCount">0</span>
+            </a>
+            <a href="#" onclick="showTab('complaint', event)">
+                <i class="fa-solid fa-bullhorn nav-icon"></i> Complaint Cases <span class="badge" id="complaintCount">0</span>
             </a>
             <a href="#" onclick="showTab('disposed', event)">
-                ✅ Disposed Cases <span class="badge badge-disposed" id="disposedCount">0</span>
+                <i class="fa-solid fa-circle-check nav-icon"></i> Disposed Cases <span class="badge badge-disposed" id="disposedCount">0</span>
             </a>
 
-            <h2>Database & Cloud Sync</h2>
-            <a href="#" onclick="showTab('dbmanager', event)">🗄️ Supabase DB Manager</a>
+            <div class="divider"></div>
+            <div class="subheader">Database & Cloud Sync</div>
+            <a href="#" onclick="showTab('dbmanager', event)"><i class="fa-solid fa-database nav-icon"></i> Supabase DB Manager</a>
 
-            <h2>Settings</h2>
-            <a href="#" onclick="showTab('settings', event)">🔐 Change Password</a>
+            <div class="divider"></div>
+            <div class="subheader">Settings</div>
+            <a href="#" onclick="showTab('settings', event)"><i class="fa-solid fa-key nav-icon"></i> Change Password</a>
         </div>
 
         <!-- Main content area where each admin tab is displayed -->
@@ -386,9 +383,9 @@
                             </div>
                             <button type="button" class="secondary-btn panel-action-btn" onclick="showTab('causelist')">Open Daily Cause List ➔</button>
                         </div>
-                        <div class="table-responsive">
-                            <table class="search-results-table case-table" border="1" width="100%" cellpadding="8">
-                                <thead>
+                        <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                            <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 search-results-table case-table">
+                                <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                                     <tr>
                                         <th style="width: 50px; text-align: center;">Sr. No.</th>
                                         <th>Case Number</th>
@@ -537,9 +534,13 @@
                             <label for="searchTypeFilter" class="filter-label">⚖️ Case Type</label>
                             <select id="searchTypeFilter" class="filter-select">
                                 <option value="">All Case Types</option>
-                                <option value="civil">Civil Cases</option>
-                                <option value="criminal">Criminal Cases</option>
-                                <option value="revenue">Revenue Cases</option>
+                                <option value="civil">⚖️ Civil Cases</option>
+                                <option value="state">🚨 State Cases (Criminal)</option>
+                                <option value="family">👨‍👩‍👧 Family Cases</option>
+                                <option value="revenue">🌾 Revenue Cases</option>
+                                <option value="misc_civil">📑 Misc Civil (Appeals / Revisions)</option>
+                                <option value="misc_criminal">⚖️ Misc Criminal (Bails / Appeals)</option>
+                                <option value="complaint">📢 Complaint Cases (Sec 138 / 200 CrPC)</option>
                             </select>
                         </div>
                         <div class="filter-item">
@@ -590,9 +591,9 @@
                     <div class="results-panel-header">
                         <h3>📋 Cases Register Table</h3>
                     </div>
-                    <div class="table-responsive">
-                        <table class="search-results-table case-table" border="1" width="100%" cellpadding="8">
-                            <thead>
+                    <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                        <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 search-results-table case-table">
+                            <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                                 <tr>
                                     <th style="width: 60px; text-align: center;">Sr. No.</th>
                                     <th>Case Number</th>
@@ -714,9 +715,9 @@
                                 <span class="detail-label">Case Status</span>
                                 <span class="detail-value" id="detailCaseStatus"><span class="status-badge pending">⏳ Pending</span></span>
                             </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Remarks</span>
-                                <span class="detail-value" id="detailCaseRemark">—</span>
+                            <div class="detail-item full-width-detail" style="grid-column: 1 / -1;">
+                                <span class="detail-label">Case Remarks &amp; Co-Parties</span>
+                                <span class="detail-value remarks-detail-badge" id="detailCaseRemark">—</span>
                             </div>
                             <div class="detail-item" style="grid-column: 1 / -1;">
                                 <span class="detail-label">Document / Order Sheet</span>
@@ -801,9 +802,9 @@
 
                     <!-- Daily Cause List Table -->
                     <div class="causelist-table-card">
-                        <div class="table-responsive">
-                            <table id="causeListMainTable" class="case-table causelist-table" border="1" width="100%" cellpadding="8">
-                                <thead>
+                        <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                            <table id="causeListMainTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table causelist-table">
+                                <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                                     <tr>
                                         <th style="width: 50px; text-align: center;">Item #</th>
                                         <th style="width: 130px;">Case Number</th>
@@ -1010,8 +1011,8 @@
                                 </div>
                             </div>
 
-                            <button type="submit" id="saveTodoBtn" class="todo-submit-btn">
-                                <span>💾 Schedule Case Task</span>
+                            <button type="submit" id="saveTodoBtn" class="todo-submit-btn primary-btn form-submit-btn">
+                                <i class="fa-solid fa-paper-plane"></i> <span>Submit Case Task</span>
                             </button>
                         </form>
                     </div>
@@ -1180,78 +1181,634 @@
                                     <label for="caseDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
                                     <input id="caseDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
-                                <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="caseRemark">Case Remarks &amp; Co-Parties List <span style="font-size:11px; font-weight:normal; color:#64748b;">(Optional — Searchable)</span></label>
-                                    <textarea id="caseRemark" rows="2" placeholder="e.g. Plaintiffs: 1. Ramesh Kumar, 2. Suresh Kumar; Defendants: 1. State of U.P., 2. Tehsildar Sadar..."></textarea>
-                                    <small style="display:block; margin-top:3px; color:#64748b; font-size:11.5px;">💡 Any co-plaintiff or co-defendant listed here will be searchable in My Cases &amp; Client Portal.</small>
+                                <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
+                                    <div class="remarks-box-header">
+                                        <div class="remarks-box-title-wrap">
+                                            <span class="remarks-box-icon">📝</span>
+                                            <label for="caseRemark" class="remarks-box-label">Case Remarks &amp; Co-Parties List</label>
+                                        </div>
+                                        <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
+                                    </div>
+                                    <div class="remarks-quick-chips">
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('caseRemark', 'Co-Plaintiffs: ')">➕ Co-Plaintiffs</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('caseRemark', 'Co-Defendants: ')">➕ Co-Defendants</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('caseRemark', 'Connected Suit: ')">➕ Connected Suit</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('caseRemark', 'Injunction Status: ')">➕ Injunction Status</span>
+                                    </div>
+                                    <textarea id="caseRemark" rows="2" placeholder="e.g. Plaintiffs: 1. Ramesh Kumar, 2. Suresh Kumar; Defendants: 1. State of U.P., 2. Tehsildar Sadar; Injunction granted on 12/03/2026..."></textarea>
+                                    <div class="remarks-box-footer">
+                                        <span class="remarks-box-tip">💡 <b>Search Index:</b> Any co-plaintiff, co-defendant, or connected matter note entered here will be indexed &amp; searchable across My Cases &amp; Client Portal.</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="criminalCaseForm" class="case-form-panel hidden-case-form">
+                        <!-- State Cases Form (Criminal / FIR / State of U.P.) -->
+                        <div id="stateCaseForm" class="case-form-panel hidden-case-form">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="criminalCaseNumber">Case Number</label>
-                                    <input id="criminalCaseNumber" type="text" placeholder="e.g. CR-2026-010" required>
+                                    <label for="stateCaseNumber">Case Number / ST No.</label>
+                                    <input id="stateCaseNumber" type="text" placeholder="e.g. ST-2026-001 or Sess. Case 104/2026">
                                 </div>
                                 <div class="form-group">
-                                    <label for="crimeYear">Crime Year</label>
-                                    <input id="crimeYear" type="number" placeholder="Year" min="1900" max="2100" value="2026" required>
+                                    <label for="stateCrimeYear">Crime / Case Year</label>
+                                    <input id="stateCrimeYear" type="number" placeholder="Year" min="1900" max="2100" value="2026">
                                 </div>
                                 <div class="form-group">
-                                    <label for="policeStation">Police Station</label>
-                                    <input id="policeStation" type="text" placeholder="Enter Police Station" required>
+                                    <label for="stateCrimeNumber">Crime / FIR Number</label>
+                                    <input id="stateCrimeNumber" type="text" placeholder="e.g. Crime No. 142/2026">
                                 </div>
                                 <div class="form-group">
-                                    <label for="crimeSection">Section</label>
-                                    <input id="crimeSection" type="text" placeholder="e.g. IPC 302, IPC 379" required>
+                                    <label for="statePoliceStation">Police Station / Thana</label>
+                                    <select id="statePoliceStation">
+                                        <option value="">-- Select Police Station --</option>
+                                        <option value="Kotwali Sadar (Main town)">Kotwali Sadar (Main town)</option>
+                                        <option value="Kheri">Kheri</option>
+                                        <option value="Mahila Thana (Women's police station)">Mahila Thana (Women's police station)</option>
+                                        <option value="Kotwali Gola (Gola Gokarannath)">Kotwali Gola (Gola Gokarannath)</option>
+                                        <option value="Kotwali Gauriphanta">Kotwali Gauriphanta</option>
+                                        <option value="Kotwali Chandan Chauki">Kotwali Chandan Chauki</option>
+                                        <option value="Ishanagar">Ishanagar</option>
+                                        <option value="Kotwali Dhaurahara">Kotwali Dhaurahara</option>
+                                        <option value="Nighasan">Nighasan</option>
+                                        <option value="Neemgaon">Neemgaon</option>
+                                        <option value="Palia Kalan">Palia Kalan</option>
+                                        <option value="Pasgawan">Pasgawan</option>
+                                        <option value="Phoolbehar">Phoolbehar</option>
+                                        <option value="Phardhan">Phardhan</option>
+                                        <option value="Bhira (Bheera)">Bhira (Bheera)</option>
+                                        <option value="Maigalganj">Maigalganj</option>
+                                        <option value="Mailani">Mailani</option>
+                                        <option value="Mitauli">Mitauli</option>
+                                        <option value="Kotwali Mohammadi">Kotwali Mohammadi</option>
+                                        <option value="Thana Sampurna Nagar">Thana Sampurna Nagar</option>
+                                        <option value="Singahi">Singahi</option>
+                                        <option value="Hyderabad">Hyderabad</option>
+                                        <option value="Kotwali Tikoniya">Kotwali Tikoniya</option>
+                                        <option value="Other">Other / Outside District</option>
+                                    </select>
+                                    <input type="text" id="statePoliceStationCustom" placeholder="✍️ Specify other Police Station name..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
                                 </div>
                                 <div class="form-group">
-                                    <label for="crimeNumber">Crime / FIR Number</label>
-                                    <input id="crimeNumber" type="text" placeholder="Enter Crime Number" required>
+                                    <label for="stateCrimeSection">Sections (IPC / CrPC / BNS)</label>
+                                    <input id="stateCrimeSection" type="text" placeholder="e.g. IPC 302, 307, 504 / BNS 103">
                                 </div>
                                 <div class="form-group">
-                                    <label for="crimeFilingDate">Filing Date</label>
-                                    <input id="crimeFilingDate" type="date" required>
+                                    <label for="stateFilingDate">Filing / Cognizance Date</label>
+                                    <input id="stateFilingDate" type="date">
                                 </div>
                                 <div class="form-group">
-                                    <label for="victimName">Victim Name</label>
-                                    <input id="victimName" type="text" placeholder="Enter Victim Name" required>
+                                    <label for="stateFirstParty">First Party (Prosecution)</label>
+                                    <input id="stateFirstParty" type="text" value="State of U.P." placeholder="State of U.P.">
+                                    <small style="display:block; margin-top:3px; color:#64748b; font-size:11.5px;">⚖️ Defaulted to <b>State of U.P.</b> (editable for private complaints)</small>
                                 </div>
                                 <div class="form-group">
-                                    <label for="accusedName">Accused Name (Lead / First Accused)</label>
-                                    <input id="accusedName" type="text" placeholder="e.g. Suresh Kumar & 2 Ors. or Accused Name" required>
-                                    <small style="display:block; margin-top:3px; color:#64748b; font-size:11.5px;">⚖️ Multi-accused: e.g. <i>Suresh &amp; 2 Ors.</i> (list co-accused in Remarks below)</small>
+                                    <label for="stateAccusedName">Accused Name (Lead / Opposite Party)</label>
+                                    <input id="stateAccusedName" type="text" placeholder="e.g. Ramesh Kumar & 2 Ors.">
+                                    <small style="display:block; margin-top:3px; color:#64748b; font-size:11.5px;">⚖️ Multi-accused: e.g. <i>Ramesh &amp; 2 Ors.</i> (list co-accused in Remarks below)</small>
                                 </div>
                                 <div class="form-group">
-                                    <label for="criminalCourtName">Court</label>
+                                    <label for="stateCourtName">Court</label>
                                     <div class="court-input-wrapper">
-                                        <select id="criminalCourtName" required>
+                                        <select id="stateCourtName">
                                             <option value="">-- Select Court --</option>
                                         </select>
-                                        <button type="button" id="addCriminalCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                        <button type="button" id="addStateCourtBtn" class="mini-court-btn" title="Add Court">+</button>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="criminalClientName">Client Name</label>
-                                    <input id="criminalClientName" type="text" placeholder="Enter Client Name" required>
+                                    <label for="stateClientName">Client Name Represented</label>
+                                    <input id="stateClientName" type="text" placeholder="Enter Client Name">
                                 </div>
                                 <div class="form-group">
-                                    <label for="criminalClientNumber">Client Number</label>
-                                    <input id="criminalClientNumber" type="tel" placeholder="Enter Client Number" required>
+                                    <label for="stateClientNumber">Client Number</label>
+                                    <input id="stateClientNumber" type="tel" placeholder="Enter Client Phone Number">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="criminalDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
-                                    <input id="criminalDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                    <label for="stateDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="stateDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
-                                <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="criminalCaseRemark">Case Remarks &amp; Co-Accused / Witnesses <span style="font-size:11px; font-weight:normal; color:#64748b;">(Optional — Searchable)</span></label>
-                                    <textarea id="criminalCaseRemark" rows="2" placeholder="e.g. Co-accused: 1. Suresh Kumar, 2. Rajesh; Complainant / FIR details..."></textarea>
+                                <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
+                                    <div class="remarks-box-header">
+                                        <div class="remarks-box-title-wrap">
+                                            <span class="remarks-box-icon">🚨</span>
+                                            <label for="stateCaseRemark" class="remarks-box-label">Case Remarks &amp; Co-Accused / Custody Details</label>
+                                        </div>
+                                        <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
+                                    </div>
+                                    <div class="remarks-quick-chips">
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('stateCaseRemark', 'Co-Accused: ')">➕ Co-Accused</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('stateCaseRemark', 'Custody / Jail: In District Jail since ')">➕ Jail / Custody</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('stateCaseRemark', 'Bail Surety: ')">➕ Bail Surety</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('stateCaseRemark', 'Thana GD / CD Notes: ')">➕ GD / CD Notes</span>
+                                    </div>
+                                    <textarea id="stateCaseRemark" rows="2" placeholder="e.g. Co-accused: 1. Suresh Kumar, 2. Rajesh; In District Jail since 15-01-2026; Case Diary summoned..."></textarea>
+                                    <div class="remarks-box-footer">
+                                        <span class="remarks-box-tip">💡 <b>Search Index:</b> Co-accused names, custody details, and GD notes are indexed &amp; searchable across criminal registers.</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" class="primary-btn form-submit-btn">➕ Add Case Record</button>
+                        <!-- Family Cases Form (Matrimonial / Maintenance / DV) -->
+                        <div id="familyCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="familyCaseNumber">Case Number</label>
+                                    <input id="familyCaseNumber" type="text" placeholder="e.g. FC-2026-015 or Matrimonial Case 45/2026">
+                                </div>
+                                <div class="form-group">
+                                    <label for="familyCaseYear">Year</label>
+                                    <input id="familyCaseYear" type="number" placeholder="Year" min="1900" max="2100" value="2026">
+                                </div>
+                                <div class="form-group">
+                                    <label for="familyMatterType">Dispute / Matter Type</label>
+                                    <select id="familyMatterType">
+                                        <option value="Maintenance (Sec 125 CrPC)">Maintenance (Sec 125 CrPC / Sec 144 BNSS)</option>
+                                        <option value="Divorce (Sec 13 HMA)">Divorce Petition (Sec 13 HMA)</option>
+                                        <option value="Restitution of Conjugal Rights (Sec 9 HMA)">Restitution of Conjugal Rights (Sec 9 HMA)</option>
+                                        <option value="Domestic Violence (DV Act)">Domestic Violence (DV Act 2005)</option>
+                                        <option value="Child Custody / Guardianship">Child Custody / Guardianship Act</option>
+                                        <option value="Mutual Divorce (Sec 13B HMA)">Mutual Divorce (Sec 13B HMA)</option>
+                                        <option value="Special Marriage Act">Special Marriage Act Dispute</option>
+                                        <option value="Other Family Dispute">Other Family Dispute</option>
+                                    </select>
+                                    <input type="text" id="familyMatterTypeCustom" placeholder="✍️ Specify other family matter/dispute type..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="familyFilingDate">Filing Date</label>
+                                    <input id="familyFilingDate" type="date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="familyPetitioner">Petitioner / Applicant (Wife / Husband)</label>
+                                    <input id="familyPetitioner" type="text" placeholder="e.g. Smt. Pooja Sharma">
+                                </div>
+                                <div class="form-group">
+                                    <label for="familyRespondent">Respondent / Opposite Party (Husband / Wife / In-laws)</label>
+                                    <input id="familyRespondent" type="text" placeholder="e.g. Rahul Sharma & Ors.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="familyMarriageDate">Marriage Date (Optional)</label>
+                                    <input id="familyMarriageDate" type="date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="familyMaintenance">Maintenance Claimed / Ordered</label>
+                                    <input id="familyMaintenance" type="text" placeholder="e.g. ₹15,000/month interim maintenance">
+                                </div>
+                                <div class="form-group">
+                                    <label for="familyCourtName">Family Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="familyCourtName">
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="addFamilyCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="familyClientName">Client Name</label>
+                                    <input id="familyClientName" type="text" placeholder="Enter Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="familyClientNumber">Client Number</label>
+                                    <input id="familyClientNumber" type="tel" placeholder="Enter Client Phone Number">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="familyDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="familyDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                </div>
+                                <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
+                                    <div class="remarks-box-header">
+                                        <div class="remarks-box-title-wrap">
+                                            <span class="remarks-box-icon">👨‍👩‍👧</span>
+                                            <label for="familyCaseRemark" class="remarks-box-label">Case Remarks &amp; Mediation / Children Details</label>
+                                        </div>
+                                        <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
+                                    </div>
+                                    <div class="remarks-quick-chips">
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('familyCaseRemark', 'In-Laws Named: ')">➕ In-Laws Named</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('familyCaseRemark', 'Mediation Status: Referred on ')">➕ Mediation</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('familyCaseRemark', 'Minor Children: ')">➕ Minor Children</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('familyCaseRemark', 'Interim Maintenance: ')">➕ Maintenance</span>
+                                    </div>
+                                    <textarea id="familyCaseRemark" rows="2" placeholder="e.g. In-laws named in petition: 1. Smt. Kamala, 2. Ram Lal; Referred to Mediation Center on 10/02/2026; Child custody dispute..."></textarea>
+                                    <div class="remarks-box-footer">
+                                        <span class="remarks-box-tip">💡 <b>Search Index:</b> Relative names, children details, and mediation notes are indexed &amp; searchable across Family registers.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Revenue Cases Form (Land / Tehsil / UP Revenue Code) -->
+                        <div id="revenueCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="revenueCaseNumber">Case Number / Computerized Case No.</label>
+                                    <input id="revenueCaseNumber" type="text" placeholder="e.g. REV-2026-020 or Case No. T2026...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueCaseYear">Year</label>
+                                    <input id="revenueCaseYear" type="number" placeholder="Year" min="1900" max="2100" value="2026">
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueActSection">Revenue Act &amp; Section (UP Revenue Code)</label>
+                                    <select id="revenueActSection">
+                                        <option value="Sec 34 (Mutation / दाखिल खारिज)">Sec 34 (Mutation / दाखिल खारिज)</option>
+                                        <option value="Sec 24 (Demarcation / पत्थरगड्डी)">Sec 24 (Demarcation / पैमाइश / पत्थरगड्डी)</option>
+                                        <option value="Sec 116 (Partition / कुर्रा बटवारा)">Sec 116 (Partition / कुर्रा बटवारा)</option>
+                                        <option value="Sec 67 (Eviction Gaon Sabha Land)">Sec 67 (Gram Sabha Encroachment / बेदखली)</option>
+                                        <option value="Sec 80 (Non-Agricultural Declaration)">Sec 80 (Non-Agri 143 Declaration)</option>
+                                        <option value="Sec 144 (Declaratory Suit / घोषणात्मक वाद)">Sec 144 (Declaratory Suit / घोषणात्मक वाद)</option>
+                                        <option value="Sec 38 (Correction of Revenue Map/Record)">Sec 38 (Map / Khatauni Record Correction)</option>
+                                        <option value="Revision / Appeal (Sec 207 / 210)">Revision / Appeal (Sec 207 / 210)</option>
+                                        <option value="Other Revenue Section">Other Revenue Section</option>
+                                    </select>
+                                    <input type="text" id="revenueActSectionCustom" placeholder="✍️ Specify other revenue act / section..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueFilingDate">Filing Date</label>
+                                    <input id="revenueFilingDate" type="date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueVillage">Village / Mauja (मौजा / ग्राम)</label>
+                                    <input id="revenueVillage" type="text" placeholder="e.g. Kalyanpur / Bijnor">
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueTehsil">Tehsil / Pargana (तहसील)</label>
+                                    <input id="revenueTehsil" type="text" placeholder="e.g. Tehsil Sadar / Sarojini Nagar">
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueGataNo">Gata / Khasra No. &amp; Khatauni (गाटा सं० / खतौनी)</label>
+                                    <input id="revenueGataNo" type="text" placeholder="e.g. Gata No. 245/1, Khatauni No. 112">
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueApplicant">Applicant / Plaintiff (वादी)</label>
+                                    <input id="revenueApplicant" type="text" placeholder="e.g. Ram Prasad & Ors.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueOppositeParty">Opposite Party / Gaon Sabha (प्रतिवादी / गाँव सभा)</label>
+                                    <input id="revenueOppositeParty" type="text" placeholder="e.g. Gaon Sabha & 3 Ors.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueCourtName">Revenue Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="revenueCourtName">
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="addRevenueCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueClientName">Client Name</label>
+                                    <input id="revenueClientName" type="text" placeholder="Enter Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="revenueClientNumber">Client Number</label>
+                                    <input id="revenueClientNumber" type="tel" placeholder="Enter Client Phone Number">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="revenueDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="revenueDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                </div>
+                                <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
+                                    <div class="remarks-box-header">
+                                        <div class="remarks-box-title-wrap">
+                                            <span class="remarks-box-icon">🌾</span>
+                                            <label for="revenueCaseRemark" class="remarks-box-label">Case Remarks &amp; Co-Sharers / Land Details</label>
+                                        </div>
+                                        <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
+                                    </div>
+                                    <div class="remarks-quick-chips">
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('revenueCaseRemark', 'Co-Sharers: ')">➕ Co-Sharers</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('revenueCaseRemark', 'Land Area: ')">➕ Area / Rakba</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('revenueCaseRemark', 'Lekhpal / Kanoongo Report: ')">➕ Revenue Report</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('revenueCaseRemark', 'Boundary / Demarcation: ')">➕ Boundary Notes</span>
+                                    </div>
+                                    <textarea id="revenueCaseRemark" rows="2" placeholder="e.g. Co-sharers: 1. Ram Kumar (1/3 share), 2. Shyam (2/3 share); Area 0.450 Hectare; Spot inspection report submitted..."></textarea>
+                                    <div class="remarks-box-footer">
+                                        <span class="remarks-box-tip">💡 <b>Search Index:</b> Co-sharers and revenue spot inspection notes are indexed &amp; searchable across Revenue registers.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Misc Civil Cases Form (Applications, Appeals, Revisions, Injunctions) -->
+                        <div id="miscCivilCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="miscCivilCaseNumber">Misc / Application Case Number *</label>
+                                    <input id="miscCivilCaseNumber" type="text" placeholder="e.g. MCA-2026-101 or Misc App No.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCivilCaseYear">Year</label>
+                                    <input id="miscCivilCaseYear" type="number" placeholder="2026" value="2026">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCivilOriginalCase">Original / Main Suit Number</label>
+                                    <input id="miscCivilOriginalCase" type="text" placeholder="e.g. OS No. 45/2024">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCivilProceedingType">Proceeding / Application Type</label>
+                                    <select id="miscCivilProceedingType">
+                                        <option value="Temporary Injunction (Order 39 Rule 1 & 2 CPC)">Temporary Injunction (Order 39 Rule 1 &amp; 2 CPC)</option>
+                                        <option value="Restoration Application (Order 9 Rule 13 / Rule 9 CPC)">Restoration (Order 9 Rule 13 / Rule 9 CPC)</option>
+                                        <option value="Civil Appeal (Sec 96 CPC)">Civil Appeal (Sec 96 CPC)</option>
+                                        <option value="Civil Revision (Sec 115 CPC)">Civil Revision (Sec 115 CPC)</option>
+                                        <option value="Execution Application (Order 21 CPC)">Execution Petition (Order 21 CPC)</option>
+                                        <option value="Review Application (Order 47 CPC / Sec 114)">Review Application (Order 47 CPC)</option>
+                                        <option value="Misc Civil Appeal (Order 43 Rule 1 CPC)">Misc Civil Appeal (Order 43 CPC)</option>
+                                        <option value="Other Misc Application">Other Misc Application</option>
+                                    </select>
+                                    <input type="text" id="miscCivilProceedingTypeCustom" placeholder="✍️ Specify other application / proceeding type..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCivilApplicant">Applicant / Appellant / Revisionist *</label>
+                                    <input id="miscCivilApplicant" type="text" placeholder="Enter Applicant Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCivilOppositeParty">Opposite Party / Respondent *</label>
+                                    <input id="miscCivilOppositeParty" type="text" placeholder="Enter Opposite Party Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCivilCourtName">Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="miscCivilCourtName">
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="addMiscCivilCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCivilFilingDate">Filing Date</label>
+                                    <input id="miscCivilFilingDate" type="date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCivilClientName">Client Name</label>
+                                    <input id="miscCivilClientName" type="text" placeholder="Enter Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCivilClientNumber">Client Number</label>
+                                    <input id="miscCivilClientNumber" type="tel" placeholder="Enter Client Phone Number">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="miscCivilDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="miscCivilDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                </div>
+                                <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
+                                    <div class="remarks-box-header">
+                                        <div class="remarks-box-title-wrap">
+                                            <span class="remarks-box-icon">📑</span>
+                                            <label for="miscCivilCaseRemark" class="remarks-box-label">Remarks &amp; Application Notes</label>
+                                        </div>
+                                        <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
+                                    </div>
+                                    <div class="remarks-quick-chips">
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('miscCivilCaseRemark', 'Order 39 Rule 1&2 CPC Grounds: ')">➕ Injunction Grounds</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('miscCivilCaseRemark', 'Order 9 Rule 13 Ex-Parte Recall: ')">➕ Recall Grounds</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('miscCivilCaseRemark', 'Lower Court Record (LCR): ')">➕ LCR Summoned</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('miscCivilCaseRemark', 'Stay Order Status: ')">➕ Stay Order</span>
+                                    </div>
+                                    <textarea id="miscCivilCaseRemark" rows="2" placeholder="e.g. Temporary injunction application filed along with plaint; ex-parte ad-interim injunction granted; notice issued..."></textarea>
+                                    <div class="remarks-box-footer">
+                                        <span class="remarks-box-tip">💡 <b>Search Index:</b> Application grounds, interlocutory orders, and stay notes are indexed &amp; searchable across registers.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Misc Criminal Cases Form (Bail, Appeals, Revisions, Sec 156(3) CrPC) -->
+                        <div id="miscCriminalCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="miscCriminalCaseNumber">Misc Criminal / Bail Application No. *</label>
+                                    <input id="miscCriminalCaseNumber" type="text" placeholder="e.g. BA-2026-050 or Cr. Misc No.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalCaseYear">Year</label>
+                                    <input id="miscCriminalCaseYear" type="number" placeholder="2026" value="2026">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalOriginalCase">Original ST / Crime / FIR Number</label>
+                                    <input id="miscCriminalOriginalCase" type="text" placeholder="e.g. Crime No. 210/2026">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalProceedingType">Application / Proceeding Type</label>
+                                    <select id="miscCriminalProceedingType">
+                                        <option value="Regular Bail (Sec 439 CrPC / Sec 483 BNSS)">Regular Bail (Sec 439 CrPC / Sec 483 BNSS)</option>
+                                        <option value="Anticipatory Bail (Sec 438 CrPC / Sec 482 BNSS)">Anticipatory Bail (Sec 438 CrPC / Sec 482 BNSS)</option>
+                                        <option value="Criminal Appeal (Sec 374 CrPC / Sec 415 BNSS)">Criminal Appeal (Sec 374 CrPC / Sec 415 BNSS)</option>
+                                        <option value="Criminal Revision (Sec 397/401 CrPC)">Criminal Revision (Sec 397/401 CrPC)</option>
+                                        <option value="Application u/s 156(3) CrPC / Sec 175(3) BNSS">Application u/s 156(3) CrPC (FIR Order)</option>
+                                        <option value="Criminal Misc Application (Sec 482 CrPC)">Criminal Misc Application (Sec 482 CrPC)</option>
+                                        <option value="Other Criminal Application">Other Criminal Application</option>
+                                    </select>
+                                    <input type="text" id="miscCriminalProceedingTypeCustom" placeholder="✍️ Specify other application / proceeding type..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalPoliceStation">Police Station / Thana</label>
+                                    <select id="miscCriminalPoliceStation">
+                                        <option value="">-- Select Police Station --</option>
+                                        <option value="Kotwali Sadar (Main town)">Kotwali Sadar (Main town)</option>
+                                        <option value="Kheri">Kheri</option>
+                                        <option value="Mahila Thana (Women's police station)">Mahila Thana (Women's police station)</option>
+                                        <option value="Kotwali Gola (Gola Gokarannath)">Kotwali Gola (Gola Gokarannath)</option>
+                                        <option value="Kotwali Gauriphanta">Kotwali Gauriphanta</option>
+                                        <option value="Kotwali Chandan Chauki">Kotwali Chandan Chauki</option>
+                                        <option value="Ishanagar">Ishanagar</option>
+                                        <option value="Kotwali Dhaurahara">Kotwali Dhaurahara</option>
+                                        <option value="Nighasan">Nighasan</option>
+                                        <option value="Neemgaon">Neemgaon</option>
+                                        <option value="Palia Kalan">Palia Kalan</option>
+                                        <option value="Pasgawan">Pasgawan</option>
+                                        <option value="Phoolbehar">Phoolbehar</option>
+                                        <option value="Phardhan">Phardhan</option>
+                                        <option value="Bhira (Bheera)">Bhira (Bheera)</option>
+                                        <option value="Maigalganj">Maigalganj</option>
+                                        <option value="Mailani">Mailani</option>
+                                        <option value="Mitauli">Mitauli</option>
+                                        <option value="Kotwali Mohammadi">Kotwali Mohammadi</option>
+                                        <option value="Thana Sampurna Nagar">Thana Sampurna Nagar</option>
+                                        <option value="Singahi">Singahi</option>
+                                        <option value="Hyderabad">Hyderabad</option>
+                                        <option value="Kotwali Tikoniya">Kotwali Tikoniya</option>
+                                        <option value="Other">Other / Outside District</option>
+                                    </select>
+                                    <input type="text" id="miscCriminalPoliceStationCustom" placeholder="✍️ Specify other Police Station name..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalCrimeSection">Section (IPC / BNS / Act)</label>
+                                    <input id="miscCriminalCrimeSection" type="text" placeholder="e.g. IPC 307, 323, 504">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalApplicant">Applicant / Accused / Appellant *</label>
+                                    <input id="miscCriminalApplicant" type="text" placeholder="Enter Applicant Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalOppositeParty">Opposite Party (Prosecution / Complainant) *</label>
+                                    <input id="miscCriminalOppositeParty" type="text" placeholder="State of U.P." value="State of U.P.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalCourtName">Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="miscCriminalCourtName">
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="addMiscCriminalCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalFilingDate">Filing Date</label>
+                                    <input id="miscCriminalFilingDate" type="date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalClientName">Client Name</label>
+                                    <input id="miscCriminalClientName" type="text" placeholder="Enter Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="miscCriminalClientNumber">Client Number</label>
+                                    <input id="miscCriminalClientNumber" type="tel" placeholder="Enter Client Phone Number">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="miscCriminalDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="miscCriminalDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                </div>
+                                <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
+                                    <div class="remarks-box-header">
+                                        <div class="remarks-box-title-wrap">
+                                            <span class="remarks-box-icon">⚖️</span>
+                                            <label for="miscCriminalCaseRemark" class="remarks-box-label">Remarks &amp; Case Progress</label>
+                                        </div>
+                                        <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
+                                    </div>
+                                    <div class="remarks-quick-chips">
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('miscCriminalCaseRemark', 'Bail Grounds: False implication, no overt act, ')">➕ Bail Grounds</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('miscCriminalCaseRemark', 'Parity: Co-accused granted bail on ')">➕ Parity Note</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('miscCriminalCaseRemark', 'Previous Antecedents: Clean record / no past cases')">➕ Clean Antecedents</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('miscCriminalCaseRemark', 'Interim Protection: Stay of arrest granted till ')">➕ Interim Protection</span>
+                                    </div>
+                                    <textarea id="miscCriminalCaseRemark" rows="2" placeholder="e.g. Bail rejected by CJM, moving to Sessions, CD summoned, interim protection..."></textarea>
+                                    <div class="remarks-box-footer">
+                                        <span class="remarks-box-tip">💡 <b>Search Index:</b> Interlocutory bail orders, parity citations, and police CD notes are indexed &amp; searchable.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Complaint Cases Form (Sec 138 NI Act, Sec 200 CrPC, Defamation, etc.) -->
+                        <div id="complaintCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="complaintCaseNumber">Complaint / CC Number *</label>
+                                    <input id="complaintCaseNumber" type="text" placeholder="e.g. CC-2026-105 or Case No.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="complaintCaseYear">Year</label>
+                                    <input id="complaintCaseYear" type="number" placeholder="2026" value="2026">
+                                </div>
+                                <div class="form-group">
+                                    <label for="complaintType">Complaint / Matter Type *</label>
+                                    <select id="complaintType">
+                                        <option value="Cheque Bounce (Sec 138 NI Act)">Cheque Bounce (Sec 138 NI Act)</option>
+                                        <option value="Private Criminal Complaint (Sec 200 CrPC / Sec 223 BNSS)">Private Criminal Complaint (Sec 200 CrPC / 223 BNSS)</option>
+                                        <option value="Defamation (Sec 500 IPC / Sec 356 BNS)">Defamation (Sec 500 IPC / 356 BNS)</option>
+                                        <option value="Cheating & Fraud (Sec 420 IPC / Sec 318 BNS)">Cheating &amp; Fraud (Sec 420 IPC)</option>
+                                        <option value="Domestic / Harassment Complaint">Domestic / Harassment Complaint</option>
+                                        <option value="Labour / Industrial Dispute Complaint">Labour / Industrial Dispute Complaint</option>
+                                        <option value="Consumer Protection Complaint">Consumer Protection Complaint</option>
+                                        <option value="Other Complaint">Other Complaint</option>
+                                    </select>
+                                    <input type="text" id="complaintTypeCustom" placeholder="✍️ Specify other complaint type..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="complaintSectionAct">Sections &amp; Acts</label>
+                                    <input id="complaintSectionAct" type="text" placeholder="e.g. Sec 138 NI Act, Sec 406/420 IPC">
+                                </div>
+                                <div class="form-group">
+                                    <label for="complaintComplainant">Complainant Name (परिवादी) *</label>
+                                    <input id="complaintComplainant" type="text" placeholder="Enter Complainant Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="complaintAccusedName">Accused / Opposite Party (विपक्षी / अभियुक्त) *</label>
+                                    <input id="complaintAccusedName" type="text" placeholder="Enter Accused / Opposite Party Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="complaintPoliceStation">Police Station / Thana Jurisdiction</label>
+                                    <select id="complaintPoliceStation">
+                                        <option value="">-- Select Police Station --</option>
+                                        <option value="Kotwali Sadar (Main town)">Kotwali Sadar (Main town)</option>
+                                        <option value="Kheri">Kheri</option>
+                                        <option value="Mahila Thana (Women's police station)">Mahila Thana (Women's police station)</option>
+                                        <option value="Kotwali Gola (Gola Gokarannath)">Kotwali Gola (Gola Gokarannath)</option>
+                                        <option value="Kotwali Gauriphanta">Kotwali Gauriphanta</option>
+                                        <option value="Kotwali Chandan Chauki">Kotwali Chandan Chauki</option>
+                                        <option value="Ishanagar">Ishanagar</option>
+                                        <option value="Kotwali Dhaurahara">Kotwali Dhaurahara</option>
+                                        <option value="Nighasan">Nighasan</option>
+                                        <option value="Neemgaon">Neemgaon</option>
+                                        <option value="Palia Kalan">Palia Kalan</option>
+                                        <option value="Pasgawan">Pasgawan</option>
+                                        <option value="Phoolbehar">Phoolbehar</option>
+                                        <option value="Phardhan">Phardhan</option>
+                                        <option value="Bhira (Bheera)">Bhira (Bheera)</option>
+                                        <option value="Maigalganj">Maigalganj</option>
+                                        <option value="Mailani">Mailani</option>
+                                        <option value="Mitauli">Mitauli</option>
+                                        <option value="Kotwali Mohammadi">Kotwali Mohammadi</option>
+                                        <option value="Thana Sampurna Nagar">Thana Sampurna Nagar</option>
+                                        <option value="Singahi">Singahi</option>
+                                        <option value="Hyderabad">Hyderabad</option>
+                                        <option value="Kotwali Tikoniya">Kotwali Tikoniya</option>
+                                        <option value="Other">Other / Outside District</option>
+                                    </select>
+                                    <input type="text" id="complaintPoliceStationCustom" placeholder="✍️ Specify other Police Station name..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="complaintCourtName">Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="complaintCourtName">
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="addComplaintCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="complaintFilingDate">Filing Date</label>
+                                    <input id="complaintFilingDate" type="date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="complaintClientName">Client Name</label>
+                                    <input id="complaintClientName" type="text" placeholder="Enter Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="complaintClientNumber">Client Number</label>
+                                    <input id="complaintClientNumber" type="tel" placeholder="Enter Client Phone Number">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="complaintDocLink">Document / Complaint Copy Link (Drive/PDF URL)</label>
+                                    <input id="complaintDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                </div>
+                                <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
+                                    <div class="remarks-box-header">
+                                        <div class="remarks-box-title-wrap">
+                                            <span class="remarks-box-icon">📢</span>
+                                            <label for="complaintCaseRemark" class="remarks-box-label">Remarks &amp; Case Notes</label>
+                                        </div>
+                                        <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
+                                    </div>
+                                    <div class="remarks-quick-chips">
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('complaintCaseRemark', 'Cheque Details: No. , Date: , Amount: Rs. , Bank: ')">➕ Cheque Details</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('complaintCaseRemark', 'Statutory Demand Notice Sent on: , Served on: ')">➕ Notice Served</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('complaintCaseRemark', 'Sec 200 CrPC Statement Recorded on ')">➕ Sec 200 Statement</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('complaintCaseRemark', 'Summoning Order Date: ')">➕ Summoning Order</span>
+                                    </div>
+                                    <textarea id="complaintCaseRemark" rows="2" placeholder="e.g. Cheque No. 458921, dishonour memo attached, statutory demand notice served, Sec 200 statement recorded..."></textarea>
+                                    <div class="remarks-box-footer">
+                                        <span class="remarks-box-tip">💡 <b>Search Index:</b> Cheque numbers, memo details, notice dates, and summoning stages are indexed &amp; searchable.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="primary-btn form-submit-btn"><i class="fa-solid fa-paper-plane"></i> Submit Case Record</button>
                     </form>
                 </div>
             </div>
@@ -1285,15 +1842,15 @@
                                 <span class="search-field-prefix-icon">⚖️</span>
                                 <input type="text" id="courtInput" placeholder="Enter court name (e.g. Fast Track Special Court, Labour Court, NCLT, Family Court)...">
                             </div>
-                            <button type="button" id="saveCourtBtn" class="court-submit-btn">
-                                <span>➕ Add Court</span>
+                            <button type="button" id="saveCourtBtn" class="court-submit-btn primary-btn form-submit-btn">
+                                <i class="fa-solid fa-paper-plane"></i> <span>Submit Court</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="table-responsive">
-                        <table id="courtsTable" class="court-table" border="1" width="100%" cellpadding="8">
-                            <thead>
+                    <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                        <table id="courtsTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 court-table">
+                            <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                                 <tr>
                                     <th style="width: 100px;">Sr. No.</th>
                                     <th>Court Name</th>
@@ -1390,7 +1947,7 @@
                             </div>
 
                             <div class="delete-action-footer">
-                                <button type="button" id="deleteCaseBtn" class="danger-btn">🗑️ Delete This Case Record</button>
+                                <button type="button" id="deleteCaseBtn" class="danger-btn form-submit-btn"><i class="fa-solid fa-trash-can"></i> Submit Deletion</button>
                             </div>
                         </div>
                     </div>
@@ -1447,9 +2004,24 @@
                                         <option value="Disposed">✅ Disposed Off</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label for="updateCaseRemark">Remarks</label>
-                                    <input type="text" id="updateCaseRemark" placeholder="e.g. Disposed on merits, Settled by compromise, etc.">
+                                <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
+                                    <div class="remarks-box-header">
+                                        <div class="remarks-box-title-wrap">
+                                            <span class="remarks-box-icon">📝</span>
+                                            <label for="updateCaseRemark" class="remarks-box-label">Case Remarks &amp; Co-Parties / Notes</label>
+                                        </div>
+                                        <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
+                                    </div>
+                                    <div class="remarks-quick-chips">
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Settled by mutual compromise')">➕ Compromise</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Allowed / Disposed on merits')">➕ Disposed Merits</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Dismissed in default')">➕ Dismissed Default</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Withdrawn with liberty')">➕ Withdrawn</span>
+                                    </div>
+                                    <textarea id="updateCaseRemark" rows="2" placeholder="e.g. Disposed on merits, Settled by compromise, Co-parties updated..."></textarea>
+                                    <div class="remarks-box-footer">
+                                        <span class="remarks-box-tip">💡 <b>Search Index:</b> Any updated remarks, co-parties, or final disposal notes will immediately sync to Supabase and Client Portal.</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1509,69 +2081,516 @@
                             </div>
                         </div>
 
-                        <div id="updateCriminalCaseForm" class="case-form-panel hidden-case-form">
+                        <!-- Update State Cases Form (Criminal / FIR / State of U.P.) -->
+                        <div id="updateStateCaseForm" class="case-form-panel hidden-case-form">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateCriminalCaseNumber">Case Number 🔒</label>
-                                    <input id="updateCriminalCaseNumber" type="text" placeholder="Case Number (Locked)" readonly required class="locked-input" title="Case Number is locked. Use Supabase DB Manager to modify Case Number.">
+                                    <label for="updateStateCaseNumber">Case Number 🔒</label>
+                                    <input id="updateStateCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
                                 </div>
                                 <div class="form-group">
-                                    <label for="updateCrimeYear">Crime Year 🔒</label>
-                                    <input id="updateCrimeYear" type="number" placeholder="Year (Locked)" readonly required class="locked-input">
+                                    <label for="updateStateCrimeYear">Crime / Case Year 🔒</label>
+                                    <input id="updateStateCrimeYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
                                 </div>
                                 <div class="form-group">
-                                    <label for="updatePoliceStation">Police Station</label>
-                                    <input id="updatePoliceStation" type="text" placeholder="Enter Police Station" required>
+                                    <label for="updateStateCrimeNumber">Crime / FIR Number</label>
+                                    <input id="updateStateCrimeNumber" type="text" placeholder="Enter Crime Number">
                                 </div>
                                 <div class="form-group">
-                                    <label for="updateCrimeSection">Section</label>
-                                    <input id="updateCrimeSection" type="text" placeholder="e.g. IPC 302, IPC 379" required>
+                                    <label for="updateStatePoliceStation">Police Station / Thana</label>
+                                    <select id="updateStatePoliceStation">
+                                        <option value="">-- Select Police Station --</option>
+                                        <option value="Kotwali Sadar (Main town)">Kotwali Sadar (Main town)</option>
+                                        <option value="Kheri">Kheri</option>
+                                        <option value="Mahila Thana (Women's police station)">Mahila Thana (Women's police station)</option>
+                                        <option value="Kotwali Gola (Gola Gokarannath)">Kotwali Gola (Gola Gokarannath)</option>
+                                        <option value="Kotwali Gauriphanta">Kotwali Gauriphanta</option>
+                                        <option value="Kotwali Chandan Chauki">Kotwali Chandan Chauki</option>
+                                        <option value="Ishanagar">Ishanagar</option>
+                                        <option value="Kotwali Dhaurahara">Kotwali Dhaurahara</option>
+                                        <option value="Nighasan">Nighasan</option>
+                                        <option value="Neemgaon">Neemgaon</option>
+                                        <option value="Palia Kalan">Palia Kalan</option>
+                                        <option value="Pasgawan">Pasgawan</option>
+                                        <option value="Phoolbehar">Phoolbehar</option>
+                                        <option value="Phardhan">Phardhan</option>
+                                        <option value="Bhira (Bheera)">Bhira (Bheera)</option>
+                                        <option value="Maigalganj">Maigalganj</option>
+                                        <option value="Mailani">Mailani</option>
+                                        <option value="Mitauli">Mitauli</option>
+                                        <option value="Kotwali Mohammadi">Kotwali Mohammadi</option>
+                                        <option value="Thana Sampurna Nagar">Thana Sampurna Nagar</option>
+                                        <option value="Singahi">Singahi</option>
+                                        <option value="Hyderabad">Hyderabad</option>
+                                        <option value="Kotwali Tikoniya">Kotwali Tikoniya</option>
+                                        <option value="Other">Other / Outside District</option>
+                                    </select>
+                                    <input type="text" id="updateStatePoliceStationCustom" placeholder="✍️ Specify other Police Station name..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
                                 </div>
                                 <div class="form-group">
-                                    <label for="updateCrimeNumber">Crime / FIR Number</label>
-                                    <input id="updateCrimeNumber" type="text" placeholder="Enter Crime Number" required>
+                                    <label for="updateStateCrimeSection">Section (IPC / BNS)</label>
+                                    <input id="updateStateCrimeSection" type="text" placeholder="e.g. IPC 302, 307">
                                 </div>
                                 <div class="form-group">
-                                    <label for="updateVictimName">Victim Name</label>
-                                    <input id="updateVictimName" type="text" placeholder="Enter Victim Name" required>
+                                    <label for="updateStateFirstParty">First Party (Prosecution)</label>
+                                    <input id="updateStateFirstParty" type="text" placeholder="State of U.P.">
                                 </div>
                                 <div class="form-group">
-                                    <label for="updateAccusedName">Accused Name</label>
-                                    <input id="updateAccusedName" type="text" placeholder="Enter Accused Name" required>
+                                    <label for="updateStateAccusedName">Accused Name</label>
+                                    <input id="updateStateAccusedName" type="text" placeholder="Enter Accused Name">
                                 </div>
                                 <div class="form-group">
-                                    <label for="updateCriminalCourtName">Court</label>
+                                    <label for="updateStateCourtName">Court</label>
                                     <div class="court-input-wrapper">
-                                        <select id="updateCriminalCourtName" required>
+                                        <select id="updateStateCourtName">
                                             <option value="">-- Select Court --</option>
                                         </select>
-                                        <button type="button" id="updateAddCriminalCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                        <button type="button" id="updateAddStateCourtBtn" class="mini-court-btn" title="Add Court">+</button>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="updateCriminalClientName">Client Name</label>
-                                    <input id="updateCriminalClientName" type="text" placeholder="Enter Client Name" required>
+                                    <label for="updateStateClientName">Client Name</label>
+                                    <input id="updateStateClientName" type="text" placeholder="Enter Client Name">
                                 </div>
                                 <div class="form-group">
-                                    <label for="updateCriminalClientNumber">Client Number</label>
-                                    <input id="updateCriminalClientNumber" type="tel" placeholder="Enter Client Number" required>
+                                    <label for="updateStateClientNumber">Client Number</label>
+                                    <input id="updateStateClientNumber" type="tel" placeholder="Enter Client Number">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="updateCrimeDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
-                                    <input id="updateCrimeDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                    <label for="updateStateDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="updateStateDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="updateCriminalNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                    <label for="updateStateNextHearingDate" style="display:flex; align-items:center; gap:6px;">
                                         📅 Fix Next Hearing Date
                                         <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
                                     </label>
-                                    <input id="updateCriminalNextHearingDate" type="date" style="max-width: 280px;">
+                                    <input id="updateStateNextHearingDate" type="date" style="max-width: 280px;">
                                     <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" class="primary-btn form-submit-btn">💾 Save Case Updates</button>
+                        <!-- Update Family Cases Form (Matrimonial / Maintenance 125) -->
+                        <div id="updateFamilyCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="updateFamilyCaseNumber">Case Number 🔒</label>
+                                    <input id="updateFamilyCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFamilyCaseYear">Year 🔒</label>
+                                    <input id="updateFamilyCaseYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFamilyMatterType">Dispute / Matter Type</label>
+                                    <select id="updateFamilyMatterType">
+                                        <option value="Maintenance (Sec 125 CrPC)">Maintenance (Sec 125 CrPC / Sec 144 BNSS)</option>
+                                        <option value="Divorce (Sec 13 HMA)">Divorce Petition (Sec 13 HMA)</option>
+                                        <option value="Restitution of Conjugal Rights (Sec 9 HMA)">Restitution of Conjugal Rights (Sec 9 HMA)</option>
+                                        <option value="Domestic Violence (DV Act)">Domestic Violence (DV Act 2005)</option>
+                                        <option value="Child Custody / Guardianship">Child Custody / Guardianship Act</option>
+                                        <option value="Mutual Divorce (Sec 13B HMA)">Mutual Divorce (Sec 13B HMA)</option>
+                                        <option value="Other Family Dispute">Other Family Dispute</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFamilyPetitioner">Petitioner / Applicant</label>
+                                    <input id="updateFamilyPetitioner" type="text" placeholder="Enter Petitioner Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFamilyRespondent">Respondent / Opposite Party</label>
+                                    <input id="updateFamilyRespondent" type="text" placeholder="Enter Respondent Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFamilyMarriageDate">Marriage Date</label>
+                                    <input id="updateFamilyMarriageDate" type="date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFamilyMaintenance">Maintenance Detail</label>
+                                    <input id="updateFamilyMaintenance" type="text" placeholder="e.g. ₹15,000/month">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFamilyCourtName">Family Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="updateFamilyCourtName">
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="updateAddFamilyCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFamilyClientName">Client Name</label>
+                                    <input id="updateFamilyClientName" type="text" placeholder="Enter Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFamilyClientNumber">Client Number</label>
+                                    <input id="updateFamilyClientNumber" type="tel" placeholder="Enter Client Phone">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateFamilyDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="updateFamilyDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateFamilyNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                        📅 Fix Next Hearing Date
+                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                    </label>
+                                    <input id="updateFamilyNextHearingDate" type="date" style="max-width: 280px;">
+                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Update Revenue Cases Form (Land / Tehsil / UP Revenue Code) -->
+                        <div id="updateRevenueCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="updateRevenueCaseNumber">Case Number 🔒</label>
+                                    <input id="updateRevenueCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueCaseYear">Year 🔒</label>
+                                    <input id="updateRevenueCaseYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueActSection">Revenue Act &amp; Section</label>
+                                    <select id="updateRevenueActSection">
+                                        <option value="Sec 34 (Mutation / दाखिल खारिज)">Sec 34 (Mutation / दाखिल खारिज)</option>
+                                        <option value="Sec 24 (Demarcation / पत्थरगड्डी)">Sec 24 (Demarcation / पैमाइश / पत्थरगड्डी)</option>
+                                        <option value="Sec 116 (Partition / कुर्रा बटवारा)">Sec 116 (Partition / कुर्रा बटवारा)</option>
+                                        <option value="Sec 67 (Eviction Gaon Sabha Land)">Sec 67 (Gram Sabha Encroachment / बेदखली)</option>
+                                        <option value="Sec 80 (Non-Agricultural Declaration)">Sec 80 (Non-Agri 143 Declaration)</option>
+                                        <option value="Sec 144 (Declaratory Suit / घोषणात्मक वाद)">Sec 144 (Declaratory Suit / घोषणात्मक वाद)</option>
+                                        <option value="Sec 38 (Correction of Revenue Map/Record)">Sec 38 (Map / Khatauni Record Correction)</option>
+                                        <option value="Other Revenue Section">Other Revenue Section</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueVillage">Village / Mauja (मौजा / ग्राम)</label>
+                                    <input id="updateRevenueVillage" type="text" placeholder="e.g. Kalyanpur">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueTehsil">Tehsil / Pargana (तहसील)</label>
+                                    <input id="updateRevenueTehsil" type="text" placeholder="e.g. Tehsil Sadar">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueGataNo">Gata / Khasra No. &amp; Khatauni</label>
+                                    <input id="updateRevenueGataNo" type="text" placeholder="e.g. Gata 245/1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueApplicant">Applicant / Plaintiff (वादी)</label>
+                                    <input id="updateRevenueApplicant" type="text" placeholder="Enter Applicant Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueOppositeParty">Opposite Party / Gaon Sabha (प्रतिवादी)</label>
+                                    <input id="updateRevenueOppositeParty" type="text" placeholder="Enter Opposite Party">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueCourtName">Revenue Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="updateRevenueCourtName">
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="updateAddRevenueCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueClientName">Client Name</label>
+                                    <input id="updateRevenueClientName" type="text" placeholder="Enter Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueClientNumber">Client Number</label>
+                                    <input id="updateRevenueClientNumber" type="tel" placeholder="Enter Client Phone">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateRevenueDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="updateRevenueDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateRevenueNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                        📅 Fix Next Hearing Date
+                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                    </label>
+                                    <input id="updateRevenueNextHearingDate" type="date" style="max-width: 280px;">
+                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Update Misc Civil Cases Form -->
+                        <div id="updateMiscCivilCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="updateMiscCivilCaseNumber">Case Number 🔒</label>
+                                    <input id="updateMiscCivilCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCivilCaseYear">Year 🔒</label>
+                                    <input id="updateMiscCivilCaseYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCivilOriginalCase">Original / Main Suit Number</label>
+                                    <input id="updateMiscCivilOriginalCase" type="text" placeholder="e.g. OS No. 45/2024">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCivilProceedingType">Proceeding / Application Type</label>
+                                    <select id="updateMiscCivilProceedingType">
+                                        <option value="Temporary Injunction (Order 39 Rule 1 & 2 CPC)">Temporary Injunction (Order 39 Rule 1 &amp; 2 CPC)</option>
+                                        <option value="Restoration Application (Order 9 Rule 13 / Rule 9 CPC)">Restoration (Order 9 Rule 13 / Rule 9 CPC)</option>
+                                        <option value="Civil Appeal (Sec 96 CPC)">Civil Appeal (Sec 96 CPC)</option>
+                                        <option value="Civil Revision (Sec 115 CPC)">Civil Revision (Sec 115 CPC)</option>
+                                        <option value="Execution Application (Order 21 CPC)">Execution Petition (Order 21 CPC)</option>
+                                        <option value="Review Application (Order 47 CPC / Sec 114)">Review Application (Order 47 CPC)</option>
+                                        <option value="Misc Civil Appeal (Order 43 Rule 1 CPC)">Misc Civil Appeal (Order 43 CPC)</option>
+                                        <option value="Other Misc Application">Other Misc Application</option>
+                                    </select>
+                                    <input type="text" id="updateMiscCivilProceedingTypeCustom" placeholder="✍️ Specify other application / proceeding type..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCivilApplicant">Applicant / Appellant / Revisionist</label>
+                                    <input id="updateMiscCivilApplicant" type="text" placeholder="Enter Applicant Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCivilOppositeParty">Opposite Party / Respondent</label>
+                                    <input id="updateMiscCivilOppositeParty" type="text" placeholder="Enter Opposite Party Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCivilCourtName">Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="updateMiscCivilCourtName">
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="updateAddMiscCivilCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCivilClientName">Client Name</label>
+                                    <input id="updateMiscCivilClientName" type="text" placeholder="Enter Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCivilClientNumber">Client Number</label>
+                                    <input id="updateMiscCivilClientNumber" type="tel" placeholder="Enter Client Phone">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateMiscCivilDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="updateMiscCivilDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateMiscCivilNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                        📅 Fix Next Hearing Date
+                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                    </label>
+                                    <input id="updateMiscCivilNextHearingDate" type="date" style="max-width: 280px;">
+                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Update Misc Criminal Cases Form -->
+                        <div id="updateMiscCriminalCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalCaseNumber">Case Number 🔒</label>
+                                    <input id="updateMiscCriminalCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalCaseYear">Year 🔒</label>
+                                    <input id="updateMiscCriminalCaseYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalOriginalCase">Original ST / Crime / FIR Number</label>
+                                    <input id="updateMiscCriminalOriginalCase" type="text" placeholder="e.g. Crime No. 210/2026">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalProceedingType">Application / Proceeding Type</label>
+                                    <select id="updateMiscCriminalProceedingType">
+                                        <option value="Regular Bail (Sec 439 CrPC / Sec 483 BNSS)">Regular Bail (Sec 439 CrPC / Sec 483 BNSS)</option>
+                                        <option value="Anticipatory Bail (Sec 438 CrPC / Sec 482 BNSS)">Anticipatory Bail (Sec 438 CrPC / Sec 482 BNSS)</option>
+                                        <option value="Criminal Appeal (Sec 374 CrPC / Sec 415 BNSS)">Criminal Appeal (Sec 374 CrPC / Sec 415 BNSS)</option>
+                                        <option value="Criminal Revision (Sec 397/401 CrPC)">Criminal Revision (Sec 397/401 CrPC)</option>
+                                        <option value="Application u/s 156(3) CrPC / Sec 175(3) BNSS">Application u/s 156(3) CrPC (FIR Order)</option>
+                                        <option value="Criminal Misc Application (Sec 482 CrPC)">Criminal Misc Application (Sec 482 CrPC)</option>
+                                        <option value="Other Criminal Application">Other Criminal Application</option>
+                                    </select>
+                                    <input type="text" id="updateMiscCriminalProceedingTypeCustom" placeholder="✍️ Specify other application / proceeding type..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalPoliceStation">Police Station / Thana</label>
+                                    <select id="updateMiscCriminalPoliceStation">
+                                        <option value="">-- Select Police Station --</option>
+                                        <option value="Kotwali Sadar (Main town)">Kotwali Sadar (Main town)</option>
+                                        <option value="Kheri">Kheri</option>
+                                        <option value="Mahila Thana (Women's police station)">Mahila Thana (Women's police station)</option>
+                                        <option value="Kotwali Gola (Gola Gokarannath)">Kotwali Gola (Gola Gokarannath)</option>
+                                        <option value="Kotwali Gauriphanta">Kotwali Gauriphanta</option>
+                                        <option value="Kotwali Chandan Chauki">Kotwali Chandan Chauki</option>
+                                        <option value="Ishanagar">Ishanagar</option>
+                                        <option value="Kotwali Dhaurahara">Kotwali Dhaurahara</option>
+                                        <option value="Nighasan">Nighasan</option>
+                                        <option value="Neemgaon">Neemgaon</option>
+                                        <option value="Palia Kalan">Palia Kalan</option>
+                                        <option value="Pasgawan">Pasgawan</option>
+                                        <option value="Phoolbehar">Phoolbehar</option>
+                                        <option value="Phardhan">Phardhan</option>
+                                        <option value="Bhira (Bheera)">Bhira (Bheera)</option>
+                                        <option value="Maigalganj">Maigalganj</option>
+                                        <option value="Mailani">Mailani</option>
+                                        <option value="Mitauli">Mitauli</option>
+                                        <option value="Kotwali Mohammadi">Kotwali Mohammadi</option>
+                                        <option value="Thana Sampurna Nagar">Thana Sampurna Nagar</option>
+                                        <option value="Singahi">Singahi</option>
+                                        <option value="Hyderabad">Hyderabad</option>
+                                        <option value="Kotwali Tikoniya">Kotwali Tikoniya</option>
+                                        <option value="Other">Other / Outside District</option>
+                                    </select>
+                                    <input type="text" id="updateMiscCriminalPoliceStationCustom" placeholder="✍️ Specify other Police Station name..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalCrimeSection">Section (IPC / BNS / Act)</label>
+                                    <input id="updateMiscCriminalCrimeSection" type="text" placeholder="e.g. IPC 307, 323">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalApplicant">Applicant / Accused / Appellant</label>
+                                    <input id="updateMiscCriminalApplicant" type="text" placeholder="Enter Applicant Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalOppositeParty">Opposite Party (Prosecution / Complainant)</label>
+                                    <input id="updateMiscCriminalOppositeParty" type="text" placeholder="State of U.P.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalCourtName">Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="updateMiscCriminalCourtName">
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="updateAddMiscCriminalCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalClientName">Client Name</label>
+                                    <input id="updateMiscCriminalClientName" type="text" placeholder="Enter Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalClientNumber">Client Number</label>
+                                    <input id="updateMiscCriminalClientNumber" type="tel" placeholder="Enter Client Phone">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateMiscCriminalDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="updateMiscCriminalDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateMiscCriminalNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                        📅 Fix Next Hearing Date
+                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                    </label>
+                                    <input id="updateMiscCriminalNextHearingDate" type="date" style="max-width: 280px;">
+                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Update Complaint Cases Form -->
+                        <div id="updateComplaintCaseForm" class="case-form-panel hidden-case-form">
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="updateComplaintCaseNumber">Case Number 🔒</label>
+                                    <input id="updateComplaintCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateComplaintCaseYear">Year 🔒</label>
+                                    <input id="updateComplaintCaseYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateComplaintType">Complaint / Matter Type</label>
+                                    <select id="updateComplaintType">
+                                        <option value="Cheque Bounce (Sec 138 NI Act)">Cheque Bounce (Sec 138 NI Act)</option>
+                                        <option value="Private Criminal Complaint (Sec 200 CrPC / Sec 223 BNSS)">Private Criminal Complaint (Sec 200 CrPC / 223 BNSS)</option>
+                                        <option value="Defamation (Sec 500 IPC / Sec 356 BNS)">Defamation (Sec 500 IPC / 356 BNS)</option>
+                                        <option value="Cheating & Fraud (Sec 420 IPC / Sec 318 BNS)">Cheating &amp; Fraud (Sec 420 IPC)</option>
+                                        <option value="Domestic / Harassment Complaint">Domestic / Harassment Complaint</option>
+                                        <option value="Labour / Industrial Dispute Complaint">Labour / Industrial Dispute Complaint</option>
+                                        <option value="Consumer Protection Complaint">Consumer Protection Complaint</option>
+                                        <option value="Other Complaint">Other Complaint</option>
+                                    </select>
+                                    <input type="text" id="updateComplaintTypeCustom" placeholder="✍️ Specify other complaint type..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateComplaintSectionAct">Sections &amp; Acts</label>
+                                    <input id="updateComplaintSectionAct" type="text" placeholder="e.g. Sec 138 NI Act, Sec 406/420 IPC">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateComplaintComplainant">Complainant Name (परिवादी)</label>
+                                    <input id="updateComplaintComplainant" type="text" placeholder="Enter Complainant Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateComplaintAccusedName">Accused / Opposite Party (विपक्षी / अभियुक्त)</label>
+                                    <input id="updateComplaintAccusedName" type="text" placeholder="Enter Accused / Opposite Party Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateComplaintPoliceStation">Police Station / Thana Jurisdiction</label>
+                                    <select id="updateComplaintPoliceStation">
+                                        <option value="">-- Select Police Station --</option>
+                                        <option value="Kotwali Sadar (Main town)">Kotwali Sadar (Main town)</option>
+                                        <option value="Kheri">Kheri</option>
+                                        <option value="Mahila Thana (Women's police station)">Mahila Thana (Women's police station)</option>
+                                        <option value="Kotwali Gola (Gola Gokarannath)">Kotwali Gola (Gola Gokarannath)</option>
+                                        <option value="Kotwali Gauriphanta">Kotwali Gauriphanta</option>
+                                        <option value="Kotwali Chandan Chauki">Kotwali Chandan Chauki</option>
+                                        <option value="Ishanagar">Ishanagar</option>
+                                        <option value="Kotwali Dhaurahara">Kotwali Dhaurahara</option>
+                                        <option value="Nighasan">Nighasan</option>
+                                        <option value="Neemgaon">Neemgaon</option>
+                                        <option value="Palia Kalan">Palia Kalan</option>
+                                        <option value="Pasgawan">Pasgawan</option>
+                                        <option value="Phoolbehar">Phoolbehar</option>
+                                        <option value="Phardhan">Phardhan</option>
+                                        <option value="Bhira (Bheera)">Bhira (Bheera)</option>
+                                        <option value="Maigalganj">Maigalganj</option>
+                                        <option value="Mailani">Mailani</option>
+                                        <option value="Mitauli">Mitauli</option>
+                                        <option value="Kotwali Mohammadi">Kotwali Mohammadi</option>
+                                        <option value="Thana Sampurna Nagar">Thana Sampurna Nagar</option>
+                                        <option value="Singahi">Singahi</option>
+                                        <option value="Hyderabad">Hyderabad</option>
+                                        <option value="Kotwali Tikoniya">Kotwali Tikoniya</option>
+                                        <option value="Other">Other / Outside District</option>
+                                    </select>
+                                    <input type="text" id="updateComplaintPoliceStationCustom" placeholder="✍️ Specify other Police Station name..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateComplaintCourtName">Court</label>
+                                    <div class="court-input-wrapper">
+                                        <select id="updateComplaintCourtName">
+                                            <option value="">-- Select Court --</option>
+                                        </select>
+                                        <button type="button" id="updateAddComplaintCourtBtn" class="mini-court-btn" title="Add Court">+</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateComplaintClientName">Client Name</label>
+                                    <input id="updateComplaintClientName" type="text" placeholder="Enter Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateComplaintClientNumber">Client Number</label>
+                                    <input id="updateComplaintClientNumber" type="tel" placeholder="Enter Client Phone Number">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateComplaintDocLink">Document / Complaint Copy Link (Drive/PDF URL)</label>
+                                    <input id="updateComplaintDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="updateComplaintNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                        📅 Fix Next Hearing Date
+                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                    </label>
+                                    <input id="updateComplaintNextHearingDate" type="date" style="max-width: 280px;">
+                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="primary-btn form-submit-btn"><i class="fa-solid fa-paper-plane"></i> Submit Case Updates</button>
                     </form>
                 </div>
             </div>
@@ -1762,7 +2781,7 @@
 
                         <div class="hearing-submit-row">
                             <button type="submit" id="hearingSubmitBtn" class="primary-btn form-submit-btn hearing-big-submit">
-                                📅 Save Hearing & Forward Next Date
+                                <i class="fa-solid fa-paper-plane"></i> Submit Hearing Record
                             </button>
                         </div>
                         <p id="hearingStatus" class="update-status-msg"></p>
@@ -1787,9 +2806,9 @@
             <!-- Undated Cases tab: cases that do not have a hearing date recorded yet -->
             <div id="undated" class="tab">
                 <h3>Undated Cases</h3>
-                <div class="table-responsive">
-                    <table id="undatedCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
-                        <thead>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="undatedCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                             <tr>
                                 <th>Case Number</th>
                                 <th>Case Name</th>
@@ -1800,7 +2819,7 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
                     </table>
                 </div>
             </div>
@@ -1808,9 +2827,9 @@
             <!-- All Cases tab: lists every case in one combined table -->
             <div id="all" class="tab">
                 <h3>All Cases</h3>
-                <div class="table-responsive">
-                    <table id="allCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
-                        <thead>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="allCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                             <tr>
                                 <th>Case Number</th>
                                 <th>Case Name</th>
@@ -1822,7 +2841,7 @@
                                 <th>Next Hearing Date</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
                     </table>
                 </div>
             </div>
@@ -1830,9 +2849,9 @@
             <!-- Civil Cases tab: list only civil cases -->
             <div id="civil" class="tab">
                 <h3>Civil Cases</h3>
-                <div class="table-responsive">
-                    <table id="civilCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
-                        <thead>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="civilCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                             <tr>
                                 <th>Case No</th>
                                 <th>Case Name</th>
@@ -1842,45 +2861,159 @@
                                 <th>Next Hearing Date</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Criminal Cases tab: list only criminal cases -->
-            <div id="criminal" class="tab">
-                <h3>Criminal Cases</h3>
-                <div class="table-responsive">
-                    <table id="criminalCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
-                        <thead>
+            <!-- State Cases tab: list State criminal matters -->
+            <div id="state" class="tab">
+                <h3>🚨 State Cases (Criminal / FIR)</h3>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="stateCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                             <tr>
                                 <th>Case No</th>
                                 <th>Case Name</th>
+                                <th>Crime / FIR No</th>
+                                <th>Police Station</th>
+                                <th>Section</th>
                                 <th>Client</th>
                                 <th>Status</th>
                                 <th>Next Hearing Date</th>
+                                <th>Remarks</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Revenue Cases tab: list only revenue cases -->
+            <!-- Legacy Criminal tab alias -->
+            <div id="criminal" class="tab" style="display:none;">
+                <table id="criminalCasesTable" class="case-table" style="display:none;"><tbody></tbody></table>
+            </div>
+
+            <!-- Family Cases tab: list matrimonial, maintenance 125, DV matters -->
+            <div id="family" class="tab">
+                <h3>👨‍👩‍👧 Family Cases (Matrimonial &amp; Maintenance)</h3>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="familyCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
+                            <tr>
+                                <th>Case No</th>
+                                <th>Case Name</th>
+                                <th>Dispute / Matter Type</th>
+                                <th>Petitioner</th>
+                                <th>Respondent</th>
+                                <th>Court</th>
+                                <th>Client</th>
+                                <th>Status</th>
+                                <th>Next Hearing Date</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Revenue Cases tab: list land, tehsil & revenue matters -->
             <div id="revenue" class="tab">
-                <h3>Revenue Cases</h3>
-                <div class="table-responsive">
-                    <table id="revenueCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
-                        <thead>
+                <h3>🌾 Revenue Cases (Land &amp; Tehsil)</h3>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="revenueCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                             <tr>
                                 <th>Case No</th>
                                 <th>Case Name</th>
+                                <th>Revenue Section</th>
+                                <th>Village / Mauja</th>
+                                <th>Gata / Khata</th>
+                                <th>Court</th>
                                 <th>Client</th>
                                 <th>Status</th>
                                 <th>Next Hearing Date</th>
+                                <th>Remarks</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Misc Civil Cases Tab -->
+            <div id="misccivil" class="tab">
+                <h3>📑 Misc Civil Cases (Applications, Appeals &amp; Revisions)</h3>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="miscCivilCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
+                            <tr>
+                                <th>Case No</th>
+                                <th>Case Name</th>
+                                <th>Proceeding Type</th>
+                                <th>Orig. Suit No.</th>
+                                <th>Applicant</th>
+                                <th>Opposite Party</th>
+                                <th>Court</th>
+                                <th>Client</th>
+                                <th>Status</th>
+                                <th>Next Hearing Date</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Misc Criminal Cases Tab -->
+            <div id="misccriminal" class="tab">
+                <h3>⚖️ Misc Criminal Cases (Bails, Appeals, Revisions &amp; 156(3))</h3>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="miscCriminalCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
+                            <tr>
+                                <th>Case No</th>
+                                <th>Case Name</th>
+                                <th>Proceeding Type</th>
+                                <th>Orig. FIR / Crime No</th>
+                                <th>Police Station</th>
+                                <th>Accused / Applicant</th>
+                                <th>Court</th>
+                                <th>Client</th>
+                                <th>Status</th>
+                                <th>Next Hearing Date</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Complaint Cases Tab -->
+            <div id="complaint" class="tab">
+                <h3>📢 Complaint Cases (Sec 138 NI Act, Sec 200 CrPC, Defamation)</h3>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="complaintCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
+                            <tr>
+                                <th>Case No</th>
+                                <th>Case Name</th>
+                                <th>Complaint Type</th>
+                                <th>Sections &amp; Acts</th>
+                                <th>Complainant</th>
+                                <th>Accused / Opp. Party</th>
+                                <th>Police Station</th>
+                                <th>Court</th>
+                                <th>Client</th>
+                                <th>Status</th>
+                                <th>Next Hearing Date</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
                     </table>
                 </div>
             </div>
@@ -1888,9 +3021,9 @@
             <!-- Disposed Cases tab: list closed or disposed matters -->
             <div id="disposed" class="tab">
                 <h3>✅ Disposed Cases</h3>
-                <div class="table-responsive">
-                    <table id="disposedCasesTable" class="case-table" border="1" width="100%" cellpadding="8">
-                        <thead>
+                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                    <table id="disposedCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                             <tr>
                                 <th>Case Number</th>
                                 <th>Case Name</th>
@@ -1901,7 +3034,7 @@
                                 <th>Remarks</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
                     </table>
                 </div>
             </div>
@@ -1925,11 +3058,17 @@
                             <div class="db-table-selector-box">
                                 <label for="dbManagerTableSelect" class="db-toolbar-label">Select Supabase Table:</label>
                                 <select id="dbManagerTableSelect" class="form-select db-select">
-                                    <option value="civilcases">⚖️ civilcases (Civil, Revenue & Complaints)</option>
-                                    <option value="criminalcases">🔒 criminalcases (Criminal Cases & FIRs)</option>
-                                    <option value="hearings">📅 hearings (Hearing Dates & Session History)</option>
-                                    <option value="courts">🏛️ courts (Court Names & Jurisdictions)</option>
-                                    <option value="case_todos">📝 case_todos (Case Tasks & Deadlines)</option>
+                                    <option value="civilcases">⚖️ civilcases (Civil Suits &amp; Writs)</option>
+                                    <option value="statecases">🚨 statecases (State Cases, FIRs, Thana)</option>
+                                    <option value="criminalcases">🔒 criminalcases (Legacy Criminal Cases)</option>
+                                    <option value="familycases">👨‍👩‍👧 familycases (Matrimonial, Maintenance 125, DV)</option>
+                                    <option value="revenuecases">🌾 revenuecases (Land, Tehsil, UP Revenue Code)</option>
+                                    <option value="misccivilcases">📑 misccivilcases (Civil Applications, Appeals &amp; Revisions)</option>
+                                    <option value="misccriminalcases">⚖️ misccriminalcases (Bails, Criminal Appeals &amp; 156(3))</option>
+                                    <option value="complaintcases">📢 complaintcases (Cheque Bounce, NI Act &amp; Complaints)</option>
+                                    <option value="hearings">📅 hearings (Hearing Dates &amp; Session History)</option>
+                                    <option value="courts">🏛️ courts (Court Names &amp; Jurisdictions)</option>
+                                    <option value="case_todos">📝 case_todos (Case Tasks &amp; Deadlines)</option>
                                 </select>
                             </div>
                             <div class="db-search-box">
@@ -1964,7 +3103,7 @@
                                 <span class="modifier-icon">🔄</span>
                                 <div>
                                     <h4>Modify Case Number, Filing Year & Filing Date</h4>
-                                    <p class="modifier-subtitle">Select or type any Civil or Criminal case to update its Case Number, Filing Year, and Filing Date with automatic cascading updates to linked hearings in Supabase.</p>
+                                    <p class="modifier-subtitle">Select or type any Civil, State, Family, Revenue, Misc, or Complaint case to update its Case Number, Filing Year, and Filing Date with automatic cascading updates to linked hearings in Supabase.</p>
                                 </div>
                             </div>
                             <span class="db-live-badge">⚡ Direct Supabase Sync</span>
@@ -1974,8 +3113,14 @@
                             <div class="modifier-form-group">
                                 <label for="dbModCaseType" class="db-toolbar-label">1. Case Category / Table:</label>
                                 <select id="dbModCaseType" class="form-select db-select" onchange="populateDbModifierCaseSelect()">
-                                    <option value="civil">⚖️ Civil, Revenue & Complaints (civilcases)</option>
-                                    <option value="criminal">🔒 Criminal Cases & FIRs (criminalcases)</option>
+                                    <option value="civil">⚖️ Civil Cases (civilcases)</option>
+                                    <option value="state">🚨 State Cases (statecases)</option>
+                                    <option value="criminal">🔒 Criminal Cases (criminalcases)</option>
+                                    <option value="family">👨‍👩‍👧 Family Cases (familycases)</option>
+                                    <option value="revenue">🌾 Revenue Cases (revenuecases)</option>
+                                    <option value="misc_civil">📑 Misc Civil (misccivilcases)</option>
+                                    <option value="misc_criminal">⚖️ Misc Criminal (misccriminalcases)</option>
+                                    <option value="complaint">📢 Complaint Cases (complaintcases)</option>
                                 </select>
                             </div>
 
@@ -2052,14 +3197,14 @@
 
                     <!-- Table Data Container -->
                     <div class="db-table-card">
-                        <div class="table-responsive db-table-wrapper">
-                            <table id="dbManagerTable" class="case-table db-raw-table">
-                                <thead>
+                        <div class="table-responsive db-table-wrapper overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                            <table id="dbManagerTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table db-raw-table">
+                                <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                                     <tr id="dbManagerTableHead">
                                         <!-- Populated dynamically based on table columns -->
                                     </tr>
                                 </thead>
-                                <tbody id="dbManagerTableBody">
+                                <tbody id="dbManagerTableBody" class="divide-y divide-slate-100 bg-white">
                                     <tr>
                                         <td colspan="10" class="no-results">Loading Supabase table data...</td>
                                     </tr>
@@ -2116,23 +3261,62 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="primary-btn form-submit-btn">💾 Update Login Credentials</button>
+                        <button type="submit" class="primary-btn form-submit-btn"><i class="fa-solid fa-paper-plane"></i> Submit Password Update</button>
                         <p id="settingsStatus" class="update-status-msg"></p>
                     </form>
                 </div>
             </div>
+
+            <!-- Materialize CSS Page Footer Introduction (#00695c) -->
+            <footer class="page-footer materialize-intro-footer">
+                <div class="footer-container">
+                    <div class="footer-row">
+                        <div class="footer-col-intro">
+                            <h5 class="white-text footer-heading">⚖️ Chambers of Atul Kumar Mishra</h5>
+                            <p class="grey-text text-lighten-4 footer-intro-text">
+                                Comprehensive Case Management System for legal chambers. Designed for real-time tracking of judicial proceedings, automated daily cause list generation, synchronized court hearings, and digital register management for Civil, Criminal, Family, Revenue, and Complaint matters across High Court and District Courts.
+                            </p>
+                            <div class="footer-badges-list">
+                                <span class="footer-court-badge">🏛️ District & Sessions Court</span>
+                                <span class="footer-court-badge">⚖️ High Court of Judicature</span>
+                                <span class="footer-court-badge">🌾 Tehsil & Revenue Courts</span>
+                            </div>
+                        </div>
+                        <div class="footer-col-links">
+                            <h5 class="white-text footer-heading">Quick Navigation</h5>
+                            <ul class="footer-links-list">
+                                <li><a class="footer-link-item" href="javascript:void(0);" onclick="showTab('home')">🏠 Home Dashboard</a></li>
+                                <li><a class="footer-link-item" href="javascript:void(0);" onclick="showTab('search')">📁 My Case Registry</a></li>
+                                <li><a class="footer-link-item" href="javascript:void(0);" onclick="showTab('causelist')">📜 Daily Cause List</a></li>
+                                <li><a class="footer-link-item" href="javascript:void(0);" onclick="showTab('calendar')">🗓️ Court Calendar</a></li>
+                                <li><a class="footer-link-item" href="javascript:void(0);" onclick="showTab('dbmanager')">🗄️ Supabase Cloud DB</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-copyright">
+                    <div class="copyright-container">
+                        <span class="copyright-text">© 2026 Case Management System • Designed & Developed by Advocate Atul Kumar Mishra</span>
+                        <span class="copyright-action">
+                            <a class="back-to-top-btn" href="javascript:void(0);" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i> Back to Top</a>
+                        </span>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
         <!-- Fixed Bottom Navigation Bar (Back Arrow, Home, Forward Arrow) -->
         <footer class="fixed-bottom-nav" id="fixedBottomNav" aria-label="Quick Page Navigation">
             <button type="button" class="bottom-nav-btn" id="bottomNavBackBtn" onclick="goPreviousTab()" title="Go Back to Previous Tab" disabled>
-                <span class="bottom-nav-icon">◀</span>
+                <span class="bottom-nav-icon"><i class="fa-solid fa-chevron-left"></i></span>
                 <span class="bottom-nav-label">Back</span>
             </button>
             <button type="button" class="bottom-nav-btn home-nav-btn" id="bottomNavHomeBtn" onclick="showTab('home', event)" title="Go to Home Dashboard">
-                <span class="bottom-nav-icon">🏠</span>
+                <span class="bottom-nav-icon"><i class="fa-solid fa-house"></i></span>
                 <span class="bottom-nav-label">Home</span>
             </button>
             <button type="button" class="bottom-nav-btn" id="bottomNavForwardBtn" onclick="goForwardTab()" title="Go Forward to Next Tab" disabled>
-                <span class="bottom-nav-icon">▶</span>
+                <span class="bottom-nav-icon"><i class="fa-solid fa-chevron-right"></i></span>
                 <span class="bottom-nav-label">Forward</span>
             </button>
         </footer>
