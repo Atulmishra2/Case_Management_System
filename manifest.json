@@ -1,13 +1,13 @@
 {
-  "name": "Case Management System",
-  "short_name": "CMS Legal",
+  "name": "CaseBook - Case Management System",
+  "short_name": "CaseBook",
   "description": "Digital Legal Record & Case Tracking Platform - Chambers of Atul Kumar Mishra",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#F4F6F7",
-  "theme_color": "#FFFFFF",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#00695c",
   "categories": [
     "business",
     "productivity",

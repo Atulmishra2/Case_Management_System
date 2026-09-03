@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=3.1">
+    <link rel="stylesheet" href="admin.css?v=3.2">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -85,6 +85,9 @@
                     </div>
                 </div>
                 <div class="header-right-section nav-right-actions">
+                    <button type="button" id="guestDesktopInstallBtn" class="nav-install-btn" onclick="triggerPwaInstall()" title="Install CaseBook Desktop App (Windows/Mac)">
+                        <i class="fa-solid fa-laptop-arrow-down"></i> <span>Install App</span>
+                    </button>
                     <button id="guestLogoutBtn" class="logout-btn nav-logout-btn" title="Exit Guest Portal">
                         <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
                     </button>
@@ -185,6 +188,9 @@
                 </div>
                 
                 <div class="header-right-section nav-right-actions">
+                    <button type="button" id="desktopInstallBtn" class="nav-install-btn" onclick="triggerPwaInstall()" title="Install CaseBook Desktop App (Windows/Mac)">
+                        <i class="fa-solid fa-laptop-arrow-down"></i> <span>Install App</span>
+                    </button>
                     <button id="adminLogoutBtn" class="logout-btn nav-logout-btn" title="Logout from CaseBook">
                         <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
                     </button>
@@ -202,6 +208,16 @@
                     <span class="author-title email">Advocate & Developer</span>
                     <span class="author-jurisdiction">District & High Courts</span>
                 </div>
+            </div>
+
+            <div class="sidebar-install-widget" id="sidebarInstallWidget">
+                <button type="button" class="sidebar-install-btn" onclick="triggerPwaInstall()" title="Install CaseBook as a Desktop App">
+                    <i class="fa-solid fa-laptop-arrow-down"></i>
+                    <span class="sidebar-install-text">
+                        <strong>Install Desktop App</strong>
+                        <small>Windows / Mac Standalone</small>
+                    </span>
+                </button>
             </div>
 
             <div class="subheader">Overview & Schedule</div>
@@ -3448,8 +3464,20 @@
                 <button type="button" class="modal-close-btn" onclick="closePwaGuideModal()" aria-label="Close">&times;</button>
             </div>
             <div class="pwa-modal-body">
+                <div class="pwa-card-section" style="border-left: 4px solid #00695c; background: #f0fdf4;">
+                    <h4 style="color: #00695c; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-desktop"></i> 💻 Desktop Install (Windows / Mac / PC)
+                    </h4>
+                    <ol class="pwa-step-list">
+                        <li>Look at your browser's <strong>Address Bar (URL bar)</strong> at the top right.</li>
+                        <li>Click the <strong>Install icon (💻 or ➕)</strong> that says <em>"Install CaseBook"</em>.</li>
+                        <li>OR click your browser menu <strong>(three dots ⋮ or …)</strong> ➔ Select <strong>"Install CaseBook..."</strong> (or <em>"Save and share"</em> ➔ <em>"Install page as app"</em>).</li>
+                        <li>Click <strong>"Install"</strong>. CaseBook will open in its own standalone desktop window and place a shortcut on your Desktop and Taskbar!</li>
+                    </ol>
+                </div>
+
                 <div class="pwa-card-section">
-                    <h4>🚀 Quick Install (Chrome on Mobile)</h4>
+                    <h4>🚀 Quick Install (Mobile / Smartphone)</h4>
                     <ol class="pwa-step-list">
                         <li>Tap the <strong>three dots (⋮)</strong> menu in the top right of Chrome.</li>
                         <li>Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</li>

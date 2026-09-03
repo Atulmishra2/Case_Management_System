@@ -7799,16 +7799,27 @@ window.addEventListener('appinstalled', () => {
   console.log('🎉 PWA application successfully installed!');
   deferredInstallPrompt = null;
   updateInstallUiState(false);
-  alert('🎉 Case Management System has been added to your Home Screen!');
+  alert('🎉 CaseBook has been successfully installed on your Desktop / Device!');
 });
 
 function updateInstallUiState(canPrompt) {
-  const installBtns = document.querySelectorAll('.pwa-install-banner-btn, .header-install-btn');
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const installBtns = document.querySelectorAll('.pwa-install-banner-btn, .header-install-btn, .nav-install-btn, .sidebar-install-widget');
+  
   installBtns.forEach(btn => {
-    if (canPrompt) {
-      btn.style.display = 'inline-flex';
+    if (isStandalone) {
+      btn.style.display = 'none';
+    } else {
+      btn.style.display = btn.classList.contains('sidebar-install-widget') ? 'block' : 'inline-flex';
     }
   });
+}
+
+// Check install state immediately
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => updateInstallUiState(false));
+} else {
+  updateInstallUiState(false);
 }
 
 async function triggerPwaInstall() {
