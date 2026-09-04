@@ -1009,7 +1009,7 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           police_station: targetCase.policeStation,
           crime_section: targetCase.crimeSection,
           crime_number: targetCase.crimeNumber,
-          filing_date: targetCase.crimeFilingDate || targetCase.filingDate,
+          filing_date: targetCase.crimeFilingDate || targetCase.filingDate || null,
           first_party: targetCase.firstParty || 'State of U.P.',
           victim_name: targetCase.firstParty || targetCase.victimName || 'State of U.P.',
           accused_name: targetCase.accusedName,
@@ -1026,8 +1026,8 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { error } = await supabaseClient.from('statecases').update(basePayload).eq('case_number', originalNo);
-        if (error) {
+        let { data, error } = await supabaseClient.from('statecases').update(basePayload).eq('case_number', originalNo).select('id');
+        if (error || !data || data.length === 0) {
           await supabaseClient.from('criminalcases').update(basePayload).eq('case_number', originalNo);
         }
       } else if (caseType === 'family') {
@@ -1047,17 +1047,19 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           doc_link: targetCase.docLink || '',
           updated_at: new Date().toISOString()
         };
+        if (targetCase.filingDate) basePayload.filing_date = targetCase.filingDate;
         if (targetCase.marriageDate) basePayload.marriage_date = targetCase.marriageDate;
         if (targetCase.maintenanceDetail) basePayload.maintenance_detail = targetCase.maintenanceDetail;
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { error } = await supabaseClient.from('familycases').update(basePayload).eq('case_number', originalNo);
-        if (error) {
+        let { data, error } = await supabaseClient.from('familycases').update(basePayload).eq('case_number', originalNo).select('id');
+        if (error || !data || data.length === 0) {
           await supabaseClient.from('civilcases').update({
             case_number: newCaseNumber,
             case_status: targetCase.caseStatus,
-            remark: targetCase.remark
+            remark: targetCase.remark,
+            updated_at: new Date().toISOString()
           }).eq('case_number', originalNo);
         }
       } else if (caseType === 'revenue') {
@@ -1080,15 +1082,17 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           doc_link: targetCase.docLink || '',
           updated_at: new Date().toISOString()
         };
+        if (targetCase.filingDate) basePayload.filing_date = targetCase.filingDate;
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { error } = await supabaseClient.from('revenuecases').update(basePayload).eq('case_number', originalNo);
-        if (error) {
+        let { data, error } = await supabaseClient.from('revenuecases').update(basePayload).eq('case_number', originalNo).select('id');
+        if (error || !data || data.length === 0) {
           await supabaseClient.from('civilcases').update({
             case_number: newCaseNumber,
             case_status: targetCase.caseStatus,
-            remark: targetCase.remark
+            remark: targetCase.remark,
+            updated_at: new Date().toISOString()
           }).eq('case_number', originalNo);
         }
       } else if (caseType === 'misc_civil') {
@@ -1109,15 +1113,17 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           doc_link: targetCase.docLink || '',
           updated_at: new Date().toISOString()
         };
+        if (targetCase.filingDate) basePayload.filing_date = targetCase.filingDate;
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { error } = await supabaseClient.from('misccivilcases').update(basePayload).eq('case_number', originalNo);
-        if (error) {
+        let { data, error } = await supabaseClient.from('misccivilcases').update(basePayload).eq('case_number', originalNo).select('id');
+        if (error || !data || data.length === 0) {
           await supabaseClient.from('civilcases').update({
             case_number: newCaseNumber,
             case_status: targetCase.caseStatus,
-            remark: targetCase.remark
+            remark: targetCase.remark,
+            updated_at: new Date().toISOString()
           }).eq('case_number', originalNo);
         }
       } else if (caseType === 'misc_criminal') {
@@ -1128,6 +1134,7 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           proceeding_type: targetCase.proceedingType || 'Bail Application (Sec 439 CrPC)',
           police_station: targetCase.policeStation || '',
           crime_section: targetCase.crimeSection || '',
+          filing_date: targetCase.filingDate || targetCase.crimeFilingDate || null,
           applicant: targetCase.applicant,
           opposite_party: targetCase.oppositeParty || 'State of U.P.',
           court_name: targetCase.courtName,
@@ -1143,12 +1150,13 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { error } = await supabaseClient.from('misccriminalcases').update(basePayload).eq('case_number', originalNo);
-        if (error) {
+        let { data, error } = await supabaseClient.from('misccriminalcases').update(basePayload).eq('case_number', originalNo).select('id');
+        if (error || !data || data.length === 0) {
           await supabaseClient.from('criminalcases').update({
             case_number: newCaseNumber,
             case_status: targetCase.caseStatus,
-            remark: targetCase.remark
+            remark: targetCase.remark,
+            updated_at: new Date().toISOString()
           }).eq('case_number', originalNo);
         }
       } else if (caseType === 'complaint') {
@@ -1160,6 +1168,7 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           accused_name: targetCase.accusedName || targetCase.defendant || 'Accused',
           section_act: targetCase.sectionAct || '',
           police_station: targetCase.policeStation || '',
+          filing_date: targetCase.filingDate || null,
           court_name: targetCase.courtName,
           client_name: targetCase.clientName,
           client_number: targetCase.clientNumber,
@@ -1173,19 +1182,20 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { error } = await supabaseClient.from('complaintcases').update(basePayload).eq('case_number', originalNo);
-        if (error) {
+        let { data, error } = await supabaseClient.from('complaintcases').update(basePayload).eq('case_number', originalNo).select('id');
+        if (error || !data || data.length === 0) {
           await supabaseClient.from('criminalcases').update({
             case_number: newCaseNumber,
             case_status: targetCase.caseStatus,
-            remark: targetCase.remark
+            remark: targetCase.remark,
+            updated_at: new Date().toISOString()
           }).eq('case_number', originalNo);
         }
       } else {
         const basePayload = {
           case_number: newCaseNumber,
           case_year: parseInt(targetCase.caseYear, 10) || 2026,
-          filing_date: targetCase.filingDate,
+          filing_date: targetCase.filingDate || null,
           plaintiff: targetCase.plaintiff,
           defendant: targetCase.defendant,
           court_name: targetCase.courtName,
@@ -1206,6 +1216,30 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           delete basePayload.doc_link;
           delete basePayload.remark;
           await supabaseClient.from('civilcases').update(basePayload).eq('case_number', originalNo);
+        }
+      }
+
+      // If next hearing date is provided, update or record in hearings table
+      if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
+        const hearingPayload = {
+          case_number: newCaseNumber,
+          next_hearing_date: targetCase.nextHearing,
+          hearing_process: targetCase.hearingProcess || 'Listed Hearing',
+          updated_at: new Date().toISOString()
+        };
+        const { data: hData, error: hErr } = await supabaseClient
+          .from('hearings')
+          .update(hearingPayload)
+          .eq('case_number', originalNo)
+          .select('id');
+        if (hErr || !hData || hData.length === 0) {
+          await supabaseClient.from('hearings').insert([{
+            case_number: newCaseNumber,
+            hearing_date: targetCase.nextHearing,
+            next_hearing_date: targetCase.nextHearing,
+            hearing_process: targetCase.hearingProcess || 'Listed Hearing',
+            created_at: new Date().toISOString()
+          }]);
         }
       }
 
@@ -3726,6 +3760,7 @@ function renderHomeDashboard() {
             </td>
             <td style="white-space: nowrap; text-align: center;">
               <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View proceedings details">📜</button>
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case Details">✏️</button>
               <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date">📅 Forward</button>
               ${clientPhone ? `<a href="tel:${escapeHtml(clientPhone)}" class="table-view-btn call-btn" title="Call Client directly: ${escapeHtml(clientPhone)}" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;">📞</a>` : ''}
               <button type="button" class="whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="WhatsApp notice to client">💬</button>
@@ -4064,19 +4099,26 @@ function refreshAllCaseTables() {
   if (disposedCountEl) disposedCountEl.textContent = String(disposedCases.length);
   if (disposedTable) {
     if (disposedCases.length === 0) {
-      disposedTable.innerHTML = '<tr><td colspan="7" class="no-results">No disposed cases recorded yet.</td></tr>';
+      disposedTable.innerHTML = '<tr><td colspan="8" class="no-results">No disposed cases recorded yet.</td></tr>';
     } else {
-      disposedTable.innerHTML = disposedCases.map(c => `
-        <tr>
-          <td><strong>${c.caseNo || c.criminalCaseNumber}</strong></td>
-          <td>${c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : `${c.victimName} vs ${c.accusedName}`)}</td>
-          <td>${c.clientName || c.criminalClientName || '—'}</td>
-          <td><span class="case-badge ${c.caseType || 'civil'}">${(c.caseType || 'Civil').toUpperCase()}</span></td>
-          <td>${c.courtName || c.criminalCourtName || 'District Court'}</td>
-          <td><span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span></td>
-          <td>${c.remark || c.remarks || '—'}</td>
-        </tr>
-      `).join('');
+      disposedTable.innerHTML = disposedCases.map(c => {
+        const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+        const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
+        return `
+          <tr>
+            <td><strong>${escapeHtml(caseNumber)}</strong></td>
+            <td>${escapeHtml(caseName)}</td>
+            <td>${escapeHtml(c.clientName || c.criminalClientName || '—')}</td>
+            <td><span class="case-badge ${c.caseType || 'civil'}">${(c.caseType || 'Civil').toUpperCase()}</span></td>
+            <td>${escapeHtml(c.courtName || c.criminalCourtName || 'District Court')}</td>
+            <td><span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span></td>
+            <td>${escapeHtml(c.remark || c.remarks || '—')}</td>
+            <td style="text-align: center; white-space: nowrap;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Reopen Case">✏️ Edit</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
   }
 
@@ -4089,21 +4131,28 @@ function refreshAllCaseTables() {
     if (undatedCases.length === 0) {
       undatedTable.innerHTML = '<tr><td colspan="7" class="no-results">🎉 No undated cases! All cases have hearing dates scheduled.</td></tr>';
     } else {
-      undatedTable.innerHTML = undatedCases.map(c => `
-        <tr>
-          <td><strong>${c.caseNo || c.criminalCaseNumber}</strong></td>
-          <td>${c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : `${c.victimName} vs ${c.accusedName}`)}</td>
-          <td>${c.clientName || c.criminalClientName || '—'}</td>
-          <td><span class="case-badge ${c.caseType || 'civil'}">${(c.caseType || 'Civil').toUpperCase()}</span></td>
-          <td>${c.courtName || c.criminalCourtName || 'District Court'}</td>
-          <td>${formatDateDMY(c.filingDate || c.crimeFilingDate)}</td>
-          <td>
-            <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${c.caseNo || c.criminalCaseNumber}')">
-              📅 Update Hearing
-            </button>
-          </td>
-        </tr>
-      `).join('');
+      undatedTable.innerHTML = undatedCases.map(c => {
+        const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+        const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
+        return `
+          <tr>
+            <td><strong>${escapeHtml(caseNumber)}</strong></td>
+            <td>${escapeHtml(caseName)}</td>
+            <td>${escapeHtml(c.clientName || c.criminalClientName || '—')}</td>
+            <td><span class="case-badge ${c.caseType || 'civil'}">${(c.caseType || 'Civil').toUpperCase()}</span></td>
+            <td>${escapeHtml(c.courtName || c.criminalCourtName || 'District Court')}</td>
+            <td>${formatDateDMY(c.filingDate || c.crimeFilingDate)}</td>
+            <td style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward Hearing Date">
+                📅 Date
+              </button>
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case Details">
+                ✏️ Edit
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
   }
 
@@ -6057,6 +6106,43 @@ const setVal = (id, val, customInputId) => {
   }
 };
 
+function toggleCaseNumberUnlock(btn) {
+  if (!btn) return;
+  const targetIds = (btn.getAttribute('data-targets') || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (!targetIds.length) return;
+
+  const isCurrentlyUnlocked = btn.classList.contains('unlocked');
+  if (!isCurrentlyUnlocked) {
+    const confirmUnlock = confirm('⚠️ Changing the Case Number or Year modifies the primary case identifier across registers and hearing history. Do you want to unlock these fields for editing?');
+    if (!confirmUnlock) return;
+
+    targetIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.removeAttribute('readonly');
+        el.classList.remove('locked-input');
+        el.classList.add('unlocked-input');
+      }
+    });
+    btn.classList.add('unlocked');
+    btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> <span>Lock</span>';
+    btn.title = 'Click to re-lock Case Number & Year fields';
+  } else {
+    targetIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.setAttribute('readonly', 'true');
+        el.classList.add('locked-input');
+        el.classList.remove('unlocked-input');
+      }
+    });
+    btn.classList.remove('unlocked');
+    btn.innerHTML = '<i class="fa-solid fa-lock"></i> <span>Unlock</span>';
+    btn.title = 'Click to unlock and correct Case Number or Year';
+  }
+}
+window.toggleCaseNumberUnlock = toggleCaseNumberUnlock;
+
 let currentlyLoadedOriginalCaseNo = '';
 
 function loadCaseForUpdate(caseNoToFind) {
@@ -6065,13 +6151,21 @@ function loadCaseForUpdate(caseNoToFind) {
 
   if (!query) {
     if (statusEl) {
-      statusEl.textContent = 'Please enter a Case Number to search.';
+      statusEl.textContent = 'Please enter a Case Number, Party Name, or Client Name to search.';
       statusEl.className = 'update-status-msg error';
     }
     return;
   }
 
-  const found = allCaseRecords.find(c => {
+  // 1. Check for exact case number match first
+  let exactMatch = allCaseRecords.find(c => {
+    const num1 = (c.caseNo || '').toLowerCase();
+    const num2 = (c.criminalCaseNumber || '').toLowerCase();
+    return num1 === query || num2 === query;
+  });
+
+  // 2. Filter all potential matches
+  const matches = allCaseRecords.filter(c => {
     const num1 = (c.caseNo || '').toLowerCase();
     const num2 = (c.criminalCaseNumber || '').toLowerCase();
     const name = (c.caseName || '').toLowerCase();
@@ -6079,18 +6173,78 @@ function loadCaseForUpdate(caseNoToFind) {
     const defendant = (c.defendant || '').toLowerCase();
     const victim = (c.victimName || '').toLowerCase();
     const accused = (c.accusedName || '').toLowerCase();
-    return num1 === query || num2 === query || name.includes(query) || (plaintiff && plaintiff.includes(query)) || (defendant && defendant.includes(query)) || (victim && victim.includes(query)) || (accused && accused.includes(query));
+    const client = (c.clientName || c.criminalClientName || '').toLowerCase();
+    return num1 === query || num2 === query || num1.includes(query) || num2.includes(query) ||
+           name.includes(query) || (plaintiff && plaintiff.includes(query)) ||
+           (defendant && defendant.includes(query)) || (victim && victim.includes(query)) ||
+           (accused && accused.includes(query)) || (client && client.includes(query));
   });
 
-  if (!found) {
+  if (!exactMatch && matches.length === 0) {
     if (statusEl) {
-      statusEl.textContent = `❌ Case "${query.toUpperCase()}" not found.`;
+      statusEl.textContent = `❌ Case "${query.toUpperCase()}" not found in local or synchronized records.`;
       statusEl.className = 'update-status-msg error';
     }
     return;
   }
 
+  // 3. Multi-match search disambiguation: render candidate list if > 1 match and no direct exact match
+  if (!caseNoToFind && !exactMatch && matches.length > 1) {
+    if (statusEl) {
+      let html = `
+        <div class="update-search-candidates">
+          <div class="candidate-header">
+            <span>🔍 Found ${matches.length} matches for "<em>${escapeHtml(query)}</em>":</span>
+            <small style="color:#64748b;">Click a case below to load its details</small>
+          </div>
+          <div class="candidate-list">
+      `;
+      matches.slice(0, 10).forEach(m => {
+        const cNo = m.caseNo || m.criminalCaseNumber || '—';
+        const cName = m.caseName || (m.plaintiff ? `${m.plaintiff} vs ${m.defendant}` : (m.victimName ? `${m.victimName} vs ${m.accusedName}` : '—'));
+        const cType = (m.caseType || 'civil').toUpperCase();
+        const cCourt = m.courtName || m.criminalCourtName || 'District Court';
+        const cHearing = m.nextHearing && m.nextHearing !== '—' ? m.nextHearing : 'Undated';
+        const cClient = m.clientName || m.criminalClientName || '—';
+        html += `
+          <div class="candidate-item" onclick="loadCaseForUpdate('${escapeHtml(cNo)}')">
+            <div class="candidate-item-info">
+              <div class="candidate-item-title">
+                <strong>${escapeHtml(cNo)}</strong>
+                <span class="case-badge ${(m.caseType || 'civil').toLowerCase()}" style="font-size:10px; padding:2px 7px; text-transform:uppercase;">${cType}</span>
+                <span>${escapeHtml(cName)}</span>
+              </div>
+              <div class="candidate-item-meta">
+                <span>🏛️ ${escapeHtml(cCourt)}</span>
+                <span>📅 Next: ${escapeHtml(cHearing)}</span>
+                <span>👤 Client: ${escapeHtml(cClient)}</span>
+              </div>
+            </div>
+            <button type="button" class="candidate-select-btn" onclick="event.stopPropagation(); loadCaseForUpdate('${escapeHtml(cNo)}');">Select &amp; Edit ➔</button>
+          </div>
+        `;
+      });
+      html += `</div></div>`;
+      statusEl.innerHTML = html;
+      statusEl.className = 'update-status-msg';
+    }
+    return;
+  }
+
+  const found = exactMatch || matches[0];
   currentlyLoadedOriginalCaseNo = found.caseNo || found.criminalCaseNumber || '';
+
+  // Reset any unlocked inputs and lock buttons back to default locked state
+  document.querySelectorAll('.unlock-case-btn').forEach(btn => {
+    btn.classList.remove('unlocked');
+    btn.innerHTML = '<i class="fa-solid fa-lock"></i> <span>Unlock</span>';
+    btn.title = 'Click to unlock and correct Case Number or Year';
+  });
+  document.querySelectorAll('#updateCaseForm input.unlocked-input').forEach(inp => {
+    inp.setAttribute('readonly', 'true');
+    inp.classList.add('locked-input');
+    inp.classList.remove('unlocked-input');
+  });
 
   const typeDropdown = document.getElementById('updateCaseTypeDropdown');
   const caseType = (found.caseType || 'civil').toLowerCase();
@@ -6110,11 +6264,10 @@ function loadCaseForUpdate(caseNoToFind) {
     remarkInput.value = found.remark || found.remarks || '';
   }
 
-
-
   if (caseType === 'state' || caseType === 'criminal') {
     setVal('updateStateCaseNumber', found.caseNo || found.criminalCaseNumber);
     setVal('updateStateCrimeYear', found.caseYear || found.crimeYear || '2026');
+    setVal('updateStateFilingDate', found.filingDate || found.crimeFilingDate);
     setVal('updateStateCrimeNumber', found.crimeNumber);
     setVal('updateStatePoliceStation', found.policeStation, 'updateStatePoliceStationCustom');
     setVal('updateStateCrimeSection', found.crimeSection);
@@ -6125,10 +6278,12 @@ function loadCaseForUpdate(caseNoToFind) {
     setVal('updateStateClientNumber', found.clientNumber || found.criminalClientNumber);
     setVal('updateStateDocLink', found.docLink || '');
     setVal('updateStateNextHearingDate', found.nextHearing && found.nextHearing !== '—' ? found.nextHearing : '');
+    setVal('updateStateNextHearingProcess', found.hearingProcess || found.stage || '');
   } else if (caseType === 'family') {
     setVal('updateFamilyCaseNumber', found.caseNo);
     setVal('updateFamilyCaseYear', found.caseYear || '2026');
-    setVal('updateFamilyMatterType', found.matterType || 'Maintenance (Sec 125 CrPC)');
+    setVal('updateFamilyFilingDate', found.filingDate);
+    setVal('updateFamilyMatterType', found.matterType || 'Maintenance (Sec 125 CrPC)', 'updateFamilyMatterTypeCustom');
     setVal('updateFamilyPetitioner', found.petitioner || found.plaintiff);
     setVal('updateFamilyRespondent', found.respondent || found.defendant);
     setVal('updateFamilyMarriageDate', found.marriageDate);
@@ -6138,10 +6293,12 @@ function loadCaseForUpdate(caseNoToFind) {
     setVal('updateFamilyClientNumber', found.clientNumber);
     setVal('updateFamilyDocLink', found.docLink || '');
     setVal('updateFamilyNextHearingDate', found.nextHearing && found.nextHearing !== '—' ? found.nextHearing : '');
+    setVal('updateFamilyNextHearingProcess', found.hearingProcess || found.stage || '');
   } else if (caseType === 'revenue') {
     setVal('updateRevenueCaseNumber', found.caseNo);
     setVal('updateRevenueCaseYear', found.caseYear || '2026');
-    setVal('updateRevenueActSection', found.revenueActSection || 'Sec 34 (Mutation / दाखिल खारिज)');
+    setVal('updateRevenueFilingDate', found.filingDate);
+    setVal('updateRevenueActSection', found.revenueActSection || 'Sec 34 (Mutation / दाखिल खारिज)', 'updateRevenueActSectionCustom');
     setVal('updateRevenueVillage', found.villageMauja);
     setVal('updateRevenueTehsil', found.parganaTehsil);
     setVal('updateRevenueGataNo', found.gataKhataNo);
@@ -6152,9 +6309,11 @@ function loadCaseForUpdate(caseNoToFind) {
     setVal('updateRevenueClientNumber', found.clientNumber);
     setVal('updateRevenueDocLink', found.docLink || '');
     setVal('updateRevenueNextHearingDate', found.nextHearing && found.nextHearing !== '—' ? found.nextHearing : '');
+    setVal('updateRevenueNextHearingProcess', found.hearingProcess || found.stage || '');
   } else if (caseType === 'misc_civil') {
     setVal('updateMiscCivilCaseNumber', found.caseNo);
     setVal('updateMiscCivilCaseYear', found.caseYear || '2026');
+    setVal('updateMiscCivilFilingDate', found.filingDate);
     setVal('updateMiscCivilOriginalCase', found.originalCaseNumber || found.originalCase || '');
     setVal('updateMiscCivilProceedingType', found.proceedingType || 'Temporary Injunction (Order 39 Rule 1 & 2 CPC)', 'updateMiscCivilProceedingTypeCustom');
     setVal('updateMiscCivilApplicant', found.applicant || found.plaintiff);
@@ -6164,9 +6323,11 @@ function loadCaseForUpdate(caseNoToFind) {
     setVal('updateMiscCivilClientNumber', found.clientNumber);
     setVal('updateMiscCivilDocLink', found.docLink || '');
     setVal('updateMiscCivilNextHearingDate', found.nextHearing && found.nextHearing !== '—' ? found.nextHearing : '');
+    setVal('updateMiscCivilNextHearingProcess', found.hearingProcess || found.stage || '');
   } else if (caseType === 'misc_criminal') {
     setVal('updateMiscCriminalCaseNumber', found.caseNo);
     setVal('updateMiscCriminalCaseYear', found.caseYear || found.crimeYear || '2026');
+    setVal('updateMiscCriminalFilingDate', found.filingDate || found.crimeFilingDate);
     setVal('updateMiscCriminalOriginalCase', found.originalCaseNumber || found.originalCase || '');
     setVal('updateMiscCriminalProceedingType', found.proceedingType || 'Regular Bail (Sec 439 CrPC / Sec 483 BNSS)', 'updateMiscCriminalProceedingTypeCustom');
     setVal('updateMiscCriminalPoliceStation', found.policeStation, 'updateMiscCriminalPoliceStationCustom');
@@ -6178,9 +6339,11 @@ function loadCaseForUpdate(caseNoToFind) {
     setVal('updateMiscCriminalClientNumber', found.clientNumber);
     setVal('updateMiscCriminalDocLink', found.docLink || '');
     setVal('updateMiscCriminalNextHearingDate', found.nextHearing && found.nextHearing !== '—' ? found.nextHearing : '');
+    setVal('updateMiscCriminalNextHearingProcess', found.hearingProcess || found.stage || '');
   } else if (caseType === 'complaint') {
     setVal('updateComplaintCaseNumber', found.caseNo);
     setVal('updateComplaintCaseYear', found.caseYear || '2026');
+    setVal('updateComplaintFilingDate', found.filingDate);
     setVal('updateComplaintType', found.complaintType || 'Cheque Bounce (Sec 138 NI Act)', 'updateComplaintTypeCustom');
     setVal('updateComplaintSectionAct', found.sectionAct || '');
     setVal('updateComplaintComplainant', found.complainant || found.plaintiff || '');
@@ -6191,6 +6354,7 @@ function loadCaseForUpdate(caseNoToFind) {
     setVal('updateComplaintClientNumber', found.clientNumber);
     setVal('updateComplaintDocLink', found.docLink || '');
     setVal('updateComplaintNextHearingDate', found.nextHearing && found.nextHearing !== '—' ? found.nextHearing : '');
+    setVal('updateComplaintNextHearingProcess', found.hearingProcess || found.stage || '');
   } else {
     setVal('updateCaseNo', found.caseNo);
     setVal('updateCaseYear', found.caseYear || '2026');
@@ -6202,17 +6366,17 @@ function loadCaseForUpdate(caseNoToFind) {
     setVal('updateClientNumber', found.clientNumber);
     setVal('updateCaseDocLink', found.docLink || '');
     setVal('updateNextHearingDate', found.nextHearing && found.nextHearing !== '—' ? found.nextHearing : '');
+    setVal('updateNextHearingProcess', found.hearingProcess || found.stage || '');
   }
 
-  // Pre-fill Fix Next Hearing Date with the case's current nextHearing date
-  const nextHearingFixEl = document.getElementById('updateNextHearingDate');
-  if (nextHearingFixEl) {
-    const existingDate = found.nextHearing && found.nextHearing !== '—' ? found.nextHearing : '';
-    nextHearingFixEl.value = existingDate;
+  // Pre-fill search input if needed
+  const updateSearchInput = document.getElementById('updateSearchInput');
+  if (updateSearchInput && !updateSearchInput.value) {
+    updateSearchInput.value = currentlyLoadedOriginalCaseNo;
   }
 
   if (statusEl) {
-    statusEl.textContent = `✅ Case "${currentlyLoadedOriginalCaseNo}" loaded. You can update the Case Number and other details below.`;
+    statusEl.textContent = `✅ Case "${currentlyLoadedOriginalCaseNo}" loaded. You can update details below.`;
     statusEl.className = 'update-status-msg success';
   }
 }
@@ -6224,18 +6388,28 @@ async function handleUpdateCaseSubmit(e) {
   const statusEl = document.getElementById('updateSearchStatus');
 
   let newCaseNumber = '';
+  let newCaseYear = '';
   if (caseType === 'state' || caseType === 'criminal') {
     newCaseNumber = (document.getElementById('updateStateCaseNumber')?.value || document.getElementById('updateCriminalCaseNumber')?.value)?.trim();
+    newCaseYear = document.getElementById('updateStateCrimeYear')?.value?.trim();
   } else if (caseType === 'family') {
     newCaseNumber = document.getElementById('updateFamilyCaseNumber')?.value?.trim();
+    newCaseYear = document.getElementById('updateFamilyCaseYear')?.value?.trim();
   } else if (caseType === 'revenue') {
     newCaseNumber = document.getElementById('updateRevenueCaseNumber')?.value?.trim();
+    newCaseYear = document.getElementById('updateRevenueCaseYear')?.value?.trim();
   } else if (caseType === 'misc_civil') {
     newCaseNumber = document.getElementById('updateMiscCivilCaseNumber')?.value?.trim();
+    newCaseYear = document.getElementById('updateMiscCivilCaseYear')?.value?.trim();
   } else if (caseType === 'misc_criminal') {
     newCaseNumber = document.getElementById('updateMiscCriminalCaseNumber')?.value?.trim();
+    newCaseYear = document.getElementById('updateMiscCriminalCaseYear')?.value?.trim();
+  } else if (caseType === 'complaint') {
+    newCaseNumber = document.getElementById('updateComplaintCaseNumber')?.value?.trim();
+    newCaseYear = document.getElementById('updateComplaintCaseYear')?.value?.trim();
   } else {
     newCaseNumber = document.getElementById('updateCaseNo')?.value?.trim();
+    newCaseYear = document.getElementById('updateCaseYear')?.value?.trim();
   }
 
   if (!newCaseNumber) {
@@ -6282,12 +6456,19 @@ async function handleUpdateCaseSubmit(e) {
   const targetCase = allCaseRecords[caseIndex];
   targetCase.caseType = caseType;
   targetCase.caseNo = newCaseNumber;
+  if (newCaseYear) {
+    targetCase.caseYear = newCaseYear;
+    if (caseType === 'state' || caseType === 'criminal' || caseType === 'misc_criminal') {
+      targetCase.crimeYear = newCaseYear;
+    }
+  }
 
   // Save Case Status and Remark
   targetCase.caseStatus = document.getElementById('updateCaseStatus')?.value || 'Pending';
   targetCase.remark = document.getElementById('updateCaseRemark')?.value?.trim() || '';
 
   let fixNextHearingDate = '';
+  let fixHearingProcess = '';
 
   if (caseType === 'state' || caseType === 'criminal') {
     targetCase.criminalCaseNumber = newCaseNumber;
@@ -6296,6 +6477,8 @@ async function handleUpdateCaseSubmit(e) {
     targetCase.policeStation = (psSelect === 'Other' && psCustom) ? psCustom : (psSelect || psCustom || '');
     targetCase.crimeSection = document.getElementById('updateStateCrimeSection')?.value?.trim() || '';
     targetCase.crimeNumber = document.getElementById('updateStateCrimeNumber')?.value?.trim() || '';
+    targetCase.filingDate = document.getElementById('updateStateFilingDate')?.value || '';
+    targetCase.crimeFilingDate = targetCase.filingDate;
     targetCase.firstParty = document.getElementById('updateStateFirstParty')?.value?.trim() || 'State of U.P.';
     targetCase.victimName = targetCase.firstParty;
     targetCase.accusedName = document.getElementById('updateStateAccusedName')?.value?.trim() || '';
@@ -6306,10 +6489,12 @@ async function handleUpdateCaseSubmit(e) {
     targetCase.caseName = `${targetCase.firstParty} vs ${targetCase.accusedName}`;
     targetCase.partyName = targetCase.accusedName;
     fixNextHearingDate = document.getElementById('updateStateNextHearingDate')?.value?.trim() || '';
+    fixHearingProcess = document.getElementById('updateStateNextHearingProcess')?.value?.trim() || '';
   } else if (caseType === 'family') {
     const famSelect = document.getElementById('updateFamilyMatterType')?.value || '';
-    const famCustom = document.getElementById('familyMatterTypeCustom')?.value?.trim() || '';
+    const famCustom = document.getElementById('updateFamilyMatterTypeCustom')?.value?.trim() || document.getElementById('familyMatterTypeCustom')?.value?.trim() || '';
     targetCase.matterType = (famSelect.toLowerCase().startsWith('other') && famCustom) ? famCustom : (famSelect || famCustom || 'Maintenance (Sec 125 CrPC)');
+    targetCase.filingDate = document.getElementById('updateFamilyFilingDate')?.value || '';
     targetCase.petitioner = document.getElementById('updateFamilyPetitioner')?.value?.trim() || '';
     targetCase.respondent = document.getElementById('updateFamilyRespondent')?.value?.trim() || '';
     targetCase.marriageDate = document.getElementById('updateFamilyMarriageDate')?.value || '';
@@ -6321,10 +6506,12 @@ async function handleUpdateCaseSubmit(e) {
     targetCase.caseName = `${targetCase.petitioner} vs ${targetCase.respondent}`;
     targetCase.partyName = targetCase.respondent;
     fixNextHearingDate = document.getElementById('updateFamilyNextHearingDate')?.value?.trim() || '';
+    fixHearingProcess = document.getElementById('updateFamilyNextHearingProcess')?.value?.trim() || '';
   } else if (caseType === 'revenue') {
     const revSelect = document.getElementById('updateRevenueActSection')?.value || '';
-    const revCustom = document.getElementById('revenueActSectionCustom')?.value?.trim() || '';
+    const revCustom = document.getElementById('updateRevenueActSectionCustom')?.value?.trim() || document.getElementById('revenueActSectionCustom')?.value?.trim() || '';
     targetCase.revenueActSection = (revSelect.toLowerCase().startsWith('other') && revCustom) ? revCustom : (revSelect || revCustom || 'Sec 34 (Mutation / दाखिल खारिज)');
+    targetCase.filingDate = document.getElementById('updateRevenueFilingDate')?.value || '';
     targetCase.villageMauja = document.getElementById('updateRevenueVillage')?.value?.trim() || '';
     targetCase.parganaTehsil = document.getElementById('updateRevenueTehsil')?.value?.trim() || '';
     targetCase.gataKhataNo = document.getElementById('updateRevenueGataNo')?.value?.trim() || '';
@@ -6337,12 +6524,14 @@ async function handleUpdateCaseSubmit(e) {
     targetCase.caseName = `${targetCase.applicant} vs ${targetCase.oppositeParty}`;
     targetCase.partyName = targetCase.oppositeParty;
     fixNextHearingDate = document.getElementById('updateRevenueNextHearingDate')?.value?.trim() || '';
+    fixHearingProcess = document.getElementById('updateRevenueNextHearingProcess')?.value?.trim() || '';
   } else if (caseType === 'misc_civil') {
     targetCase.originalCaseNumber = document.getElementById('updateMiscCivilOriginalCase')?.value?.trim() || '';
     targetCase.originalCase = targetCase.originalCaseNumber;
     const mcProcSelect = document.getElementById('updateMiscCivilProceedingType')?.value || '';
     const mcProcCustom = document.getElementById('updateMiscCivilProceedingTypeCustom')?.value?.trim() || '';
     targetCase.proceedingType = (mcProcSelect.toLowerCase().startsWith('other') && mcProcCustom) ? mcProcCustom : (mcProcSelect || mcProcCustom || 'Temporary Injunction (Order 39 Rule 1 & 2 CPC)');
+    targetCase.filingDate = document.getElementById('updateMiscCivilFilingDate')?.value || '';
     targetCase.applicant = document.getElementById('updateMiscCivilApplicant')?.value?.trim() || '';
     targetCase.oppositeParty = document.getElementById('updateMiscCivilOppositeParty')?.value?.trim() || '';
     targetCase.courtName = document.getElementById('updateMiscCivilCourtName')?.value || '';
@@ -6352,18 +6541,19 @@ async function handleUpdateCaseSubmit(e) {
     targetCase.caseName = `${targetCase.applicant} vs ${targetCase.oppositeParty}`;
     targetCase.partyName = targetCase.oppositeParty;
     fixNextHearingDate = document.getElementById('updateMiscCivilNextHearingDate')?.value?.trim() || '';
+    fixHearingProcess = document.getElementById('updateMiscCivilNextHearingProcess')?.value?.trim() || '';
   } else if (caseType === 'misc_criminal') {
     targetCase.originalCaseNumber = document.getElementById('updateMiscCriminalOriginalCase')?.value?.trim() || '';
     targetCase.originalCase = targetCase.originalCaseNumber;
     const mcrProcSelect = document.getElementById('updateMiscCriminalProceedingType')?.value || '';
     const mcrProcCustom = document.getElementById('updateMiscCriminalProceedingTypeCustom')?.value?.trim() || '';
     targetCase.proceedingType = (mcrProcSelect.toLowerCase().startsWith('other') && mcrProcCustom) ? mcrProcCustom : (mcrProcSelect || mcrProcCustom || 'Regular Bail (Sec 439 CrPC / Sec 483 BNSS)');
-
     const mcrPsSelect = document.getElementById('updateMiscCriminalPoliceStation')?.value?.trim() || '';
     const mcrPsCustom = document.getElementById('updateMiscCriminalPoliceStationCustom')?.value?.trim() || '';
     targetCase.policeStation = (mcrPsSelect === 'Other' && mcrPsCustom) ? mcrPsCustom : (mcrPsSelect || mcrPsCustom || '');
-
     targetCase.crimeSection = document.getElementById('updateMiscCriminalCrimeSection')?.value?.trim() || '';
+    targetCase.filingDate = document.getElementById('updateMiscCriminalFilingDate')?.value || '';
+    targetCase.crimeFilingDate = targetCase.filingDate;
     targetCase.applicant = document.getElementById('updateMiscCriminalApplicant')?.value?.trim() || '';
     targetCase.oppositeParty = document.getElementById('updateMiscCriminalOppositeParty')?.value?.trim() || 'State of U.P.';
     targetCase.courtName = document.getElementById('updateMiscCriminalCourtName')?.value || '';
@@ -6373,16 +6563,16 @@ async function handleUpdateCaseSubmit(e) {
     targetCase.caseName = `${targetCase.applicant} vs ${targetCase.oppositeParty}`;
     targetCase.partyName = targetCase.applicant;
     fixNextHearingDate = document.getElementById('updateMiscCriminalNextHearingDate')?.value?.trim() || '';
+    fixHearingProcess = document.getElementById('updateMiscCriminalNextHearingProcess')?.value?.trim() || '';
   } else if (caseType === 'complaint') {
     const compTypeSelect = document.getElementById('updateComplaintType')?.value || '';
     const compTypeCustom = document.getElementById('updateComplaintTypeCustom')?.value?.trim() || '';
     targetCase.complaintType = (compTypeSelect.toLowerCase().startsWith('other') && compTypeCustom) ? compTypeCustom : (compTypeSelect || compTypeCustom || 'Cheque Bounce (Sec 138 NI Act)');
-
     const compPsSelect = document.getElementById('updateComplaintPoliceStation')?.value?.trim() || '';
     const compPsCustom = document.getElementById('updateComplaintPoliceStationCustom')?.value?.trim() || '';
     targetCase.policeStation = (compPsSelect === 'Other' && compPsCustom) ? compPsCustom : (compPsSelect || compPsCustom || '');
-
     targetCase.sectionAct = document.getElementById('updateComplaintSectionAct')?.value?.trim() || '';
+    targetCase.filingDate = document.getElementById('updateComplaintFilingDate')?.value || '';
     targetCase.complainant = document.getElementById('updateComplaintComplainant')?.value?.trim() || '';
     targetCase.accusedName = document.getElementById('updateComplaintAccusedName')?.value?.trim() || '';
     targetCase.courtName = document.getElementById('updateComplaintCourtName')?.value || '';
@@ -6392,7 +6582,9 @@ async function handleUpdateCaseSubmit(e) {
     targetCase.caseName = `${targetCase.complainant} vs ${targetCase.accusedName}`;
     targetCase.partyName = targetCase.accusedName;
     fixNextHearingDate = document.getElementById('updateComplaintNextHearingDate')?.value?.trim() || '';
+    fixHearingProcess = document.getElementById('updateComplaintNextHearingProcess')?.value?.trim() || '';
   } else {
+    targetCase.filingDate = document.getElementById('updateFilingDate')?.value || '';
     targetCase.plaintiff = document.getElementById('updatePlaintiff')?.value?.trim() || '';
     targetCase.defendant = document.getElementById('updateDefendant')?.value?.trim() || '';
     targetCase.courtName = document.getElementById('updateCourtName')?.value || '';
@@ -6402,10 +6594,32 @@ async function handleUpdateCaseSubmit(e) {
     targetCase.caseName = `${targetCase.plaintiff} vs ${targetCase.defendant}`;
     targetCase.partyName = targetCase.defendant || targetCase.plaintiff;
     fixNextHearingDate = document.getElementById('updateNextHearingDate')?.value?.trim() || '';
+    fixHearingProcess = document.getElementById('updateNextHearingProcess')?.value?.trim() || '';
   }
 
   if (fixNextHearingDate) {
     targetCase.nextHearing = fixNextHearingDate;
+    if (fixHearingProcess) targetCase.hearingProcess = fixHearingProcess;
+
+    // Update in-memory allHearingRecords as well
+    const existingHearing = allHearingRecords.find(h => (h.case_number || '').toLowerCase() === originalCaseNo.toLowerCase());
+    if (existingHearing) {
+      existingHearing.next_hearing_date = fixNextHearingDate;
+      if (fixHearingProcess) existingHearing.hearing_process = fixHearingProcess;
+      if (originalCaseNo.toLowerCase() !== newCaseNumber.toLowerCase()) {
+        existingHearing.case_number = newCaseNumber;
+      }
+    } else {
+      allHearingRecords.unshift({
+        id: 'hearing_' + Date.now(),
+        case_number: newCaseNumber,
+        hearing_date: fixNextHearingDate,
+        next_hearing_date: fixNextHearingDate,
+        hearing_process: fixHearingProcess || 'Listed Hearing',
+        hearing_status: 'Scheduled',
+        remarks: 'Updated via Case Update Form'
+      });
+    }
   }
 
   // Update in live Supabase database & cascade to hearings table
@@ -6430,7 +6644,11 @@ async function handleUpdateCaseSubmit(e) {
     statusEl.className = 'update-status-msg success';
   }
 
-  alert(`Case ${newCaseNumber} details updated successfully!`);
+  if (typeof showToast === 'function') {
+    showToast(`Case ${newCaseNumber} details updated successfully!`, 'success');
+  } else {
+    alert(`Case ${newCaseNumber} details updated successfully!`);
+  }
 }
 
 // ==============================================================================
@@ -6709,7 +6927,9 @@ function setupOtherFieldToggles() {
     ['updateStatePoliceStation', 'updateStatePoliceStationCustom'],
     ['updateMiscCriminalPoliceStation', 'updateMiscCriminalPoliceStationCustom'],
     ['familyMatterType', 'familyMatterTypeCustom'],
+    ['updateFamilyMatterType', 'updateFamilyMatterTypeCustom'],
     ['revenueActSection', 'revenueActSectionCustom'],
+    ['updateRevenueActSection', 'updateRevenueActSectionCustom'],
     ['complaintType', 'complaintTypeCustom'],
     ['updateComplaintType', 'updateComplaintTypeCustom'],
     ['complaintPoliceStation', 'complaintPoliceStationCustom'],

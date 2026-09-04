@@ -2256,12 +2256,19 @@
                         <div id="updateGeneralCaseForm" class="case-form-panel">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateCaseNo">Case Number 🔒</label>
-                                    <input id="updateCaseNo" type="text" placeholder="Case Number (Locked)" readonly required class="locked-input" title="Case Number is locked. Use Supabase DB Manager to modify Case Number.">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <label for="updateCaseNo" style="margin-bottom:0;">Case Number 🔒</label>
+                                        <button type="button" class="unlock-case-btn" data-targets="updateCaseNo,updateCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
+                                    </div>
+                                    <input id="updateCaseNo" type="text" placeholder="Case Number" readonly required class="locked-input" title="Click Unlock to edit Case Number if needed.">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateCaseYear">Year 🔒</label>
-                                    <input id="updateCaseYear" type="number" placeholder="Year (Locked)" readonly required class="locked-input">
+                                    <input id="updateCaseYear" type="number" placeholder="Year" readonly required class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFilingDate">Filing / Registration Date</label>
+                                    <input id="updateFilingDate" type="date">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateCourtName">Court Name</label>
@@ -2293,12 +2300,21 @@
                                     <input id="updateCaseDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="updateNextHearingDate" style="display:flex; align-items:center; gap:6px;">
-                                        📅 Fix Next Hearing Date
-                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
-                                    </label>
-                                    <input id="updateNextHearingDate" type="date" placeholder="Leave blank to keep existing date" style="max-width: 280px;">
-                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+                                        <div>
+                                            <label for="updateNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                                📅 Fix Next Hearing Date
+                                                <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                            </label>
+                                            <input id="updateNextHearingDate" type="date" placeholder="Leave blank to keep existing date">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                        </div>
+                                        <div>
+                                            <label for="updateNextHearingProcess">Hearing Stage / Purpose</label>
+                                            <input id="updateNextHearingProcess" type="text" placeholder="e.g. Evidence, Arguments, Framing Charge...">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Update the current procedural stage or purpose.</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2307,12 +2323,19 @@
                         <div id="updateStateCaseForm" class="case-form-panel hidden-case-form">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateStateCaseNumber">Case Number 🔒</label>
-                                    <input id="updateStateCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <label for="updateStateCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
+                                        <button type="button" class="unlock-case-btn" data-targets="updateStateCaseNumber,updateStateCrimeYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
+                                    </div>
+                                    <input id="updateStateCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateStateCrimeYear">Crime / Case Year 🔒</label>
-                                    <input id="updateStateCrimeYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                    <input id="updateStateCrimeYear" type="number" placeholder="Year" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateStateFilingDate">Filing / Charge Sheet Date</label>
+                                    <input id="updateStateFilingDate" type="date">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateStateCrimeNumber">Crime / FIR Number</label>
@@ -2383,12 +2406,21 @@
                                     <input id="updateStateDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="updateStateNextHearingDate" style="display:flex; align-items:center; gap:6px;">
-                                        📅 Fix Next Hearing Date
-                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
-                                    </label>
-                                    <input id="updateStateNextHearingDate" type="date" style="max-width: 280px;">
-                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+                                        <div>
+                                            <label for="updateStateNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                                📅 Fix Next Hearing Date
+                                                <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                            </label>
+                                            <input id="updateStateNextHearingDate" type="date">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                        </div>
+                                        <div>
+                                            <label for="updateStateNextHearingProcess">Hearing Stage / Purpose</label>
+                                            <input id="updateStateNextHearingProcess" type="text" placeholder="e.g. Prosecution Evidence, 313 CrPC, Bail Hearing...">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Update the current procedural stage or purpose.</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2397,12 +2429,19 @@
                         <div id="updateFamilyCaseForm" class="case-form-panel hidden-case-form">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateFamilyCaseNumber">Case Number 🔒</label>
-                                    <input id="updateFamilyCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <label for="updateFamilyCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
+                                        <button type="button" class="unlock-case-btn" data-targets="updateFamilyCaseNumber,updateFamilyCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
+                                    </div>
+                                    <input id="updateFamilyCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateFamilyCaseYear">Year 🔒</label>
-                                    <input id="updateFamilyCaseYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                    <input id="updateFamilyCaseYear" type="number" placeholder="Year" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateFamilyFilingDate">Filing / Institution Date</label>
+                                    <input id="updateFamilyFilingDate" type="date">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateFamilyMatterType">Dispute / Matter Type</label>
@@ -2415,6 +2454,7 @@
                                         <option value="Mutual Divorce (Sec 13B HMA)">Mutual Divorce (Sec 13B HMA)</option>
                                         <option value="Other Family Dispute">Other Family Dispute</option>
                                     </select>
+                                    <input type="text" id="updateFamilyMatterTypeCustom" placeholder="✍️ Specify other family dispute type..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateFamilyPetitioner">Petitioner / Applicant</label>
@@ -2454,12 +2494,21 @@
                                     <input id="updateFamilyDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="updateFamilyNextHearingDate" style="display:flex; align-items:center; gap:6px;">
-                                        📅 Fix Next Hearing Date
-                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
-                                    </label>
-                                    <input id="updateFamilyNextHearingDate" type="date" style="max-width: 280px;">
-                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+                                        <div>
+                                            <label for="updateFamilyNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                                📅 Fix Next Hearing Date
+                                                <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                            </label>
+                                            <input id="updateFamilyNextHearingDate" type="date">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                        </div>
+                                        <div>
+                                            <label for="updateFamilyNextHearingProcess">Hearing Stage / Purpose</label>
+                                            <input id="updateFamilyNextHearingProcess" type="text" placeholder="e.g. Reconciliation / Mediation, Evidence, Interim Maintenance...">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Update the current procedural stage or purpose.</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2468,12 +2517,19 @@
                         <div id="updateRevenueCaseForm" class="case-form-panel hidden-case-form">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateRevenueCaseNumber">Case Number 🔒</label>
-                                    <input id="updateRevenueCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <label for="updateRevenueCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
+                                        <button type="button" class="unlock-case-btn" data-targets="updateRevenueCaseNumber,updateRevenueCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
+                                    </div>
+                                    <input id="updateRevenueCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateRevenueCaseYear">Year 🔒</label>
-                                    <input id="updateRevenueCaseYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                    <input id="updateRevenueCaseYear" type="number" placeholder="Year" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateRevenueFilingDate">Filing / Dakhil Date</label>
+                                    <input id="updateRevenueFilingDate" type="date">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateRevenueActSection">Revenue Act &amp; Section</label>
@@ -2487,6 +2543,7 @@
                                         <option value="Sec 38 (Correction of Revenue Map/Record)">Sec 38 (Map / Khatauni Record Correction)</option>
                                         <option value="Other Revenue Section">Other Revenue Section</option>
                                     </select>
+                                    <input type="text" id="updateRevenueActSectionCustom" placeholder="✍️ Specify other revenue act / section..." style="display:none; margin-top:8px; border:1.5px solid #2563eb; background:#f0f7ff;">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateRevenueVillage">Village / Mauja (मौजा / ग्राम)</label>
@@ -2530,12 +2587,21 @@
                                     <input id="updateRevenueDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="updateRevenueNextHearingDate" style="display:flex; align-items:center; gap:6px;">
-                                        📅 Fix Next Hearing Date
-                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
-                                    </label>
-                                    <input id="updateRevenueNextHearingDate" type="date" style="max-width: 280px;">
-                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+                                        <div>
+                                            <label for="updateRevenueNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                                📅 Fix Next Hearing Date
+                                                <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                            </label>
+                                            <input id="updateRevenueNextHearingDate" type="date">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                        </div>
+                                        <div>
+                                            <label for="updateRevenueNextHearingProcess">Hearing Stage / Purpose</label>
+                                            <input id="updateRevenueNextHearingProcess" type="text" placeholder="e.g. Lekhpal Report, Objection / आपत्ति, Arguments...">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Update the current procedural stage or purpose.</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2544,12 +2610,19 @@
                         <div id="updateMiscCivilCaseForm" class="case-form-panel hidden-case-form">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateMiscCivilCaseNumber">Case Number 🔒</label>
-                                    <input id="updateMiscCivilCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <label for="updateMiscCivilCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
+                                        <button type="button" class="unlock-case-btn" data-targets="updateMiscCivilCaseNumber,updateMiscCivilCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
+                                    </div>
+                                    <input id="updateMiscCivilCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateMiscCivilCaseYear">Year 🔒</label>
-                                    <input id="updateMiscCivilCaseYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                    <input id="updateMiscCivilCaseYear" type="number" placeholder="Year" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCivilFilingDate">Filing / Application Date</label>
+                                    <input id="updateMiscCivilFilingDate" type="date">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateMiscCivilOriginalCase">Original / Main Suit Number</label>
@@ -2599,12 +2672,21 @@
                                     <input id="updateMiscCivilDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="updateMiscCivilNextHearingDate" style="display:flex; align-items:center; gap:6px;">
-                                        📅 Fix Next Hearing Date
-                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
-                                    </label>
-                                    <input id="updateMiscCivilNextHearingDate" type="date" style="max-width: 280px;">
-                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+                                        <div>
+                                            <label for="updateMiscCivilNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                                📅 Fix Next Hearing Date
+                                                <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                            </label>
+                                            <input id="updateMiscCivilNextHearingDate" type="date">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                        </div>
+                                        <div>
+                                            <label for="updateMiscCivilNextHearingProcess">Hearing Stage / Purpose</label>
+                                            <input id="updateMiscCivilNextHearingProcess" type="text" placeholder="e.g. Hearing on Injunction 39/1, Disposal...">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Update the current procedural stage or purpose.</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2613,12 +2695,19 @@
                         <div id="updateMiscCriminalCaseForm" class="case-form-panel hidden-case-form">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateMiscCriminalCaseNumber">Case Number 🔒</label>
-                                    <input id="updateMiscCriminalCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <label for="updateMiscCriminalCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
+                                        <button type="button" class="unlock-case-btn" data-targets="updateMiscCriminalCaseNumber,updateMiscCriminalCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
+                                    </div>
+                                    <input id="updateMiscCriminalCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateMiscCriminalCaseYear">Year 🔒</label>
-                                    <input id="updateMiscCriminalCaseYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                    <input id="updateMiscCriminalCaseYear" type="number" placeholder="Year" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateMiscCriminalFilingDate">Filing / Bail Date</label>
+                                    <input id="updateMiscCriminalFilingDate" type="date">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateMiscCriminalOriginalCase">Original ST / Crime / FIR Number</label>
@@ -2702,12 +2791,21 @@
                                     <input id="updateMiscCriminalDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="updateMiscCriminalNextHearingDate" style="display:flex; align-items:center; gap:6px;">
-                                        📅 Fix Next Hearing Date
-                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
-                                    </label>
-                                    <input id="updateMiscCriminalNextHearingDate" type="date" style="max-width: 280px;">
-                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+                                        <div>
+                                            <label for="updateMiscCriminalNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                                📅 Fix Next Hearing Date
+                                                <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                            </label>
+                                            <input id="updateMiscCriminalNextHearingDate" type="date">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                        </div>
+                                        <div>
+                                            <label for="updateMiscCriminalNextHearingProcess">Hearing Stage / Purpose</label>
+                                            <input id="updateMiscCriminalNextHearingProcess" type="text" placeholder="e.g. Case Diary Call, Bail Arguments, Order...">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Update the current procedural stage or purpose.</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2716,12 +2814,19 @@
                         <div id="updateComplaintCaseForm" class="case-form-panel hidden-case-form">
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="updateComplaintCaseNumber">Case Number 🔒</label>
-                                    <input id="updateComplaintCaseNumber" type="text" placeholder="Case Number (Locked)" readonly class="locked-input">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <label for="updateComplaintCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
+                                        <button type="button" class="unlock-case-btn" data-targets="updateComplaintCaseNumber,updateComplaintCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
+                                    </div>
+                                    <input id="updateComplaintCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateComplaintCaseYear">Year 🔒</label>
-                                    <input id="updateComplaintCaseYear" type="number" placeholder="Year (Locked)" readonly class="locked-input">
+                                    <input id="updateComplaintCaseYear" type="number" placeholder="Year" readonly class="locked-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateComplaintFilingDate">Filing / Presentation Date</label>
+                                    <input id="updateComplaintFilingDate" type="date">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateComplaintType">Complaint / Matter Type</label>
@@ -2802,12 +2907,21 @@
                                     <input id="updateComplaintDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
                                 <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="updateComplaintNextHearingDate" style="display:flex; align-items:center; gap:6px;">
-                                        📅 Fix Next Hearing Date
-                                        <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
-                                    </label>
-                                    <input id="updateComplaintNextHearingDate" type="date" style="max-width: 280px;">
-                                    <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+                                        <div>
+                                            <label for="updateComplaintNextHearingDate" style="display:flex; align-items:center; gap:6px;">
+                                                📅 Fix Next Hearing Date
+                                                <span style="font-size:11px; font-weight:500; color:#64748b; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:5px;">Correct a wrong date</span>
+                                            </label>
+                                            <input id="updateComplaintNextHearingDate" type="date">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Leave blank to keep the existing next hearing date unchanged.</small>
+                                        </div>
+                                        <div>
+                                            <label for="updateComplaintNextHearingProcess">Hearing Stage / Purpose</label>
+                                            <input id="updateComplaintNextHearingProcess" type="text" placeholder="e.g. 200 CrPC Statement, 202 Inquiry, Summoning...">
+                                            <small style="display:block; margin-top:4px; color:#64748b;">Update the current procedural stage or purpose.</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -3217,6 +3331,7 @@
                                 <th>Court</th>
                                 <th>Status</th>
                                 <th>Remarks</th>
+                                <th style="text-align:center;">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 bg-white"></tbody>
