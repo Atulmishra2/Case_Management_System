@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=5.0">
+    <link rel="stylesheet" href="admin.css?v=5.1">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -891,12 +891,12 @@
                             </div>
                             <div class="hearing-card-title-block">
                                 <div class="hearing-caseno-row">
-                                    <h3 class="hearing-caseno">Loading cases...</h3>
+                                    <span class="hearing-caseno-tag"><i class="fa-solid fa-hashtag" style="font-size: 11px;"></i> OS/—/2024</span>
                                     <button type="button" class="hearing-dossier-pill-btn" onclick="showTab('search')">
                                         <i class="fa-solid fa-folder-open"></i> Dossier
                                     </button>
                                 </div>
-                                <p class="hearing-casename">Synchronizing judicial diary schedule...</p>
+                                <h3 class="hearing-casename">Loading Upcoming Court Hearings...</h3>
                             </div>
                             <div class="hearing-datetime-strip">
                                 <div class="hearing-card-date">
@@ -917,7 +917,10 @@
                             </div>
                             <div class="hearing-card-footer">
                                 <button type="button" class="hearing-primary-cta" onclick="showTab('all')">
-                                    <i class="fa-solid fa-file-lines"></i> Open Proceedings History
+                                    <i class="fa-solid fa-file-lines"></i> Proceedings
+                                </button>
+                                <button type="button" class="hearing-call-cta" title="Call Client">
+                                    <i class="fa-solid fa-phone"></i> Call
                                 </button>
                                 <button type="button" class="hearing-whatsapp-cta" title="Send WhatsApp alert">
                                     <i class="fa-brands fa-whatsapp"></i> Notice

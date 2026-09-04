@@ -4723,15 +4723,15 @@ function renderUpcomingWeekHearings() {
           </span>
         </div>
 
-        <!-- Case Identity Header Block -->
+        <!-- Case Identity Header Block: Case Name Bigger & Prominent -->
         <div class="hearing-card-title-block">
           <div class="hearing-caseno-row">
-            <h3 class="hearing-caseno">${escapeHtml(caseNum)}</h3>
-            <button type="button" class="hearing-dossier-pill-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNum)}')" title="View Case Dossier">
+            <span class="hearing-caseno-tag"><i class="fa-solid fa-hashtag" style="font-size: 11px;"></i> ${escapeHtml(caseNum)}</span>
+            <button type="button" class="hearing-dossier-pill-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNum)}')" title="View Complete Case Dossier">
               <i class="fa-solid fa-folder-open"></i> Dossier
             </button>
           </div>
-          <p class="hearing-casename" title="${escapeHtml(caseName)}">${escapeHtml(caseName)}</p>
+          <h3 class="hearing-casename" title="${escapeHtml(caseName)}">${escapeHtml(caseName)}</h3>
         </div>
 
         <!-- Hearing Date & Court Location Highlight Strip -->
@@ -4770,11 +4770,20 @@ function renderUpcomingWeekHearings() {
         </div>
         ` : ''}
 
-        <!-- Footer Actions -->
+        <!-- Footer Actions: Proceedings History + Direct Call + WhatsApp Notice -->
         <div class="hearing-card-footer">
           <button type="button" class="hearing-primary-cta" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNum)}')">
-            <i class="fa-solid fa-file-lines"></i> Open Proceedings History
+            <i class="fa-solid fa-file-lines"></i> Proceedings
           </button>
+          ${clientPhone ? `
+          <a href="tel:${escapeHtml(clientPhone)}" class="hearing-call-cta" title="Call Client directly: ${escapeHtml(clientPhone)}">
+            <i class="fa-solid fa-phone"></i> Call
+          </a>
+          ` : `
+          <button type="button" class="hearing-call-cta disabled" title="No client phone number registered" disabled>
+            <i class="fa-solid fa-phone-slash"></i> Call
+          </button>
+          `}
           <button type="button" class="hearing-whatsapp-cta" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNum)}')" title="Dispatch WhatsApp reminder to client">
             <i class="fa-brands fa-whatsapp"></i> Notice
           </button>
