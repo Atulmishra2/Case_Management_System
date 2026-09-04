@@ -3525,6 +3525,8 @@ function renderHomeDashboard() {
   const todayTbody = document.getElementById('homeTodayTableBody');
   const todayBoardDate = document.getElementById('homeTodayBoardDate');
   const tasksContainer = document.getElementById('homeTasksListContainer');
+  const todayEmptyState = document.getElementById('homeTodayEmptyState');
+  const todayTableWrapper = document.getElementById('homeTodayTableWrapper');
 
   // 1. Dynamic Greeting
   const now = new Date();
@@ -3594,8 +3596,10 @@ function renderHomeDashboard() {
   if (shortcutRevenue) shortcutRevenue.textContent = `${revenueCount} Cases`;
 
   // 5. Populate Today's Court Appearance Board Table
-  if (todayTbody) {
-    if (todayCases.length === 0) {
+  if (todayCases.length === 0) {
+    if (todayEmptyState) todayEmptyState.style.display = 'flex';
+    if (todayTableWrapper) todayTableWrapper.style.display = 'none';
+    if (todayTbody) {
       todayTbody.innerHTML = `
         <tr>
           <td colspan="7" class="no-results" style="padding: 24px;">
@@ -3606,7 +3610,11 @@ function renderHomeDashboard() {
           </td>
         </tr>
       `;
-    } else {
+    }
+  } else {
+    if (todayEmptyState) todayEmptyState.style.display = 'none';
+    if (todayTableWrapper) todayTableWrapper.style.display = 'block';
+    if (todayTbody) {
       // Sort by court name and then case number
       todayCases.sort((a, b) => {
         const courtA = (a.courtName || a.criminalCourtName || '').toUpperCase();
