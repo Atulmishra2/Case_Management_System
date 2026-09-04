@@ -3581,7 +3581,20 @@ function renderHomeDashboard() {
 
   // 3. Update KPI Card Values
   if (totalEl) totalEl.textContent = String(totalCount);
-  if (breakdownEl) breakdownEl.innerHTML = `<span>${civilCount} Civil</span> • <span>${criminalCount} Criminal</span> • <span>${revenueCount} Revenue</span>`;
+  if (breakdownEl) {
+    breakdownEl.innerHTML = `
+      <div class="breakdown-col-left">
+        <div class="breakdown-item"><span class="breakdown-bullet"></span>${civilCount} Civil</div>
+        <div class="breakdown-item"><span class="breakdown-bullet"></span>${criminalCount} Criminal</div>
+        <div class="breakdown-item"><span class="breakdown-bullet"></span>${revenueCount} Revenue</div>
+      </div>
+      <div class="breakdown-col-right">
+        <span class="breakdown-bullet"></span>
+        <span class="breakdown-bullet"></span>
+        <span class="breakdown-bullet"></span>
+      </div>
+    `;
+  }
   if (todayEl) todayEl.textContent = String(todayCases.length);
   if (upcomingEl) upcomingEl.textContent = String(upcomingCases.length);
   if (pendingEl) pendingEl.textContent = String(pendingCount);

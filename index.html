@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=5.8">
+    <link rel="stylesheet" href="admin.css?v=5.9">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -282,78 +282,116 @@
                         </div>
                     </div>
 
+                    <!-- Section Title matching image -->
+                    <div class="home-kpi-dashboard-title">LEGAL CASE MANAGEMENT DASHBOARD</div>
+
                     <!-- Executive KPI Statistics Grid -->
                     <div class="home-kpi-grid">
-                        <!-- Total Portfolio Card -->
-                        <div class="home-kpi-card total-kpi" onclick="showTab('search')">
-                            <div class="kpi-header">
-                                <span class="kpi-title">Total Case Registry</span>
-                                <span class="kpi-icon"><i class="fa-solid fa-folder-open"></i></span>
+                        <!-- Total Case Records Card -->
+                        <div class="home-kpi-card kpi-theme-total" onclick="showTab('search')">
+                            <div class="card-accent-top"></div>
+                            <div class="kpi-main-block">
+                                <div class="kpi-visual-icon"><i class="fa-solid fa-folder-open"></i></div>
+                                <div class="kpi-metric-info">
+                                    <div class="kpi-metric-title">TOTAL CASE<br>RECORDS</div>
+                                    <div class="kpi-metric-value" id="homeTotalCases">0</div>
+                                </div>
                             </div>
-                            <div class="kpi-value" id="homeTotalCases">0</div>
-                            <div class="kpi-footer" id="homePortfolioBreakdown">
-                                <span>0 Civil</span> • <span>0 Criminal</span> • <span>0 Revenue</span>
+                            <div class="kpi-footer-block">
+                                <div class="kpi-breakdown-card" id="homePortfolioBreakdown">
+                                    <div class="breakdown-col-left">
+                                        <div class="breakdown-item"><span class="breakdown-bullet"></span>0 Civil</div>
+                                        <div class="breakdown-item"><span class="breakdown-bullet"></span>0 Criminal</div>
+                                        <div class="breakdown-item"><span class="breakdown-bullet"></span>0 Revenue</div>
+                                    </div>
+                                    <div class="breakdown-col-right">
+                                        <span class="breakdown-bullet"></span>
+                                        <span class="breakdown-bullet"></span>
+                                        <span class="breakdown-bullet"></span>
+                                    </div>
+                                </div>
                             </div>
+                            <div class="card-accent-bottom"></div>
                         </div>
 
-                        <!-- Listed Today Card -->
-                        <div class="home-kpi-card today-kpi" onclick="showTab('causelist')">
-                            <div class="kpi-header">
-                                <span class="kpi-title">Today's Court Listings</span>
-                                <span class="kpi-icon"><i class="fa-solid fa-thumbtack"></i></span>
+                        <!-- Today's Court Cases Card -->
+                        <div class="home-kpi-card kpi-theme-today" onclick="showTab('causelist')">
+                            <div class="card-accent-top"></div>
+                            <div class="kpi-main-block">
+                                <div class="kpi-visual-icon"><i class="fa-solid fa-thumbtack"></i></div>
+                                <div class="kpi-metric-info">
+                                    <div class="kpi-metric-title">TODAY'S<br>COURT CASES</div>
+                                    <div class="kpi-metric-value" id="homeTodayCases">0</div>
+                                </div>
                             </div>
-                            <div class="kpi-value" id="homeTodayCases">0</div>
-                            <div class="kpi-footer">
-                                <span class="kpi-link">Open Cause List ➔</span>
+                            <div class="kpi-footer-block">
+                                <button type="button" class="kpi-action-btn" onclick="event.stopPropagation(); showTab('causelist')">OPEN CAUSE LIST</button>
                             </div>
+                            <div class="card-accent-bottom"></div>
                         </div>
 
-                        <!-- Upcoming 7 Days Card -->
-                        <div class="home-kpi-card upcoming-kpi" onclick="showTab('upcoming')">
-                            <div class="kpi-header">
-                                <span class="kpi-title">Upcoming (7 Days)</span>
-                                <span class="kpi-icon"><i class="fa-solid fa-bolt"></i></span>
+                        <!-- Upcoming (7 Days) Card -->
+                        <div class="home-kpi-card kpi-theme-upcoming" onclick="showTab('upcoming')">
+                            <div class="card-accent-top"></div>
+                            <div class="kpi-main-block">
+                                <div class="kpi-visual-icon"><i class="fa-solid fa-bolt"></i></div>
+                                <div class="kpi-metric-info">
+                                    <div class="kpi-metric-title">UPCOMING<br>(7 DAYS)</div>
+                                    <div class="kpi-metric-value" id="homeUpcomingCases">0</div>
+                                </div>
                             </div>
-                            <div class="kpi-value" id="homeUpcomingCases">0</div>
-                            <div class="kpi-footer">
-                                <span>Next 7 days court sessions</span>
+                            <div class="kpi-footer-block">
+                                <div class="kpi-status-caption">Next 7 days court schedule</div>
                             </div>
+                            <div class="card-accent-bottom"></div>
                         </div>
 
-                        <!-- Pending Litigation Card -->
-                        <div class="home-kpi-card pending-kpi" onclick="showTab('search')">
-                            <div class="kpi-header">
-                                <span class="kpi-title">Active Pending Cases</span>
-                                <span class="kpi-icon"><i class="fa-solid fa-hourglass-half"></i></span>
+                        <!-- Active Pending Cases Card -->
+                        <div class="home-kpi-card kpi-theme-pending" onclick="showTab('search')">
+                            <div class="card-accent-top"></div>
+                            <div class="kpi-main-block">
+                                <div class="kpi-visual-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                                <div class="kpi-metric-info">
+                                    <div class="kpi-metric-title">ACTIVE<br>PENDING CASES</div>
+                                    <div class="kpi-metric-value" id="homePendingCases">0</div>
+                                </div>
                             </div>
-                            <div class="kpi-value" id="homePendingCases">0</div>
-                            <div class="kpi-footer">
-                                <span id="homePendingPercent">0% of total caseload</span>
+                            <div class="kpi-footer-block">
+                                <div class="kpi-status-caption" id="homePendingPercent">0% of total caseload</div>
                             </div>
+                            <div class="card-accent-bottom"></div>
                         </div>
 
                         <!-- Undated Cases Card -->
-                        <div class="home-kpi-card undated-kpi" onclick="showTab('undated')">
-                            <div class="kpi-header">
-                                <span class="kpi-title">Undated Cases</span>
-                                <span class="kpi-icon"><i class="fa-solid fa-circle-question"></i></span>
+                        <div class="home-kpi-card kpi-theme-undated" onclick="showTab('undated')">
+                            <div class="card-accent-top"></div>
+                            <div class="kpi-main-block">
+                                <div class="kpi-visual-icon"><span class="kpi-symbol-icon">?</span></div>
+                                <div class="kpi-metric-info">
+                                    <div class="kpi-metric-title">UNDATED<br>CASES</div>
+                                    <div class="kpi-metric-value" id="homeUndatedCases">0</div>
+                                </div>
                             </div>
-                            <div class="kpi-value" id="homeUndatedCases">0</div>
-                            <div class="kpi-footer">
-                                <span class="kpi-warning">Needs hearing schedule</span>
+                            <div class="kpi-footer-block">
+                                <div class="kpi-pill-badge">Needs hearing schedule</div>
                             </div>
+                            <div class="card-accent-bottom"></div>
                         </div>
 
-                        <!-- Disposed Cases Card -->
-                        <div class="home-kpi-card disposed-kpi" onclick="showTab('disposed')">
-                            <div class="kpi-header">
-                                <span class="kpi-title">Disposed / Resolved</span>
-                                <span class="kpi-icon"><i class="fa-solid fa-square-check"></i></span>
+                        <!-- Disposed / Resolved Card -->
+                        <div class="home-kpi-card kpi-theme-disposed" onclick="showTab('disposed')">
+                            <div class="card-accent-top"></div>
+                            <div class="kpi-main-block">
+                                <div class="kpi-visual-icon"><i class="fa-solid fa-check"></i></div>
+                                <div class="kpi-metric-info">
+                                    <div class="kpi-metric-title">DISPOSED /<br>RESOLVED</div>
+                                    <div class="kpi-metric-value" id="homeDisposedCases">0</div>
+                                </div>
                             </div>
-                            <div class="kpi-value" id="homeDisposedCases">0</div>
-                            <div class="kpi-footer">
-                                <span id="homeDisposedPercent">0% Resolution Rate</span>
+                            <div class="kpi-footer-block">
+                                <div class="kpi-status-caption" id="homeDisposedPercent">0% Resolution Rate</div>
                             </div>
+                            <div class="card-accent-bottom"></div>
                         </div>
                     </div>
 

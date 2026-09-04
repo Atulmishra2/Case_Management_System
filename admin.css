@@ -7313,113 +7313,296 @@ html, body {
   transform: translateY(-1px);
 }
 
-/* Executive KPI Grid - 6 columns on desktop */
+/* ==============================================================================
+   EXECUTIVE 6-CARD DASHBOARD (MATCHING media_1788526706146.png)
+   ============================================================================== */
+
+.home-kpi-dashboard-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 4px 0 16px 0;
+}
+
 .home-kpi-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
+  gap: 14px;
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .home-kpi-card {
   background: #ffffff;
+  border-radius: 18px;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px 14px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  padding: 22px 14px 18px 14px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  justify-content: space-between;
   position: relative;
   overflow: hidden;
-  min-height: 122px;
+  min-height: 205px;
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
 }
 
 .home-kpi-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08);
-  border-color: #cbd5e1;
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -6px rgba(15, 23, 42, 0.12), 0 6px 14px -2px rgba(15, 23, 42, 0.06);
 }
 
-.kpi-header {
+/* Dual Top & Bottom Colored Accent Caps */
+.card-accent-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  border-radius: 18px 18px 0 0;
+}
+
+.card-accent-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  border-radius: 0 0 18px 18px;
+}
+
+/* Card Upper Metric Block */
+.kpi-main-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.kpi-visual-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.kpi-symbol-icon {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  font-family: system-ui, -apple-system, sans-serif;
+  display: inline-block;
+}
+
+.kpi-metric-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.kpi-metric-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #1e293b;
+  text-transform: uppercase;
+  line-height: 1.25;
+  letter-spacing: 0.03em;
+}
+
+.kpi-metric-value {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.05;
+  margin-top: 4px;
+  letter-spacing: -0.02em;
+}
+
+/* Card 1: Total Case Records (Cyan / Royal Blue) */
+.kpi-theme-total .card-accent-top,
+.kpi-theme-total .card-accent-bottom {
+  background: linear-gradient(90deg, #00b4d8, #2563eb) !important;
+}
+.kpi-theme-total .kpi-visual-icon {
+  color: #2563eb !important;
+}
+.kpi-theme-total .kpi-metric-value {
+  color: #1d4ed8 !important;
+}
+
+/* Card 2: Today's Court Cases (Coral / Warm Orange) */
+.kpi-theme-today .card-accent-top,
+.kpi-theme-today .card-accent-bottom {
+  background: linear-gradient(90deg, #fb923c, #ea580c) !important;
+}
+.kpi-theme-today .kpi-visual-icon {
+  color: #ea580c !important;
+}
+.kpi-theme-today .kpi-metric-value {
+  color: #ea580c !important;
+}
+
+/* Card 3: Upcoming 7 Days (Emerald / Teal) */
+.kpi-theme-upcoming .card-accent-top,
+.kpi-theme-upcoming .card-accent-bottom {
+  background: linear-gradient(90deg, #10b981, #0d9488) !important;
+}
+.kpi-theme-upcoming .kpi-visual-icon {
+  color: #0d9488 !important;
+}
+.kpi-theme-upcoming .kpi-metric-value {
+  color: #0d9488 !important;
+}
+
+/* Card 4: Active Pending Cases (Golden Amber) */
+.kpi-theme-pending .card-accent-top,
+.kpi-theme-pending .card-accent-bottom {
+  background: linear-gradient(90deg, #f59e0b, #d97706) !important;
+}
+.kpi-theme-pending .kpi-visual-icon {
+  color: #d97706 !important;
+}
+.kpi-theme-pending .kpi-metric-value {
+  color: #d97706 !important;
+}
+
+/* Card 5: Undated Cases (Purple / Violet) */
+.kpi-theme-undated .card-accent-top,
+.kpi-theme-undated .card-accent-bottom {
+  background: linear-gradient(90deg, #a855f7, #7c3aed) !important;
+}
+.kpi-theme-undated .kpi-visual-icon {
+  color: #7c3aed !important;
+}
+.kpi-theme-undated .kpi-metric-value {
+  color: #7c3aed !important;
+}
+
+/* Card 6: Disposed / Resolved (Vibrant Green) */
+.kpi-theme-disposed .card-accent-top,
+.kpi-theme-disposed .card-accent-bottom {
+  background: linear-gradient(90deg, #22c55e, #16a34a) !important;
+}
+.kpi-theme-disposed .kpi-visual-icon {
+  color: #16a34a !important;
+}
+.kpi-theme-disposed .kpi-metric-value {
+  color: #16a34a !important;
+}
+
+/* Footer Container */
+.kpi-footer-block {
+  margin-top: auto;
+  padding-top: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Card 1 Breakdown Card with dual column dots */
+.kpi-breakdown-card {
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.kpi-title {
   font-size: 11px;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 600;
+  color: #334155;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.kpi-icon {
-  font-size: 15px;
-  color: #64748b;
-  opacity: 0.9;
+.breakdown-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.2;
+}
+
+.breakdown-bullet {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #3b82f6;
+  display: inline-block;
   flex-shrink: 0;
 }
 
-.kpi-value {
-  font-size: 26px;
-  font-weight: 800;
-  color: #0f172a;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin-top: 2px;
+.breakdown-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
 }
 
-.kpi-footer {
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
-  margin-top: auto;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Card 2 Action Button: OPEN CAUSE LIST */
+.kpi-action-btn {
+  background: linear-gradient(135deg, #fb923c, #ea580c) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 10px !important;
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  width: 100% !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 3px 8px rgba(234, 88, 12, 0.25) !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+  line-height: 1 !important;
+  display: block !important;
 }
 
-.kpi-link {
-  color: #0284c7;
-  font-weight: 700;
+.kpi-action-btn:hover {
+  background: linear-gradient(135deg, #ea580c, #c2410c) !important;
+  box-shadow: 0 5px 14px rgba(234, 88, 12, 0.4) !important;
+  transform: translateY(-1px) !important;
 }
 
-.kpi-warning {
-  color: #d97706;
-  font-weight: 700;
+/* Card 5 Pill Badge: Needs hearing schedule */
+.kpi-pill-badge {
+  background: linear-gradient(135deg, #a855f7, #7c3aed) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  padding: 7px 10px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 3px 8px rgba(124, 58, 237, 0.25) !important;
+  display: block !important;
+  letter-spacing: 0.01em !important;
 }
 
-/* KPI Accent Borders & Subtle Tint Gradients */
-.total-kpi {
-  border-top: 4px solid #1e293b !important;
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 65%) !important;
-}
-.today-kpi {
-  border-top: 4px solid #f59e0b !important;
-  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 65%) !important;
-}
-.upcoming-kpi {
-  border-top: 4px solid #3b82f6 !important;
-  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 65%) !important;
-}
-.pending-kpi {
-  border-top: 4px solid #f97316 !important;
-  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 65%) !important;
-}
-.undated-kpi {
-  border-top: 4px solid #ef4444 !important;
-  background: linear-gradient(180deg, #fef2f2 0%, #ffffff 65%) !important;
-}
-.disposed-kpi {
-  border-top: 4px solid #10b981 !important;
-  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 65%) !important;
+/* Cards 3, 4, 6 Status Caption */
+.kpi-status-caption {
+  font-size: 12px;
+  color: #475569;
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+  line-height: 1.3;
 }
 
 /* Home Dashboard Container */
@@ -9482,15 +9665,16 @@ textarea:focus {
 
   .home-kpi-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px !important;
+    gap: 12px !important;
   }
 
   .home-kpi-card {
-    padding: 12px 14px !important;
+    padding: 18px 12px 16px 12px !important;
+    min-height: 190px !important;
   }
 
-  .kpi-value {
-    font-size: 22px !important;
+  .kpi-metric-value {
+    font-size: 28px !important;
   }
 
   .form-row,
@@ -9557,25 +9741,57 @@ textarea:focus {
     min-height: 36px !important;
   }
 
+  .home-kpi-dashboard-title {
+    font-size: 16px !important;
+    margin: 4px 0 12px 0 !important;
+  }
+
   .home-kpi-grid {
     grid-template-columns: 1fr 1fr !important;
     gap: 8px !important;
   }
 
   .home-kpi-card {
-    padding: 10px 10px !important;
+    padding: 14px 10px 12px 10px !important;
+    min-height: 180px !important;
+    border-radius: 14px !important;
   }
 
-  .kpi-title {
-    font-size: 11px !important;
+  .kpi-visual-icon {
+    font-size: 30px !important;
+    width: 36px !important;
+    height: 36px !important;
   }
 
-  .kpi-value {
-    font-size: 20px !important;
+  .kpi-symbol-icon {
+    font-size: 32px !important;
   }
 
-  .kpi-footer {
+  .kpi-metric-title {
+    font-size: 9.5px !important;
+  }
+
+  .kpi-metric-value {
+    font-size: 24px !important;
+  }
+
+  .kpi-action-btn {
+    font-size: 10px !important;
+    padding: 6px 6px !important;
+  }
+
+  .kpi-pill-badge {
+    font-size: 10px !important;
+    padding: 5px 6px !important;
+  }
+
+  .kpi-status-caption {
     font-size: 10.5px !important;
+  }
+
+  .kpi-breakdown-card {
+    padding: 6px 8px !important;
+    font-size: 10px !important;
   }
 
   .hero-actions-bar button {
