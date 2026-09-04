@@ -154,7 +154,7 @@ function parseDateString(dateInput) {
     return new Date(parseInt(dmyMatch[3], 10), parseInt(dmyMatch[2], 10) - 1, parseInt(dmyMatch[1], 10));
   }
   const d = new Date(str);
-  return isNaN(d.getTime()) ? null : d;
+  return isNaN(d.getTime()) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
 window.parseDateString = parseDateString;
@@ -3541,10 +3541,8 @@ function renderHomeDashboard() {
   if (todayBoardDate) todayBoardDate.textContent = `Appearances for ${dayName.split(' ')[0]}, ${now.getDate()} ${months[now.getMonth()]}`;
 
   // 2. Calculations & Robust Date Matching
-  const todayStr = now.toISOString().split('T')[0];
-  const weekAhead = new Date();
-  weekAhead.setDate(weekAhead.getDate() + 7);
-  const weekAheadStr = weekAhead.toISOString().split('T')[0];
+  const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  const in7Days = new Date(todayZero.getTime() + (7 * 24 * 60 * 60 * 1000) + (23 * 60 * 60 * 1000));
 
   const totalCount = allCaseRecords.length;
   const civilCount = allCaseRecords.filter(c => (c.caseType || 'civil').toLowerCase() === 'civil').length;
@@ -3552,26 +3550,21 @@ function renderHomeDashboard() {
   const revenueCount = allCaseRecords.filter(c => (c.caseType || '').toLowerCase() === 'revenue').length;
 
   const todayCases = allCaseRecords.filter(c => {
-    if (!c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null') return false;
-    const str = String(c.nextHearing).trim();
-    if (str === todayStr) return true;
-
-    const ymd = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-    if (ymd) {
-      const formatted = `${ymd[1]}-${String(ymd[2]).padStart(2, '0')}-${String(ymd[3]).padStart(2, '0')}`;
-      return formatted === todayStr;
-    }
-    const dmy = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-    if (dmy) {
-      const formatted = `${dmy[3]}-${String(dmy[2]).padStart(2, '0')}-${String(dmy[1]).padStart(2, '0')}`;
-      return formatted === todayStr;
-    }
-    return false;
+    if (!c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !c.nextHearing.trim()) return false;
+    const parsed = parseDateString(c.nextHearing);
+    if (!parsed) return false;
+    return parsed.getFullYear() === now.getFullYear() &&
+           parsed.getMonth() === now.getMonth() &&
+           parsed.getDate() === now.getDate();
   });
 
   const upcomingCases = allCaseRecords.filter(c => {
-    if (!c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null') return false;
-    return c.nextHearing >= todayStr && c.nextHearing <= weekAheadStr;
+    if (!c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !c.nextHearing.trim()) return false;
+    if ((c.caseStatus || '').toLowerCase().includes('dispose')) return false;
+    const parsed = parseDateString(c.nextHearing);
+    if (!parsed) return false;
+    const hTime = parsed.getTime();
+    return hTime >= todayZero.getTime() && hTime <= in7Days.getTime();
   });
 
   const disposedCount = allCaseRecords.filter(c => (c.caseStatus || '').toLowerCase().includes('dispose')).length;
@@ -3635,19 +3628,20 @@ function renderHomeDashboard() {
           <tr>
             <td style="text-align: center;"><span class="court-index-badge">#${idx + 1}</span></td>
             <td class="copyable-case-no" title="Double-click to copy Case Number">
-              <strong>${escapeHtml(caseNumber)}</strong>
-              <div><span class="case-badge ${caseType}" style="font-size: 9px; padding: 1px 6px;">${caseType.toUpperCase()}</span></div>
+              <strong style="color: #0f172a; font-size: 13.5px;">${escapeHtml(caseNumber)}</strong>
+              <div style="margin-top: 3px;"><span class="case-badge ${caseType}" style="font-size: 9.5px; padding: 2px 7px; text-transform: uppercase; border-radius: 4px; font-weight: 700;">${caseType}</span></div>
             </td>
-            <td><strong>${escapeHtml(caseName)}</strong></td>
-            <td>🏛️ ${escapeHtml(courtName)}</td>
-            <td><span style="color: #1e40af; font-weight: 700;">${escapeHtml(stage)}</span></td>
+            <td><strong style="color: #0f172a; font-size: 13.5px; display: block;">${escapeHtml(caseName)}</strong></td>
+            <td><span style="font-weight: 600; color: #334155;">🏛️ ${escapeHtml(courtName)}</span></td>
+            <td><span class="hearing-stage-pill" style="color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; font-weight: 700; padding: 3px 8px; border-radius: 6px; font-size: 11.5px; display: inline-block;">${escapeHtml(stage)}</span></td>
             <td>
-              <div>${escapeHtml(clientName)}</div>
-              ${clientPhone ? `<small style="color: #64748b;">📞 ${escapeHtml(clientPhone)}</small>` : ''}
+              <div style="font-weight: 600; color: #1e293b;">${escapeHtml(clientName)}</div>
+              ${clientPhone ? `<small style="margin-top: 3px; display: inline-block;"><a href="tel:${escapeHtml(clientPhone)}" style="color: #0284c7; text-decoration: none; font-weight: 600;" title="Call Client">📞 ${escapeHtml(clientPhone)}</a></small>` : ''}
             </td>
             <td style="white-space: nowrap; text-align: center;">
               <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View proceedings details">📜</button>
               <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date">📅 Forward</button>
+              ${clientPhone ? `<a href="tel:${escapeHtml(clientPhone)}" class="table-view-btn call-btn" title="Call Client directly: ${escapeHtml(clientPhone)}" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;">📞</a>` : ''}
               <button type="button" class="whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="WhatsApp notice to client">💬</button>
             </td>
           </tr>

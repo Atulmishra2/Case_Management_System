@@ -7288,23 +7288,23 @@ html, body {
 
 .home-kpi-card {
   background: #ffffff;
-  border: 1px solid #DDE3E6;
-  border-radius: 12px;
-  padding: 16px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow: 0 2px 4px rgba(47, 104, 161, 0.03);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
 }
 
 .home-kpi-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 16px -4px rgba(47, 104, 161, 0.1);
-  border-color: #4A6572;
+  box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.10);
+  border-color: #cbd5e1;
 }
 
 .kpi-header {
@@ -7314,47 +7314,68 @@ html, body {
 }
 
 .kpi-title {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  color: #4A6572;
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
 }
 
 .kpi-icon {
-  font-size: 18px;
+  font-size: 19px;
+  opacity: 0.9;
 }
 
 .kpi-value {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 800;
-  color: #232F34;
+  color: #0f172a;
   line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .kpi-footer {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
-  color: #4A6572;
+  color: #64748b;
+  margin-top: 2px;
 }
 
 .kpi-link {
-  color: #232F34;
+  color: #0284c7;
   font-weight: 700;
 }
 
 .kpi-warning {
-  color: #C49045;
+  color: #d97706;
   font-weight: 700;
 }
 
-/* KPI Accent Borders */
-.total-kpi { border-top: 4px solid #232F34; }
-.today-kpi { border-top: 4px solid #F9AA33; background: linear-gradient(180deg, rgba(35, 47, 52, 0.04) 0%, #ffffff 60%); }
-.upcoming-kpi { border-top: 4px solid #4A6572; }
-.pending-kpi { border-top: 4px solid #C49045; }
-.undated-kpi { border-top: 4px solid #B94A48; }
-.disposed-kpi { border-top: 4px solid #4E9A7B; }
+/* KPI Accent Borders & Subtle Tint Gradients */
+.total-kpi {
+  border-top: 4px solid #1e293b !important;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 65%) !important;
+}
+.today-kpi {
+  border-top: 4px solid #f59e0b !important;
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 65%) !important;
+}
+.upcoming-kpi {
+  border-top: 4px solid #3b82f6 !important;
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 65%) !important;
+}
+.pending-kpi {
+  border-top: 4px solid #f97316 !important;
+  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 65%) !important;
+}
+.undated-kpi {
+  border-top: 4px solid #ef4444 !important;
+  background: linear-gradient(180deg, #fef2f2 0%, #ffffff 65%) !important;
+}
+.disposed-kpi {
+  border-top: 4px solid #10b981 !important;
+  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 65%) !important;
+}
 
 /* Home Dashboard Container */
 .home-dashboard-container {
@@ -7376,15 +7397,56 @@ html, body {
   width: 100%;
   overflow-x: auto;
   overflow-y: visible;
-  border: 1px solid #DDE3E6;
-  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .home-today-board-card table {
   margin-bottom: 0 !important;
   width: 100%;
   border-collapse: collapse;
+}
+
+.home-today-board-card table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.home-today-board-card table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.home-today-board-card table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Quick Action Buttons on Today's Board */
+.table-view-btn.call-btn {
+  background: #ecfdf5 !important;
+  color: #059669 !important;
+  border: 1px solid #a7f3d0 !important;
+  font-size: 13px !important;
+  padding: 5px 9px !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+}
+
+.table-view-btn.call-btn:hover {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #047857 !important;
+  transform: translateY(-1px);
 }
 
 /* Bottom Balanced 2-Column Grid: Priority Tasks & Quick Directory */
