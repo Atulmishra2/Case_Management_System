@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=4.2">
+    <link rel="stylesheet" href="admin.css?v=4.3">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -670,7 +670,7 @@
                             </div>
                         </div>
 
-                        <!-- 3-Column Dossier Information Cards -->
+                        <!-- 3-Column Dossier Information Cards (Dynamic related fields) -->
                         <div class="dossier-cards-grid">
                             <!-- Card 1: Court & Classification -->
                             <div class="dossier-card">
@@ -678,67 +678,24 @@
                                     <i class="fa-solid fa-gavel"></i>
                                     <h4>Court &amp; Case Info</h4>
                                 </div>
-                                <div class="dossier-card-body">
+                                <div class="dossier-card-body" id="detailCourtCardBody">
                                     <div class="dossier-prop">
                                         <span class="prop-label">Case Type</span>
                                         <span class="prop-val" id="detailCaseType">—</span>
                                     </div>
-                                    <div class="dossier-prop">
-                                        <span class="prop-label">Registration Year</span>
-                                        <span class="prop-val" id="detailCaseYear">—</span>
-                                    </div>
-                                    <div class="dossier-prop">
-                                        <span class="prop-label">Filing Date</span>
-                                        <span class="prop-val" id="detailFilingDate">—</span>
-                                    </div>
-                                    <div class="dossier-prop">
-                                        <span class="prop-label">Previous Hearing</span>
-                                        <span class="prop-val" id="detailPrevHearing">—</span>
-                                    </div>
-                                    <div class="dossier-prop">
-                                        <span class="prop-label">Previous Stage</span>
-                                        <span class="prop-val" id="detailPrevProcess">—</span>
-                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Card 2: Parties & Criminal Particulars -->
+                            <!-- Card 2: Parties & Particulars -->
                             <div class="dossier-card">
                                 <div class="dossier-card-head">
                                     <i class="fa-solid fa-users"></i>
                                     <h4>Parties &amp; Particulars</h4>
                                 </div>
-                                <div class="dossier-card-body">
-                                    <!-- Civil / General -->
-                                    <div class="dossier-prop general-detail">
-                                        <span class="prop-label">Plaintiff / Petitioner</span>
+                                <div class="dossier-card-body" id="detailPartiesCardBody">
+                                    <div class="dossier-prop">
+                                        <span class="prop-label">Parties</span>
                                         <span class="prop-val font-semibold" id="detailPlaintiff">—</span>
-                                    </div>
-                                    <div class="dossier-prop general-detail">
-                                        <span class="prop-label">Defendant / Respondent</span>
-                                        <span class="prop-val font-semibold" id="detailDefendant">—</span>
-                                    </div>
-
-                                    <!-- Criminal -->
-                                    <div class="dossier-prop criminal-detail hidden">
-                                        <span class="prop-label">Police Station</span>
-                                        <span class="prop-val" id="detailPoliceStation">—</span>
-                                    </div>
-                                    <div class="dossier-prop criminal-detail hidden">
-                                        <span class="prop-label">Crime / FIR No.</span>
-                                        <span class="prop-val font-semibold" id="detailCrimeNumber">—</span>
-                                    </div>
-                                    <div class="dossier-prop criminal-detail hidden">
-                                        <span class="prop-label">Sections / Acts</span>
-                                        <span class="prop-val" id="detailCrimeSection">—</span>
-                                    </div>
-                                    <div class="dossier-prop criminal-detail hidden">
-                                        <span class="prop-label">Complainant / Victim</span>
-                                        <span class="prop-val" id="detailVictimName">—</span>
-                                    </div>
-                                    <div class="dossier-prop criminal-detail hidden">
-                                        <span class="prop-label">Accused</span>
-                                        <span class="prop-val font-semibold" id="detailAccusedName">—</span>
                                     </div>
                                 </div>
                             </div>
@@ -749,22 +706,10 @@
                                     <i class="fa-solid fa-user-tie"></i>
                                     <h4>Client &amp; Documents</h4>
                                 </div>
-                                <div class="dossier-card-body">
+                                <div class="dossier-card-body" id="detailClientCardBody">
                                     <div class="dossier-prop">
                                         <span class="prop-label">Client Name</span>
                                         <span class="prop-val font-semibold text-teal-800" id="detailClientName">—</span>
-                                    </div>
-                                    <div class="dossier-prop">
-                                        <span class="prop-label">Client Contact</span>
-                                        <span class="prop-val" id="detailClientNumber">—</span>
-                                    </div>
-                                    <div class="dossier-prop">
-                                        <span class="prop-label">Case Status</span>
-                                        <span class="prop-val" id="detailCaseStatus"><span class="status-badge pending">Pending</span></span>
-                                    </div>
-                                    <div class="dossier-prop">
-                                        <span class="prop-label">Order Sheet / File</span>
-                                        <span class="prop-val" id="detailCaseDocLink">—</span>
                                     </div>
                                 </div>
                             </div>

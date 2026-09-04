@@ -1824,30 +1824,75 @@ function renderSelectedCaseDetails(caseObj) {
   if (emptyBox) emptyBox.classList.add('hidden');
   if (contentBox) contentBox.classList.remove('hidden');
 
-  const caseType = (caseObj.caseType || 'civil').toLowerCase();
+  const caseNumber = caseObj.caseNo || caseObj.criminalCaseNumber || '—';
+  const rawType = (caseObj.caseType || 'civil').toLowerCase().trim();
+  const isCriminal = rawType === 'state' || rawType === 'criminal' || rawType === 'misc_criminal';
+  const isFamily = rawType === 'family';
+  const isRevenue = rawType === 'revenue';
+
+  let typeBadgeLabel = 'CIVIL';
+  if (isCriminal) typeBadgeLabel = 'STATE (CRIMINAL)';
+  else if (isFamily) typeBadgeLabel = 'FAMILY';
+  else if (isRevenue) typeBadgeLabel = 'REVENUE';
+  else if (rawType === 'complaint') typeBadgeLabel = 'COMPLAINT';
+  else typeBadgeLabel = rawType.replace('_', ' ').toUpperCase();
+
   if (badge) {
-    badge.textContent = caseType.toUpperCase();
-    badge.className = `case-badge ${caseType}`;
+    badge.textContent = typeBadgeLabel;
+    badge.className = `case-badge ${rawType}`;
   }
+
+  // Build accurate title
+  let caseTitle = (caseObj.caseName || '').trim();
+  if (!caseTitle || caseTitle.toLowerCase() === 'vs' || caseTitle.toLowerCase() === 'vs.') {
+    if (caseObj.plaintiff && caseObj.defendant) {
+      caseTitle = `${caseObj.plaintiff} vs ${caseObj.defendant}`;
+    } else if (caseObj.victimName && caseObj.accusedName) {
+      caseTitle = `${caseObj.victimName} vs ${caseObj.accusedName}`;
+    } else if (caseObj.accusedName) {
+      caseTitle = `State vs ${caseObj.accusedName}`;
+    } else if (caseObj.plaintiff) {
+      caseTitle = `${caseObj.plaintiff} vs Opposite`;
+    } else {
+      caseTitle = caseNumber !== '—' ? `Case ${caseNumber}` : 'Untitled Matter';
+    }
+  }
+
+  const titleEl = document.getElementById('detailCaseTitle');
+  if (titleEl) titleEl.textContent = caseTitle;
 
   const setVal = (id, val, fallback = '—') => {
     const el = document.getElementById(id);
     if (el) el.textContent = val || fallback;
   };
 
-  const isCriminal = caseType === 'criminal';
+  const courtName = caseObj.courtName || caseObj.criminalCourtName || 'District Court';
+  setVal('detailCaseNo', caseNumber);
+  setVal('detailCourtName', courtName);
 
-  setVal('detailCaseNo', caseObj.caseNo || caseObj.criminalCaseNumber);
-  setVal('detailCaseYear', caseObj.caseYear || caseObj.crimeYear || '2026');
-  setVal('detailCaseType', (caseObj.caseType || 'Civil').toUpperCase());
-  setVal('detailCourtName', caseObj.courtName || caseObj.criminalCourtName);
-  setVal('detailFilingDate', formatDateDMY(caseObj.filingDate || caseObj.crimeFilingDate));
-  setVal('detailNextHearing', formatDateDMY(caseObj.nextHearing));
-  setVal('detailClientName', caseObj.clientName || caseObj.criminalClientName);
-  setVal('detailClientNumber', caseObj.clientNumber || caseObj.criminalClientNumber);
+  const isDisposed = (caseObj.caseStatus || '').toLowerCase().includes('dispose');
+  const isUndated = !caseObj.nextHearing || caseObj.nextHearing === '—' || caseObj.nextHearing === 'null' || !caseObj.nextHearing.trim() || caseObj.nextHearing.toLowerCase() === 'undated';
 
-  // Determine previous hearing and processes
-  const caseNumber = caseObj.caseNo || caseObj.criminalCaseNumber || '';
+  const statusBadgeEl = document.getElementById('detailCaseStatusBadge');
+  if (statusBadgeEl) {
+    if (isDisposed) {
+      statusBadgeEl.className = 'status-badge disposed';
+      statusBadgeEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Disposed Off';
+    } else if (isUndated) {
+      statusBadgeEl.className = 'status-badge undated';
+      statusBadgeEl.style = 'background:#fef3c7; color:#92400e; border:1px solid #fde68a;';
+      statusBadgeEl.innerHTML = '<i class="fa-solid fa-calendar-xmark"></i> Undated';
+    } else {
+      statusBadgeEl.className = 'status-badge pending';
+      statusBadgeEl.style = '';
+      statusBadgeEl.innerHTML = '<i class="fa-solid fa-clock"></i> Pending';
+    }
+  }
+
+  setVal('detailNextHearing', isUndated ? '—' : formatDateDMY(caseObj.nextHearing));
+  setVal('detailHearingProcess', isUndated ? 'Undated' : (caseObj.hearingProcess || 'Scheduled Hearing'));
+
+  // Determine previous hearing
   const caseHistory = getCaseHearingHistory(caseNumber);
   const currentNext = (caseObj.nextHearing && caseObj.nextHearing !== '—') ? caseObj.nextHearing : null;
 
@@ -1859,43 +1904,399 @@ function renderSelectedCaseDetails(caseObj) {
   const prevHearingDate = latestPrev ? latestPrev.hearing_date : (caseObj.previousHearing || null);
   const prevProcess = latestPrev ? latestPrev.process : (caseObj.previousProcess || null);
 
-  setVal('detailHearingProcess', caseObj.hearingProcess || '—');
-  setVal('detailPrevHearing', formatDateDMY(prevHearingDate));
-  setVal('detailPrevProcess', prevProcess || '—');
+  // 1. CARD 1: Court & Case Info (Only related & present fields)
+  const courtCardBody = document.getElementById('detailCourtCardBody');
+  if (courtCardBody) {
+    const filingDate = caseObj.filingDate || caseObj.crimeFilingDate;
+    const filingDateFormatted = (filingDate && filingDate !== '—') ? formatDateDMY(filingDate) : null;
+    const year = caseObj.caseYear || caseObj.crimeYear || null;
 
-  document.querySelectorAll('.general-detail').forEach(el => {
-    el.classList.toggle('hidden', isCriminal);
-  });
-  document.querySelectorAll('.criminal-detail').forEach(el => {
-    el.classList.toggle('hidden', !isCriminal);
-  });
-
-  if (isCriminal) {
-    setVal('detailPoliceStation', caseObj.policeStation);
-    setVal('detailCrimeSection', caseObj.crimeSection);
-    setVal('detailCrimeNumber', caseObj.crimeNumber);
-    setVal('detailVictimName', caseObj.victimName);
-    setVal('detailAccusedName', caseObj.accusedName);
-  } else {
-    setVal('detailPlaintiff', caseObj.plaintiff);
-    setVal('detailDefendant', caseObj.defendant);
+    let props = '';
+    props += `
+      <div class="dossier-prop">
+        <span class="prop-label">Case Type</span>
+        <span class="prop-val font-semibold">${escapeHtml(typeBadgeLabel)}</span>
+      </div>
+    `;
+    if (year) {
+      props += `
+        <div class="dossier-prop">
+          <span class="prop-label">Registration Year</span>
+          <span class="prop-val">${escapeHtml(year)}</span>
+        </div>
+      `;
+    }
+    props += `
+      <div class="dossier-prop">
+        <span class="prop-label">Court / Forum</span>
+        <span class="prop-val font-semibold">${escapeHtml(courtName)}</span>
+      </div>
+    `;
+    if (filingDateFormatted) {
+      props += `
+        <div class="dossier-prop">
+          <span class="prop-label">Filing Date</span>
+          <span class="prop-val">${escapeHtml(filingDateFormatted)}</span>
+        </div>
+      `;
+    }
+    if (prevHearingDate && prevHearingDate !== '—') {
+      props += `
+        <div class="dossier-prop">
+          <span class="prop-label">Previous Hearing</span>
+          <span class="prop-val">${escapeHtml(formatDateDMY(prevHearingDate))}</span>
+        </div>
+      `;
+    }
+    if (prevProcess && prevProcess !== '—') {
+      props += `
+        <div class="dossier-prop">
+          <span class="prop-label">Previous Stage</span>
+          <span class="prop-val">${escapeHtml(prevProcess)}</span>
+        </div>
+      `;
+    }
+    if (!isUndated && caseObj.hearingProcess) {
+      props += `
+        <div class="dossier-prop">
+          <span class="prop-label">Next Stage</span>
+          <span class="prop-val font-semibold" style="color: #1e40af;">${escapeHtml(caseObj.hearingProcess)}</span>
+        </div>
+      `;
+    }
+    courtCardBody.innerHTML = props;
   }
 
-  const statusEl = document.getElementById('detailCaseStatus');
-  if (statusEl) {
-    const isDisposed = (caseObj.caseStatus || '').toLowerCase().includes('dispose');
-    statusEl.innerHTML = isDisposed
-      ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed Off</span>'
-      : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
-  }
-  setVal('detailCaseRemark', caseObj.remark || caseObj.remarks || '—');
+  // 2. CARD 2: Parties & Particulars (Show ONLY related fields for this case type!)
+  const partiesCardBody = document.getElementById('detailPartiesCardBody');
+  if (partiesCardBody) {
+    let props = '';
 
-  const docLinkEl = document.getElementById('detailCaseDocLink');
-  if (docLinkEl) {
-    if (caseObj.docLink && caseObj.docLink.trim()) {
-      docLinkEl.innerHTML = `<a href="${caseObj.docLink.trim()}" target="_blank" rel="noopener noreferrer" class="doc-link-pill">🔗 Open Document / Order Sheet ↗</a>`;
+    if (isCriminal) {
+      const stateParty = caseObj.firstParty || caseObj.victimName || 'State of U.P.';
+      props += `
+        <div class="dossier-prop">
+          <span class="prop-label">Prosecution / State</span>
+          <span class="prop-val font-semibold text-slate-800">${escapeHtml(stateParty)}</span>
+        </div>
+      `;
+      if (caseObj.accusedName) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Accused Person(s)</span>
+            <span class="prop-val font-semibold text-slate-900">${escapeHtml(caseObj.accusedName)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.policeStation) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Police Station</span>
+            <span class="prop-val">🚔 ${escapeHtml(caseObj.policeStation)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.crimeNumber || caseObj.firNumber) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Crime / FIR No.</span>
+            <span class="prop-val font-semibold">${escapeHtml(caseObj.crimeNumber || caseObj.firNumber)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.crimeSection) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Sections / IPC / BNS</span>
+            <span class="prop-val">${escapeHtml(caseObj.crimeSection)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.custodyStatus) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Custody / Bail Status</span>
+            <span class="prop-val">${escapeHtml(caseObj.custodyStatus)}</span>
+          </div>
+        `;
+      }
+    } else if (isFamily) {
+      const petitioner = caseObj.petitioner || caseObj.plaintiff;
+      const respondent = caseObj.respondent || caseObj.defendant;
+      if (petitioner) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Petitioner / Applicant</span>
+            <span class="prop-val font-semibold">${escapeHtml(petitioner)}</span>
+          </div>
+        `;
+      }
+      if (respondent) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Respondent / Opposite</span>
+            <span class="prop-val font-semibold">${escapeHtml(respondent)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.familyMatterType || caseObj.matterType) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Dispute / Matter Type</span>
+            <span class="prop-val">${escapeHtml(caseObj.familyMatterType || caseObj.matterType)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.marriageDate) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Marriage Date</span>
+            <span class="prop-val">${formatDateDMY(caseObj.marriageDate)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.maintenance) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Maintenance Ordered</span>
+            <span class="prop-val font-semibold text-emerald-800">${escapeHtml(caseObj.maintenance)}</span>
+          </div>
+        `;
+      }
+    } else if (isRevenue) {
+      const applicant = caseObj.plaintiff || caseObj.applicant || caseObj.firstParty;
+      const opposite = caseObj.defendant || caseObj.respondent || caseObj.oppositeParty;
+      if (applicant) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Applicant / Petitioner</span>
+            <span class="prop-val font-semibold">${escapeHtml(applicant)}</span>
+          </div>
+        `;
+      }
+      if (opposite) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Opposite Party</span>
+            <span class="prop-val font-semibold">${escapeHtml(opposite)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.revenueMatterType) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Revenue Matter</span>
+            <span class="prop-val">${escapeHtml(caseObj.revenueMatterType)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.village) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Village / Mauza</span>
+            <span class="prop-val">${escapeHtml(caseObj.village)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.khataNo || caseObj.gataNo) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Khata / Gata No.</span>
+            <span class="prop-val font-semibold">${escapeHtml([caseObj.khataNo ? `Khata: ${caseObj.khataNo}` : '', caseObj.gataNo ? `Gata: ${caseObj.gataNo}` : ''].filter(Boolean).join(' | '))}</span>
+          </div>
+        `;
+      }
     } else {
-      docLinkEl.textContent = '—';
+      // Civil / Standard
+      const plaintiff = caseObj.plaintiff || caseObj.firstParty;
+      const defendant = caseObj.defendant || caseObj.oppositeParty;
+      if (plaintiff) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Plaintiff / Petitioner</span>
+            <span class="prop-val font-semibold">${escapeHtml(plaintiff)}</span>
+          </div>
+        `;
+      }
+      if (defendant) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Defendant / Respondent</span>
+            <span class="prop-val font-semibold">${escapeHtml(defendant)}</span>
+          </div>
+        `;
+      }
+      if (caseObj.matterType) {
+        props += `
+          <div class="dossier-prop">
+            <span class="prop-label">Matter / Suit Nature</span>
+            <span class="prop-val">${escapeHtml(caseObj.matterType)}</span>
+          </div>
+        `;
+      }
+    }
+
+    if (!props.trim()) {
+      props = `<div class="dossier-prop"><span class="prop-label">Parties</span><span class="prop-val">${escapeHtml(caseTitle)}</span></div>`;
+    }
+    partiesCardBody.innerHTML = props;
+  }
+
+  // 3. CARD 3: Client & Documents
+  const clientCardBody = document.getElementById('detailClientCardBody');
+  if (clientCardBody) {
+    const clientName = caseObj.clientName || caseObj.criminalClientName;
+    const clientPhone = caseObj.clientNumber || caseObj.criminalClientNumber;
+    const docLink = caseObj.docLink || caseObj.doc_link;
+
+    let statusBadgeHtml = '';
+    if (isDisposed) {
+      statusBadgeHtml = '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed Off</span>';
+    } else if (isUndated) {
+      statusBadgeHtml = '<span class="status-badge undated" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a;"><i class="fa-solid fa-calendar-xmark"></i> Undated</span>';
+    } else {
+      statusBadgeHtml = '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
+    }
+
+    let props = '';
+    props += `
+      <div class="dossier-prop">
+        <span class="prop-label">Client Name</span>
+        <span class="prop-val font-semibold text-teal-800">${escapeHtml(clientName || '—')}</span>
+      </div>
+    `;
+    if (clientPhone) {
+      props += `
+        <div class="dossier-prop">
+          <span class="prop-label">Client Contact</span>
+          <span class="prop-val"><a href="tel:${escapeHtml(clientPhone)}" style="color:#2563eb; text-decoration:none;">📞 ${escapeHtml(clientPhone)}</a></span>
+        </div>
+      `;
+    }
+    props += `
+      <div class="dossier-prop">
+        <span class="prop-label">Case Status</span>
+        <span class="prop-val">${statusBadgeHtml}</span>
+      </div>
+    `;
+    if (docLink && docLink.trim()) {
+      props += `
+        <div class="dossier-prop">
+          <span class="prop-label">Order Sheet / File</span>
+          <span class="prop-val"><a href="${escapeHtml(docLink.trim())}" target="_blank" rel="noopener noreferrer" class="doc-link-pill">🔗 Open Document ↗</a></span>
+        </div>
+      `;
+    } else {
+      props += `
+        <div class="dossier-prop">
+          <span class="prop-label">Order Sheet / File</span>
+          <span class="prop-val" style="color: #94a3b8;">None attached</span>
+        </div>
+      `;
+    }
+    clientCardBody.innerHTML = props;
+  }
+
+  // 4. Remarks & Co-Parties Box
+  const remarkEl = document.getElementById('detailCaseRemark');
+  if (remarkEl) {
+    const remark = caseObj.remark || caseObj.remarks || '';
+    if (remark && remark.trim()) {
+      remarkEl.innerHTML = `<span style="color:#1e293b; font-weight:500;">${escapeHtml(remark.trim())}</span>`;
+    } else {
+      remarkEl.innerHTML = '<span style="color:#94a3b8; font-style:italic;">No remarks or co-parties recorded for this case.</span>';
+    }
+  }
+
+  // 5. PROCEEDINGS & HEARING HISTORY (Dynamic Inline Table)
+  const history = getCaseHearingHistory(caseNumber);
+  const events = [];
+
+  // Recorded hearings from history
+  history.forEach(h => {
+    const isNext = Boolean(currentNext && (h.hearing_date === currentNext || h.hearing_date === caseObj.nextHearing));
+    events.push({
+      date: h.hearing_date,
+      process: h.process || 'Court Hearing',
+      type: isNext ? 'next' : 'prev',
+      action: h.action_taken || h.remarks || 'Court proceedings conducted.'
+    });
+  });
+
+  // Add next hearing milestone if scheduled
+  if (currentNext && !events.some(e => e.date === currentNext)) {
+    events.push({
+      date: currentNext,
+      process: caseObj.hearingProcess || 'Scheduled Hearing',
+      type: 'next',
+      action: `Next appearance scheduled at ${courtName}`
+    });
+  }
+
+  // Add previous hearing milestone if recorded on caseObj
+  if (caseObj.previousHearing && caseObj.previousHearing !== '—' && !events.some(e => e.date === caseObj.previousHearing)) {
+    events.push({
+      date: caseObj.previousHearing,
+      process: caseObj.previousProcess || 'Previous Stage',
+      type: 'prev',
+      action: `Previous proceedings recorded at ${courtName}`
+    });
+  }
+
+  // Add filing date milestone
+  const filingDateVal = caseObj.filingDate || caseObj.crimeFilingDate;
+  if (filingDateVal && filingDateVal !== '—' && !events.some(e => e.date === filingDateVal)) {
+    events.push({
+      date: filingDateVal,
+      process: 'Case Inception & Filing',
+      type: 'filing',
+      action: `Case instituted and registered at ${courtName}`
+    });
+  }
+
+  // Sort newest first
+  events.sort((a, b) => {
+    const da = new Date(a.date);
+    const db = new Date(b.date);
+    return db - da;
+  });
+
+  const inlineTbody = document.getElementById('detailInlineHistoryTableBody');
+  if (inlineTbody) {
+    if (events.length === 0) {
+      inlineTbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="no-results text-center py-4" style="color: #64748b; padding: 2rem;">
+            ℹ️ No proceedings or hearing history records logged yet for this case.
+            <div style="margin-top: 8px;">
+              <button type="button" class="table-view-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" style="font-size: 0.8rem;">
+                📅 Log Next Hearing
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    } else {
+      inlineTbody.innerHTML = events.map((ev, idx) => {
+        let badgeHtml = '';
+        if (ev.type === 'next') {
+          badgeHtml = '<span class="history-badge-next" style="background:#e6f4ea; color:#137333; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600;"><i class="fa-solid fa-clock"></i> Upcoming Hearing</span>';
+        } else if (ev.type === 'filing') {
+          badgeHtml = '<span class="history-badge-filing" style="background:#e8f0fe; color:#1a73e8; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600;"><i class="fa-solid fa-file-signature"></i> Initial Filing</span>';
+        } else {
+          badgeHtml = '<span class="history-badge-prev" style="background:#f1f5f9; color:#475569; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600;"><i class="fa-solid fa-circle-check"></i> Past Hearing</span>';
+        }
+
+        return `
+          <tr>
+            <td style="text-align: center; font-weight: 600; color: #64748b;">#${idx + 1}</td>
+            <td style="white-space: nowrap; font-weight: 600;">${formatDateDMY(ev.date)}</td>
+            <td style="font-weight: 600; color: #1e40af;">${escapeHtml(ev.process || '—')}</td>
+            <td>${badgeHtml}</td>
+            <td>${escapeHtml(ev.action || 'Court appearance & proceedings recorded.')}</td>
+          </tr>
+        `;
+      }).join('');
     }
   }
 
