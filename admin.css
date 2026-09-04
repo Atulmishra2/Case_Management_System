@@ -11618,3 +11618,338 @@ body.workflow-active-tab [data-chambers-footer],
   font-size: 12.5px !important;
   vertical-align: middle !important;
 }
+
+/* ==============================================================================
+   5.18 Comprehensive Mobile Responsiveness & Touch Optimization Suite
+   ============================================================================== */
+
+/* --- All Cases Master Register Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .all-cases-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .all-cases-type-pills-bar {
+    gap: 6px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .type-pill-btn {
+    padding: 5px 12px !important;
+    font-size: 12px !important;
+  }
+
+  .all-cases-filter-card {
+    padding: 12px 14px !important;
+    margin-bottom: 14px !important;
+    border-radius: 12px !important;
+  }
+
+  .all-cases-search-box input {
+    height: 44px !important;
+    font-size: 13.5px !important;
+    padding-left: 42px !important;
+  }
+
+  .all-cases-table-toolbar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
+  }
+
+  .all-cases-page-size-wrap,
+  .all-cases-toolbar-badge-wrap {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  /* Table Horizontal Scrolling on Mobile */
+  .all-cases-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: 60vh !important;
+    border-radius: 10px 10px 0 0 !important;
+  }
+
+  .all-cases-fixed-table {
+    min-width: 720px !important;
+    table-layout: auto !important;
+  }
+
+  .all-cases-fixed-table th,
+  .all-cases-fixed-table td {
+    padding: 8px 8px !important;
+    font-size: 12px !important;
+  }
+
+  /* Pagination Bar on Mobile */
+  .all-cases-pagination-bar {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+  }
+
+  .all-cases-pagination-info {
+    text-align: center !important;
+    font-size: 11.5px !important;
+  }
+
+  .all-cases-pagination-controls {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 3px !important;
+  }
+
+  .pagination-btn {
+    min-width: 28px !important;
+    height: 28px !important;
+    font-size: 11.5px !important;
+    padding: 0 5px !important;
+  }
+
+  .sidebar.mobile-open {
+    z-index: 1200 !important;
+  }
+}
+
+/* --- Upcoming Hearings Grid & Banner Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .legal-hearing-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .legal-hearing-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 16px !important;
+  }
+
+  .upcoming-hero-banner {
+    padding: 16px 14px !important;
+    border-radius: 16px !important;
+    gap: 14px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .upcoming-hero-info {
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  .upcoming-hero-emblem {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    font-size: 20px !important;
+    border-radius: 12px !important;
+  }
+
+  .upcoming-hero-text h2 {
+    font-size: 18px !important;
+  }
+
+  .upcoming-hero-text p {
+    font-size: 12px !important;
+  }
+
+  .upcoming-hero-controls {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .upcoming-stat-pill,
+  .upcoming-cal-btn {
+    font-size: 12px !important;
+    padding: 6px 14px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .hearing-card-footer {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .hearing-primary-cta {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+/* --- Modern Case Dossier View Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .modern-dossier-wrapper {
+    border-radius: 12px !important;
+    margin-top: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .dossier-top-bar {
+    padding: 12px 14px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .dossier-bar-title {
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  .dossier-bar-title h3 {
+    font-size: 15px !important;
+  }
+
+  .dossier-header-actions {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+
+  .dossier-action-btn {
+    justify-content: center !important;
+    width: 100% !important;
+    padding: 8px 10px !important;
+    font-size: 11.5px !important;
+  }
+
+  .dossier-hero-card {
+    margin: 12px !important;
+    padding: 14px !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  .hero-main-info {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+
+  .hero-case-title {
+    font-size: 16px !important;
+  }
+
+  .dossier-cards-grid {
+    grid-template-columns: 1fr !important;
+    padding: 0 12px 12px 12px !important;
+    gap: 10px !important;
+  }
+
+  .dossier-card-head {
+    padding: 9px 12px !important;
+  }
+
+  .dossier-card-body {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+
+  .dossier-prop {
+    font-size: 12.5px !important;
+  }
+
+  .prop-label {
+    font-size: 11.5px !important;
+  }
+
+  .prop-val {
+    font-size: 12.5px !important;
+    max-width: 65% !important;
+  }
+
+  .dossier-remarks-box {
+    margin: 0 12px 12px 12px !important;
+    padding: 10px 12px !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .dossier-history-card {
+    margin: 0 12px 16px 12px !important;
+    border-radius: 10px !important;
+  }
+
+  .dossier-history-header {
+    padding: 10px 12px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .dossier-history-modal-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* --- Cause List Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .causelist-stats-bar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 12px 14px !important;
+    gap: 10px !important;
+  }
+
+  .causelist-counters-group {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  .causelist-stat-pill {
+    font-size: 11px !important;
+    padding: 3px 10px !important;
+  }
+
+  .causelist-header-actions {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .causelist-header-actions button {
+    width: 100% !important;
+  }
+}
+
+/* --- Fixed Bottom Navigation Bar on Compact Screens (≤ 380px) --- */
+@media (max-width: 380px) {
+  .fixed-bottom-nav {
+    padding: 6px 8px !important;
+    gap: 6px !important;
+  }
+
+  .fixed-bottom-nav .bottom-nav-btn {
+    min-width: unset !important;
+    flex: 1 1 0 !important;
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+    gap: 4px !important;
+    justify-content: center !important;
+  }
+}
+
+/* --- Modal History Table Touch Scroll --- */
+@media (max-width: 768px) {
+  .history-table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .history-table-container table {
+    min-width: 520px !important;
+  }
+}
