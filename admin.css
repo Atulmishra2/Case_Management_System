@@ -7629,54 +7629,58 @@ html, body {
 }
 
 .panel-icon {
-  width: 34px;
-  height: 34px;
-  min-width: 34px;
-  border-radius: 9px;
-  font-size: 14.5px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 12px;
+  font-size: 18px;
+  background: #e6f4f1;
+  border: 1.5px solid #b2dfdb;
+  color: #00695c;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 105, 92, 0.12);
+  flex-shrink: 0;
 }
 
 .panel-icon.court-icon {
-  background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
-  border: 1px solid #80cbc4;
-  color: #004d40;
+  background: #e6f4f1;
+  border-color: #b2dfdb;
+  color: #00695c;
 }
 
 .panel-icon.tasks-icon {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  border-color: #bfdbfe;
   color: #1d4ed8;
 }
 
 .panel-icon.tools-icon {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border: 1px solid #fcd34d;
-  color: #92400e;
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #b45309;
 }
 
 .home-panel-header h3 {
-  font-size: 14.5px;
+  font-size: 16px;
   font-weight: 800;
-  color: #0f172a;
+  color: #1e293b;
   margin: 0;
-  letter-spacing: -0.015em;
-  line-height: 1.2;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 
 .section-title-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 1.5px 7px;
+  padding: 2px 8px;
   border-radius: 9999px;
   line-height: 1.3;
 }
@@ -7708,17 +7712,51 @@ html, body {
 }
 
 .panel-subtitle {
-  font-size: 11.5px;
+  font-size: 12px;
   color: #64748b;
   margin: 0;
   font-weight: 500;
 }
 
 .panel-action-btn {
-  padding: 5px 11px;
-  font-size: 11.5px;
-  font-weight: 700;
-  border-radius: 6px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 15px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  border: none !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+  background: #FAFBFC !important;
+  color: #2E3B41 !important;
+  border: 1px solid #DDE3E6 !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.panel-action-btn:hover {
+  background: #DDE3E6 !important;
+  color: #0f172a !important;
+  transform: translateY(-1px) !important;
+}
+
+.home-today-board-card .panel-action-btn {
+  background: linear-gradient(135deg, #F59E0B, #D97706) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3) !important;
+}
+
+.home-today-board-card .panel-action-btn:hover {
+  background: linear-gradient(135deg, #D97706, #B45309) !important;
+  box-shadow: 0 5px 14px rgba(245, 158, 11, 0.45) !important;
+  transform: translateY(-1px) !important;
 }
 
 /* Home Tasks List */
@@ -9723,11 +9761,14 @@ textarea:focus {
 }
 
 /* ==============================================================================
-   DAILY CAUSE LIST / COURT APPEARANCE BOARD HEADER BLOCK
+   UNIFIED EXECUTIVE SECTION TITLE HEADERS (MATCHING IMAGE 2 EXACTLY)
    ============================================================================== */
 
 .causelist-header-row,
-#causelist .section-header-row {
+#causelist .section-header-row,
+.section-header-row,
+.my-cases-header-top,
+.all-cases-container .section-header-row {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
@@ -9735,23 +9776,32 @@ textarea:focus {
   margin-bottom: 20px !important;
   padding-bottom: 16px !important;
   border-bottom: 1.5px solid #e2e8f0 !important;
-  flex-wrap: wrap !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-#causelist .section-title-box {
+#causelist .section-title-box,
+.section-title-box {
   display: flex !important;
   align-items: center !important;
   gap: 14px !important;
   flex: 1 1 auto !important;
+  min-width: 0 !important;
 }
 
-#causelist .section-title-box > div {
+#causelist .section-title-box > div,
+.section-title-box > div {
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
+  min-width: 0 !important;
 }
 
-#causelist .section-title-box h3 {
+#causelist .section-title-box h2,
+#causelist .section-title-box h3,
+.section-title-box h2,
+.section-title-box h3 {
   margin: 0 0 3px 0 !important;
   font-size: 20px !important;
   font-weight: 800 !important;
@@ -9760,7 +9810,8 @@ textarea:focus {
   letter-spacing: -0.01em !important;
 }
 
-#causelist .section-title-box .section-subtitle {
+#causelist .section-title-box .section-subtitle,
+.section-title-box .section-subtitle {
   margin: 0 !important;
   color: #64748b !important;
   font-size: 13px !important;
@@ -9768,7 +9819,8 @@ textarea:focus {
   line-height: 1.4 !important;
 }
 
-#causelist .section-icon-badge {
+#causelist .section-icon-badge,
+.section-icon-badge {
   background: #e6f4f1 !important;
   color: #00695c !important;
   border: 1.5px solid #b2dfdb !important;
@@ -9778,12 +9830,14 @@ textarea:focus {
   font-size: 22px !important;
   width: 48px !important;
   height: 48px !important;
+  min-width: 48px !important;
   border-radius: 12px !important;
   flex-shrink: 0 !important;
   box-shadow: 0 2px 8px rgba(0, 105, 92, 0.12) !important;
 }
 
-#causelist .section-icon-badge i {
+#causelist .section-icon-badge i,
+.section-icon-badge i {
   color: #00695c !important;
   font-size: 22px !important;
   margin: 0 !important;
@@ -9791,7 +9845,9 @@ textarea:focus {
 }
 
 /* Action Buttons Container - Guaranteed Side-by-Side on the Same Horizontal Line */
-.causelist-header-actions {
+.causelist-header-actions,
+.my-cases-header-actions,
+.section-header-actions {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: flex-end !important;
@@ -9806,7 +9862,10 @@ textarea:focus {
 /* Base button styling ensuring identical height, font, and zero vertical offset */
 .causelist-header-actions .causelist-btn,
 .causelist-header-actions button.causelist-btn,
-#causelist .causelist-header-actions button {
+#causelist .causelist-header-actions button,
+.my-cases-header-actions .my-cases-action-btn,
+.my-cases-header-actions button,
+.section-header-actions button {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -9833,16 +9892,21 @@ textarea:focus {
 }
 
 .causelist-header-actions .causelist-btn i,
-#causelist .causelist-header-actions button i {
+#causelist .causelist-header-actions button i,
+.my-cases-header-actions button i,
+.section-header-actions button i {
   font-size: 14px !important;
   line-height: 1 !important;
   margin: 0 !important;
 }
 
-/* Print (A4) Button - Amber Gradient */
+/* Primary Action Buttons - Amber Gradient (Print A4 / Add Case) */
 .causelist-header-actions .causelist-btn.primary-btn,
 .causelist-header-actions .causelist-btn.causelist-print-btn,
-#causeListPrintActionBtn {
+#causeListPrintActionBtn,
+.my-cases-header-actions .primary-btn,
+.my-cases-action-btn.primary-btn,
+.section-header-actions .primary-btn {
   background: linear-gradient(135deg, #F59E0B, #D97706) !important;
   color: #FFFFFF !important;
   border: none !important;
@@ -9851,16 +9915,24 @@ textarea:focus {
 
 .causelist-header-actions .causelist-btn.primary-btn:hover,
 .causelist-header-actions .causelist-btn.causelist-print-btn:hover,
-#causeListPrintActionBtn:hover {
+#causeListPrintActionBtn:hover,
+.my-cases-header-actions .primary-btn:hover,
+.my-cases-action-btn.primary-btn:hover,
+.section-header-actions .primary-btn:hover {
   background: linear-gradient(135deg, #D97706, #B45309) !important;
   box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45) !important;
   transform: translateY(-1px) !important;
 }
 
-/* WhatsApp Button - Official WhatsApp Green Brand Styling */
+/* Secondary Action Buttons - WhatsApp / Export CSV - Green Brand Styling */
 .causelist-header-actions .causelist-btn.whatsapp-send-btn,
 .causelist-header-actions .causelist-btn.causelist-whatsapp-btn,
-#causeListWhatsAppActionBtn {
+#causeListWhatsAppActionBtn,
+.my-cases-header-actions .secondary-btn,
+.my-cases-action-btn.secondary-btn,
+#exportCsvBtn,
+#allCasesExportCsvBtn,
+.section-header-actions .secondary-btn {
   background: linear-gradient(135deg, #25D366, #128C7E) !important;
   color: #FFFFFF !important;
   border: none !important;
@@ -9869,20 +9941,35 @@ textarea:focus {
 
 .causelist-header-actions .causelist-btn.whatsapp-send-btn:hover,
 .causelist-header-actions .causelist-btn.causelist-whatsapp-btn:hover,
-#causeListWhatsAppActionBtn:hover {
+#causeListWhatsAppActionBtn:hover,
+.my-cases-header-actions .secondary-btn:hover,
+.my-cases-action-btn.secondary-btn:hover,
+#exportCsvBtn:hover,
+#allCasesExportCsvBtn:hover,
+.section-header-actions .secondary-btn:hover {
   background: linear-gradient(135deg, #20bd5a, #0d7064) !important;
   box-shadow: 0 6px 16px rgba(37, 211, 102, 0.48) !important;
   transform: translateY(-1px) !important;
 }
 
-/* Responsive adjustment for Mobile screens (<= 640px) */
-@media (max-width: 640px) {
+/* Responsive adjustment for Mobile screens (<= 768px) */
+@media (max-width: 768px) {
   .causelist-header-row,
-  #causelist .section-header-row {
-    flex-direction: column !important;
-    align-items: stretch !important;
+  #causelist .section-header-row,
+  .section-header-row,
+  .my-cases-header-top,
+  .all-cases-container .section-header-row {
+    flex-wrap: wrap !important;
     gap: 12px !important;
   }
+  .causelist-header-actions,
+  .my-cases-header-actions,
+  .section-header-actions {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+  }
+}
 
   .causelist-header-actions {
     display: flex !important;
