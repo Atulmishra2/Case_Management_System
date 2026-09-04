@@ -59,7 +59,10 @@ function createTray() {
   const iconSvg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
       <rect width="32" height="32" rx="8" fill="#2F68A1"/>
-      <text x="16" y="22" font-size="18" text-anchor="middle" fill="#ffffff">⚖️</text>
+      <path fill="#ffffff" d="M16 4a12 12 0 100 24 12 12 0 000-24zM8 16c0-.5.4-1 1-1s1 .4 1 1-.4 1-1 1-1-.4-1-1zm8 8a8 8 0 110-16 8 8 0 010 16z"/>
+      <circle cx="16" cy="14" r="3.5" fill="#ffffff"/>
+      <rect x="12" y="18" width="8" height="2" fill="#ffffff"/>
+      <path fill="#ffffff" d="M10 22h12v2H10z"/>
     </svg>
   `;
   const iconBuffer = Buffer.from(iconSvg);

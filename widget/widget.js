@@ -334,7 +334,7 @@ function renderUpcomingHearings() {
       <div class="hearing-widget-card today-card">
         <div class="card-top-bar">
           <span class="card-case-number">${escapeHtml(item.caseNumber)}</span>
-          <span class="card-day-badge today">🔥 Listed Today</span>
+          <span class="card-day-badge today"><i class="fa-solid fa-fire"></i> Listed Today</span>
         </div>
         <div class="card-party-title" title="${escapeHtml(item.caseName)}">
           ${escapeHtml(item.caseName)}
@@ -365,7 +365,7 @@ function renderUpcomingHearings() {
 
       if (item.hearingDate === tomorrowStr) {
         badgeClass = 'tomorrow';
-        badgeText = '⚡ Tomorrow';
+        badgeText = '<i class="fa-solid fa-bolt"></i> Tomorrow';
       }
 
       return `
@@ -493,14 +493,14 @@ async function toggleTodoStatus(todoId, isCompleted) {
 
     if (window.M && typeof window.M.toast === 'function') {
       window.M.toast({
-        html: isCompleted ? '✅ Task completed!' : '⚡ Task marked pending',
+        html: isCompleted ? '<i class="fa-solid fa-circle-check"></i> Task completed!' : '<i class="fa-solid fa-bolt"></i> Task marked pending',
         displayLength: 2000
       });
     }
   } catch (err) {
     console.error('Error toggling todo:', err);
     if (window.M && typeof window.M.toast === 'function') {
-      window.M.toast({ html: '❌ Update failed: ' + (err.message || err), displayLength: 3000 });
+      window.M.toast({ html: '<i class="fa-solid fa-circle-xmark"></i> Update failed: ' + (err.message || err), displayLength: 3000 });
     } else {
       alert(`Could not update task: ${err.message || err}`);
     }
@@ -558,14 +558,14 @@ async function handleQuickAddTodo(event) {
     if (dueDateInput) dueDateInput.value = '';
 
     if (window.M && typeof window.M.toast === 'function') {
-      window.M.toast({ html: '📝 New task added!', displayLength: 2000 });
+      window.M.toast({ html: '<i class="fa-solid fa-circle-check"></i> New task added!', displayLength: 2000 });
     }
 
     await fetchAllWidgetData(false);
   } catch (err) {
     console.error('Quick Add Todo Error:', err);
     if (window.M && typeof window.M.toast === 'function') {
-      window.M.toast({ html: '❌ Failed: ' + (err.message || err), displayLength: 3000 });
+      window.M.toast({ html: '<i class="fa-solid fa-circle-xmark"></i> Failed: ' + (err.message || err), displayLength: 3000 });
     } else {
       alert(`Failed to add task: ${err.message || err}`);
     }
@@ -646,7 +646,7 @@ function requestDesktopNotificationPermission() {
 
   Notification.requestPermission().then(permission => {
     if (permission === 'granted') {
-      new Notification('⚖️ Case Tracker Notifications Enabled', {
+      new Notification('Case Tracker Notifications Enabled', {
         body: 'You will receive desktop alerts for today’s court listings and urgent reminders.',
         icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
       });
@@ -666,7 +666,7 @@ function checkAndSendDesktopNotifications() {
   });
 
   if (todayListings.length > 0) {
-    new Notification(`🏛️ Today's Court Alert: ${todayListings.length} Case(s) Listed`, {
+    new Notification(`Today's Court Alert: ${todayListings.length} Case(s) Listed`, {
       body: `You have ${todayListings.length} hearing(s) listed for today. Check your daily cause list.`,
       icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
     });

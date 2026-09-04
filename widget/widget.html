@@ -193,10 +193,10 @@
                             <div class="control is-expanded">
                                 <div class="select is-small is-fullwidth is-rounded">
                                     <select id="quickTodoPriority">
-                                        <option value="medium">⚡ Medium Priority</option>
-                                        <option value="high">🔴 High Priority</option>
-                                        <option value="urgent">🔥 Urgent Priority</option>
-                                        <option value="low">🟢 Low Priority</option>
+                                        <option value="medium">Medium Priority</option>
+                                        <option value="high">High Priority</option>
+                                        <option value="urgent">Urgent Priority</option>
+                                        <option value="low">Low Priority</option>
                                     </select>
                                 </div>
                             </div>
@@ -211,8 +211,8 @@
                 <div class="buttons are-small are-gapless todo-filter-chips mb-3">
                     <button type="button" class="button is-rounded is-primary is-light todo-chip is-active-chip" onclick="filterWidgetTodos('all', this)">All</button>
                     <button type="button" class="button is-rounded is-light todo-chip" onclick="filterWidgetTodos('pending', this)">Pending</button>
-                    <button type="button" class="button is-rounded is-light todo-chip" onclick="filterWidgetTodos('urgent', this)">Urgent 🔥</button>
-                    <button type="button" class="button is-rounded is-light todo-chip" onclick="filterWidgetTodos('completed', this)">Done ✅</button>
+                    <button type="button" class="button is-rounded is-light todo-chip" onclick="filterWidgetTodos('urgent', this)"><i class="fa-solid fa-fire"></i> Urgent</button>
+                    <button type="button" class="button is-rounded is-light todo-chip" onclick="filterWidgetTodos('completed', this)"><i class="fa-solid fa-circle-check"></i> Done</button>
                 </div>
 
                 <!-- Task List -->

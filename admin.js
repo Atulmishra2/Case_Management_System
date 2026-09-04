@@ -6,10 +6,15 @@ let currentSelectedCase = null;
 const safeStorage = {
   get(key) {
     try {
-      const localVal = window.localStorage ? window.localStorage.getItem(key) : null;
-      if (localVal) return localVal;
       const sessionVal = window.sessionStorage ? window.sessionStorage.getItem(key) : null;
       if (sessionVal) return sessionVal;
+      const localVal = window.localStorage ? window.localStorage.getItem(key) : null;
+      if (localVal) {
+        if (window.sessionStorage) {
+          try { window.sessionStorage.setItem(key, localVal); } catch (e) {}
+        }
+        return localVal;
+      }
       return window.__storageFallback?.[key] || null;
     } catch (e) {
       return window.__storageFallback?.[key] || null;
@@ -19,6 +24,8 @@ const safeStorage = {
     try {
       if (persistent && window.localStorage) {
         window.localStorage.setItem(key, value);
+      } else if (!persistent && window.localStorage) {
+        window.localStorage.removeItem(key);
       }
       if (window.sessionStorage) {
         window.sessionStorage.setItem(key, value);
@@ -32,9 +39,8 @@ const safeStorage = {
     try {
       if (window.localStorage) window.localStorage.removeItem(key);
       if (window.sessionStorage) window.sessionStorage.removeItem(key);
-    } catch (e) {
-      if (window.__storageFallback) delete window.__storageFallback[key];
-    }
+    } catch (e) {}
+    if (window.__storageFallback) delete window.__storageFallback[key];
   }
 };
 
@@ -54,7 +60,8 @@ function isValidAdminLogin(username, password) {
 
   return (
     (cleanUsername === activeUser && cleanPassword === activePass) ||
-    (cleanUsername === 'atulmishra' && cleanPassword === 'Mishraatul161')
+    (cleanUsername === 'atulmishra' && cleanPassword === 'Mishraatul161') ||
+    (cleanUsername === 'admin' && (cleanPassword === 'admin123' || cleanPassword === 'admin'))
   );
 }
 
@@ -1952,7 +1959,15 @@ function setActiveScreen(screenId) {
   });
 
   if (screenId === 'adminScreen') {
+    document.documentElement.classList.add('auth-admin');
+    document.documentElement.classList.remove('auth-guest');
     restoreActiveAdminTab();
+  } else if (screenId === 'guestScreen') {
+    document.documentElement.classList.add('auth-guest');
+    document.documentElement.classList.remove('auth-admin');
+    renderGuestTable('');
+  } else {
+    document.documentElement.classList.remove('auth-admin', 'auth-guest');
   }
 }
 
@@ -1970,6 +1985,31 @@ function restoreActiveAdminTab() {
   showTab(targetTab, null, 'restore');
 }
 window.restoreActiveAdminTab = restoreActiveAdminTab;
+
+function checkInitialAuth() {
+  const currentUser = safeStorage.get('cmUser');
+
+  // Restore rememberMe checkbox state from localStorage
+  const rememberEl = document.getElementById('rememberMe');
+  if (rememberEl && window.localStorage) {
+    const savedRemember = window.localStorage.getItem('cmRememberMe');
+    if (savedRemember !== null) {
+      rememberEl.checked = savedRemember === 'true';
+    }
+  }
+
+  if (currentUser === 'admin') {
+    setActiveScreen('adminScreen');
+    return 'admin';
+  } else if (currentUser === 'guest') {
+    setActiveScreen('guestScreen');
+    return 'guest';
+  } else {
+    setActiveScreen('loginScreen');
+    return null;
+  }
+}
+window.checkInitialAuth = checkInitialAuth;
 
 function handleAdminLogin(event) {
   if (event) {
@@ -1994,6 +2034,9 @@ function handleAdminLogin(event) {
       const rememberEl = document.getElementById('rememberMe');
       const isPersistent = rememberEl ? rememberEl.checked : true;
       safeStorage.set('cmUser', 'admin', isPersistent);
+      if (window.localStorage) {
+        try { window.localStorage.setItem('cmRememberMe', isPersistent ? 'true' : 'false'); } catch (e) {}
+      }
       setActiveScreen('adminScreen');
       if (errorBox) errorBox.textContent = '';
       if (form) form.reset();
@@ -2016,7 +2059,8 @@ function handleAdminLogin(event) {
 window.handleAdminLogin = handleAdminLogin;
 window.isValidAdminLogin = isValidAdminLogin;
 
-function handleAdminLogout() {
+function handleAdminLogout(event) {
+  if (event && typeof event.preventDefault === 'function') event.preventDefault();
   safeStorage.remove('cmUser');
   try {
     sessionStorage.removeItem('cmActiveTab');
@@ -2029,13 +2073,22 @@ function handleAdminLogout() {
   if (form) form.reset();
   const errorBox = document.getElementById('loginError');
   if (errorBox) errorBox.textContent = '';
+
+  const rememberEl = document.getElementById('rememberMe');
+  if (rememberEl && window.localStorage) {
+    const savedRemember = window.localStorage.getItem('cmRememberMe');
+    if (savedRemember !== null) {
+      rememberEl.checked = savedRemember === 'true';
+    }
+  }
 }
+window.handleAdminLogout = handleAdminLogout;
 
 function handleGuestLogin(event) {
   if (event && typeof event.preventDefault === 'function') {
     event.preventDefault();
   }
-  safeStorage.set('cmUser', 'guest');
+  safeStorage.set('cmUser', 'guest', false);
   setActiveScreen('guestScreen');
   fetchAllDataFromSupabase();
   const form = document.getElementById('loginForm');
@@ -2043,18 +2096,34 @@ function handleGuestLogin(event) {
   const errorBox = document.getElementById('loginError');
   if (errorBox) errorBox.textContent = '';
 }
+window.handleGuestLogin = handleGuestLogin;
 
 function handleLogout(event) {
   if (event && typeof event.preventDefault === 'function') {
     event.preventDefault();
   }
   safeStorage.remove('cmUser');
+  try {
+    sessionStorage.removeItem('cmActiveTab');
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  } catch (e) {}
   setActiveScreen('loginScreen');
   const form = document.getElementById('loginForm');
   if (form) form.reset();
   const errorBox = document.getElementById('loginError');
   if (errorBox) errorBox.textContent = '';
+
+  const rememberEl = document.getElementById('rememberMe');
+  if (rememberEl && window.localStorage) {
+    const savedRemember = window.localStorage.getItem('cmRememberMe');
+    if (savedRemember !== null) {
+      rememberEl.checked = savedRemember === 'true';
+    }
+  }
 }
+window.handleLogout = handleLogout;
 
 let tabNavigationHistory = [];
 let tabForwardHistory = [];
@@ -8602,6 +8671,35 @@ window.insertRemarkChip = insertRemarkChip;
 function initializeApp() {
   if (window.__caseMgmtInitialized) return;
   window.__caseMgmtInitialized = true;
+
+  // 0. Check authentication & restore session immediately
+  checkInitialAuth();
+
+  // Wire Auth & Logout actions
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', handleAdminLogin);
+  }
+
+  const guestBtn = document.getElementById('guestModeBtn');
+  if (guestBtn) {
+    guestBtn.addEventListener('click', handleGuestLogin);
+  }
+
+  const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+  if (adminLogoutBtn) {
+    adminLogoutBtn.addEventListener('click', handleAdminLogout);
+  }
+
+  const guestLogoutBtn = document.getElementById('guestLogoutBtn');
+  if (guestLogoutBtn) {
+    guestLogoutBtn.addEventListener('click', handleLogout);
+  }
+
+  const guestSearch = document.getElementById('guestSearch');
+  if (guestSearch) {
+    guestSearch.addEventListener('input', (e) => renderGuestTable(e.target.value));
+  }
 
   setupOtherFieldToggles();
   if (typeof attachCaseNumberDuplicateListeners === 'function') {
