@@ -3545,6 +3545,243 @@ html, body {
 }
 
 /* ==============================================================================
+   Bridge in Progress Modal Card UI (Visual Reference Implementation)
+   ============================================================================== */
+.bridge-modal-page-wrapper {
+  background-color: #f5f6f8 !important;
+  min-height: calc(100vh - 120px) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  padding: 48px 16px 64px 16px !important;
+  box-sizing: border-box !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+.bridge-modal-card {
+  width: 100% !important;
+  max-width: 420px !important;
+  background-color: #ffffff !important;
+  border-radius: 22px !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.02) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  margin: 0 auto !important;
+}
+
+.bridge-card-header {
+  background-color: #dcf2e3 !important;
+  padding: 16px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.02) !important;
+}
+
+.bridge-header-title {
+  font-size: 16.5px !important;
+  font-weight: 600 !important;
+  color: #1e693b !important;
+  letter-spacing: -0.01em !important;
+}
+
+.bridge-close-btn {
+  width: 32px !important;
+  height: 32px !important;
+  background-color: #ffffff !important;
+  border-radius: 9px !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  color: #1f2937 !important;
+  font-size: 13px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  transition: opacity 0.15s ease, transform 0.15s ease !important;
+  padding: 0 !important;
+}
+
+.bridge-close-btn:hover {
+  opacity: 0.85 !important;
+  transform: scale(0.96) !important;
+}
+
+.bridge-card-body {
+  padding: 20px 22px 24px 22px !important;
+  background-color: #ffffff !important;
+}
+
+.bridge-illustration-placeholder {
+  width: 100% !important;
+  height: 148px !important;
+  background-color: #f3f4f6 !important;
+  border-radius: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 22px !important;
+  overflow: hidden !important;
+}
+
+.bridge-illustration-svg {
+  display: block !important;
+  max-height: 100% !important;
+}
+
+.bridge-tx-info-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 13px !important;
+  margin-bottom: 20px !important;
+}
+
+.bridge-info-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+.bridge-info-label {
+  color: #6b7280 !important;
+  font-weight: 400 !important;
+}
+
+.bridge-info-value {
+  color: #1f2937 !important;
+  font-weight: 500 !important;
+  text-align: right !important;
+}
+
+.bridge-green-link {
+  color: #16a34a !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 14px !important;
+  transition: color 0.15s ease !important;
+}
+
+.bridge-green-link:hover {
+  color: #15803d !important;
+  text-decoration: none !important;
+}
+
+.bridge-green-link i {
+  font-size: 11.5px !important;
+}
+
+.bridge-divider {
+  height: 1px !important;
+  background-color: #f0f1f3 !important;
+  margin: 18px 0 22px 0 !important;
+  border: none !important;
+}
+
+.bridge-progress-stepper {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 6px !important;
+  text-align: center !important;
+  margin-bottom: 22px !important;
+}
+
+.bridge-step-circle {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50% !important;
+  background-color: #f3f4f6 !important;
+  color: #6b7280 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 auto 8px auto !important;
+}
+
+.bridge-step.active .bridge-step-circle {
+  background-color: #168a3b !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.bridge-step-title {
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+  margin-bottom: 2px !important;
+  line-height: 1.3 !important;
+}
+
+.bridge-step.active .bridge-step-title {
+  color: #168a3b !important;
+}
+
+.bridge-step-time {
+  font-size: 12px !important;
+  color: #6b7280 !important;
+  font-weight: 400 !important;
+}
+
+.bridge-warning-box {
+  background-color: #fbf6ec !important;
+  border: 1px solid #faeed0 !important;
+  border-radius: 12px !important;
+  padding: 12px 14px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  margin-bottom: 22px !important;
+  text-align: left !important;
+  box-sizing: border-box !important;
+}
+
+.bridge-warning-icon {
+  color: #b45309 !important;
+  font-size: 13.5px !important;
+  line-height: 1.3 !important;
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+}
+
+.bridge-warning-text {
+  color: #b45309 !important;
+  font-size: 11.5px !important;
+  line-height: 1.45 !important;
+  font-weight: 400 !important;
+}
+
+.bridge-action-button {
+  width: 100% !important;
+  height: 48px !important;
+  background-color: #ffffff !important;
+  border: 1.5px solid #e5e7eb !important;
+  border-radius: 9999px !important;
+  color: #1f2937 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  outline: none !important;
+}
+
+.bridge-action-button:hover {
+  background-color: #f9fafb !important;
+  border-color: #d1d5db !important;
+}
+
+/* ==============================================================================
    Upcoming Hearings (Next 7 Days) Widget Styles
    ============================================================================== */
 .upcoming-hearings-section,
