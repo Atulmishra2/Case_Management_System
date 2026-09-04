@@ -13987,3 +13987,914 @@ input[readonly] {
     font-size: 11px !important;
   }
 }
+
+/* ==============================================================================
+   6.0 VIOLET DUSK DESIGN SYSTEM: TOP NAV, SIDE NAV, BOTTOM NAV & CALENDAR
+   Color Palette Specification:
+   - #502D55: Deep Dusk Violet / Plum (Primary Dark, Top Nav Bar, Active Accents)
+   - #935073: Muted Mauve / Berry Rose (Secondary Accent, Subheaders, Hover States)
+   - #F6DBC0: Warm Peach / Champagne Cream (Badges, Emblem Accents, Highlights)
+   - #F8F4E9: Warm Pearl Ivory / Soft Neutral (Card Backdrops, Side/Bottom Nav Canvas)
+   ============================================================================== */
+
+/* --- 6.1 REDESIGNED TOP NAVIGATION BAR --- */
+.top-header,
+.materialize-nav,
+.guest-header-bar {
+  background: linear-gradient(135deg, #502D55 0%, #683660 50%, #935073 100%) !important;
+  color: #ffffff !important;
+  border-bottom: 1.5px solid rgba(246, 219, 192, 0.25) !important;
+  box-shadow: 0 4px 20px rgba(80, 45, 85, 0.28) !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1100 !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+}
+
+.guest-header-bar {
+  position: static !important;
+}
+
+.materialize-nav .nav-wrapper {
+  height: 100% !important;
+  min-height: 64px !important;
+  padding: 0 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+.materialize-nav .header-left-section {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+/* Clean CaseBook Brand Logo */
+.materialize-nav .casebook-brand {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  text-decoration: none !important;
+  user-select: none !important;
+  cursor: pointer !important;
+}
+
+.materialize-nav .casebook-brand .brand-fa-icon {
+  font-size: 22px !important;
+  color: #F6DBC0 !important;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25)) !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.materialize-nav .casebook-brand:hover .brand-fa-icon {
+  transform: scale(1.1) rotate(-5deg) !important;
+}
+
+.materialize-nav .casebook-brand .brand-name {
+  color: #ffffff !important;
+  font-size: 21px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.materialize-nav .casebook-brand .guest-tag {
+  background: rgba(246, 219, 192, 0.18) !important;
+  color: #F6DBC0 !important;
+  border: 1px solid rgba(246, 219, 192, 0.35) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 2px 10px !important;
+  border-radius: 20px !important;
+  letter-spacing: 0.04em !important;
+}
+
+/* --- 6.2 TOP NAV ACTION BUTTONS FIX --- */
+.materialize-nav .nav-right-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+/* Mobile Sidebar Toggle Button */
+.mobile-menu-btn,
+#sidebarToggleBtn {
+  background: rgba(246, 219, 192, 0.14) !important;
+  border: 1.5px solid rgba(246, 219, 192, 0.3) !important;
+  color: #F8F4E9 !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  border-radius: 9px !important;
+  cursor: pointer !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 15px !important;
+  padding: 0 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.mobile-menu-btn:hover,
+#sidebarToggleBtn:hover {
+  background: rgba(246, 219, 192, 0.28) !important;
+  color: #ffffff !important;
+  border-color: #F6DBC0 !important;
+  transform: scale(1.05) !important;
+}
+
+/* Install App Button */
+.nav-install-btn,
+#desktopInstallBtn,
+#guestDesktopInstallBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  background: rgba(246, 219, 192, 0.16) !important;
+  border: 1.5px solid rgba(246, 219, 192, 0.45) !important;
+  color: #ffffff !important;
+  border-radius: 9px !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  white-space: nowrap !important;
+  min-height: 36px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.nav-install-btn i,
+#desktopInstallBtn i,
+#guestDesktopInstallBtn i {
+  color: #F6DBC0 !important;
+  font-size: 14px !important;
+  transition: color 0.2s ease !important;
+}
+
+.nav-install-btn:hover,
+#desktopInstallBtn:hover,
+#guestDesktopInstallBtn:hover {
+  background: #F6DBC0 !important;
+  color: #502D55 !important;
+  border-color: #F6DBC0 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22) !important;
+}
+
+.nav-install-btn:hover i,
+#desktopInstallBtn:hover i,
+#guestDesktopInstallBtn:hover i {
+  color: #502D55 !important;
+}
+
+.nav-install-btn:active,
+#desktopInstallBtn:active,
+#guestDesktopInstallBtn:active {
+  transform: translateY(0) !important;
+}
+
+/* Logout Button */
+.materialize-nav .logout-btn,
+.materialize-nav .nav-logout-btn,
+#adminLogoutBtn,
+#guestLogoutBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.32) !important;
+  color: #ffffff !important;
+  border-radius: 9px !important;
+  padding: 6px 15px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+  text-transform: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  white-space: nowrap !important;
+  min-height: 36px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.materialize-nav .logout-btn i,
+.materialize-nav .nav-logout-btn i,
+#adminLogoutBtn i,
+#guestLogoutBtn i {
+  color: #F6DBC0 !important;
+  font-size: 13.5px !important;
+}
+
+.materialize-nav .logout-btn:hover,
+.materialize-nav .nav-logout-btn:hover,
+#adminLogoutBtn:hover,
+#guestLogoutBtn:hover {
+  background: #935073 !important;
+  border-color: #F6DBC0 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(147, 80, 115, 0.45) !important;
+}
+
+.materialize-nav .logout-btn:hover i,
+.materialize-nav .nav-logout-btn:hover i,
+#adminLogoutBtn:hover i,
+#guestLogoutBtn:hover i {
+  color: #ffffff !important;
+}
+
+/* Responsive Top Nav on Compact Screens */
+@media (max-width: 768px) {
+  .top-header,
+  .materialize-nav {
+    padding: 0 12px !important;
+  }
+
+  .materialize-nav .nav-wrapper {
+    padding: 0 10px !important;
+    gap: 8px !important;
+  }
+
+  .materialize-nav .casebook-brand .brand-name {
+    font-size: 18px !important;
+  }
+
+  .materialize-nav .casebook-brand .brand-fa-icon {
+    font-size: 18px !important;
+  }
+
+  .nav-install-btn,
+  #desktopInstallBtn,
+  #guestDesktopInstallBtn {
+    padding: 6px 11px !important;
+    font-size: 12px !important;
+  }
+
+  .materialize-nav .logout-btn,
+  .materialize-nav .nav-logout-btn,
+  #adminLogoutBtn,
+  #guestLogoutBtn {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-install-btn span,
+  #desktopInstallBtn span,
+  #guestDesktopInstallBtn span {
+    display: none !important;
+  }
+
+  .nav-install-btn,
+  #desktopInstallBtn,
+  #guestDesktopInstallBtn {
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+  }
+
+  .materialize-nav .logout-btn span,
+  .materialize-nav .nav-logout-btn span,
+  #adminLogoutBtn span,
+  #guestLogoutBtn span {
+    display: none !important;
+  }
+
+  .materialize-nav .logout-btn,
+  .materialize-nav .nav-logout-btn,
+  #adminLogoutBtn,
+  #guestLogoutBtn {
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* --- 6.3 SIDE NAVIGATION (VIOLET DUSK THEME) --- */
+.sidebar,
+.sidenav {
+  background-color: #F8F4E9 !important;
+  border-right: 1.5px solid rgba(80, 45, 85, 0.12) !important;
+  color: #502D55 !important;
+  box-shadow: 2px 0 12px rgba(80, 45, 85, 0.05) !important;
+  top: 64px !important;
+  height: calc(100vh - 64px) !important;
+}
+
+/* Sidebar User Author Card */
+.sidebar .sidebar-author-card,
+.sidenav .user-view {
+  background: linear-gradient(135deg, rgba(80, 45, 85, 0.07) 0%, rgba(147, 80, 115, 0.07) 100%) !important;
+  border-bottom: 1.5px solid rgba(80, 45, 85, 0.12) !important;
+  padding: 14px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.sidebar .author-avatar,
+.sidenav .user-view .circle {
+  background: linear-gradient(135deg, #502D55 0%, #935073 100%) !important;
+  color: #F6DBC0 !important;
+  border: 1.5px solid rgba(246, 219, 192, 0.4) !important;
+  box-shadow: 0 2px 8px rgba(80, 45, 85, 0.22) !important;
+  border-radius: 10px !important;
+  font-size: 18px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.sidebar .author-name,
+.sidenav .user-view .name {
+  color: #502D55 !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.sidebar .author-title,
+.sidenav .user-view .email {
+  color: #935073 !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+}
+
+.sidebar .author-jurisdiction,
+.sidenav .author-jurisdiction {
+  color: rgba(80, 45, 85, 0.72) !important;
+  font-size: 10.5px !important;
+  font-weight: 500 !important;
+}
+
+/* Sidenav Subheaders */
+.sidebar h2,
+.sidenav .subheader {
+  color: #935073 !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  padding: 0 16px !important;
+  margin: 12px 0 4px 0 !important;
+  line-height: 28px !important;
+  height: 28px !important;
+}
+
+/* Sidenav Dividers */
+.sidebar .divider,
+.sidenav .divider {
+  background-color: rgba(80, 45, 85, 0.1) !important;
+  height: 1px !important;
+  margin: 6px 12px !important;
+}
+
+/* Sidenav Links */
+.sidebar a,
+.sidenav a {
+  color: #502D55 !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 8px 14px 8px 16px !important;
+  margin: 2px 8px 2px 0 !important;
+  border-radius: 0 16px 16px 0 !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  text-decoration: none !important;
+}
+
+.sidebar a i.nav-icon,
+.sidenav a i.nav-icon {
+  color: #935073 !important;
+  font-size: 14.5px !important;
+  transition: color 0.18s ease, transform 0.18s ease !important;
+}
+
+.sidebar a:hover,
+.sidenav a:hover {
+  background-color: rgba(147, 80, 115, 0.12) !important;
+  color: #502D55 !important;
+  transform: translateX(3px) !important;
+}
+
+.sidebar a:hover i.nav-icon,
+.sidenav a:hover i.nav-icon {
+  color: #502D55 !important;
+  transform: scale(1.1) !important;
+}
+
+/* Active Sidenav Link */
+.sidebar a.active,
+.sidenav a.active {
+  background: linear-gradient(90deg, rgba(80, 45, 85, 0.15) 0%, rgba(147, 80, 115, 0.08) 100%) !important;
+  color: #502D55 !important;
+  font-weight: 800 !important;
+  box-shadow: inset 4px 0 0 #502D55 !important;
+}
+
+.sidebar a.active i.nav-icon,
+.sidenav a.active i.nav-icon {
+  color: #502D55 !important;
+}
+
+/* Sidenav Badges */
+.sidebar a .badge,
+.sidenav a .badge {
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+  padding: 2px 8px !important;
+  min-width: 20px !important;
+  text-align: center !important;
+  background-color: #502D55 !important;
+  color: #ffffff !important;
+}
+
+.sidebar a .badge.badge-upcoming,
+.sidenav a .badge.badge-upcoming {
+  background-color: #502D55 !important;
+  color: #F6DBC0 !important;
+}
+
+.sidebar a .badge.badge-todo,
+.sidenav a .badge.badge-todo {
+  background-color: #935073 !important;
+  color: #ffffff !important;
+}
+
+.sidebar a .badge.badge-undated,
+.sidenav a .badge.badge-undated {
+  background-color: #F6DBC0 !important;
+  color: #502D55 !important;
+  font-weight: 800 !important;
+}
+
+.sidebar a .badge.badge-disposed,
+.sidenav a .badge.badge-disposed {
+  background-color: #502D55 !important;
+  color: #ffffff !important;
+}
+
+/* Sidebar Desktop Install App Widget */
+.sidebar-install-widget {
+  background: linear-gradient(135deg, rgba(80, 45, 85, 0.95) 0%, rgba(147, 80, 115, 0.95) 100%) !important;
+  border: 1px solid rgba(246, 219, 192, 0.35) !important;
+  border-radius: 12px !important;
+  margin: 12px 10px 16px !important;
+  padding: 10px !important;
+  box-shadow: 0 4px 12px rgba(80, 45, 85, 0.2) !important;
+}
+
+.sidebar-install-btn {
+  background: #F8F4E9 !important;
+  color: #502D55 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+}
+
+.sidebar-install-btn i {
+  color: #502D55 !important;
+  font-size: 18px !important;
+}
+
+.sidebar-install-text strong {
+  color: #502D55 !important;
+  font-size: 12.5px !important;
+}
+
+.sidebar-install-text small {
+  color: #935073 !important;
+  font-size: 10px !important;
+}
+
+.sidebar-install-btn:hover {
+  background: #F6DBC0 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* --- 6.4 FIXED BOTTOM NAVIGATION BAR (VIOLET DUSK THEME) --- */
+.fixed-bottom-nav {
+  background: rgba(248, 244, 233, 0.96) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-top: 1.5px solid rgba(80, 45, 85, 0.15) !important;
+  box-shadow: 0 -4px 18px rgba(80, 45, 85, 0.08) !important;
+  z-index: 1060 !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn {
+  background-color: #ffffff !important;
+  border: 1.5px solid rgba(80, 45, 85, 0.18) !important;
+  color: #502D55 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 5px rgba(80, 45, 85, 0.06) !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn i {
+  color: #935073 !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn:hover:not(:disabled) {
+  background-color: rgba(147, 80, 115, 0.12) !important;
+  border-color: #935073 !important;
+  color: #502D55 !important;
+  transform: translateY(-1px) !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn:hover:not(:disabled) i {
+  color: #502D55 !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn.home-nav-btn {
+  background: linear-gradient(135deg, #502D55 0%, #935073 100%) !important;
+  border: 1.5px solid #502D55 !important;
+  color: #F8F4E9 !important;
+  box-shadow: 0 3px 12px rgba(80, 45, 85, 0.35) !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn.home-nav-btn i {
+  color: #F6DBC0 !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn.home-nav-btn:hover {
+  background: linear-gradient(135deg, #3d2141 0%, #7d4261 100%) !important;
+  color: #ffffff !important;
+  border-color: #3d2141 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 16px rgba(80, 45, 85, 0.45) !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn.disabled,
+.fixed-bottom-nav .bottom-nav-btn:disabled {
+  background-color: rgba(80, 45, 85, 0.05) !important;
+  border-color: rgba(80, 45, 85, 0.1) !important;
+  color: rgba(80, 45, 85, 0.35) !important;
+  box-shadow: none !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn.disabled i,
+.fixed-bottom-nav .bottom-nav-btn:disabled i {
+  color: rgba(80, 45, 85, 0.3) !important;
+}
+
+/* --- 6.5 INTERACTIVE CALENDAR TAB (VIOLET DUSK PALETTE) --- */
+
+/* Header Gradient Icon Badge */
+.section-icon-badge.calendar-gradient-badge {
+  background: linear-gradient(135deg, #502D55 0%, #935073 100%) !important;
+  color: #F6DBC0 !important;
+  box-shadow: 0 4px 14px rgba(80, 45, 85, 0.25) !important;
+}
+
+/* Calendar Card Container */
+.calendar-wrapper-card {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(147, 80, 115, 0.2) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 4px 20px rgba(80, 45, 85, 0.06) !important;
+  padding: 24px !important;
+}
+
+/* Calendar Top Bar Titles */
+#calendarMonthYear {
+  color: #502D55 !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.calendar-top-bar .section-subtitle {
+  color: #935073 !important;
+}
+
+/* Calendar Navigation Buttons */
+.cal-today-btn {
+  background: linear-gradient(135deg, #502D55 0%, #935073 100%) !important;
+  border: 1.5px solid #502D55 !important;
+  color: #F8F4E9 !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 8px rgba(80, 45, 85, 0.25) !important;
+}
+
+.cal-today-btn:hover {
+  background: #502D55 !important;
+  color: #F6DBC0 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(80, 45, 85, 0.35) !important;
+}
+
+.cal-nav-btn {
+  background: #F8F4E9 !important;
+  border: 1.5px solid rgba(147, 80, 115, 0.3) !important;
+  color: #502D55 !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+.cal-nav-btn:hover {
+  background: rgba(147, 80, 115, 0.15) !important;
+  border-color: #935073 !important;
+  color: #502D55 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Monthly Stats Chips */
+.cal-stat-chip {
+  background: #F8F4E9 !important;
+  border: 1.5px solid rgba(147, 80, 115, 0.18) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 6px rgba(80, 45, 85, 0.04) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.cal-stat-chip:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(80, 45, 85, 0.1) !important;
+}
+
+.cal-stat-num {
+  color: #502D55 !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+}
+
+.cal-stat-label {
+  color: #935073 !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+}
+
+.cal-stat-chip:not(.civil-chip):not(.criminal-chip):not(.revenue-chip) {
+  border-left: 4px solid #502D55 !important;
+}
+
+.cal-stat-chip.civil-chip {
+  border-left: 4px solid #935073 !important;
+}
+
+.cal-stat-chip.criminal-chip {
+  border-left: 4px solid #d97706 !important;
+}
+
+.cal-stat-chip.revenue-chip {
+  border-left: 4px solid #059669 !important;
+}
+
+/* Calendar Grid Container */
+.calendar-grid-container {
+  background: #F8F4E9 !important;
+  border: 1.5px solid rgba(147, 80, 115, 0.2) !important;
+  border-radius: 16px !important;
+  padding: 20px 22px !important;
+}
+
+/* Weekday Headers */
+.calendar-weekdays {
+  color: #502D55 !important;
+  font-weight: 800 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.06em !important;
+}
+
+/* Calendar Day Cells */
+.cal-day-cell {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(80, 45, 85, 0.12) !important;
+  border-radius: 12px !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 3px rgba(80, 45, 85, 0.03) !important;
+}
+
+.cal-day-cell .day-number {
+  color: #502D55 !important;
+  font-weight: 800 !important;
+}
+
+.cal-day-cell:hover {
+  border-color: #935073 !important;
+  background: #fffdf9 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(80, 45, 85, 0.1) !important;
+}
+
+.cal-day-cell.empty-day {
+  background: rgba(248, 244, 233, 0.45) !important;
+  border-color: transparent !important;
+  opacity: 0.35 !important;
+}
+
+.cal-day-cell.today-cell {
+  border: 2px solid #502D55 !important;
+  background: rgba(246, 219, 192, 0.3) !important;
+}
+
+.cal-day-cell.today-cell .day-number {
+  color: #502D55 !important;
+  font-weight: 900 !important;
+}
+
+.cal-day-cell.selected-day {
+  border-color: #502D55 !important;
+  background: rgba(246, 219, 192, 0.45) !important;
+  box-shadow: 0 0 0 3px rgba(147, 80, 115, 0.32) !important;
+}
+
+/* Day Hearing Count Badge */
+.day-count-badge {
+  background: linear-gradient(135deg, #502D55 0%, #935073 100%) !important;
+  color: #F6DBC0 !important;
+  font-weight: 800 !important;
+  border-radius: 10px !important;
+  padding: 1px 6px !important;
+  font-size: 10px !important;
+}
+
+/* Hearing Category Pills */
+.day-hearing-pill {
+  border-radius: 6px !important;
+  font-weight: 700 !important;
+  padding: 2.5px 6px !important;
+  font-size: 10.5px !important;
+}
+
+.day-hearing-pill.civil {
+  background: rgba(147, 80, 115, 0.15) !important;
+  color: #502D55 !important;
+  border: 1px solid rgba(147, 80, 115, 0.35) !important;
+}
+
+.day-hearing-pill.criminal {
+  background: #F6DBC0 !important;
+  color: #502D55 !important;
+  border: 1px solid rgba(147, 80, 115, 0.3) !important;
+}
+
+.day-hearing-pill.revenue {
+  background: #ede3dc !important;
+  color: #502D55 !important;
+  border: 1px solid rgba(80, 45, 85, 0.25) !important;
+}
+
+/* Day Detailed Schedule Card */
+.day-schedule-card {
+  background: #F8F4E9 !important;
+  border: 1.5px solid rgba(147, 80, 115, 0.22) !important;
+  border-radius: 16px !important;
+  padding: 22px !important;
+  box-shadow: 0 4px 16px rgba(80, 45, 85, 0.05) !important;
+}
+
+.day-schedule-header {
+  border-bottom: 1.5px solid rgba(147, 80, 115, 0.18) !important;
+}
+
+.day-schedule-header h3 {
+  color: #502D55 !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+
+#selectedDateCountBadge {
+  background: #502D55 !important;
+  color: #F6DBC0 !important;
+  border: 1px solid #935073 !important;
+  font-weight: 800 !important;
+}
+
+.cause-list-court-select {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(147, 80, 115, 0.3) !important;
+  color: #502D55 !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+}
+
+.print-cause-btn {
+  background: linear-gradient(135deg, #502D55 0%, #935073 100%) !important;
+  border: 1.5px solid #502D55 !important;
+  color: #F8F4E9 !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 8px rgba(80, 45, 85, 0.25) !important;
+}
+
+.print-cause-btn:hover {
+  background: #502D55 !important;
+  color: #F6DBC0 !important;
+  border-color: #502D55 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(80, 45, 85, 0.35) !important;
+}
+
+/* Schedule Case Dossier Cards */
+.schedule-case-card {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(147, 80, 115, 0.18) !important;
+  border-radius: 14px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(80, 45, 85, 0.03) !important;
+}
+
+.schedule-case-card:hover {
+  border-color: #935073 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(80, 45, 85, 0.09) !important;
+}
+
+.schedule-case-no {
+  color: #502D55 !important;
+  font-weight: 800 !important;
+}
+
+.schedule-case-name {
+  color: #2E1A31 !important;
+  font-weight: 700 !important;
+}
+
+.schedule-case-meta {
+  color: #935073 !important;
+}
+
+.schedule-case-meta strong {
+  color: #502D55 !important;
+}
+
+.schedule-case-actions .table-view-btn {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(147, 80, 115, 0.3) !important;
+  color: #502D55 !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  transition: all 0.18s ease !important;
+}
+
+.schedule-case-actions .table-view-btn:hover {
+  background: #502D55 !important;
+  color: #F8F4E9 !important;
+  border-color: #502D55 !important;
+  transform: translateY(-1px) !important;
+}
+
+.schedule-case-actions .table-view-btn.whatsapp-btn {
+  border-color: #10b981 !important;
+  color: #047857 !important;
+}
+
+.schedule-case-actions .table-view-btn.whatsapp-btn:hover {
+  background: #047857 !important;
+  color: #ffffff !important;
+}
+
+.schedule-case-actions .table-view-btn.update-hearing-btn {
+  border-color: #935073 !important;
+  color: #935073 !important;
+}
+
+.schedule-case-actions .table-view-btn.update-hearing-btn:hover {
+  background: #935073 !important;
+  color: #ffffff !important;
+}
+
