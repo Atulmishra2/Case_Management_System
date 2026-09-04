@@ -8522,27 +8522,46 @@ html, body {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;
+  min-width: 0;
 }
 
 .panel-heading-group {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
 .panel-title-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+}
+
+.panel-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.panel-sub-row .panel-subtitle {
+  margin: 0;
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.3;
 }
 
 .panel-icon {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  border-radius: 12px;
-  font-size: 18px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 10px;
+  font-size: 16px;
   background: #e6f4f1;
   border: 1.5px solid #b2dfdb;
   color: #00695c;
@@ -8550,7 +8569,7 @@ html, body {
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 105, 92, 0.12);
+  box-shadow: 0 2px 6px rgba(0, 105, 92, 0.1);
   flex-shrink: 0;
 }
 
@@ -8572,13 +8591,15 @@ html, body {
   color: #b45309;
 }
 
-.home-panel-header h3 {
-  font-size: 16px;
-  font-weight: 800;
-  color: #1e293b;
-  margin: 0;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
+.home-panel-header h3,
+.panel-main-title {
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  color: #1e293b !important;
+  margin: 0 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
 }
 
 .section-title-badge {
@@ -13436,4 +13457,266 @@ body.workflow-active-tab [data-chambers-footer],
   .history-table-container table {
     min-width: 520px !important;
   }
+}
+
+/* ==============================================================================
+   Image 3 Unified Modern Emerald-Mint Aesthetic for All Forms & Form Containers
+   ============================================================================== */
+
+/* 1. Form Containers & Form Cards */
+.form-container:not(.danger-container),
+.case-status-card,
+.case-disposal-card,
+.update-search-card,
+.court-add-card,
+.hearing-step-card,
+.hearing-progression-card,
+.todo-form-panel,
+.remarks-coparties-box,
+.db-modal-card {
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%) !important;
+  border: 1.5px solid #a7f3d0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.form-container:not(.danger-container):hover,
+.form-container:not(.danger-container):focus-within,
+.case-status-card:hover,
+.case-status-card:focus-within,
+.update-search-card:hover,
+.update-search-card:focus-within,
+.court-add-card:hover,
+.court-add-card:focus-within,
+.hearing-step-card:hover,
+.hearing-step-card:focus-within,
+.todo-form-panel:hover,
+.todo-form-panel:focus-within,
+.remarks-coparties-box:hover,
+.remarks-coparties-box:focus-within {
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Reset any contrasting top borders on panels */
+.todo-form-panel {
+  border-top: 1.5px solid #a7f3d0 !important;
+}
+
+/* 2. Form Headings & Titles */
+.form-container:not(.danger-container) .section-header-row h3,
+.form-container:not(.danger-container) > h3,
+.form-container:not(.danger-container) .section-title-box h3,
+.search-card-heading,
+.hearing-step-title,
+.todo-panel-header h4,
+.status-label-col label,
+.disposal-card-title,
+.remarks-box-label,
+.db-modal-title-box h4 {
+  color: #065f46 !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* 3. Form Subtitles & Helper Text */
+.form-container:not(.danger-container) .section-subtitle,
+.search-card-subheading,
+.hearing-step-desc,
+.todo-panel-subtitle,
+.status-help-text,
+.disposal-card-sub,
+.disposal-footer-tip,
+.remarks-box-tip,
+.db-modal-subtitle {
+  color: #047857 !important;
+  font-size: 12.5px !important;
+}
+
+/* 4. Section Dividers */
+.form-container:not(.danger-container) .section-header-row,
+.todo-panel-header,
+.hearing-step-header,
+.db-modal-header {
+  border-bottom: 1.5px solid #d1fae5 !important;
+}
+
+/* 5. Icon Badges */
+.section-icon-badge,
+.disposal-icon-badge,
+.search-card-badge-icon:not(.danger-badge-icon),
+.todo-panel-icon,
+.hearing-step-num,
+.remarks-box-icon,
+.db-modal-icon {
+  background: #d1fae5 !important;
+  border: 1.5px solid #6ee7b7 !important;
+  color: #047857 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.12) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 6. Form Field Labels */
+.form-container:not(.danger-container) label,
+.case-status-card label,
+.todo-form-panel label,
+.hearing-step-card label,
+.court-add-card label,
+.settings-form label,
+.remarks-coparties-box label,
+.db-record-form label {
+  color: #065f46 !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+}
+
+/* 7. Form Inputs, Selects & Textareas */
+.form-container:not(.danger-container) input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not(.locked-input),
+.form-container:not(.danger-container) select,
+.form-container:not(.danger-container) textarea,
+.case-status-card select,
+.case-status-card textarea,
+.update-search-card input,
+.court-add-card input,
+.hearing-step-card input,
+.hearing-step-card select,
+.hearing-step-card textarea,
+.todo-form-panel input:not([type="submit"]):not([type="button"]),
+.todo-form-panel select,
+.todo-form-panel textarea,
+.remarks-coparties-box textarea,
+.disposal-card-body textarea,
+.db-record-form input,
+.db-record-form select,
+.db-record-form textarea {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  color: #1e293b !important;
+  font-size: 13.5px !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+.form-container:not(.danger-container) input:not(.locked-input):focus,
+.form-container:not(.danger-container) select:focus,
+.form-container:not(.danger-container) textarea:focus,
+.case-status-card select:focus,
+.case-status-card textarea:focus,
+.update-search-card input:focus,
+.court-add-card input:focus,
+.hearing-step-card input:focus,
+.hearing-step-card select:focus,
+.hearing-step-card textarea:focus,
+.todo-form-panel input:focus,
+.todo-form-panel select:focus,
+.todo-form-panel textarea:focus,
+.remarks-coparties-box textarea:focus,
+.disposal-card-body textarea:focus,
+.db-record-form input:focus,
+.db-record-form select:focus,
+.db-record-form textarea:focus {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+  outline: none !important;
+  background: #ffffff !important;
+}
+
+/* 8. Form Submit & Primary Action Buttons */
+.form-submit-btn,
+.court-submit-btn,
+.hearing-big-submit,
+.todo-submit-btn,
+.update-search-row button.search-action-btn,
+#updateSearchBtn,
+#dbModalSubmitBtn,
+#saveCourtBtn,
+#saveTodoBtn,
+#hearingSubmitBtn,
+#changePasswordForm button[type="submit"] {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 9px !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.28) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.form-submit-btn:hover,
+.court-submit-btn:hover,
+.hearing-big-submit:hover,
+.todo-submit-btn:hover,
+.update-search-row button.search-action-btn:hover,
+#updateSearchBtn:hover,
+#dbModalSubmitBtn:hover,
+#saveCourtBtn:hover,
+#saveTodoBtn:hover,
+#hearingSubmitBtn:hover,
+#changePasswordForm button[type="submit"]:hover {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%) !important;
+  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.38) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 9. Remarks & Disposal Chips */
+.remarks-quick-chips .remarks-chip-btn {
+  background: #ecfdf5 !important;
+  border: 1px solid #a7f3d0 !important;
+  color: #047857 !important;
+  border-radius: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.remarks-quick-chips .remarks-chip-btn:hover {
+  background: #d1fae5 !important;
+  border-color: #10b981 !important;
+  color: #065f46 !important;
+  transform: translateY(-1px) !important;
+}
+
+.remarks-searchable-badge {
+  background: #d1fae5 !important;
+  border: 1px solid #6ee7b7 !important;
+  color: #047857 !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+}
+
+/* 10. Mini Court (+) Button in Case Forms */
+.mini-court-btn {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border: 1.5px solid #059669 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2) !important;
+}
+
+.mini-court-btn:hover {
+  background: #059669 !important;
+  transform: scale(1.04) !important;
+}
+
+/* 11. Locked & Readonly Inputs */
+.locked-input,
+input[readonly] {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
 }
