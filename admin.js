@@ -4036,7 +4036,7 @@ function renderAllCasesTableWithFilters(resetPage = true) {
         </td>
         <td class="all-cases-status-cell">${statusBadge}</td>
         <td class="all-cases-date-cell">${nextHearingStr}</td>
-        <td style="text-align: center; white-space: nowrap;">
+        <td class="all-cases-actions-cell-td">
           <div class="all-cases-actions-cell">
             <button type="button" class="all-cases-action-btn details-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Proceedings & Dossier">👁️ View</button>
             <button type="button" class="all-cases-action-btn edit-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>

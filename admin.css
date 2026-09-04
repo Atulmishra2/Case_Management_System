@@ -10820,3 +10820,46 @@ body.workflow-active-tab [data-chambers-footer],
   white-space: nowrap !important;
   text-decoration: none !important;
 }
+
+/* Actions & Next Hearing Distinct Column Spacing */
+.all-cases-fixed-table td.all-cases-actions-cell-td {
+  text-align: center !important;
+  white-space: nowrap !important;
+  padding: 8px 12px !important;
+  vertical-align: middle !important;
+}
+
+.all-cases-fixed-table td.all-cases-actions-cell-td .all-cases-actions-cell {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  margin: 0 auto !important;
+}
+
+.all-cases-fixed-table .all-cases-date-cell {
+  text-align: center !important;
+  font-size: 12px !important;
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+  padding: 8px 10px !important;
+  vertical-align: middle !important;
+}
+
+.all-cases-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  line-height: 1.2 !important;
+}
