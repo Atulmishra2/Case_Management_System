@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=5.3">
+    <link rel="stylesheet" href="admin.css?v=5.4">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -268,9 +268,9 @@
                                 </div>
                             </div>
                             <div class="hero-right-section">
-                                <div class="hero-status-pill">
-                                    <span class="live-dot"></span>
-                                    <span>Supabase Cloud Connected</span>
+                                <div class="hero-status-pill connected" id="homeHeroStatus">
+                                    <span class="live-dot" id="homeHeroStatusDot"></span>
+                                    <span id="homeHeroStatusText">Supabase Cloud Connected</span>
                                 </div>
                                 <div class="hero-actions-bar">
                                     <button type="button" class="hero-btn-primary" onclick="showTab('add')">➕ New Case</button>

@@ -474,6 +474,7 @@ async function fetchAllDataFromSupabase() {
 
   if (!supabaseClient) {
     console.log('Using local fallback data (Supabase not configured or CDN unreachable)');
+    updateSupabaseStatusIndicator(false);
     renderCourtOptions();
     renderCriminalCourtOptions();
     renderCourtsTable();
@@ -605,9 +606,11 @@ async function fetchAllDataFromSupabase() {
       updateTodoSyncIndicator(false);
     }
 
+    updateSupabaseStatusIndicator(true);
     refreshAllCaseTables();
   } catch (error) {
     console.error('Supabase live fetch error:', error);
+    updateSupabaseStatusIndicator(false);
     allCaseRecords = [];
     allHearingRecords = [];
     courts = [];
@@ -4812,6 +4815,35 @@ function updateTodoSyncIndicator(isSynced) {
   }
 }
 window.updateTodoSyncIndicator = updateTodoSyncIndicator;
+
+function updateSupabaseStatusIndicator(isConnected) {
+  const pill = document.getElementById('homeHeroStatus') || document.querySelector('.hero-status-pill');
+  if (!pill) return;
+  const textEl = document.getElementById('homeHeroStatusText') || pill.querySelector('span:not(.live-dot)');
+  if (isConnected) {
+    pill.classList.remove('disconnected');
+    pill.classList.add('connected');
+    if (textEl) textEl.textContent = 'Supabase Cloud Connected';
+  } else {
+    pill.classList.remove('connected');
+    pill.classList.add('disconnected');
+    if (textEl) textEl.textContent = 'Supabase Cloud Disconnected';
+  }
+}
+window.updateSupabaseStatusIndicator = updateSupabaseStatusIndicator;
+
+window.addEventListener('online', () => {
+  if (supabaseClient) {
+    updateSupabaseStatusIndicator(true);
+    if (typeof fetchAllDataFromSupabase === 'function') fetchAllDataFromSupabase();
+  } else {
+    updateSupabaseStatusIndicator(false);
+  }
+});
+
+window.addEventListener('offline', () => {
+  updateSupabaseStatusIndicator(false);
+});
 
 function loadCaseTasks() {
   try {

@@ -7209,29 +7209,55 @@ html, body {
 .hero-status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  background: rgba(35, 47, 52, 0.08);
-  border: 1px solid rgba(35, 47, 52, 0.25);
-  color: #232F34;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 11.5px;
-  font-weight: 700;
+  gap: 8px;
+  background: transparent !important;
+  border: none !important;
+  color: #1e293b;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: none !important;
 }
 
 .live-dot {
-  width: 8px;
-  height: 8px;
-  background: #232F34;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(0, 105, 92, 0.5);
-  animation: pulseDot 2s infinite;
+  flex-shrink: 0;
+  display: inline-block;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-@keyframes pulseDot {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.8; }
+/* Connected State: Green */
+.hero-status-pill.connected .live-dot,
+.hero-status-pill:not(.disconnected) .live-dot {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  animation: pulseDotGreen 2s infinite ease-in-out;
+}
+
+/* Disconnected State: Red */
+.hero-status-pill.disconnected .live-dot {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  animation: pulseDotRed 2s infinite ease-in-out;
+}
+
+.hero-status-pill.disconnected {
+  color: #dc2626;
+}
+
+@keyframes pulseDotGreen {
+  0% { transform: scale(0.95); opacity: 0.85; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); opacity: 0.85; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes pulseDotRed {
+  0% { transform: scale(0.95); opacity: 0.85; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { transform: scale(0.95); opacity: 0.85; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
 .hero-actions-bar {
