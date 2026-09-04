@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=5.9">
+    <link rel="stylesheet" href="admin.css?v=6.0">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -515,6 +515,73 @@
                                     </div>
                                     <span class="shortcut-arrow">➔</span>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Undated Cases Analysis & Graph Card -->
+                        <div class="home-panel-card undated-analysis-card">
+                            <div class="home-panel-header">
+                                <div class="panel-title-wrap">
+                                    <span class="panel-icon chart-icon"><i class="fa-solid fa-chart-pie"></i></span>
+                                    <div class="panel-heading-group">
+                                        <div class="panel-title-row">
+                                            <h3>Undated Cases Tracker</h3>
+                                            <span class="section-title-badge undated-badge">Needs Schedule</span>
+                                        </div>
+                                        <p class="panel-subtitle">Matters awaiting next court date</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="secondary-btn panel-action-btn" onclick="showTab('undated')">View Undated ➔</button>
+                            </div>
+                            <div class="undated-chart-content">
+                                <div class="undated-donut-wrap">
+                                    <svg class="undated-donut-svg" viewBox="0 0 100 100">
+                                        <circle class="donut-bg" cx="50" cy="50" r="38" />
+                                        <circle id="donutSegmentCivil" class="donut-segment segment-civil" cx="50" cy="50" r="38" />
+                                        <circle id="donutSegmentCriminal" class="donut-segment segment-criminal" cx="50" cy="50" r="38" />
+                                        <circle id="donutSegmentRevenue" class="donut-segment segment-revenue" cx="50" cy="50" r="38" />
+                                    </svg>
+                                    <div class="donut-center-info">
+                                        <span class="donut-center-val" id="undatedGraphTotal">0</span>
+                                        <span class="donut-center-lbl">Undated</span>
+                                    </div>
+                                </div>
+                                <div class="undated-bars-wrap">
+                                    <div class="undated-bar-row">
+                                        <div class="bar-label-group">
+                                            <span class="bar-bullet bullet-civil"></span>
+                                            <span class="bar-name">Civil</span>
+                                            <span class="bar-count" id="undatedCivilCount">0 Cases (0%)</span>
+                                        </div>
+                                        <div class="bar-track">
+                                            <div id="undatedCivilBar" class="bar-fill fill-civil" style="width: 0%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="undated-bar-row">
+                                        <div class="bar-label-group">
+                                            <span class="bar-bullet bullet-criminal"></span>
+                                            <span class="bar-name">Criminal</span>
+                                            <span class="bar-count" id="undatedCriminalCount">0 Cases (0%)</span>
+                                        </div>
+                                        <div class="bar-track">
+                                            <div id="undatedCriminalBar" class="bar-fill fill-criminal" style="width: 0%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="undated-bar-row">
+                                        <div class="bar-label-group">
+                                            <span class="bar-bullet bullet-revenue"></span>
+                                            <span class="bar-name">Revenue</span>
+                                            <span class="bar-count" id="undatedRevenueCount">0 Cases (0%)</span>
+                                        </div>
+                                        <div class="bar-track">
+                                            <div id="undatedRevenueBar" class="bar-fill fill-revenue" style="width: 0%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="undated-card-footer">
+                                <span class="undated-footer-alert" id="undatedFooterNotice">⚡ 0 matters require hearing dates</span>
+                                <button type="button" class="undated-schedule-btn" onclick="showTab('hearing')">Schedule ➔</button>
                             </div>
                         </div>
                     </div>

@@ -3608,6 +3608,68 @@ function renderHomeDashboard() {
   if (shortcutCriminal) shortcutCriminal.textContent = `${criminalCount} Cases`;
   if (shortcutRevenue) shortcutRevenue.textContent = `${revenueCount} Cases`;
 
+  // 4b. Update Undated Cases Graph Card & Analytics
+  const undatedCasesList = allCaseRecords.filter(c => !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !c.nextHearing.trim() || c.nextHearing.toLowerCase() === 'undated');
+  const undatedTotal = undatedCasesList.length;
+  const undatedCivil = undatedCasesList.filter(c => (c.caseType || 'civil').toLowerCase() === 'civil').length;
+  const undatedCriminal = undatedCasesList.filter(c => (c.caseType || '').toLowerCase() === 'criminal').length;
+  const undatedRevenue = undatedCasesList.filter(c => (c.caseType || '').toLowerCase() === 'revenue').length;
+
+  const undatedCivilPct = undatedTotal > 0 ? Math.round((undatedCivil / undatedTotal) * 100) : 0;
+  const undatedCriminalPct = undatedTotal > 0 ? Math.round((undatedCriminal / undatedTotal) * 100) : 0;
+  const undatedRevenuePct = undatedTotal > 0 ? Math.max(0, 100 - undatedCivilPct - undatedCriminalPct) : 0;
+
+  const undatedGraphTotalEl = document.getElementById('undatedGraphTotal');
+  const undatedCivilCountEl = document.getElementById('undatedCivilCount');
+  const undatedCriminalCountEl = document.getElementById('undatedCriminalCount');
+  const undatedRevenueCountEl = document.getElementById('undatedRevenueCount');
+  const undatedCivilBarEl = document.getElementById('undatedCivilBar');
+  const undatedCriminalBarEl = document.getElementById('undatedCriminalBar');
+  const undatedRevenueBarEl = document.getElementById('undatedRevenueBar');
+  const undatedFooterNoticeEl = document.getElementById('undatedFooterNotice');
+
+  if (undatedGraphTotalEl) undatedGraphTotalEl.textContent = String(undatedTotal);
+  if (undatedCivilCountEl) undatedCivilCountEl.textContent = `${undatedCivil} Cases (${undatedCivilPct}%)`;
+  if (undatedCriminalCountEl) undatedCriminalCountEl.textContent = `${undatedCriminal} Cases (${undatedCriminalPct}%)`;
+  if (undatedRevenueCountEl) undatedRevenueCountEl.textContent = `${undatedRevenue} Cases (${undatedRevenuePct}%)`;
+
+  if (undatedCivilBarEl) undatedCivilBarEl.style.width = `${undatedCivilPct}%`;
+  if (undatedCriminalBarEl) undatedCriminalBarEl.style.width = `${undatedCriminalPct}%`;
+  if (undatedRevenueBarEl) undatedRevenueBarEl.style.width = `${undatedRevenuePct}%`;
+
+  if (undatedFooterNoticeEl) {
+    undatedFooterNoticeEl.textContent = undatedTotal === 0 
+      ? '✅ All active cases have scheduled hearings' 
+      : `⚡ ${undatedTotal} ${undatedTotal === 1 ? 'matter requires' : 'matters require'} hearing dates`;
+  }
+
+  // SVG Donut segments (circumference = 2 * PI * 38 ≈ 238.76)
+  const donutCircumference = 238.76;
+  const segCivil = document.getElementById('donutSegmentCivil');
+  const segCrim = document.getElementById('donutSegmentCriminal');
+  const segRev = document.getElementById('donutSegmentRevenue');
+
+  if (segCivil && segCrim && segRev) {
+    if (undatedTotal === 0) {
+      segCivil.style.strokeDasharray = `0 ${donutCircumference}`;
+      segCrim.style.strokeDasharray = `0 ${donutCircumference}`;
+      segRev.style.strokeDasharray = `0 ${donutCircumference}`;
+    } else {
+      const lenCivil = (undatedCivil / undatedTotal) * donutCircumference;
+      const lenCrim = (undatedCriminal / undatedTotal) * donutCircumference;
+      const lenRev = (undatedRevenue / undatedTotal) * donutCircumference;
+
+      segCivil.style.strokeDasharray = `${lenCivil} ${donutCircumference - lenCivil}`;
+      segCivil.style.strokeDashoffset = '0';
+
+      segCrim.style.strokeDasharray = `${lenCrim} ${donutCircumference - lenCrim}`;
+      segCrim.style.strokeDashoffset = `-${lenCivil}`;
+
+      segRev.style.strokeDasharray = `${lenRev} ${donutCircumference - lenRev}`;
+      segRev.style.strokeDashoffset = `-${lenCivil + lenCrim}`;
+    }
+  }
+
   // 5. Populate Today's Court Appearance Board Table
   if (todayCases.length === 0) {
     if (todayEmptyState) todayEmptyState.style.display = 'flex';
