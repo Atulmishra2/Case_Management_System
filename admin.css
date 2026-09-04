@@ -5542,8 +5542,8 @@ html, body {
 }
 
 .db-raw-table th {
-  position: sticky;
-  top: 0;
+  position: static;
+  top: auto;
   z-index: 10;
   background: var(--surface-subtle);
   color: var(--text-secondary);
@@ -8320,7 +8320,7 @@ html, body {
   box-shadow: 0 10px 24px -4px rgba(0, 105, 92, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.04) !important;
 }
 
-/* --- 5.4 Sticky Modern Table Headers & Scrollable Table Polish --- */
+/* --- 5.4 Modern Table Headers & Scrollable Table Polish (Non-Sticky) --- */
 .table-responsive {
   border-radius: 12px !important;
   border: 1px solid #e2e8f0 !important;
@@ -8328,7 +8328,7 @@ html, body {
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch !important;
   position: relative !important;
-  max-height: 72vh !important;
+  max-height: none !important;
 }
 
 .table-responsive::-webkit-scrollbar {
@@ -8340,9 +8340,9 @@ html, body {
 .court-table thead th,
 .causelist-table thead th,
 .db-raw-table thead th {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 10 !important;
+  position: static !important;
+  top: auto !important;
+  z-index: 1 !important;
   background-color: #00695c !important;
   color: #ffffff !important;
   font-weight: 700 !important;
