@@ -3547,248 +3547,205 @@ html, body {
 /* ==============================================================================
    Bridge in Progress Modal Card UI (Visual Reference Implementation)
    ============================================================================== */
+/* ==============================================================================
+   Upcoming Hearings (Next 7 Days) - Attractive Modern Card Experience
+   ============================================================================== */
 .bridge-modal-page-wrapper {
-  background-color: #f5f6f8 !important;
+  background: #f8fafc !important;
   min-height: calc(100vh - 120px) !important;
   display: flex !important;
-  justify-content: center !important;
-  align-items: flex-start !important;
-  padding: 48px 16px 64px 16px !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  padding: 32px 20px 64px 20px !important;
   box-sizing: border-box !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
-.bridge-modal-card {
+.upcoming-header-banner {
   width: 100% !important;
-  max-width: 420px !important;
-  background-color: #ffffff !important;
-  border-radius: 22px !important;
-  border: 1px solid #e5e7eb !important;
-  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.02) !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
-  margin: 0 auto !important;
-}
-
-.bridge-card-header {
-  background-color: #dcf2e3 !important;
-  padding: 16px 20px !important;
+  max-width: 1320px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 18px !important;
+  padding: 20px 24px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.02) !important;
+  margin-bottom: 28px !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+  box-sizing: border-box !important;
+}
+
+.upcoming-header-title-box {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+
+.upcoming-header-icon {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 20px !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28) !important;
+}
+
+.upcoming-header-title-box h2 {
+  margin: 0 !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.02em !important;
+}
+
+.upcoming-header-title-box p {
+  margin: 3px 0 0 0 !important;
+  font-size: 13px !important;
+  color: #64748b !important;
+}
+
+.upcoming-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.upcoming-count-pill {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+  border-radius: 9999px !important;
+  padding: 6px 16px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.bridge-modal-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 390px)) !important;
+  justify-content: center !important;
+  gap: 28px !important;
+  width: 100% !important;
+  max-width: 1320px !important;
+  margin: 0 auto !important;
+}
+
+.bridge-modal-card {
+  width: 100% !important;
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.05), 0 4px 8px -2px rgba(15, 23, 42, 0.02) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+  position: relative !important;
+}
+
+.bridge-modal-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 18px 36px -6px rgba(15, 23, 42, 0.09), 0 8px 16px -4px rgba(15, 23, 42, 0.04) !important;
+  border-color: #cbd5e1 !important;
+}
+
+.bridge-card-header {
+  background: #f0fdf4 !important;
+  border-bottom: 1px solid #dcfce7 !important;
+  padding: 14px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.bridge-card-header.is-urgent {
+  background: #fef2f2 !important;
+  border-bottom-color: #fee2e2 !important;
+}
+
+.bridge-header-status-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.bridge-status-pulse-dot {
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  background: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25) !important;
+}
+
+.bridge-card-header.is-urgent .bridge-status-pulse-dot {
+  background: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
 }
 
 .bridge-header-title {
-  font-size: 16.5px !important;
-  font-weight: 600 !important;
-  color: #1e693b !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: #166534 !important;
   letter-spacing: -0.01em !important;
 }
 
+.bridge-card-header.is-urgent .bridge-header-title {
+  color: #991b1b !important;
+}
+
 .bridge-close-btn {
-  width: 32px !important;
-  height: 32px !important;
+  width: 30px !important;
+  height: 30px !important;
   background-color: #ffffff !important;
-  border-radius: 9px !important;
-  border: none !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   cursor: pointer !important;
-  color: #1f2937 !important;
+  color: #64748b !important;
   font-size: 13px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
-  transition: opacity 0.15s ease, transform 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.15s ease !important;
   padding: 0 !important;
 }
 
 .bridge-close-btn:hover {
-  opacity: 0.85 !important;
-  transform: scale(0.96) !important;
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  transform: scale(1.04) !important;
 }
 
 .bridge-card-body {
-  padding: 20px 22px 24px 22px !important;
+  padding: 20px 22px 22px 22px !important;
   background-color: #ffffff !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
 }
 
 .bridge-illustration-placeholder {
   width: 100% !important;
-  height: 148px !important;
-  background-color: #f3f4f6 !important;
+  min-height: 126px !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 14px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  margin-bottom: 22px !important;
+  margin-bottom: 18px !important;
   overflow: hidden !important;
-}
-
-.bridge-illustration-svg {
-  display: block !important;
-  max-height: 100% !important;
-}
-
-.bridge-tx-info-list {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 13px !important;
-  margin-bottom: 20px !important;
-}
-
-.bridge-info-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-}
-
-.bridge-info-label {
-  color: #6b7280 !important;
-  font-weight: 400 !important;
-}
-
-.bridge-info-value {
-  color: #1f2937 !important;
-  font-weight: 500 !important;
-  text-align: right !important;
-}
-
-.bridge-green-link {
-  color: #16a34a !important;
-  font-weight: 600 !important;
-  text-decoration: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 5px !important;
-  font-size: 14px !important;
-  transition: color 0.15s ease !important;
-}
-
-.bridge-green-link:hover {
-  color: #15803d !important;
-  text-decoration: none !important;
-}
-
-.bridge-green-link i {
-  font-size: 11.5px !important;
-}
-
-.bridge-divider {
-  height: 1px !important;
-  background-color: #f0f1f3 !important;
-  margin: 18px 0 22px 0 !important;
-  border: none !important;
-}
-
-.bridge-progress-stepper {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr !important;
-  gap: 6px !important;
-  text-align: center !important;
-  margin-bottom: 22px !important;
-}
-
-.bridge-step-circle {
-  width: 26px !important;
-  height: 26px !important;
-  border-radius: 50% !important;
-  background-color: #f3f4f6 !important;
-  color: #6b7280 !important;
-  font-size: 12.5px !important;
-  font-weight: 600 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 0 auto 8px auto !important;
-}
-
-.bridge-step.active .bridge-step-circle {
-  background-color: #168a3b !important;
-  color: #ffffff !important;
-  font-weight: 700 !important;
-}
-
-.bridge-step-title {
-  font-size: 13.5px !important;
-  font-weight: 600 !important;
-  color: #1f2937 !important;
-  margin-bottom: 2px !important;
-  line-height: 1.3 !important;
-}
-
-.bridge-step.active .bridge-step-title {
-  color: #168a3b !important;
-}
-
-.bridge-step-time {
-  font-size: 12px !important;
-  color: #6b7280 !important;
-  font-weight: 400 !important;
-}
-
-.bridge-warning-box {
-  background-color: #fbf6ec !important;
-  border: 1px solid #faeed0 !important;
-  border-radius: 12px !important;
-  padding: 12px 14px !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  gap: 10px !important;
-  margin-bottom: 22px !important;
-  text-align: left !important;
-  box-sizing: border-box !important;
-}
-
-.bridge-warning-icon {
-  color: #b45309 !important;
-  font-size: 13.5px !important;
-  line-height: 1.3 !important;
-  flex-shrink: 0 !important;
-  margin-top: 1px !important;
-}
-
-.bridge-warning-text {
-  color: #b45309 !important;
-  font-size: 11.5px !important;
-  line-height: 1.45 !important;
-  font-weight: 400 !important;
-}
-
-.bridge-action-button {
-  width: 100% !important;
-  height: 48px !important;
-  background-color: #ffffff !important;
-  border: 1.5px solid #e5e7eb !important;
-  border-radius: 9999px !important;
-  color: #1f2937 !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-  outline: none !important;
-}
-
-.bridge-action-button:hover {
-  background-color: #f9fafb !important;
-  border-color: #d1d5db !important;
-}
-
-.bridge-modal-grid {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  justify-content: center !important;
-  gap: 28px !important;
-  width: 100% !important;
-  max-width: 1300px !important;
-  margin: 0 auto !important;
+  position: relative !important;
 }
 
 .bridge-hero-content {
@@ -3797,7 +3754,7 @@ html, body {
   align-items: center !important;
   justify-content: center !important;
   text-align: center !important;
-  padding: 14px 18px !important;
+  padding: 16px !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
@@ -3805,24 +3762,30 @@ html, body {
 .bridge-hero-badge-row {
   display: flex !important;
   align-items: center !important;
+  justify-content: center !important;
   gap: 8px !important;
-  margin-bottom: 8px !important;
+  margin-bottom: 9px !important;
+  flex-wrap: wrap !important;
 }
 
 .bridge-day-badge {
   background: #ffffff !important;
-  color: #15803d !important;
-  border: 1px solid #bbf7d0 !important;
-  border-radius: 20px !important;
-  padding: 3px 10px !important;
-  font-size: 11.5px !important;
+  color: #059669 !important;
+  border: 1px solid #a7f3d0 !important;
+  border-radius: 9999px !important;
+  padding: 3.5px 12px !important;
+  font-size: 11px !important;
   font-weight: 700 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  letter-spacing: 0.02em !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
 }
 
 .bridge-day-badge.today {
   background: #fef2f2 !important;
-  color: #b91c1c !important;
+  color: #dc2626 !important;
   border-color: #fecaca !important;
 }
 
@@ -3830,20 +3793,210 @@ html, body {
   font-size: 18px !important;
   font-weight: 800 !important;
   color: #0f172a !important;
-  letter-spacing: -0.01em !important;
-  margin: 0 0 4px 0 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 5px 0 !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
 }
 
 .bridge-hero-casename {
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  color: #475569 !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
   margin: 0 !important;
-  max-width: 90% !important;
+  max-width: 96% !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+  line-height: 1.4 !important;
+}
+
+.bridge-tx-info-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 11px !important;
+  margin-bottom: 18px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 13px 15px !important;
+}
+
+.bridge-info-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+
+.bridge-info-label {
+  color: #64748b !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+
+.bridge-info-label i {
+  font-size: 13px !important;
+  color: #94a3b8 !important;
+  width: 14px !important;
+  text-align: center !important;
+}
+
+.bridge-info-value {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+  text-align: right !important;
+  max-width: 60% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.bridge-green-link {
+  color: #059669 !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 12.5px !important;
+  background: #ffffff !important;
+  border: 1px solid #d1fae5 !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+.bridge-green-link:hover {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+  transform: translateY(-1px) !important;
+  text-decoration: none !important;
+}
+
+.bridge-green-link i {
+  font-size: 11px !important;
+}
+
+.bridge-divider {
+  height: 1px !important;
+  background-color: #f1f5f9 !important;
+  margin: 0 0 18px 0 !important;
+  border: none !important;
+}
+
+.bridge-progress-stepper {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 8px !important;
+  text-align: center !important;
+  margin-bottom: 18px !important;
+}
+
+.bridge-step {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  position: relative !important;
+}
+
+.bridge-step-circle {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background-color: #f1f5f9 !important;
+  color: #64748b !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 6px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.bridge-step.active .bridge-step-circle {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35) !important;
+}
+
+.bridge-step-title {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  margin-bottom: 2px !important;
+  line-height: 1.3 !important;
+}
+
+.bridge-step.active .bridge-step-title {
+  color: #047857 !important;
+}
+
+.bridge-step-time {
+  font-size: 11px !important;
+  color: #64748b !important;
+  font-weight: 500 !important;
+}
+
+.bridge-warning-box {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+  border: 1px solid #fde68a !important;
+  border-radius: 12px !important;
+  padding: 11px 14px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  margin-bottom: 18px !important;
+  text-align: left !important;
+  box-sizing: border-box !important;
+}
+
+.bridge-warning-icon {
+  color: #d97706 !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+}
+
+.bridge-warning-text {
+  color: #92400e !important;
+  font-size: 11.5px !important;
+  line-height: 1.45 !important;
+  font-weight: 500 !important;
+}
+
+.bridge-action-button {
+  width: 100% !important;
+  height: 44px !important;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15) !important;
+  outline: none !important;
+  margin-top: auto !important;
+}
+
+.bridge-action-button:hover {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22) !important;
 }
 
 /* ==============================================================================

@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=4.8">
+    <link rel="stylesheet" href="admin.css?v=4.9">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -859,11 +859,32 @@
             <!-- Upcoming Hearings Tab: Recreated visual reference adapted for Legal Case Management -->
             <div id="upcoming" class="tab">
                 <div class="bridge-modal-page-wrapper">
+                    <!-- Modern Section Header Banner -->
+                    <div class="upcoming-header-banner">
+                        <div class="upcoming-header-title-box">
+                            <div class="upcoming-header-icon"><i class="fa-solid fa-calendar-week"></i></div>
+                            <div>
+                                <h2>Upcoming Court Hearings</h2>
+                                <p>Scheduled court appearances, listings, and hearing procedures for the next 7 days</p>
+                            </div>
+                        </div>
+                        <div class="upcoming-header-actions">
+                            <span id="upcomingTotalBadge" class="upcoming-count-pill">
+                                <i class="fa-solid fa-gavel"></i> 0 Hearings Listed
+                            </span>
+                            <button type="button" class="primary-btn" style="height: 38px; padding: 0 16px; font-size: 13px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px;" onclick="showTab('calendar')">
+                                <i class="fa-regular fa-calendar"></i> Full Calendar
+                            </button>
+                        </div>
+                    </div>
+
                     <div id="upcomingWeekContainer" class="bridge-modal-grid">
                         <div class="bridge-modal-card">
-                            <!-- Top status header with soft light-green background -->
                             <div class="bridge-card-header">
-                                <span class="bridge-header-title">Court Hearing in Progress</span>
+                                <div class="bridge-header-status-badge">
+                                    <span class="bridge-status-pulse-dot"></span>
+                                    <span class="bridge-header-title">Court Hearing in Progress</span>
+                                </div>
                                 <button type="button" class="bridge-close-btn" aria-label="Close" onclick="showTab('home')" title="Back to Dashboard">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
@@ -871,11 +892,11 @@
 
                             <!-- Card Inner Body -->
                             <div class="bridge-card-body">
-                                <!-- Large light-gray image/illustration placeholder section -->
+                                <!-- Hero section with badge and details -->
                                 <div class="bridge-illustration-placeholder">
                                     <div class="bridge-hero-content">
                                         <div class="bridge-hero-badge-row">
-                                            <span class="bridge-day-badge">Upcoming Listing</span>
+                                            <span class="bridge-day-badge"><i class="fa-regular fa-clock"></i> Upcoming Listing</span>
                                             <span class="case-badge civil">CIVIL</span>
                                         </div>
                                         <h3 class="bridge-hero-caseno">Loading hearings...</h3>
@@ -886,23 +907,23 @@
                                 <!-- Case information displayed in clean two-column rows -->
                                 <div class="bridge-tx-info-list">
                                     <div class="bridge-info-row">
-                                        <span class="bridge-info-label">Court / Forum</span>
+                                        <span class="bridge-info-label"><i class="fa-solid fa-landmark"></i> Court / Forum</span>
                                         <span class="bridge-info-value">🏛️ District Court</span>
                                     </div>
                                     <div class="bridge-info-row">
-                                        <span class="bridge-info-label">Hearing Stage</span>
+                                        <span class="bridge-info-label"><i class="fa-solid fa-stairs"></i> Hearing Stage</span>
                                         <span class="bridge-info-value">📌 Scheduled Appearance</span>
                                     </div>
                                     <div class="bridge-info-row">
-                                        <span class="bridge-info-label">Case Dossier</span>
+                                        <span class="bridge-info-label"><i class="fa-solid fa-folder-open"></i> Case Dossier</span>
                                         <a href="javascript:void(0);" onclick="showTab('search')" class="bridge-green-link">
-                                            Open Case Dossier <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            Open Dossier <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                         </a>
                                     </div>
                                     <div class="bridge-info-row">
-                                        <span class="bridge-info-label">Client Notice</span>
+                                        <span class="bridge-info-label"><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> Client Notice</span>
                                         <a href="javascript:void(0);" class="bridge-green-link">
-                                            WhatsApp Notice <i class="fa-brands fa-whatsapp"></i>
+                                            Send Notice <i class="fa-brands fa-whatsapp"></i>
                                         </a>
                                     </div>
                                 </div>
@@ -913,7 +934,7 @@
                                 <!-- Three-step progress indicator -->
                                 <div class="bridge-progress-stepper">
                                     <div class="bridge-step active">
-                                        <div class="bridge-step-circle">1.</div>
+                                        <div class="bridge-step-circle"><i class="fa-solid fa-check" style="font-size: 11px;"></i></div>
                                         <div class="bridge-step-title">Filing & Notice</div>
                                         <div class="bridge-step-time">Completed</div>
                                     </div>
@@ -931,15 +952,15 @@
 
                                 <!-- Pale yellow warning/info box -->
                                 <div class="bridge-warning-box">
-                                    <span class="bridge-warning-icon">⚠</span>
+                                    <span class="bridge-warning-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>
                                     <div class="bridge-warning-text">
-                                        Court Preparation Advisory: Ensure original case files, evidence documents, and client appearance coordinates are prepared prior to 10:30 AM.
+                                        Court Preparation Advisory: Ensure original case files, evidence documents, and client appearance coordinates are prepared prior to 10:30 AM roll call.
                                     </div>
                                 </div>
 
-                                <!-- Full-width rounded action button -->
+                                <!-- Full-width action button -->
                                 <button type="button" class="bridge-action-button" onclick="showTab('all')">
-                                    Inspect Complete Case Dossier →
+                                    <i class="fa-solid fa-folder-open"></i> Inspect Complete Case Dossier →
                                 </button>
                             </div>
                         </div>
@@ -947,7 +968,6 @@
                 </div>
 
                 <!-- Preserved Mount for existing scripts/services compatibility -->
-                <span id="upcomingTotalBadge" style="display: none;">0 Hearings Listed</span>
                 <span id="upcomingWeekCount" style="display: none;">0</span>
             </div>
 

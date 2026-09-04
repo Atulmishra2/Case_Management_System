@@ -4655,36 +4655,39 @@ function renderUpcomingWeekHearings() {
 
   if (upcoming.length === 0) {
     container.innerHTML = `
-      <div class="bridge-modal-card">
+      <div class="bridge-modal-card" style="max-width: 480px; margin: 20px auto;">
         <div class="bridge-card-header">
-          <span class="bridge-header-title">Court Hearing Schedule</span>
+          <div class="bridge-header-status-badge">
+            <span class="bridge-status-pulse-dot"></span>
+            <span class="bridge-header-title">Court Hearing Schedule</span>
+          </div>
           <button type="button" class="bridge-close-btn" aria-label="Close" onclick="showTab('home')" title="Back to Dashboard">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-        <div class="bridge-card-body">
-          <div class="bridge-illustration-placeholder" style="flex-direction: column; gap: 8px;">
-            <span style="font-size: 38px;">⚖️</span>
-            <div style="font-weight: 700; color: #1e293b; font-size: 15px;">All Clear for Next 7 Days</div>
-            <div style="font-size: 12.5px; color: #64748b;">No court appearances scheduled this week</div>
+        <div class="bridge-card-body" style="text-align: center; padding: 32px 26px;">
+          <div class="bridge-illustration-placeholder" style="flex-direction: column; gap: 10px; min-height: 140px; margin-bottom: 22px;">
+            <span style="font-size: 44px; filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.2));">⚖️</span>
+            <div style="font-weight: 800; color: #0f172a; font-size: 17px; letter-spacing: -0.01em;">All Clear for Next 7 Days</div>
+            <div style="font-size: 13px; color: #64748b; max-width: 85%; line-height: 1.4;">No court appearances or hearing deadlines scheduled for this week.</div>
           </div>
-          <div class="bridge-tx-info-list">
+          <div class="bridge-tx-info-list" style="text-align: left;">
             <div class="bridge-info-row">
-              <span class="bridge-info-label">Schedule Window</span>
+              <span class="bridge-info-label"><i class="fa-regular fa-calendar-check"></i> Schedule Window</span>
               <span class="bridge-info-value">Next 7 Days</span>
             </div>
             <div class="bridge-info-row">
-              <span class="bridge-info-label">Active Listings</span>
-              <span class="bridge-info-value">0 Hearings</span>
+              <span class="bridge-info-label"><i class="fa-solid fa-gavel"></i> Active Listings</span>
+              <span class="bridge-info-value">0 Hearings Scheduled</span>
             </div>
             <div class="bridge-info-row">
-              <span class="bridge-info-label">Daily Cause List</span>
+              <span class="bridge-info-label"><i class="fa-solid fa-clipboard-list"></i> Daily Cause List</span>
               <a href="javascript:void(0);" onclick="showTab('causelist')" class="bridge-green-link">
-                Open Daily Cause List <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                Open Cause List <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </a>
             </div>
             <div class="bridge-info-row">
-              <span class="bridge-info-label">Master Register</span>
+              <span class="bridge-info-label"><i class="fa-solid fa-folder-tree"></i> Master Register</span>
               <a href="javascript:void(0);" onclick="showTab('all')" class="bridge-green-link">
                 All Cases Register <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </a>
@@ -4693,29 +4696,29 @@ function renderUpcomingWeekHearings() {
           <div class="bridge-divider"></div>
           <div class="bridge-progress-stepper">
             <div class="bridge-step active">
-              <div class="bridge-step-circle">1.</div>
+              <div class="bridge-step-circle"><i class="fa-solid fa-check" style="font-size: 11px;"></i></div>
               <div class="bridge-step-title">Today</div>
               <div class="bridge-step-time">Checked</div>
             </div>
             <div class="bridge-step active">
-              <div class="bridge-step-circle">2.</div>
+              <div class="bridge-step-circle"><i class="fa-solid fa-check" style="font-size: 11px;"></i></div>
               <div class="bridge-step-title">7 Days</div>
               <div class="bridge-step-time">All Clear</div>
             </div>
             <div class="bridge-step">
               <div class="bridge-step-circle">3.</div>
-              <div class="bridge-step-title">Next Month</div>
+              <div class="bridge-step-title">Beyond</div>
               <div class="bridge-step-time">On Record</div>
             </div>
           </div>
           <div class="bridge-warning-box">
-            <span class="bridge-warning-icon">ℹ</span>
+            <span class="bridge-warning-icon"><i class="fa-solid fa-circle-info"></i></span>
             <div class="bridge-warning-text">
-              All court appearances for the coming week have been reviewed. To inspect hearings scheduled beyond 7 days, open the All Cases Register or Interactive Calendar.
+              All records up to date. To review hearings scheduled for later in the month or next quarter, visit the All Cases Register or Interactive Calendar.
             </div>
           </div>
           <button type="button" class="bridge-action-button" onclick="showTab('all')">
-            See All Registered Cases →
+            <i class="fa-solid fa-scale-balanced"></i> See All Registered Cases →
           </button>
         </div>
       </div>
@@ -4738,18 +4741,30 @@ function renderUpcomingWeekHearings() {
     const parsedHearing = parseDateString(c.nextHearing);
     let daysLeftText = '';
     let daysLeft = 0;
+    let isUrgent = false;
     if (parsedHearing) {
       const diffTime = parsedHearing.getTime() - todayZero.getTime();
       daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (daysLeft === 0) daysLeftText = 'Listed Today 🔥';
-      else if (daysLeft === 1) daysLeftText = 'Listed Tomorrow ⚡';
-      else daysLeftText = `Listed in ${daysLeft} Days`;
+      if (daysLeft === 0) {
+        daysLeftText = 'Listed Today 🔥';
+        isUrgent = true;
+      } else if (daysLeft === 1) {
+        daysLeftText = 'Listed Tomorrow ⚡';
+        isUrgent = true;
+      } else {
+        daysLeftText = `Listed in ${daysLeft} Days 📅`;
+      }
     }
+
+    const headerTitle = isUrgent ? (daysLeft === 0 ? 'Court Hearing Today' : 'Hearing Scheduled Tomorrow') : 'Court Hearing Scheduled';
 
     return `
       <div class="bridge-modal-card">
-        <div class="bridge-card-header">
-          <span class="bridge-header-title">Court Hearing in Progress</span>
+        <div class="bridge-card-header ${isUrgent ? 'is-urgent' : ''}">
+          <div class="bridge-header-status-badge">
+            <span class="bridge-status-pulse-dot"></span>
+            <span class="bridge-header-title">${headerTitle}</span>
+          </div>
           <button type="button" class="bridge-close-btn" aria-label="Close" onclick="showTab('home')" title="Back to Dashboard">
             <i class="fa-solid fa-xmark"></i>
           </button>
@@ -4759,7 +4774,10 @@ function renderUpcomingWeekHearings() {
           <div class="bridge-illustration-placeholder">
             <div class="bridge-hero-content">
               <div class="bridge-hero-badge-row">
-                <span class="bridge-day-badge ${daysLeft === 0 ? 'today' : ''}">${daysLeftText || 'Scheduled Listing'}</span>
+                <span class="bridge-day-badge ${daysLeft === 0 ? 'today' : ''}">
+                  ${daysLeft === 0 ? '<i class="fa-solid fa-fire"></i>' : (daysLeft === 1 ? '<i class="fa-solid fa-bolt"></i>' : '<i class="fa-regular fa-clock"></i>')}
+                  ${daysLeftText || 'Scheduled Listing'}
+                </span>
                 <span class="case-badge ${rawType}">${typeLabel}</span>
               </div>
               <h3 class="bridge-hero-caseno">${escapeHtml(caseNum)}</h3>
@@ -4769,27 +4787,27 @@ function renderUpcomingWeekHearings() {
 
           <div class="bridge-tx-info-list">
             <div class="bridge-info-row">
-              <span class="bridge-info-label">Court / Forum</span>
-              <span class="bridge-info-value">🏛️ ${escapeHtml(court)}</span>
+              <span class="bridge-info-label"><i class="fa-solid fa-landmark"></i> Court / Forum</span>
+              <span class="bridge-info-value" title="${escapeHtml(court)}">${escapeHtml(court)}</span>
             </div>
             <div class="bridge-info-row">
-              <span class="bridge-info-label">Hearing Stage</span>
-              <span class="bridge-info-value">📌 ${escapeHtml(stage)}</span>
+              <span class="bridge-info-label"><i class="fa-solid fa-stairs"></i> Hearing Stage</span>
+              <span class="bridge-info-value" title="${escapeHtml(stage)}">${escapeHtml(stage)}</span>
             </div>
             <div class="bridge-info-row">
-              <span class="bridge-info-label">Client Name</span>
-              <span class="bridge-info-value">👤 ${escapeHtml(clientName)}${clientPhone ? ` (${escapeHtml(clientPhone)})` : ''}</span>
+              <span class="bridge-info-label"><i class="fa-solid fa-user-tie"></i> Client Name</span>
+              <span class="bridge-info-value" title="${escapeHtml(clientName)}">${escapeHtml(clientName)}${clientPhone ? ` (${escapeHtml(clientPhone)})` : ''}</span>
             </div>
             <div class="bridge-info-row">
-              <span class="bridge-info-label">Case Dossier</span>
-              <a href="javascript:void(0);" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNum)}')" class="bridge-green-link">
-                Open Case Dossier <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              <span class="bridge-info-label"><i class="fa-solid fa-folder-open"></i> Case Dossier</span>
+              <a href="javascript:void(0);" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNum)}')" class="bridge-green-link" title="Open complete case file">
+                Open Dossier <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </a>
             </div>
             <div class="bridge-info-row">
-              <span class="bridge-info-label">Client Notice</span>
-              <a href="javascript:void(0);" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNum)}')" class="bridge-green-link">
-                WhatsApp Notice <i class="fa-brands fa-whatsapp"></i>
+              <span class="bridge-info-label"><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> Client Notice</span>
+              <a href="javascript:void(0);" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNum)}')" class="bridge-green-link" title="Send WhatsApp alert to client">
+                Send Notice <i class="fa-brands fa-whatsapp"></i>
               </a>
             </div>
           </div>
@@ -4798,11 +4816,11 @@ function renderUpcomingWeekHearings() {
 
           <div class="bridge-progress-stepper">
             <div class="bridge-step active">
-              <div class="bridge-step-circle">1.</div>
+              <div class="bridge-step-circle"><i class="fa-solid fa-check" style="font-size: 11px;"></i></div>
               <div class="bridge-step-title">Filing & Notice</div>
               <div class="bridge-step-time">Completed</div>
             </div>
-            <div class="bridge-step ${daysLeft === 0 ? 'active' : ''}">
+            <div class="bridge-step active">
               <div class="bridge-step-circle">2.</div>
               <div class="bridge-step-title">Court Hearing</div>
               <div class="bridge-step-time">${dateFormatted}</div>
@@ -4815,14 +4833,14 @@ function renderUpcomingWeekHearings() {
           </div>
 
           <div class="bridge-warning-box">
-            <span class="bridge-warning-icon">⚠</span>
+            <span class="bridge-warning-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>
             <div class="bridge-warning-text">
-              ${remark ? `<strong>Case Note:</strong> ${escapeHtml(remark)}` : 'Court Preparation Advisory: Ensure original case files, evidence documents, and client appearance coordinates are prepared prior to 10:30 AM.'}
+              ${remark ? `<strong>Case Note:</strong> ${escapeHtml(remark)}` : 'Court Preparation Advisory: Ensure original case files, evidence documents, and client appearance coordinates are prepared prior to 10:30 AM roll call.'}
             </div>
           </div>
 
           <button type="button" class="bridge-action-button" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNum)}')">
-            Inspect Complete Case Dossier →
+            <i class="fa-solid fa-folder-open"></i> Inspect Complete Case Dossier →
           </button>
         </div>
       </div>
