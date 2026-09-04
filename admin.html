@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=4.5">
+    <link rel="stylesheet" href="admin.css?v=4.6">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -1076,11 +1076,22 @@
 
             <!-- Calendar View Tab: visual monthly scheduler for court hearings -->
             <div id="calendar" class="tab">
+                <!-- Section Header Title -->
+                <div class="section-header-row">
+                    <div class="section-title-box">
+                        <div class="section-icon-badge calendar-gradient-badge"><i class="fa-solid fa-calendar-days"></i></div>
+                        <div>
+                            <h3>Court Hearing Calendar &amp; Scheduler</h3>
+                            <p class="section-subtitle">Visual monthly court appearance scheduler, hearing timeline, and daily cause list planner</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="calendar-wrapper-card">
                     <div class="calendar-top-bar">
                         <div class="calendar-header-titles">
                             <h2 id="calendarMonthYear">September 2026</h2>
-                            <p class="section-subtitle">Visual Court Hearing Scheduler & Case Appearances</p>
+                            <p class="section-subtitle">Visual Court Hearing Scheduler &amp; Case Appearances</p>
                         </div>
                         <div class="calendar-controls">
                             <button type="button" id="calPrevMonthBtn" class="cal-nav-btn" title="Previous Month">◀ Prev</button>
@@ -1109,8 +1120,8 @@
                         </div>
                     </div>
 
-                    <!-- 7-Day Weekday Headers & Calendar Days Grid -->
-                    <div class="table-responsive">
+                    <!-- 7-Day Weekday Headers & Calendar Days Grid (No Scrollbar, Padded Container) -->
+                    <div class="calendar-grid-container">
                         <div class="calendar-grid-wrapper">
                             <div class="calendar-weekdays">
                                 <div>SUN</div>
