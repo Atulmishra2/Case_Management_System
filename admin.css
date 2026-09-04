@@ -2251,6 +2251,96 @@ html, body {
   transform: translateY(-1px);
 }
 
+/* Dedicated Separated Case Disposal Card */
+.case-disposal-card {
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+  border: 1.5px solid #a7f3d0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.08);
+  transition: all 0.2s ease;
+}
+
+.case-disposal-card:hover,
+.case-disposal-card:focus-within {
+  border-color: #10b981;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
+}
+
+.disposal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.disposal-card-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.disposal-icon-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #d1fae5;
+  color: #047857;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  border: 1px solid #6ee7b7;
+}
+
+.disposal-card-title {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #065f46;
+}
+
+.disposal-card-sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #047857;
+}
+
+.disposal-card-body textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: #1e293b;
+  background: #ffffff;
+  resize: vertical;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.disposal-card-body textarea:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.disposal-card-footer {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.disposal-footer-tip {
+  font-size: 12px;
+  color: #047857;
+}
+
 /* ==============================================================================
    Courts Tab Directory & Custom Input Action Row
    ============================================================================== */

@@ -2218,14 +2218,13 @@
                     </div>
 
                     <form id="updateCaseForm">
-                        <!-- Case Status & Remark Control Panel -->
+                        <!-- Card 1: Case Status & Co-Parties Card -->
                         <div class="case-status-card">
                             <div class="status-header-row">
                                 <div class="status-label-col">
-                                    <label for="updateCaseStatus">Case Status & Disposal</label>
-                                    <span class="status-help-text">Set case status and add disposal remarks</span>
+                                    <label for="updateCaseStatus">Case Status &amp; Co-Parties</label>
+                                    <span class="status-help-text">Set case active/disposed status and manage multiple co-parties</span>
                                 </div>
-                                <button type="button" id="markDisposeBtn" class="dispose-action-btn">⚖️ Dispose Off Case</button>
                             </div>
                             <div class="form-grid-2col">
                                 <div class="form-group">
@@ -2235,7 +2234,7 @@
                                         <option value="Disposed">✅ Disposed Off</option>
                                     </select>
                                 </div>
-                                <!-- 1. Parties / Co-Parties Remark (For multiple parties, co-plaintiffs, co-defendants, co-accused) -->
+                                <!-- Parties / Co-Parties Remark (For multiple parties, co-plaintiffs, co-defendants, co-accused) -->
                                 <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
                                     <div class="remarks-box-header">
                                         <div class="remarks-box-title-wrap">
@@ -2256,28 +2255,35 @@
                                         <span class="remarks-box-tip">💡 <b>Multiple Parties:</b> Use this remark field to record all additional parties, co-plaintiffs, co-defendants, or co-accused in this matter.</span>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                <!-- 2. Disposal Comment / Judgment Notes (For final disposal order notes & comments) -->
-                                <div style="grid-column: 1 / -1; margin-top: 10px;" class="remarks-coparties-box disposal-comment-box">
-                                    <div class="remarks-box-header">
-                                        <div class="remarks-box-title-wrap">
-                                            <span class="remarks-box-icon">⚖️</span>
-                                            <label for="updateCaseDisposalComment" class="remarks-box-label">Disposal Comment / Judgment Notes (निस्तारण टिप्पणी)</label>
-                                        </div>
-                                        <span class="remarks-searchable-badge" style="background:#ecfdf5; color:#065f46; border-color:#a7f3d0;">✅ Saved in Case Record</span>
+                        <!-- Card 2: Dedicated Separated Case Disposal Card -->
+                        <div class="case-disposal-card" id="updateCaseDisposalCard">
+                            <div class="disposal-card-header">
+                                <div class="disposal-card-title-wrap">
+                                    <div class="disposal-icon-badge">⚖️</div>
+                                    <div>
+                                        <h4 class="disposal-card-title">Case Disposal &amp; Judgment Record (वाद निस्तारण एवं अंतिम निर्णय)</h4>
+                                        <p class="disposal-card-sub">Record final disposal reason, compromise agreement, or judgment comments</p>
                                     </div>
-                                    <div class="remarks-quick-chips">
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Settled by mutual compromise')">➕ Compromise</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Allowed / Disposed on merits')">➕ Disposed Merits</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Dismissed in default')">➕ Dismissed Default</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Withdrawn with liberty')">➕ Withdrawn</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Acquitted / Discharged')">➕ Acquitted</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Decreed in favor of plaintiff')">➕ Decreed</span>
-                                    </div>
-                                    <textarea id="updateCaseDisposalComment" rows="2" placeholder="e.g. Disposed on merits; compromise deed filed and verified; suit decreed in terms of settlement..."></textarea>
-                                    <div class="remarks-box-footer">
-                                        <span class="remarks-box-tip">💡 <b>Disposal Tracking:</b> Record the reason, order details, or judgment terms when a case is disposed or when updating disposal comments.</span>
-                                    </div>
+                                </div>
+                                <button type="button" id="markDisposeBtn" class="dispose-action-btn" title="Quickly mark this case as Disposed Off">
+                                    ⚖️ Mark as Disposed Off
+                                </button>
+                            </div>
+                            <div class="disposal-card-body">
+                                <div class="remarks-quick-chips">
+                                    <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Settled by mutual compromise')">➕ Compromise</span>
+                                    <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Allowed / Disposed on merits')">➕ Disposed Merits</span>
+                                    <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Dismissed in default')">➕ Dismissed Default</span>
+                                    <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Withdrawn with liberty')">➕ Withdrawn</span>
+                                    <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Acquitted / Discharged')">➕ Acquitted</span>
+                                    <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Decreed in favor of plaintiff')">➕ Decreed</span>
+                                </div>
+                                <textarea id="updateCaseDisposalComment" rows="2" placeholder="e.g. Disposed on merits; compromise deed filed and verified; suit decreed in terms of settlement..."></textarea>
+                                <div class="disposal-card-footer">
+                                    <span class="disposal-footer-tip">💡 <b>Disposal Index:</b> When marked as disposed, these judgment notes will appear in the Disposed Cases register, All Cases table, and Case Dossier.</span>
                                 </div>
                             </div>
                         </div>
