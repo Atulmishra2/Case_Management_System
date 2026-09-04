@@ -729,11 +729,12 @@
                                     <th>Court</th>
                                     <th>Status</th>
                                     <th>Next Hearing</th>
+                                    <th class="table-actions-th" style="text-align: center; width: 80px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="9" class="no-results">Loading cases...</td>
+                                    <td colspan="10" class="no-results">Loading cases...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -3320,20 +3321,19 @@
                         </div>
                     </div>
 
-                    <!-- Master Table: Zero horizontal scroll container (scrollable=false, table-layout: fixed) -->
-                    <div class="all-cases-table-wrapper rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                        <table id="allCasesTable" class="all-cases-fixed-table divide-y divide-slate-200 text-left text-sm text-slate-700">
+                    <div class="table-responsive all-cases-table-wrapper overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                        <table id="allCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table all-cases-fixed-table">
                             <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                                 <tr>
-                                    <th style="width: 9%;">Case Number</th>
-                                    <th style="width: 17%;">Case Name</th>
-                                    <th style="width: 12%;">Court / Forum</th>
-                                    <th style="width: 10%;">Client Name</th>
-                                    <th style="width: 8%; text-align: center; white-space: nowrap;">Status</th>
-                                    <th style="width: 14%;">Parties Remark</th>
-                                    <th style="width: 14%;">Disposal Comment</th>
-                                    <th style="width: 8%; text-align: center; white-space: nowrap;">Next Hearing</th>
-                                    <th class="table-actions-th" style="width: 8%; text-align: center; white-space: nowrap;">Actions</th>
+                                    <th>Case Number</th>
+                                    <th>Case Name</th>
+                                    <th>Court / Forum</th>
+                                    <th>Client Name</th>
+                                    <th style="text-align: center;">Status</th>
+                                    <th>Parties Remark</th>
+                                    <th>Disposal Comment</th>
+                                    <th style="text-align: center;">Next Hearing</th>
+                                    <th class="table-actions-th" style="text-align: center;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white"></tbody>

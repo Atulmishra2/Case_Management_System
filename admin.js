@@ -3272,7 +3272,7 @@ function filterCaseTables(forceShowAll = false) {
   }
 
   if (matches.length === 0) {
-    resultsBody.innerHTML = '<tr><td colspan="9" class="no-results">No cases found matching the specified filters. Try clearing or changing your filters.</td></tr>';
+    resultsBody.innerHTML = '<tr><td colspan="10" class="no-results">No cases found matching the specified filters. Try clearing or changing your filters.</td></tr>';
     renderSelectedCaseDetails(null);
     return;
   }
@@ -3307,6 +3307,12 @@ function filterCaseTables(forceShowAll = false) {
       <td>${escapeHtml(courtName)}</td>
       <td>${statusBadge}</td>
       <td><strong>${nextHearing}</strong></td>
+      <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
+        <div class="all-cases-actions-cell" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+          <button type="button" class="all-cases-action-btn details-btn" onclick="event.stopPropagation(); openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Proceedings & Dossier"><i class="fa-solid fa-eye"></i></button>
+          <button type="button" class="all-cases-action-btn edit-btn" onclick="event.stopPropagation(); editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case Details"><i class="fa-solid fa-pen-to-square"></i></button>
+        </div>
+      </td>
     `;
 
     const caseNumTd = tr.children ? tr.children[1] : (tr.querySelectorAll ? tr.querySelectorAll('td')[1] : null);
@@ -4711,10 +4717,10 @@ function renderAllCasesTableWithFilters(resetPage = true) {
         <td class="case-remark-cell">${partiesRemarkHtml}</td>
         <td class="case-disposal-cell">${disposalCommentHtml}</td>
         <td class="all-cases-date-cell">${nextHearingStr}</td>
-        <td class="all-cases-actions-cell-td table-actions-td">
-          <div class="all-cases-actions-cell">
-            <button type="button" class="all-cases-action-btn details-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Proceedings & Dossier"><i class="fa-solid fa-eye"></i><span class="btn-text"> View</span></button>
-            <button type="button" class="all-cases-action-btn edit-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
+        <td class="all-cases-actions-cell-td table-actions-td" style="white-space: nowrap; text-align: center;">
+          <div class="all-cases-actions-cell" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+            <button type="button" class="all-cases-action-btn details-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Proceedings & Dossier"><i class="fa-solid fa-eye"></i></button>
+            <button type="button" class="all-cases-action-btn edit-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case Details"><i class="fa-solid fa-pen-to-square"></i></button>
           </div>
         </td>
       </tr>
