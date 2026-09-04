@@ -3972,7 +3972,7 @@ function renderAllCasesTableWithFilters(resetPage = true) {
   if (totalFiltered === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="9" class="no-results" style="text-align: center; padding: 2rem; color: #64748b;">
+        <td colspan="7" class="no-results" style="text-align: center; padding: 2rem; color: #64748b;">
           🔍 No cases match the selected filters or search query.
           <br><button type="button" class="table-view-btn" onclick="resetAllCasesFilters()" style="margin-top: 8px; font-size: 0.8rem;">Clear Filters</button>
         </td>
@@ -3985,7 +3985,6 @@ function renderAllCasesTableWithFilters(resetPage = true) {
 
   tbody.innerHTML = pageRecords.map(c => {
     const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
-    const rawType = (c.caseType || 'civil').toLowerCase();
 
     // Sanitize case name and avoid bare 'vs'
     let caseName = (c.caseName || '').trim();
@@ -4019,15 +4018,9 @@ function renderAllCasesTableWithFilters(resetPage = true) {
       statusBadge = '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
     }
 
-    const filingDateRaw = c.filingDate || c.crimeFilingDate;
-    const filingDateStr = filingDateRaw ? formatDateDMY(filingDateRaw) : '<span style="color: #94a3b8;">—</span>';
     const nextHearingStr = isUndated
       ? '<span style="color: #d97706; font-weight: 600;">—</span>'
       : `<strong>${formatDateDMY(c.nextHearing)}</strong>`;
-
-    const typeBadgeLabel = rawType === 'state' || rawType === 'criminal'
-      ? 'STATE (CRIMINAL)'
-      : rawType.replace('_', ' ').toUpperCase();
 
     return `
       <tr>
@@ -4036,14 +4029,12 @@ function renderAllCasesTableWithFilters(resetPage = true) {
           <div style="font-weight: 600; color: #1e293b; word-break: break-word;">${escapeHtml(caseName)}</div>
           ${c.policeStation ? `<small style="color:#64748b;">🚔 PS: ${escapeHtml(c.policeStation)}` + (c.crimeNumber ? ` | ${escapeHtml(c.crimeNumber)}` : '') + `</small>` : ''}
         </td>
-        <td style="text-align: center;"><span class="case-badge ${rawType}">${typeBadgeLabel}</span></td>
         <td>🏛️ ${escapeHtml(courtName)}</td>
         <td>
           <div>${escapeHtml(clientName)}</div>
           ${clientPhone ? `<small style="color:#64748b;">📞 ${escapeHtml(clientPhone)}</small>` : ''}
         </td>
         <td class="all-cases-status-cell">${statusBadge}</td>
-        <td class="all-cases-date-cell">${filingDateStr}</td>
         <td class="all-cases-date-cell">${nextHearingStr}</td>
         <td style="text-align: center; white-space: nowrap;">
           <div class="all-cases-actions-cell">
