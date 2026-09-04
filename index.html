@@ -847,10 +847,19 @@
                         <!-- Remarks & Co-Parties Full Width Card -->
                         <div class="dossier-remarks-box">
                             <div class="remarks-box-header">
-                                <i class="fa-solid fa-note-sticky"></i>
-                                <strong>Remarks, Notes &amp; Co-Parties:</strong>
+                                <i class="fa-solid fa-users"></i>
+                                <strong>Parties &amp; Co-Parties Remark:</strong>
                             </div>
                             <div class="remarks-box-content" id="detailCaseRemark">—</div>
+                        </div>
+
+                        <!-- Disposal Comment Full Width Card -->
+                        <div class="dossier-remarks-box dossier-disposal-box" style="margin-top: 10px;">
+                            <div class="remarks-box-header" style="color: #047857;">
+                                <i class="fa-solid fa-gavel"></i>
+                                <strong>Disposal Comment &amp; Final Notes:</strong>
+                            </div>
+                            <div class="remarks-box-content" id="detailCaseDisposalComment" style="border-left: 3px solid #10b981; background: #f0fdf4; color: #065f46;">—</div>
                         </div>
 
                         <!-- Embedded Inline Case Hearing History Section -->
@@ -2226,23 +2235,48 @@
                                         <option value="Disposed">✅ Disposed Off</option>
                                     </select>
                                 </div>
+                                <!-- 1. Parties / Co-Parties Remark (For multiple parties, co-plaintiffs, co-defendants, co-accused) -->
                                 <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
                                     <div class="remarks-box-header">
                                         <div class="remarks-box-title-wrap">
-                                            <span class="remarks-box-icon">📝</span>
-                                            <label for="updateCaseRemark" class="remarks-box-label">Case Remarks &amp; Co-Parties / Notes</label>
+                                            <span class="remarks-box-icon">👥</span>
+                                            <label for="updateCaseRemark" class="remarks-box-label">Parties / Co-Parties Remark (सह-पक्षकार विवरण / अन्य पक्षकार)</label>
                                         </div>
                                         <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
                                     </div>
                                     <div class="remarks-quick-chips">
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Settled by mutual compromise')">➕ Compromise</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Allowed / Disposed on merits')">➕ Disposed Merits</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Dismissed in default')">➕ Dismissed Default</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Withdrawn with liberty')">➕ Withdrawn</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Co-Plaintiffs: ')">➕ Co-Plaintiffs</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Co-Defendants: ')">➕ Co-Defendants</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Co-Accused: ')">➕ Co-Accused</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Opposite Parties: ')">➕ Opposite Parties</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'State & Ors.')">➕ State &amp; Ors.</span>
                                     </div>
-                                    <textarea id="updateCaseRemark" rows="2" placeholder="e.g. Disposed on merits, Settled by compromise, Co-parties updated..."></textarea>
+                                    <textarea id="updateCaseRemark" rows="2" placeholder="e.g. Co-Plaintiffs: 1. Ramesh Kumar, 2. Suresh Kumar; Co-Defendants: 1. State of U.P., 2. Tehsildar Sadar..."></textarea>
                                     <div class="remarks-box-footer">
-                                        <span class="remarks-box-tip">💡 <b>Search Index:</b> Any updated remarks, co-parties, or final disposal notes will immediately sync to Supabase and Client Portal.</span>
+                                        <span class="remarks-box-tip">💡 <b>Multiple Parties:</b> Use this remark field to record all additional parties, co-plaintiffs, co-defendants, or co-accused in this matter.</span>
+                                    </div>
+                                </div>
+
+                                <!-- 2. Disposal Comment / Judgment Notes (For final disposal order notes & comments) -->
+                                <div style="grid-column: 1 / -1; margin-top: 10px;" class="remarks-coparties-box disposal-comment-box">
+                                    <div class="remarks-box-header">
+                                        <div class="remarks-box-title-wrap">
+                                            <span class="remarks-box-icon">⚖️</span>
+                                            <label for="updateCaseDisposalComment" class="remarks-box-label">Disposal Comment / Judgment Notes (निस्तारण टिप्पणी)</label>
+                                        </div>
+                                        <span class="remarks-searchable-badge" style="background:#ecfdf5; color:#065f46; border-color:#a7f3d0;">✅ Saved in Case Record</span>
+                                    </div>
+                                    <div class="remarks-quick-chips">
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Settled by mutual compromise')">➕ Compromise</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Allowed / Disposed on merits')">➕ Disposed Merits</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Dismissed in default')">➕ Dismissed Default</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Withdrawn with liberty')">➕ Withdrawn</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Acquitted / Discharged')">➕ Acquitted</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseDisposalComment', 'Decreed in favor of plaintiff')">➕ Decreed</span>
+                                    </div>
+                                    <textarea id="updateCaseDisposalComment" rows="2" placeholder="e.g. Disposed on merits; compromise deed filed and verified; suit decreed in terms of settlement..."></textarea>
+                                    <div class="remarks-box-footer">
+                                        <span class="remarks-box-tip">💡 <b>Disposal Tracking:</b> Record the reason, order details, or judgment terms when a case is disposed or when updating disposal comments.</span>
                                     </div>
                                 </div>
                             </div>
@@ -3283,12 +3317,14 @@
                             <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                                 <tr>
                                     <th style="width: 9%;">Case Number</th>
-                                    <th style="width: 24%;">Case Name / Parties</th>
-                                    <th style="width: 17%;">Court / Forum</th>
-                                    <th style="width: 14%;">Client Name</th>
-                                    <th style="width: 9%; text-align: center; white-space: nowrap;">Status</th>
-                                    <th style="width: 11%; text-align: center; white-space: nowrap;">Next Hearing</th>
-                                    <th style="width: 16%; text-align: center; white-space: nowrap;">Actions</th>
+                                    <th style="width: 17%;">Case Name</th>
+                                    <th style="width: 12%;">Court / Forum</th>
+                                    <th style="width: 10%;">Client Name</th>
+                                    <th style="width: 8%; text-align: center; white-space: nowrap;">Status</th>
+                                    <th style="width: 14%;">Parties Remark</th>
+                                    <th style="width: 14%;">Disposal Comment</th>
+                                    <th style="width: 8%; text-align: center; white-space: nowrap;">Next Hearing</th>
+                                    <th style="width: 8%; text-align: center; white-space: nowrap;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white"></tbody>
@@ -3330,7 +3366,8 @@
                                 <th>Case Type</th>
                                 <th>Court</th>
                                 <th>Status</th>
-                                <th>Remarks</th>
+                                <th>Parties Remark</th>
+                                <th>Disposal Comment</th>
                                 <th style="text-align:center;">Actions</th>
                             </tr>
                         </thead>

@@ -536,6 +536,7 @@ class UIService {
         : `<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>`;
     }
     setVal('detailCaseRemark', caseObj.remark || caseObj.remarks || '—');
+    setVal('detailCaseDisposalComment', caseObj.disposalComment || caseObj.disposal_comment || '—');
 
     const docLinkEl = document.getElementById('detailCaseDocLink');
     if (docLinkEl) {

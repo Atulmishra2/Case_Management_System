@@ -220,6 +220,7 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
   const hearingProcess = raw.hearing_process || raw.process || raw.hearingProcess || '';
   const caseStatus = raw.case_status || raw.status || raw.caseStatus || 'Pending';
   const remark = raw.remark || raw.remarks || raw.case_remark || '';
+  const disposalComment = raw.disposal_comment || raw.disposalComment || raw.disposal_remark || raw.disposalRemark || raw.disposal_notes || '';
   const docLink = raw.doc_link || raw.document_link || raw.docLink || raw.doc_url || raw.documentUrl || '';
 
   // 1. State Cases & Criminal Cases
@@ -250,6 +251,8 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
       hearingProcess,
       caseStatus,
       remark,
+      disposalComment,
+      disposal_comment: disposalComment,
       docLink,
       policeStation,
       crimeSection,
@@ -284,6 +287,8 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
       hearingProcess,
       caseStatus,
       remark,
+      disposalComment,
+      disposal_comment: disposalComment,
       docLink,
       petitioner,
       respondent,
@@ -318,6 +323,8 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
       hearingProcess,
       caseStatus,
       remark,
+      disposalComment,
+      disposal_comment: disposalComment,
       docLink,
       applicant,
       oppositeParty,
@@ -351,6 +358,8 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
       hearingProcess,
       caseStatus,
       remark,
+      disposalComment,
+      disposal_comment: disposalComment,
       docLink,
       applicant,
       oppositeParty,
@@ -385,6 +394,8 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
       hearingProcess,
       caseStatus,
       remark,
+      disposalComment,
+      disposal_comment: disposalComment,
       docLink,
       applicant,
       oppositeParty,
@@ -420,6 +431,8 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
       hearingProcess,
       caseStatus,
       remark,
+      disposalComment,
+      disposal_comment: disposalComment,
       docLink,
       complainant,
       accusedName,
@@ -451,6 +464,8 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
     hearingProcess,
     caseStatus,
     remark,
+    disposalComment,
+    disposal_comment: disposalComment,
     docLink,
     plaintiff,
     defendant,
@@ -1002,6 +1017,16 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
 
   if (supabaseClient) {
     try {
+      const safeTableUpdate = async (tableName, payload, caseNumber) => {
+        let res = await supabaseClient.from(tableName).update(payload).eq('case_number', caseNumber).select('id');
+        if (res.error && (res.error.message || '').toLowerCase().includes('disposal_comment')) {
+          const fallback = { ...payload };
+          delete fallback.disposal_comment;
+          res = await supabaseClient.from(tableName).update(fallback).eq('case_number', caseNumber).select('id');
+        }
+        return res;
+      };
+
       if (caseType === 'state' || caseType === 'criminal') {
         const basePayload = {
           case_number: newCaseNumber,
@@ -1020,15 +1045,16 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           party_name: targetCase.partyName,
           case_status: targetCase.caseStatus || 'Pending',
           remark: targetCase.remark || '',
+          disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
           doc_link: targetCase.docLink || '',
           updated_at: new Date().toISOString()
         };
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { data, error } = await supabaseClient.from('statecases').update(basePayload).eq('case_number', originalNo).select('id');
+        let { data, error } = await safeTableUpdate('statecases', basePayload, originalNo);
         if (error || !data || data.length === 0) {
-          await supabaseClient.from('criminalcases').update(basePayload).eq('case_number', originalNo);
+          await safeTableUpdate('criminalcases', basePayload, originalNo);
         }
       } else if (caseType === 'family') {
         const basePayload = {
@@ -1044,6 +1070,7 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           party_name: targetCase.respondent,
           case_status: targetCase.caseStatus || 'Pending',
           remark: targetCase.remark || '',
+          disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
           doc_link: targetCase.docLink || '',
           updated_at: new Date().toISOString()
         };
@@ -1053,14 +1080,15 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { data, error } = await supabaseClient.from('familycases').update(basePayload).eq('case_number', originalNo).select('id');
+        let { data, error } = await safeTableUpdate('familycases', basePayload, originalNo);
         if (error || !data || data.length === 0) {
-          await supabaseClient.from('civilcases').update({
+          await safeTableUpdate('civilcases', {
             case_number: newCaseNumber,
             case_status: targetCase.caseStatus,
             remark: targetCase.remark,
+            disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
             updated_at: new Date().toISOString()
-          }).eq('case_number', originalNo);
+          }, originalNo);
         }
       } else if (caseType === 'revenue') {
         const basePayload = {
@@ -1079,6 +1107,7 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           party_name: targetCase.oppositeParty,
           case_status: targetCase.caseStatus || 'Pending',
           remark: targetCase.remark || '',
+          disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
           doc_link: targetCase.docLink || '',
           updated_at: new Date().toISOString()
         };
@@ -1086,14 +1115,15 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { data, error } = await supabaseClient.from('revenuecases').update(basePayload).eq('case_number', originalNo).select('id');
+        let { data, error } = await safeTableUpdate('revenuecases', basePayload, originalNo);
         if (error || !data || data.length === 0) {
-          await supabaseClient.from('civilcases').update({
+          await safeTableUpdate('civilcases', {
             case_number: newCaseNumber,
             case_status: targetCase.caseStatus,
             remark: targetCase.remark,
+            disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
             updated_at: new Date().toISOString()
-          }).eq('case_number', originalNo);
+          }, originalNo);
         }
       } else if (caseType === 'misc_civil') {
         const basePayload = {
@@ -1110,6 +1140,7 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           party_name: targetCase.oppositeParty,
           case_status: targetCase.caseStatus || 'Pending',
           remark: targetCase.remark || '',
+          disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
           doc_link: targetCase.docLink || '',
           updated_at: new Date().toISOString()
         };
@@ -1117,14 +1148,15 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { data, error } = await supabaseClient.from('misccivilcases').update(basePayload).eq('case_number', originalNo).select('id');
+        let { data, error } = await safeTableUpdate('misccivilcases', basePayload, originalNo);
         if (error || !data || data.length === 0) {
-          await supabaseClient.from('civilcases').update({
+          await safeTableUpdate('civilcases', {
             case_number: newCaseNumber,
             case_status: targetCase.caseStatus,
             remark: targetCase.remark,
+            disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
             updated_at: new Date().toISOString()
-          }).eq('case_number', originalNo);
+          }, originalNo);
         }
       } else if (caseType === 'misc_criminal') {
         const basePayload = {
@@ -1144,20 +1176,22 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           party_name: targetCase.applicant,
           case_status: targetCase.caseStatus || 'Pending',
           remark: targetCase.remark || '',
+          disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
           doc_link: targetCase.docLink || '',
           updated_at: new Date().toISOString()
         };
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { data, error } = await supabaseClient.from('misccriminalcases').update(basePayload).eq('case_number', originalNo).select('id');
+        let { data, error } = await safeTableUpdate('misccriminalcases', basePayload, originalNo);
         if (error || !data || data.length === 0) {
-          await supabaseClient.from('criminalcases').update({
+          await safeTableUpdate('criminalcases', {
             case_number: newCaseNumber,
             case_status: targetCase.caseStatus,
             remark: targetCase.remark,
+            disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
             updated_at: new Date().toISOString()
-          }).eq('case_number', originalNo);
+          }, originalNo);
         }
       } else if (caseType === 'complaint') {
         const basePayload = {
@@ -1176,20 +1210,22 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           party_name: targetCase.accusedName,
           case_status: targetCase.caseStatus || 'Pending',
           remark: targetCase.remark || '',
+          disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
           doc_link: targetCase.docLink || '',
           updated_at: new Date().toISOString()
         };
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { data, error } = await supabaseClient.from('complaintcases').update(basePayload).eq('case_number', originalNo).select('id');
+        let { data, error } = await safeTableUpdate('complaintcases', basePayload, originalNo);
         if (error || !data || data.length === 0) {
-          await supabaseClient.from('criminalcases').update({
+          await safeTableUpdate('criminalcases', {
             case_number: newCaseNumber,
             case_status: targetCase.caseStatus,
             remark: targetCase.remark,
+            disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
             updated_at: new Date().toISOString()
-          }).eq('case_number', originalNo);
+          }, originalNo);
         }
       } else {
         const basePayload = {
@@ -1205,16 +1241,18 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
           party_name: targetCase.partyName,
           case_status: targetCase.caseStatus || 'Pending',
           remark: targetCase.remark || '',
+          disposal_comment: targetCase.disposalComment || targetCase.disposal_comment || null,
           doc_link: targetCase.docLink || '',
           updated_at: new Date().toISOString()
         };
         if (targetCase.nextHearing && targetCase.nextHearing !== '—') {
           basePayload.next_hearing = targetCase.nextHearing;
         }
-        let { error } = await supabaseClient.from('civilcases').update(basePayload).eq('case_number', originalNo);
+        let { error } = await safeTableUpdate('civilcases', basePayload, originalNo);
         if (error) {
           delete basePayload.doc_link;
           delete basePayload.remark;
+          delete basePayload.disposal_comment;
           await supabaseClient.from('civilcases').update(basePayload).eq('case_number', originalNo);
         }
       }
@@ -2234,14 +2272,24 @@ function renderSelectedCaseDetails(caseObj) {
     clientCardBody.innerHTML = props;
   }
 
-  // 4. Remarks & Co-Parties Box
+  // 4. Remarks, Co-Parties & Disposal Box
   const remarkEl = document.getElementById('detailCaseRemark');
   if (remarkEl) {
     const remark = caseObj.remark || caseObj.remarks || '';
     if (remark && remark.trim()) {
       remarkEl.innerHTML = `<span style="color:#1e293b; font-weight:500;">${escapeHtml(remark.trim())}</span>`;
     } else {
-      remarkEl.innerHTML = '<span style="color:#94a3b8; font-style:italic;">No remarks or co-parties recorded for this case.</span>';
+      remarkEl.innerHTML = '<span style="color:#94a3b8; font-style:italic;">No co-parties or remarks recorded for this case.</span>';
+    }
+  }
+
+  const disposalEl = document.getElementById('detailCaseDisposalComment');
+  if (disposalEl) {
+    const disposalComment = caseObj.disposalComment || caseObj.disposal_comment || '';
+    if (disposalComment && disposalComment.trim()) {
+      disposalEl.innerHTML = `<span style="color:#065f46; font-weight:600;">⚖️ ${escapeHtml(disposalComment.trim())}</span>`;
+    } else {
+      disposalEl.innerHTML = '<span style="color:#94a3b8; font-style:italic;">No disposal comment recorded yet.</span>';
     }
   }
 
@@ -3839,14 +3887,29 @@ function renderCivilCasesTable(cases = null) {
       ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
       : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
 
+    const partiesRemark = item.remark || item.remarks || '';
+    const partiesRemarkHtml = partiesRemark
+      ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
+      : '<span style="color: #94a3b8;">—</span>';
+
+    const disposalComment = item.disposalComment || item.disposal_comment || '';
+    const disposalCommentHtml = disposalComment
+      ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
+      : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+
     return `
       <tr>
         <td><strong>${caseNumber}</strong></td>
         <td>${caseName}</td>
         <td>${clientName}</td>
         <td>${statusBadge}</td>
+        <td class="case-remark-cell">${partiesRemarkHtml}</td>
+        <td class="case-disposal-cell">${disposalCommentHtml}</td>
         <td>${filingDate}</td>
         <td>${nextHearing}</td>
+        <td style="white-space: nowrap; text-align: center;">
+          <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+        </td>
       </tr>
     `;
   }).join('');
@@ -3874,13 +3937,19 @@ function refreshAllCaseTables() {
     const statusBadge = isDisposed
       ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
       : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
-    const remark = c.remark || c.remarks || '';
-    const remarkHtml = remark
-      ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}">📝 ${escapeHtml(remark)}</span>`
+    const partiesRemark = c.remark || c.remarks || '';
+    const partiesRemarkHtml = partiesRemark
+      ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
       : '<span style="color: #94a3b8;">—</span>';
+    const disposalComment = c.disposalComment || c.disposal_comment || '';
+    const disposalCommentHtml = disposalComment
+      ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
+      : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+    const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+
     return `
       <tr>
-        <td><strong>${escapeHtml(c.caseNo || c.criminalCaseNumber || '—')}</strong></td>
+        <td><strong>${escapeHtml(caseNumber)}</strong></td>
         <td>${escapeHtml(c.caseName || (c.firstParty ? `${c.firstParty} vs ${c.accusedName}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—')))}</td>
         <td>${escapeHtml(c.crimeNumber || '—')}</td>
         <td>${escapeHtml(c.policeStation || '—')}</td>
@@ -3888,7 +3957,11 @@ function refreshAllCaseTables() {
         <td>${escapeHtml(c.clientName || c.criminalClientName || '—')}</td>
         <td>${statusBadge}</td>
         <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
-        <td class="case-remark-cell">${remarkHtml}</td>
+        <td class="case-remark-cell">${partiesRemarkHtml}</td>
+        <td class="case-disposal-cell">${disposalCommentHtml}</td>
+        <td style="white-space: nowrap; text-align: center;">
+          <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+        </td>
       </tr>
     `;
   };
@@ -3922,13 +3995,19 @@ function refreshAllCaseTables() {
         const statusBadge = isDisposed
           ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
           : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
-        const remark = c.remark || c.remarks || '';
-        const remarkHtml = remark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}">📝 ${escapeHtml(remark)}</span>`
+        const partiesRemark = c.remark || c.remarks || '';
+        const partiesRemarkHtml = partiesRemark
+          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
           : '<span style="color: #94a3b8;">—</span>';
+        const disposalComment = c.disposalComment || c.disposal_comment || '';
+        const disposalCommentHtml = disposalComment
+          ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
+          : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+        const caseNumber = c.caseNo || '—';
+
         return `
           <tr>
-            <td><strong>${escapeHtml(c.caseNo || '—')}</strong></td>
+            <td><strong>${escapeHtml(caseNumber)}</strong></td>
             <td>${escapeHtml(c.caseName || `${c.petitioner} vs ${c.respondent}`)}</td>
             <td><span class="case-badge family">${escapeHtml(c.matterType || 'Family Dispute')}</span></td>
             <td>${escapeHtml(c.petitioner || '—')}</td>
@@ -3937,7 +4016,11 @@ function refreshAllCaseTables() {
             <td>${escapeHtml(c.clientName || '—')}</td>
             <td>${statusBadge}</td>
             <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
-            <td class="case-remark-cell">${remarkHtml}</td>
+            <td class="case-remark-cell">${partiesRemarkHtml}</td>
+            <td class="case-disposal-cell">${disposalCommentHtml}</td>
+            <td style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            </td>
           </tr>
         `;
       }).join('');
@@ -3951,20 +4034,26 @@ function refreshAllCaseTables() {
   if (revenueCountEl) revenueCountEl.textContent = String(revenueCases.length);
   if (revenueTable) {
     if (revenueCases.length === 0) {
-      revenueTable.innerHTML = '<tr><td colspan="10" class="no-results">No Revenue cases recorded yet.</td></tr>';
+      revenueTable.innerHTML = '<tr><td colspan="12" class="no-results">No Revenue cases recorded yet.</td></tr>';
     } else {
       revenueTable.innerHTML = revenueCases.map(c => {
         const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
         const statusBadge = isDisposed
           ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
           : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
-        const remark = c.remark || c.remarks || '';
-        const remarkHtml = remark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}">📝 ${escapeHtml(remark)}</span>`
+        const partiesRemark = c.remark || c.remarks || '';
+        const partiesRemarkHtml = partiesRemark
+          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
           : '<span style="color: #94a3b8;">—</span>';
+        const disposalComment = c.disposalComment || c.disposal_comment || '';
+        const disposalCommentHtml = disposalComment
+          ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
+          : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+        const caseNumber = c.caseNo || '—';
+
         return `
           <tr>
-            <td><strong>${escapeHtml(c.caseNo || '—')}</strong></td>
+            <td><strong>${escapeHtml(caseNumber)}</strong></td>
             <td>${escapeHtml(c.caseName || `${c.applicant} vs ${c.oppositeParty}`)}</td>
             <td><span class="case-badge revenue">${escapeHtml(c.revenueActSection || 'Revenue Sec')}</span></td>
             <td>${escapeHtml(c.villageMauja || '—')}</td>
@@ -3973,7 +4062,11 @@ function refreshAllCaseTables() {
             <td>${escapeHtml(c.clientName || '—')}</td>
             <td>${statusBadge}</td>
             <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
-            <td class="case-remark-cell">${remarkHtml}</td>
+            <td class="case-remark-cell">${partiesRemarkHtml}</td>
+            <td class="case-disposal-cell">${disposalCommentHtml}</td>
+            <td style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            </td>
           </tr>
         `;
       }).join('');
@@ -3987,20 +4080,26 @@ function refreshAllCaseTables() {
   if (miscCivilCountEl) miscCivilCountEl.textContent = String(miscCivilCases.length);
   if (miscCivilTable) {
     if (miscCivilCases.length === 0) {
-      miscCivilTable.innerHTML = '<tr><td colspan="11" class="no-results">No Misc Civil cases recorded yet.</td></tr>';
+      miscCivilTable.innerHTML = '<tr><td colspan="13" class="no-results">No Misc Civil cases recorded yet.</td></tr>';
     } else {
       miscCivilTable.innerHTML = miscCivilCases.map(c => {
         const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
         const statusBadge = isDisposed
           ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
           : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
-        const remark = c.remark || c.remarks || '';
-        const remarkHtml = remark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}">📝 ${escapeHtml(remark)}</span>`
+        const partiesRemark = c.remark || c.remarks || '';
+        const partiesRemarkHtml = partiesRemark
+          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
           : '<span style="color: #94a3b8;">—</span>';
+        const disposalComment = c.disposalComment || c.disposal_comment || '';
+        const disposalCommentHtml = disposalComment
+          ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
+          : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+        const caseNumber = c.caseNo || '—';
+
         return `
           <tr>
-            <td><strong>${escapeHtml(c.caseNo || '—')}</strong></td>
+            <td><strong>${escapeHtml(caseNumber)}</strong></td>
             <td>${escapeHtml(c.caseName || `${c.applicant} vs ${c.oppositeParty}`)}</td>
             <td><span class="case-badge misc_civil">${escapeHtml(c.proceedingType || 'Misc Application')}</span></td>
             <td>${escapeHtml(c.originalCaseNumber || c.originalCase || '—')}</td>
@@ -4010,7 +4109,11 @@ function refreshAllCaseTables() {
             <td>${escapeHtml(c.clientName || '—')}</td>
             <td>${statusBadge}</td>
             <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
-            <td class="case-remark-cell">${remarkHtml}</td>
+            <td class="case-remark-cell">${partiesRemarkHtml}</td>
+            <td class="case-disposal-cell">${disposalCommentHtml}</td>
+            <td style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            </td>
           </tr>
         `;
       }).join('');
@@ -4024,20 +4127,26 @@ function refreshAllCaseTables() {
   if (miscCriminalCountEl) miscCriminalCountEl.textContent = String(miscCriminalCases.length);
   if (miscCriminalTable) {
     if (miscCriminalCases.length === 0) {
-      miscCriminalTable.innerHTML = '<tr><td colspan="11" class="no-results">No Misc Criminal cases recorded yet.</td></tr>';
+      miscCriminalTable.innerHTML = '<tr><td colspan="13" class="no-results">No Misc Criminal cases recorded yet.</td></tr>';
     } else {
       miscCriminalTable.innerHTML = miscCriminalCases.map(c => {
         const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
         const statusBadge = isDisposed
           ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
           : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
-        const remark = c.remark || c.remarks || '';
-        const remarkHtml = remark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}">📝 ${escapeHtml(remark)}</span>`
+        const partiesRemark = c.remark || c.remarks || '';
+        const partiesRemarkHtml = partiesRemark
+          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
           : '<span style="color: #94a3b8;">—</span>';
+        const disposalComment = c.disposalComment || c.disposal_comment || '';
+        const disposalCommentHtml = disposalComment
+          ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
+          : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+        const caseNumber = c.caseNo || '—';
+
         return `
           <tr>
-            <td><strong>${escapeHtml(c.caseNo || '—')}</strong></td>
+            <td><strong>${escapeHtml(caseNumber)}</strong></td>
             <td>${escapeHtml(c.caseName || `${c.applicant} vs ${c.oppositeParty}`)}</td>
             <td><span class="case-badge misc_criminal">${escapeHtml(c.proceedingType || 'Bail Application')}</span></td>
             <td>${escapeHtml(c.originalCaseNumber || c.originalCase || '—')}</td>
@@ -4047,7 +4156,11 @@ function refreshAllCaseTables() {
             <td>${escapeHtml(c.clientName || '—')}</td>
             <td>${statusBadge}</td>
             <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
-            <td class="case-remark-cell">${remarkHtml}</td>
+            <td class="case-remark-cell">${partiesRemarkHtml}</td>
+            <td class="case-disposal-cell">${disposalCommentHtml}</td>
+            <td style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            </td>
           </tr>
         `;
       }).join('');
@@ -4061,20 +4174,26 @@ function refreshAllCaseTables() {
   if (complaintCountEl) complaintCountEl.textContent = String(complaintCases.length);
   if (complaintTable) {
     if (complaintCases.length === 0) {
-      complaintTable.innerHTML = '<tr><td colspan="12" class="no-results">No Complaint cases recorded yet.</td></tr>';
+      complaintTable.innerHTML = '<tr><td colspan="14" class="no-results">No Complaint cases recorded yet.</td></tr>';
     } else {
       complaintTable.innerHTML = complaintCases.map(c => {
         const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
         const statusBadge = isDisposed
           ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
           : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
-        const remark = c.remark || c.remarks || '';
-        const remarkHtml = remark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}">📝 ${escapeHtml(remark)}</span>`
+        const partiesRemark = c.remark || c.remarks || '';
+        const partiesRemarkHtml = partiesRemark
+          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
           : '<span style="color: #94a3b8;">—</span>';
+        const disposalComment = c.disposalComment || c.disposal_comment || '';
+        const disposalCommentHtml = disposalComment
+          ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
+          : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+        const caseNumber = c.caseNo || '—';
+
         return `
           <tr>
-            <td><strong>${escapeHtml(c.caseNo || '—')}</strong></td>
+            <td><strong>${escapeHtml(caseNumber)}</strong></td>
             <td>${escapeHtml(c.caseName || `${c.complainant} vs ${c.accusedName}`)}</td>
             <td><span class="case-badge complaint">${escapeHtml(c.complaintType || 'Complaint')}</span></td>
             <td>${escapeHtml(c.sectionAct || '—')}</td>
@@ -4085,7 +4204,11 @@ function refreshAllCaseTables() {
             <td>${escapeHtml(c.clientName || '—')}</td>
             <td>${statusBadge}</td>
             <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
-            <td class="case-remark-cell">${remarkHtml}</td>
+            <td class="case-remark-cell">${partiesRemarkHtml}</td>
+            <td class="case-disposal-cell">${disposalCommentHtml}</td>
+            <td style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            </td>
           </tr>
         `;
       }).join('');
@@ -4099,11 +4222,20 @@ function refreshAllCaseTables() {
   if (disposedCountEl) disposedCountEl.textContent = String(disposedCases.length);
   if (disposedTable) {
     if (disposedCases.length === 0) {
-      disposedTable.innerHTML = '<tr><td colspan="8" class="no-results">No disposed cases recorded yet.</td></tr>';
+      disposedTable.innerHTML = '<tr><td colspan="9" class="no-results">No disposed cases recorded yet.</td></tr>';
     } else {
       disposedTable.innerHTML = disposedCases.map(c => {
         const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
         const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
+        const partiesRemark = c.remark || c.remarks || '';
+        const partiesRemarkHtml = partiesRemark
+          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
+          : '<span style="color: #94a3b8;">—</span>';
+        const disposalComment = c.disposalComment || c.disposal_comment || '';
+        const disposalCommentHtml = disposalComment
+          ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
+          : (partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+
         return `
           <tr>
             <td><strong>${escapeHtml(caseNumber)}</strong></td>
@@ -4112,7 +4244,8 @@ function refreshAllCaseTables() {
             <td><span class="case-badge ${c.caseType || 'civil'}">${(c.caseType || 'Civil').toUpperCase()}</span></td>
             <td>${escapeHtml(c.courtName || c.criminalCourtName || 'District Court')}</td>
             <td><span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span></td>
-            <td>${escapeHtml(c.remark || c.remarks || '—')}</td>
+            <td class="case-remark-cell">${partiesRemarkHtml}</td>
+            <td class="case-disposal-cell">${disposalCommentHtml}</td>
             <td style="text-align: center; white-space: nowrap;">
               <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Reopen Case">✏️ Edit</button>
             </td>
@@ -4552,6 +4685,16 @@ function renderAllCasesTableWithFilters(resetPage = true) {
       ? '<span style="color: #d97706; font-weight: 600;">—</span>'
       : `<strong>${formatDateDMY(c.nextHearing)}</strong>`;
 
+    const partiesRemark = c.remark || c.remarks || '';
+    const partiesRemarkHtml = partiesRemark
+      ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
+      : '<span style="color: #94a3b8;">—</span>';
+
+    const disposalComment = c.disposalComment || c.disposal_comment || '';
+    const disposalCommentHtml = disposalComment
+      ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
+      : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+
     return `
       <tr>
         <td class="copyable-case-no" title="Double-click to copy Case Number"><strong>${escapeHtml(caseNumber)}</strong></td>
@@ -4565,6 +4708,8 @@ function renderAllCasesTableWithFilters(resetPage = true) {
           ${clientPhone ? `<small style="color:#64748b;">📞 ${escapeHtml(clientPhone)}</small>` : ''}
         </td>
         <td class="all-cases-status-cell">${statusBadge}</td>
+        <td class="case-remark-cell">${partiesRemarkHtml}</td>
+        <td class="case-disposal-cell">${disposalCommentHtml}</td>
         <td class="all-cases-date-cell">${nextHearingStr}</td>
         <td class="all-cases-actions-cell-td">
           <div class="all-cases-actions-cell">
@@ -6263,6 +6408,10 @@ function loadCaseForUpdate(caseNoToFind) {
   if (remarkInput) {
     remarkInput.value = found.remark || found.remarks || '';
   }
+  const disposalCommentInput = document.getElementById('updateCaseDisposalComment');
+  if (disposalCommentInput) {
+    disposalCommentInput.value = found.disposalComment || found.disposal_comment || found.disposalRemark || '';
+  }
 
   if (caseType === 'state' || caseType === 'criminal') {
     setVal('updateStateCaseNumber', found.caseNo || found.criminalCaseNumber);
@@ -6463,9 +6612,11 @@ async function handleUpdateCaseSubmit(e) {
     }
   }
 
-  // Save Case Status and Remark
+  // Save Case Status, Parties Remark, and Disposal Comment
   targetCase.caseStatus = document.getElementById('updateCaseStatus')?.value || 'Pending';
   targetCase.remark = document.getElementById('updateCaseRemark')?.value?.trim() || '';
+  targetCase.disposalComment = document.getElementById('updateCaseDisposalComment')?.value?.trim() || '';
+  targetCase.disposal_comment = targetCase.disposalComment;
 
   let fixNextHearingDate = '';
   let fixHearingProcess = '';
@@ -7475,17 +7626,17 @@ function initializeApp() {
   if (markDisposeBtn) {
     markDisposeBtn.addEventListener('click', () => {
       const statusSelect = document.getElementById('updateCaseStatus');
-      const remarkInput = document.getElementById('updateCaseRemark');
+      const disposalInput = document.getElementById('updateCaseDisposalComment');
       if (statusSelect) statusSelect.value = 'Disposed';
-      if (remarkInput) {
-        if (!remarkInput.value.trim()) {
-          remarkInput.value = 'Disposed Off';
+      if (disposalInput) {
+        if (!disposalInput.value.trim()) {
+          disposalInput.value = 'Disposed Off on merits';
         }
-        remarkInput.focus();
+        disposalInput.focus();
       }
       const statusEl = document.getElementById('updateSearchStatus');
       if (statusEl) {
-        statusEl.textContent = '⚖️ Status set to "Disposed Off". Review/edit remarks and click "Save Case Updates".';
+        statusEl.textContent = '⚖️ Status set to "Disposed Off". Review/edit disposal comments and click "Save Case Updates".';
         statusEl.className = 'update-status-msg success';
       }
     });
