@@ -3741,10 +3741,27 @@ function exportAllCasesToCSV() {
 window.exportAllCasesToCSV = exportAllCasesToCSV;
 
 // ==========================================
-// ALL CASES MASTER REGISTER & LIVE FILTER SUITE
+// ALL CASES MASTER REGISTER & LIVE FILTER SUITE (WITH PAGINATION)
 // ==========================================
 
 let currentAllCasesFilteredList = [];
+let allCasesPageSize = 25; // options: 10, 25, 50, 100, 'all'
+let allCasesCurrentPage = 1;
+
+function handleAllCasesPageSizeChange(val) {
+  if (val === 'all') {
+    allCasesPageSize = 'all';
+  } else {
+    allCasesPageSize = parseInt(val, 10) || 25;
+  }
+  allCasesCurrentPage = 1;
+  renderAllCasesTableWithFilters(false);
+}
+
+function changeAllCasesPage(targetPage) {
+  allCasesCurrentPage = targetPage;
+  renderAllCasesTableWithFilters(false);
+}
 
 function updateAllCasesTypePillCounts() {
   const records = allCaseRecords || [];
@@ -3848,10 +3865,14 @@ function resetAllCasesFilters() {
   renderAllCasesTableWithFilters();
 }
 
-function renderAllCasesTableWithFilters() {
+function renderAllCasesTableWithFilters(resetPage = true) {
   const tbody = document.querySelector('#allCasesTable tbody');
   const countBadge = document.getElementById('allCasesCountBadge');
   if (!tbody) return;
+
+  if (resetPage) {
+    allCasesCurrentPage = 1;
+  }
 
   const searchInput = document.getElementById('allCasesSearchInput');
   const typeSelect = document.getElementById('allCasesTypeSelect');
@@ -3929,12 +3950,26 @@ function renderAllCasesTableWithFilters() {
 
   currentAllCasesFilteredList = filtered;
 
+  const totalFiltered = filtered.length;
+  const isAll = allCasesPageSize === 'all';
+  const effectivePageSize = isAll ? totalFiltered : (parseInt(allCasesPageSize, 10) || 25);
+  const totalPages = isAll ? 1 : Math.max(1, Math.ceil(totalFiltered / effectivePageSize));
+
+  if (allCasesCurrentPage > totalPages) allCasesCurrentPage = totalPages;
+  if (allCasesCurrentPage < 1) allCasesCurrentPage = 1;
+
+  const startIndex = isAll ? 0 : (allCasesCurrentPage - 1) * effectivePageSize;
+  const endIndex = isAll ? totalFiltered : Math.min(startIndex + effectivePageSize, totalFiltered);
+
   // Update count badge
   if (countBadge) {
-    countBadge.textContent = `Showing ${filtered.length} of ${allCaseRecords.length} cases`;
+    countBadge.textContent = `Showing ${totalFiltered} of ${(allCaseRecords || []).length} cases`;
   }
 
-  if (filtered.length === 0) {
+  // Render pagination controls
+  renderAllCasesPaginationControls(totalFiltered, effectivePageSize, totalPages, allCasesCurrentPage, isAll);
+
+  if (totalFiltered === 0) {
     tbody.innerHTML = `
       <tr>
         <td colspan="9" class="no-results" style="text-align: center; padding: 2rem; color: #64748b;">
@@ -3946,7 +3981,9 @@ function renderAllCasesTableWithFilters() {
     return;
   }
 
-  tbody.innerHTML = filtered.map(c => {
+  const pageRecords = filtered.slice(startIndex, endIndex);
+
+  tbody.innerHTML = pageRecords.map(c => {
     const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
     const rawType = (c.caseType || 'civil').toLowerCase();
     const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant || 'Opposite'}` : (c.accusedName ? `State vs ${c.accusedName}` : '—'));
@@ -3980,26 +4017,98 @@ function renderAllCasesTableWithFilters() {
         <td class="copyable-case-no" title="Double-click to copy Case Number"><strong>${escapeHtml(caseNumber)}</strong></td>
         <td>
           <div style="font-weight: 600; color: #1e293b;">${escapeHtml(caseName)}</div>
-          ${c.policeStation ? `<small style="color:#64748b;">🚔 PS: ${escapeHtml(c.policeStation)}` + (c.crimeNumber ? ` | Crime: ${escapeHtml(c.crimeNumber)}` : '') + `</small>` : ''}
+          ${c.policeStation ? `<small style="color:#64748b;">🚔 PS: ${escapeHtml(c.policeStation)}` + (c.crimeNumber ? ` | ${escapeHtml(c.crimeNumber)}` : '') + `</small>` : ''}
         </td>
-        <td><span class="case-badge ${rawType}">${typeBadgeLabel}</span></td>
+        <td style="text-align: center;"><span class="case-badge ${rawType}">${typeBadgeLabel}</span></td>
         <td>🏛️ ${escapeHtml(courtName)}</td>
         <td>
           <div>${escapeHtml(clientName)}</div>
           ${clientPhone ? `<small style="color:#64748b;">📞 ${escapeHtml(clientPhone)}</small>` : ''}
         </td>
-        <td>${statusBadge}</td>
-        <td>${filingDateStr}</td>
-        <td>${nextHearingStr}</td>
+        <td style="text-align: center;">${statusBadge}</td>
+        <td style="text-align: center; font-size: 11.5px;">${filingDateStr}</td>
+        <td style="text-align: center; font-size: 11.5px;">${nextHearingStr}</td>
         <td style="text-align: center; white-space: nowrap;">
-          <div class="all-cases-actions-cell" style="display:flex; gap:6px; justify-content:center; align-items:center;">
-            <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Dossier & History">👁️ Details</button>
-            <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0;">✏️ Edit</button>
+          <div class="all-cases-actions-cell">
+            <button type="button" class="all-cases-action-btn details-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Proceedings & Dossier">👁️ View</button>
+            <button type="button" class="all-cases-action-btn edit-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
           </div>
         </td>
       </tr>
     `;
   }).join('');
+}
+
+function renderAllCasesPaginationControls(totalItems, pageSize, totalPages, currentPage, isAll) {
+  const infoEl = document.getElementById('allCasesPaginationInfo');
+  const controlsEl = document.getElementById('allCasesPaginationControls');
+
+  if (!infoEl || !controlsEl) return;
+
+  if (totalItems === 0) {
+    infoEl.textContent = 'Showing 0 to 0 of 0 entries';
+    controlsEl.innerHTML = '';
+    return;
+  }
+
+  const startDisplay = isAll ? 1 : (currentPage - 1) * pageSize + 1;
+  const endDisplay = isAll ? totalItems : Math.min(currentPage * pageSize, totalItems);
+  const filteredSuffix = totalItems !== (allCaseRecords || []).length
+    ? ` (filtered from ${(allCaseRecords || []).length} total cases)`
+    : '';
+
+  infoEl.textContent = `Showing ${startDisplay} to ${endDisplay} of ${totalItems} entries${filteredSuffix}`;
+
+  if (isAll || totalPages <= 1) {
+    controlsEl.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+
+  const isFirst = currentPage === 1;
+  const isLast = currentPage === totalPages;
+
+  // First and Previous buttons
+  html += `<button type="button" class="pagination-btn" ${isFirst ? 'disabled' : ''} onclick="changeAllCasesPage(1)" title="First Page">«</button>`;
+  html += `<button type="button" class="pagination-btn" ${isFirst ? 'disabled' : ''} onclick="changeAllCasesPage(${currentPage - 1})" title="Previous Page">‹ Prev</button>`;
+
+  // Numbered page buttons with smart ellipsis
+  const pagesToShow = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pagesToShow.push(i);
+  } else {
+    pagesToShow.push(1);
+    if (currentPage > 4) {
+      pagesToShow.push('...');
+    }
+    const startRange = Math.max(2, currentPage - 1);
+    const endRange = Math.min(totalPages - 1, currentPage + 1);
+    for (let i = startRange; i <= endRange; i++) {
+      if (!pagesToShow.includes(i)) pagesToShow.push(i);
+    }
+    if (currentPage < totalPages - 3) {
+      pagesToShow.push('...');
+    }
+    if (!pagesToShow.includes(totalPages)) {
+      pagesToShow.push(totalPages);
+    }
+  }
+
+  pagesToShow.forEach(p => {
+    if (p === '...') {
+      html += `<span class="pagination-ellipsis">…</span>`;
+    } else {
+      const isActive = p === currentPage ? ' active' : '';
+      html += `<button type="button" class="pagination-btn${isActive}" onclick="changeAllCasesPage(${p})">${p}</button>`;
+    }
+  });
+
+  // Next and Last buttons
+  html += `<button type="button" class="pagination-btn" ${isLast ? 'disabled' : ''} onclick="changeAllCasesPage(${currentPage + 1})" title="Next Page">Next ›</button>`;
+  html += `<button type="button" class="pagination-btn" ${isLast ? 'disabled' : ''} onclick="changeAllCasesPage(${totalPages})" title="Last Page">»</button>`;
+
+  controlsEl.innerHTML = html;
 }
 
 function editCaseFromTable(caseNo) {
@@ -4092,6 +4201,9 @@ window.filterAllCasesByType = filterAllCasesByType;
 window.handleAllCasesTypeSelectChange = handleAllCasesTypeSelectChange;
 window.resetAllCasesFilters = resetAllCasesFilters;
 window.renderAllCasesTableWithFilters = renderAllCasesTableWithFilters;
+window.handleAllCasesPageSizeChange = handleAllCasesPageSizeChange;
+window.changeAllCasesPage = changeAllCasesPage;
+window.renderAllCasesPaginationControls = renderAllCasesPaginationControls;
 window.editCaseFromTable = editCaseFromTable;
 window.exportAllCasesCsv = exportAllCasesCsv;
 

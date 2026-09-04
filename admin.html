@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=3.8">
+    <link rel="stylesheet" href="admin.css?v=3.9">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -3003,29 +3003,54 @@
                             </div>
                         </div>
 
-                        <div class="all-cases-filter-summary">
+                    </div>
+
+                    <!-- Table Toolbar: Rows-Per-Page Selector + Filter Summary (horizontal scroll = false) -->
+                    <div class="all-cases-table-toolbar">
+                        <div class="all-cases-page-size-wrap">
+                            <label for="allCasesPageSizeSelect" class="all-cases-page-size-label">
+                                <span>Show</span>
+                                <select id="allCasesPageSizeSelect" class="all-cases-page-size-select" onchange="handleAllCasesPageSizeChange(this.value)">
+                                    <option value="10">10</option>
+                                    <option value="25" selected>25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="all">All</option>
+                                </select>
+                                <span>entries per page</span>
+                            </label>
+                        </div>
+                        <div class="all-cases-toolbar-badge-wrap">
                             <span id="allCasesCountBadge" class="filter-count-badge">Showing 0 cases</span>
                         </div>
                     </div>
 
-                    <!-- Master Table -->
-                    <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                        <table id="allCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                    <!-- Master Table: Zero horizontal scroll container (scrollable=false, table-layout: fixed) -->
+                    <div class="all-cases-table-wrapper rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                        <table id="allCasesTable" class="all-cases-fixed-table divide-y divide-slate-200 text-left text-sm text-slate-700">
                             <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                                 <tr>
-                                    <th>Case Number</th>
-                                    <th>Case Name / Parties</th>
-                                    <th>Case Type</th>
-                                    <th>Court / Forum</th>
-                                    <th>Client Name</th>
-                                    <th>Status</th>
-                                    <th>Filing Date</th>
-                                    <th>Next Hearing</th>
-                                    <th style="text-align: center;">Actions</th>
+                                    <th style="width: 13%;">Case Number</th>
+                                    <th style="width: 21%;">Case Name / Parties</th>
+                                    <th style="width: 10%; text-align: center;">Case Type</th>
+                                    <th style="width: 15%;">Court / Forum</th>
+                                    <th style="width: 13%;">Client Name</th>
+                                    <th style="width: 8%; text-align: center;">Status</th>
+                                    <th style="width: 6.5%; text-align: center;">Filing Date</th>
+                                    <th style="width: 6.5%; text-align: center;">Next Hearing</th>
+                                    <th style="width: 7%; text-align: center;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white"></tbody>
                         </table>
+                    </div>
+
+                    <!-- Table Pagination Bar -->
+                    <div class="all-cases-pagination-bar" id="allCasesPaginationBar">
+                        <div class="all-cases-pagination-info" id="allCasesPaginationInfo">
+                            Showing 0 to 0 of 0 entries
+                        </div>
+                        <div class="all-cases-pagination-controls" id="allCasesPaginationControls"></div>
                     </div>
                 </div>
             </div>
