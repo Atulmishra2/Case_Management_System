@@ -14898,3 +14898,52 @@ input[readonly] {
   color: #ffffff !important;
 }
 
+/* --- 6.6 DATABASE DUPLICATE PREVENTION & VALIDATION BADGES --- */
+.case-dup-warning {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #fef2f2 !important;
+  border: 1.5px solid #f87171 !important;
+  color: #991b1b !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  margin-top: 6px !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.12) !important;
+  animation: fadeIn 0.2s ease-in !important;
+}
+
+.case-dup-warning i {
+  color: #dc2626 !important;
+  font-size: 14px !important;
+}
+
+.case-dup-ok {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #f0fdf4 !important;
+  border: 1.5px solid #86efac !important;
+  color: #166534 !important;
+  padding: 5px 12px !important;
+  border-radius: 8px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  margin-top: 6px !important;
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.08) !important;
+  animation: fadeIn 0.2s ease-in !important;
+}
+
+.case-dup-ok i {
+  color: #16a34a !important;
+  font-size: 13px !important;
+}
+
+.input-dup-error {
+  border-color: #ef4444 !important;
+  background-color: #fffaf0 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+

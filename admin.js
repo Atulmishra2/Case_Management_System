@@ -529,10 +529,18 @@ async function fetchAllDataFromSupabase() {
       safeFetch(supabaseClient.from('case_todos').select('*').order('deadline_date', { ascending: true }), supabaseClient.from('case_todos').select('*'))
     ]);
 
-    // 1. Sync Courts
+    // 1. Sync Courts (Deduplicated)
     if (courtsRes.data && courtsRes.data.length > 0) {
-      courts = courtsRes.data.map(c => c.court_name);
-      console.log(`Loaded ${courts.length} courts from Supabase.`);
+      const seenCourtNames = new Set();
+      courts = [];
+      courtsRes.data.forEach(c => {
+        const name = (c.court_name || '').trim();
+        if (name && !seenCourtNames.has(name.toLowerCase())) {
+          seenCourtNames.add(name.toLowerCase());
+          courts.push(name);
+        }
+      });
+      console.log(`Loaded ${courts.length} unique courts from Supabase.`);
     } else {
       courts = [...defaultCourts];
     }
@@ -583,6 +591,22 @@ async function fetchAllDataFromSupabase() {
       loadedCases = loadedCases.concat(normalizedComplaint);
     }
 
+    // Deduplicate loaded cases across tables so identical case numbers are never repeated in UI
+    const seenCaseKeys = new Set();
+    const uniqueLoadedCases = [];
+    for (const item of loadedCases) {
+      const rawKey = (item.caseNo || item.criminalCaseNumber || '').trim().toLowerCase();
+      if (!rawKey) {
+        uniqueLoadedCases.push(item);
+        continue;
+      }
+      if (!seenCaseKeys.has(rawKey)) {
+        seenCaseKeys.add(rawKey);
+        uniqueLoadedCases.push(item);
+      }
+    }
+    loadedCases = uniqueLoadedCases;
+
     // 3. Attach latest hearing dates from hearings table if available & store all hearing history
     if (hearingsRes.data && hearingsRes.data.length > 0) {
       allHearingRecords = hearingsRes.data;
@@ -598,25 +622,34 @@ async function fetchAllDataFromSupabase() {
     }
 
     allCaseRecords = loadedCases;
-    console.log(`Loaded ${allCaseRecords.length} cases from Supabase.`);
+    console.log(`Loaded ${allCaseRecords.length} unique cases from Supabase.`);
 
-    // 4. Sync To-Do Tasks from case_todos
+    // 4. Sync To-Do Tasks from case_todos (Deduplicated)
     if (todosRes && todosRes.data && !todosRes.error) {
-      caseTasks = todosRes.data.map(t => ({
-        id: t.id,
-        caseNo: t.case_number,
-        caseName: t.case_name || '—',
-        taskTitle: t.task_title,
-        hearingDate: t.hearing_date,
-        deadlineDate: t.deadline_date,
-        priority: t.priority || 'medium',
-        status: t.status || 'pending',
-        createdAt: t.created_at
-      }));
+      const seenTaskKeys = new Set();
+      const uniqueTasks = [];
+      todosRes.data.forEach(t => {
+        const key = t.id ? `id_${t.id}` : `${(t.case_number || '').toLowerCase()}_${(t.task_title || '').toLowerCase()}_${t.deadline_date}`;
+        if (!seenTaskKeys.has(key)) {
+          seenTaskKeys.add(key);
+          uniqueTasks.push({
+            id: t.id,
+            caseNo: t.case_number,
+            caseName: t.case_name || '—',
+            taskTitle: t.task_title,
+            hearingDate: t.hearing_date,
+            deadlineDate: t.deadline_date,
+            priority: t.priority || 'medium',
+            status: t.status || 'pending',
+            createdAt: t.created_at
+          });
+        }
+      });
+      caseTasks = uniqueTasks;
       window.caseTasks = caseTasks;
       saveCaseTasksLocally();
       updateTodoSyncIndicator(true);
-      console.log(`Loaded ${caseTasks.length} case tasks from Supabase.`);
+      console.log(`Loaded ${caseTasks.length} unique case tasks from Supabase.`);
     } else {
       updateTodoSyncIndicator(false);
     }
@@ -636,9 +669,166 @@ async function fetchAllDataFromSupabase() {
   }
 }
 
-// Add Case to Supabase (or local fallback)
+// ==============================================================================
+// Centralized Database Duplicate Prevention Suite
+// ==============================================================================
+
+async function checkCaseNumberExists(rawCaseNo, excludeCaseNo = null) {
+  if (!rawCaseNo) return { exists: false };
+  const cleanNo = String(rawCaseNo).trim().replace(/\s+/g, ' ');
+  if (!cleanNo) return { exists: false };
+
+  const cleanLower = cleanNo.toLowerCase();
+  const excludeLower = excludeCaseNo ? String(excludeCaseNo).trim().toLowerCase() : null;
+
+  // 1. Check local in-memory records first (instant feedback)
+  if (Array.isArray(allCaseRecords)) {
+    const localMatch = allCaseRecords.find(c => {
+      const cNo1 = (c.caseNo || '').trim().toLowerCase();
+      const cNo2 = (c.criminalCaseNumber || '').trim().toLowerCase();
+      if (excludeLower && (cNo1 === excludeLower || cNo2 === excludeLower)) {
+        return false;
+      }
+      return cNo1 === cleanLower || cNo2 === cleanLower;
+    });
+
+    if (localMatch) {
+      return {
+        exists: true,
+        source: 'local',
+        caseNumber: localMatch.caseNo || localMatch.criminalCaseNumber,
+        caseName: localMatch.caseName || 'Existing Case',
+        caseType: localMatch.caseType || 'civil'
+      };
+    }
+  }
+
+  // 2. Query live Supabase database across all case tables
+  if (supabaseClient) {
+    try {
+      const tablesToCheck = [
+        'civilcases',
+        'statecases',
+        'criminalcases',
+        'familycases',
+        'revenuecases',
+        'misccivilcases',
+        'misccriminalcases',
+        'complaintcases'
+      ];
+
+      const queries = tablesToCheck.map(tbl =>
+        supabaseClient
+          .from(tbl)
+          .select('id, case_number, case_name')
+          .ilike('case_number', cleanNo)
+          .limit(2)
+      );
+
+      const results = await Promise.all(queries);
+
+      for (let i = 0; i < tablesToCheck.length; i++) {
+        const { data, error } = results[i];
+        if (!error && Array.isArray(data) && data.length > 0) {
+          const match = data.find(row => {
+            const rowNo = (row.case_number || '').trim().toLowerCase();
+            if (excludeLower && rowNo === excludeLower) return false;
+            return rowNo === cleanLower;
+          });
+          if (match) {
+            return {
+              exists: true,
+              source: 'database',
+              table: tablesToCheck[i],
+              caseNumber: match.case_number,
+              caseName: match.case_name || 'Existing Case'
+            };
+          }
+        }
+      }
+    } catch (supaErr) {
+      console.warn('Supabase duplicate check query error:', supaErr);
+    }
+  }
+
+  return { exists: false };
+}
+window.checkCaseNumberExists = checkCaseNumberExists;
+
+function clearCaseNumberValidationBadges() {
+  document.querySelectorAll('.case-dup-warning, .case-dup-ok').forEach(el => el.remove());
+  document.querySelectorAll('.input-dup-error').forEach(el => el.classList.remove('input-dup-error'));
+}
+window.clearCaseNumberValidationBadges = clearCaseNumberValidationBadges;
+
+function attachCaseNumberDuplicateListeners() {
+  const caseNumberInputIds = [
+    'caseNo',
+    'stateCaseNumber',
+    'familyCaseNumber',
+    'revenueCaseNumber',
+    'miscCivilCaseNumber',
+    'miscCriminalCaseNumber',
+    'complaintCaseNumber'
+  ];
+
+  let debounceTimer = null;
+
+  caseNumberInputIds.forEach(id => {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    const validateInput = async () => {
+      const val = input.value.trim();
+      const parent = input.parentElement;
+      if (!parent) return;
+      parent.querySelectorAll('.case-dup-warning, .case-dup-ok').forEach(el => el.remove());
+      input.classList.remove('input-dup-error');
+
+      if (!val) return;
+
+      const dup = await checkCaseNumberExists(val);
+      if (dup.exists) {
+        input.classList.add('input-dup-error');
+        const badge = document.createElement('div');
+        badge.className = 'case-dup-warning';
+        badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span><strong>Duplicate Warning:</strong> Case Number "${val}" is already registered in ${dup.source === 'database' ? 'table ' + dup.table : 'records'}!</span>`;
+        parent.appendChild(badge);
+      } else {
+        const badge = document.createElement('div');
+        badge.className = 'case-dup-ok';
+        badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>Case Number is unique & available.</span>`;
+        parent.appendChild(badge);
+      }
+    };
+
+    input.addEventListener('blur', validateInput);
+    input.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(validateInput, 400);
+    });
+  });
+}
+window.attachCaseNumberDuplicateListeners = attachCaseNumberDuplicateListeners;
+
+// Add Case to Supabase (or local fallback) with Strict Duplicate Prevention
 async function addCaseToSupabase(newCase) {
   let dbInsertFailed = false;
+
+  // Clean and normalize case number
+  const cleanCaseNo = (newCase.caseNo || '').trim().replace(/\s+/g, ' ');
+  newCase.caseNo = cleanCaseNo;
+  if (newCase.criminalCaseNumber) newCase.criminalCaseNumber = cleanCaseNo;
+
+  // Pre-check database for duplicate before attempting insert
+  if (cleanCaseNo) {
+    const dupCheck = await checkCaseNumberExists(cleanCaseNo);
+    if (dupCheck.exists) {
+      console.warn(`[Duplicate Blocked] Case ${cleanCaseNo} already exists in ${dupCheck.source} (${dupCheck.table || 'records'}).`);
+      alert(`❌ Duplicate Entry Blocked!\n\nCase Number "${cleanCaseNo}" is already registered in the database (${dupCheck.source === 'database' ? 'Table: ' + dupCheck.table : 'Case Register'}).\n\nRepeated entry is blocked to preserve database integrity.`);
+      return;
+    }
+  }
 
   if (supabaseClient) {
     try {
@@ -991,9 +1181,15 @@ async function addCaseToSupabase(newCase) {
     }
   }
 
-  // Only add to in-memory records if DB insert succeeded (or DB not available)
+  // Only add to in-memory records if DB insert succeeded (or DB not available) AND not already in records
   if (!dbInsertFailed) {
-    allCaseRecords.unshift(newCase);
+    const alreadyLocal = allCaseRecords.some(c =>
+      (c.caseNo || '').trim().toLowerCase() === cleanCaseNo.toLowerCase() ||
+      (c.criminalCaseNumber || '').trim().toLowerCase() === cleanCaseNo.toLowerCase()
+    );
+    if (!alreadyLocal) {
+      allCaseRecords.unshift(newCase);
+    }
     refreshAllCaseTables();
   }
 }
@@ -1416,17 +1612,40 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
 // ==============================================================================
 
 async function addCourtToSupabase(courtName) {
+  const trimmed = (courtName || '').trim();
+  if (!trimmed) return;
+
+  const alreadyInMemory = courts.some(c => c.trim().toLowerCase() === trimmed.toLowerCase());
+
   if (supabaseClient) {
     try {
-      const { error } = await supabaseClient.from('courts').insert([{ court_name: courtName, court_type: 'District Court' }]);
+      // Check live database for duplicate court
+      const { data: existing } = await supabaseClient
+        .from('courts')
+        .select('court_name')
+        .ilike('court_name', trimmed)
+        .limit(1);
+
+      if (existing && existing.length > 0) {
+        console.warn(`Court "${trimmed}" already exists in Supabase courts table.`);
+        if (!alreadyInMemory) {
+          courts.push(existing[0].court_name || trimmed);
+          renderCourtOptions();
+          renderCriminalCourtOptions();
+          renderCourtsTable();
+        }
+        return;
+      }
+
+      const { error } = await supabaseClient.from('courts').insert([{ court_name: trimmed, court_type: 'District Court' }]);
       if (error) console.error('Supabase add court error:', error);
     } catch (e) {
       console.error('Supabase add court exception:', e);
     }
   }
 
-  if (!courts.includes(courtName)) {
-    courts.push(courtName);
+  if (!alreadyInMemory) {
+    courts.push(trimmed);
   }
   renderCourtOptions();
   renderCriminalCourtOptions();
@@ -5498,13 +5717,16 @@ function setTodoDeadlinePreset(preset) {
 }
 window.setTodoDeadlinePreset = setTodoDeadlinePreset;
 
+let isSubmittingTodo = false;
 async function handleAddTodoSubmit(e) {
   if (e && e.preventDefault) e.preventDefault();
+  if (isSubmittingTodo) return false;
 
   const select = document.getElementById('todoCaseSelect');
   const titleInput = document.getElementById('todoTitle');
   const deadlineInput = document.getElementById('todoDeadline');
   const priorityInput = document.getElementById('todoPriority');
+  const submitBtn = document.querySelector('#todoForm button[type="submit"]') || document.getElementById('addTodoSubmitBtn');
 
   const caseNo = select?.value?.trim();
   const title = titleInput?.value?.trim();
@@ -5513,6 +5735,19 @@ async function handleAddTodoSubmit(e) {
 
   if (!caseNo || !title || !deadline) {
     alert('Please fill in all task fields.');
+    return false;
+  }
+
+  // Prevent duplicate pending task (same case + same title + same deadline)
+  const isDuplicateTask = caseTasks.some(t => 
+    t.status !== 'completed' &&
+    (t.caseNo || '').trim().toLowerCase() === caseNo.toLowerCase() &&
+    (t.taskTitle || '').trim().toLowerCase() === title.toLowerCase() &&
+    t.deadlineDate === deadline
+  );
+
+  if (isDuplicateTask) {
+    alert(`⚠️ A pending task "${title}" with deadline ${deadline} already exists for case ${caseNo}.`);
     return false;
   }
 
@@ -5525,46 +5760,75 @@ async function handleAddTodoSubmit(e) {
   const caseName = found ? (found.caseName || (found.plaintiff ? `${found.plaintiff} vs ${found.defendant}` : (found.victimName ? `${found.victimName} vs ${found.accusedName}` : '—'))) : '—';
   const hearingDate = found?.nextHearing || null;
 
-  const newTask = {
-    id: 'task_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
-    caseNo,
-    caseName,
-    taskTitle: title,
-    hearingDate,
-    deadlineDate: deadline,
-    priority,
-    status: 'pending',
-    createdAt: new Date().toISOString()
-  };
+  try {
+    isSubmittingTodo = true;
+    if (submitBtn) submitBtn.disabled = true;
 
-  caseTasks.unshift(newTask);
-  saveCaseTasksLocally();
-  renderCaseTasks(currentTodoFilter);
+    // Check live Supabase for duplicate pending task
+    if (supabaseClient) {
+      try {
+        const { data: dupDb } = await supabaseClient
+          .from('case_todos')
+          .select('id')
+          .ilike('case_number', caseNo)
+          .ilike('task_title', title)
+          .eq('deadline_date', deadline)
+          .neq('status', 'completed')
+          .limit(1);
 
-  if (titleInput) titleInput.value = '';
-  showToastNotification(`📝 Task scheduled for ${caseNo}!`);
-
-  // Live Supabase Sync (if configured)
-  if (supabaseClient) {
-    try {
-      const { data, error } = await supabaseClient.from('case_todos').insert([{
-        case_number: newTask.caseNo,
-        case_name: newTask.caseName,
-        task_title: newTask.taskTitle,
-        hearing_date: newTask.hearingDate && newTask.hearingDate !== '—' ? newTask.hearingDate : null,
-        deadline_date: newTask.deadlineDate,
-        priority: newTask.priority,
-        status: newTask.status
-      }]).select();
-
-      if (!error && data && data.length > 0) {
-        newTask.id = data[0].id;
-        saveCaseTasksLocally();
-        updateTodoSyncIndicator(true);
+        if (dupDb && dupDb.length > 0) {
+          alert(`⚠️ A pending task "${title}" already exists in the database for case ${caseNo}.`);
+          return false;
+        }
+      } catch (checkErr) {
+        console.warn('Supabase task duplicate check fallback:', checkErr);
       }
-    } catch (supaErr) {
-      console.warn('Supabase task insert fallback to local:', supaErr);
     }
+
+    const newTask = {
+      id: 'task_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+      caseNo,
+      caseName,
+      taskTitle: title,
+      hearingDate,
+      deadlineDate: deadline,
+      priority,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+
+    caseTasks.unshift(newTask);
+    saveCaseTasksLocally();
+    renderCaseTasks(currentTodoFilter);
+
+    if (titleInput) titleInput.value = '';
+    showToastNotification(`📝 Task scheduled for ${caseNo}!`);
+
+    // Live Supabase Sync (if configured)
+    if (supabaseClient) {
+      try {
+        const { data, error } = await supabaseClient.from('case_todos').insert([{
+          case_number: newTask.caseNo,
+          case_name: newTask.caseName,
+          task_title: newTask.taskTitle,
+          hearing_date: newTask.hearingDate && newTask.hearingDate !== '—' ? newTask.hearingDate : null,
+          deadline_date: newTask.deadlineDate,
+          priority: newTask.priority,
+          status: newTask.status
+        }]).select();
+
+        if (!error && data && data.length > 0) {
+          newTask.id = data[0].id;
+          saveCaseTasksLocally();
+          updateTodoSyncIndicator(true);
+        }
+      } catch (supaErr) {
+        console.warn('Supabase task insert fallback to local:', supaErr);
+      }
+    }
+  } finally {
+    isSubmittingTodo = false;
+    if (submitBtn) submitBtn.disabled = false;
   }
 
   return false;
@@ -6539,11 +6803,19 @@ function loadCaseForUpdate(caseNoToFind) {
   }
 }
 
+let isSubmittingUpdate = false;
 async function handleUpdateCaseSubmit(e) {
   if (e && typeof e.preventDefault === 'function') e.preventDefault();
+  if (isSubmittingUpdate) {
+    console.warn('Case update submission already in progress, blocking duplicate.');
+    return;
+  }
 
   const caseType = document.getElementById('updateCaseTypeDropdown')?.value || 'civil';
   const statusEl = document.getElementById('updateSearchStatus');
+  const updateForm = document.getElementById('updateCaseForm');
+  const submitBtn = updateForm?.querySelector('button[type="submit"]');
+  const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '<i class="fa-solid fa-save"></i> Save Case Details';
 
   let newCaseNumber = '';
   let newCaseYear = '';
@@ -6581,24 +6853,33 @@ async function handleUpdateCaseSubmit(e) {
 
   const originalCaseNo = currentlyLoadedOriginalCaseNo || newCaseNumber;
 
-  // Check duplicate if case number is changed
+  // Check duplicate if case number is changed (both in-memory and live Supabase query across all tables)
   if (newCaseNumber.toLowerCase() !== originalCaseNo.toLowerCase()) {
-    const duplicate = allCaseRecords.find(c => {
-      const num1 = (c.caseNo || '').toLowerCase();
-      const num2 = (c.criminalCaseNumber || '').toLowerCase();
-      const isCurrent = num1 === originalCaseNo.toLowerCase() || num2 === originalCaseNo.toLowerCase();
-      return !isCurrent && (num1 === newCaseNumber.toLowerCase() || num2 === newCaseNumber.toLowerCase());
-    });
-
-    if (duplicate) {
-      alert(`Case Number "${newCaseNumber}" already exists on another case. Please choose a unique Case Number.`);
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking Duplicate...';
+    }
+    const duplicateExists = await checkCaseNumberExists(newCaseNumber, originalCaseNo);
+    if (duplicateExists) {
+      alert(`❌ Case Number "${newCaseNumber}" already exists in the database! Please choose a unique Case Number.`);
       if (statusEl) {
         statusEl.textContent = `❌ Case Number "${newCaseNumber}" already exists on another case.`;
         statusEl.className = 'update-status-msg error';
       }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHtml;
+      }
       return;
     }
   }
+
+  try {
+    isSubmittingUpdate = true;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Updates...';
+    }
 
   const caseIndex = allCaseRecords.findIndex(c => {
     const num1 = (c.caseNo || '').toLowerCase();
@@ -6808,6 +7089,20 @@ async function handleUpdateCaseSubmit(e) {
     showToast(`Case ${newCaseNumber} details updated successfully!`, 'success');
   } else {
     alert(`Case ${newCaseNumber} details updated successfully!`);
+  }
+  } catch (updateErr) {
+    console.error('Error updating case:', updateErr);
+    alert(`Error updating case: ${updateErr.message || updateErr}`);
+    if (statusEl) {
+      statusEl.textContent = `❌ Error: ${updateErr.message || updateErr}`;
+      statusEl.className = 'update-status-msg error';
+    }
+  } finally {
+    isSubmittingUpdate = false;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHtml;
+    }
   }
 }
 
@@ -7046,6 +7341,10 @@ function toggleCaseFormByType() {
       p.querySelectorAll('input, select, textarea').forEach(field => { field.disabled = true; });
     }
   });
+
+  if (typeof clearCaseNumberValidationBadges === 'function') {
+    clearCaseNumberValidationBadges();
+  }
 }
 
 function toggleUpdateCaseFormByType() {
@@ -7159,6 +7458,9 @@ function initializeApp() {
   window.__caseMgmtInitialized = true;
 
   setupOtherFieldToggles();
+  if (typeof attachCaseNumberDuplicateListeners === 'function') {
+    attachCaseNumberDuplicateListeners();
+  }
 
   // 1. Mobile Sidebar Navigation Drawer
   const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
@@ -7255,80 +7557,18 @@ function initializeApp() {
     exportCsvBtn.addEventListener('click', exportAllCasesToCSV);
   }
 
-  // Double-click to copy case number in Search Cases tab
-  const detailCaseNoEl = document.getElementById('detailCaseNo');
-  if (detailCaseNoEl) {
-    detailCaseNoEl.addEventListener('dblclick', () => {
-      const text = detailCaseNoEl.textContent.trim();
-      if (text && text !== '—') {
-        copyCaseNumberToClipboard(text, detailCaseNoEl);
-      }
-    });
-  }
-
-  const searchTab = document.getElementById('search');
-  if (searchTab) {
-    searchTab.addEventListener('dblclick', (e) => {
-      const target = e.target.closest('.copyable-case-no') || e.target.closest('td:nth-child(2)');
-      if (target && searchTab.querySelector('.search-results-table')?.contains(target)) {
-        const text = target.textContent.trim();
-        if (text && text !== '—' && text !== 'Case Number') {
-          copyCaseNumberToClipboard(text, target);
-        }
-      }
-    });
-  }
-
-  const guestSearchInput = document.getElementById('guestSearch');
-  if (guestSearchInput) {
-    guestSearchInput.addEventListener('input', (event) => renderGuestTable(event.target.value));
-  }
-
-  const loginForm = document.getElementById('loginForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', handleAdminLogin);
-  }
-
-  const guestModeBtn = document.getElementById('guestModeBtn');
-  if (guestModeBtn) {
-    guestModeBtn.addEventListener('click', handleGuestLogin);
-  }
-
-  const adminLogoutBtn = document.getElementById('adminLogoutBtn');
-  if (adminLogoutBtn) {
-    adminLogoutBtn.addEventListener('click', handleLogout);
-  }
-
-  const guestLogoutBtn = document.getElementById('guestLogoutBtn');
-  if (guestLogoutBtn) {
-    guestLogoutBtn.addEventListener('click', handleLogout);
-  }
-
-  const demoNote = document.getElementById('demoNote');
-  if (demoNote) {
-    demoNote.addEventListener('click', () => {
-      const u = document.getElementById('username');
-      const p = document.getElementById('password');
-      if (u) u.value = 'admin';
-      if (p) p.value = 'admin123';
-      const err = document.getElementById('loginError');
-      if (err) err.textContent = '';
-    });
-  }
-
-  const loginUser = safeStorage.get('cmUser');
-  if (loginUser === 'admin') {
-    setActiveScreen('adminScreen');
-  } else if (loginUser === 'guest') {
-    renderGuestTable();
-    setActiveScreen('guestScreen');
-  } else {
-    setActiveScreen('loginScreen');
-  }
-
-  // 2. Handle Add Case Form Submit (Live Supabase sync)
+  // 2. Handle Add Case Form Submit (Live Supabase sync & strict duplicate prevention)
+  let isSubmittingCase = false;
   document.querySelector('#add form')?.addEventListener('submit', async function(e) {
     e.preventDefault();
+    if (isSubmittingCase) {
+      console.warn('Case submission already in progress, duplicate submit blocked.');
+      return;
+    }
+
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '<i class="fa-solid fa-plus"></i> Submit Case';
+
     const caseType = document.getElementById('caseTypeDropdown')?.value || 'civil';
     
     let newCase = {};
@@ -7432,13 +7672,13 @@ function initializeApp() {
         caseType: 'revenue',
         caseNo: revenueCaseNumber,
         caseYear: revenueCaseYear,
-        revenueActSection,
-        filingDate: revenueFilingDate,
-        villageMauja: revenueVillage,
-        parganaTehsil: revenueTehsil,
-        gataKhataNo: revenueGataNo,
+        actSection: revenueActSection,
+        village: revenueVillage,
+        tehsil: revenueTehsil,
+        gataNo: revenueGataNo,
         applicant: revenueApplicant,
         oppositeParty: revenueOppositeParty,
+        filingDate: revenueFilingDate,
         courtName: revenueCourtName,
         clientName: revenueClientName,
         clientNumber: revenueClientNumber,
@@ -7453,9 +7693,9 @@ function initializeApp() {
       const miscCivilCaseNumber = document.getElementById('miscCivilCaseNumber')?.value?.trim();
       const miscCivilCaseYear = document.getElementById('miscCivilCaseYear')?.value?.trim();
       const miscCivilOriginalCase = document.getElementById('miscCivilOriginalCase')?.value?.trim();
-      const miscCivilProceedingSelect = document.getElementById('miscCivilProceedingType')?.value?.trim();
-      const miscCivilProceedingCustom = document.getElementById('miscCivilProceedingTypeCustom')?.value?.trim();
-      const miscCivilProceedingType = (miscCivilProceedingSelect && miscCivilProceedingSelect.toLowerCase().startsWith('other') && miscCivilProceedingCustom) ? miscCivilProceedingCustom : (miscCivilProceedingCustom || miscCivilProceedingSelect || 'Temporary Injunction (Order 39 Rule 1 & 2 CPC)');
+      const miscCivilProcSelect = document.getElementById('miscCivilProceedingType')?.value?.trim();
+      const miscCivilProcCustom = document.getElementById('miscCivilProceedingTypeCustom')?.value?.trim();
+      const miscCivilProceedingType = (miscCivilProcSelect && miscCivilProcSelect.toLowerCase().startsWith('other') && miscCivilProcCustom) ? miscCivilProcCustom : (miscCivilProcSelect || miscCivilProcCustom || 'Execution Petition (डिग्री तामीली)');
 
       const miscCivilApplicant = document.getElementById('miscCivilApplicant')?.value?.trim();
       const miscCivilOppositeParty = document.getElementById('miscCivilOppositeParty')?.value?.trim();
@@ -7488,13 +7728,13 @@ function initializeApp() {
       const miscCriminalCaseNumber = document.getElementById('miscCriminalCaseNumber')?.value?.trim();
       const miscCriminalCaseYear = document.getElementById('miscCriminalCaseYear')?.value?.trim();
       const miscCriminalOriginalCase = document.getElementById('miscCriminalOriginalCase')?.value?.trim();
-      const miscCriminalProceedingSelect = document.getElementById('miscCriminalProceedingType')?.value?.trim();
-      const miscCriminalProceedingCustom = document.getElementById('miscCriminalProceedingTypeCustom')?.value?.trim();
-      const miscCriminalProceedingType = (miscCriminalProceedingSelect && miscCriminalProceedingSelect.toLowerCase().startsWith('other') && miscCriminalProceedingCustom) ? miscCriminalProceedingCustom : (miscCriminalProceedingCustom || miscCriminalProceedingSelect || 'Regular Bail (Sec 439 CrPC / Sec 483 BNSS)');
+      const miscCrimProcSelect = document.getElementById('miscCriminalProceedingType')?.value?.trim();
+      const miscCrimProcCustom = document.getElementById('miscCriminalProceedingTypeCustom')?.value?.trim();
+      const miscCriminalProceedingType = (miscCrimProcSelect && miscCrimProcSelect.toLowerCase().startsWith('other') && miscCrimProcCustom) ? miscCrimProcCustom : (miscCrimProcSelect || miscCrimProcCustom || 'Anticipatory Bail (अग्रिम जमानत)');
 
-      const miscCriminalPoliceSelect = document.getElementById('miscCriminalPoliceStation')?.value?.trim();
-      const miscCriminalPoliceCustom = document.getElementById('miscCriminalPoliceStationCustom')?.value?.trim();
-      const miscCriminalPoliceStation = (miscCriminalPoliceSelect === 'Other' && miscCriminalPoliceCustom) ? miscCriminalPoliceCustom : (miscCriminalPoliceSelect || miscCriminalPoliceCustom || '');
+      const miscCrimPsSelect = document.getElementById('miscCriminalPoliceStation')?.value?.trim();
+      const miscCrimPsCustom = document.getElementById('miscCriminalPoliceStationCustom')?.value?.trim();
+      const miscCriminalPoliceStation = (miscCrimPsSelect === 'Other' && miscCrimPsCustom) ? miscCrimPsCustom : (miscCrimPsSelect || miscCrimPsCustom || '');
 
       const miscCriminalCrimeSection = document.getElementById('miscCriminalCrimeSection')?.value?.trim();
       const miscCriminalApplicant = document.getElementById('miscCriminalApplicant')?.value?.trim();
@@ -7594,27 +7834,45 @@ function initializeApp() {
       };
     }
 
-    // --- Duplicate prevention: check if case number already exists ---
-    const caseNoToCheck = (newCase.caseNo || '').toLowerCase();
-    if (caseNoToCheck) {
-      const existingCase = allCaseRecords.find(c => {
-        const num1 = (c.caseNo || '').toLowerCase();
-        const num2 = (c.criminalCaseNumber || '').toLowerCase();
-        return num1 === caseNoToCheck || num2 === caseNoToCheck;
-      });
-      if (existingCase) {
-        alert(`❌ Case Number "${newCase.caseNo}" already exists! Please use a different Case Number or update the existing case from the Update tab.`);
-        return;
-      }
+    if (!newCase.caseNo) {
+      alert('Please enter a valid Case Number.');
+      return;
     }
 
-    const recordCountBefore = allCaseRecords.length;
-    await addCaseToSupabase(newCase);
+    try {
+      isSubmittingCase = true;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking & Adding...';
+      }
 
-    // Only show success and reset form if the case was actually added
-    if (allCaseRecords.length > recordCountBefore) {
-      this.reset();
-      alert(`Case ${newCase.caseNo} added successfully!`);
+      // Live Supabase + local memory uniqueness verification
+      const exists = await checkCaseNumberExists(newCase.caseNo);
+      if (exists) {
+        alert(`❌ Case Number "${newCase.caseNo}" already exists in the database!\n\nPlease use a unique case number or update the existing record.`);
+        return;
+      }
+
+      const recordCountBefore = allCaseRecords.length;
+      await addCaseToSupabase(newCase);
+
+      // Only show success and reset form if the case was actually added
+      if (allCaseRecords.length > recordCountBefore) {
+        this.reset();
+        if (typeof clearCaseNumberValidationBadges === 'function') {
+          clearCaseNumberValidationBadges();
+        }
+        alert(`Case ${newCase.caseNo} added successfully!`);
+      }
+    } catch (err) {
+      console.error('Error submitting case:', err);
+      alert(`Error submitting case: ${err.message || err}`);
+    } finally {
+      isSubmittingCase = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHtml;
+      }
     }
   });
 
@@ -7997,9 +8255,11 @@ function initializeApp() {
   });
 
   // 6. Handle Add Court Button (Live Supabase sync)
+  let isSubmittingCourt = false;
   const saveCourtBtn = document.getElementById('saveCourtBtn');
   if (saveCourtBtn) {
     saveCourtBtn.addEventListener('click', async () => {
+      if (isSubmittingCourt) return;
       const input = document.getElementById('courtInput');
       const courtName = input?.value.trim();
 
@@ -8008,7 +8268,18 @@ function initializeApp() {
         return;
       }
 
-      if (!courts.includes(courtName)) {
+      const alreadyExists = courts.some(c => c.trim().toLowerCase() === courtName.toLowerCase());
+      if (alreadyExists) {
+        alert(`Court "${courtName}" already exists.`);
+        return;
+      }
+
+      const originalText = saveCourtBtn.textContent;
+      try {
+        isSubmittingCourt = true;
+        saveCourtBtn.disabled = true;
+        saveCourtBtn.textContent = 'Saving Court...';
+
         await addCourtToSupabase(courtName);
         input.value = '';
 
@@ -8020,8 +8291,13 @@ function initializeApp() {
 
         showTab('add');
         alert(`Court "${courtName}" added successfully!`);
-      } else {
-        alert('This court already exists.');
+      } catch (err) {
+        console.error('Error saving court:', err);
+        alert(`Error saving court: ${err.message || err}`);
+      } finally {
+        isSubmittingCourt = false;
+        saveCourtBtn.disabled = false;
+        saveCourtBtn.textContent = originalText;
       }
     });
   }
@@ -9132,10 +9408,12 @@ function closeDbModal() {
   if (form) form.reset();
 }
 
+let isSubmittingDbRecord = false;
 async function handleDbRecordFormSubmit(event) {
   if (event) {
     event.preventDefault();
   }
+  if (isSubmittingDbRecord) return false;
 
   const schema = DB_SCHEMAS[currentDbTable];
   if (!schema) return false;
@@ -9143,6 +9421,7 @@ async function handleDbRecordFormSubmit(event) {
   const recordId = document.getElementById('dbRecordId')?.value?.trim();
   const action = document.getElementById('dbRecordAction')?.value || 'create';
   const statusMsg = document.getElementById('dbModalStatusMsg');
+  const modalSaveBtn = document.querySelector('#dbManagerFormModal button[type="submit"]') || document.getElementById('dbModalSaveBtn');
 
   // Collect form data
   const payload = {};
@@ -9165,68 +9444,105 @@ async function handleDbRecordFormSubmit(event) {
 
   payload.updated_at = new Date().toISOString();
 
+  // Duplicate Prevention: Check case_number or case_no across all tables
+  if (action === 'create') {
+    const caseNum = (payload.case_number || payload.case_no || '').trim();
+    if (caseNum && ['civilcases', 'statecases', 'familycases', 'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases'].includes(currentDbTable)) {
+      const exists = await checkCaseNumberExists(caseNum);
+      if (exists) {
+        alert(`❌ Case Number "${caseNum}" already exists in the database! Duplicate insertion prevented.`);
+        if (statusMsg) {
+          statusMsg.textContent = `❌ Case Number "${caseNum}" already exists in database.`;
+          statusMsg.className = 'update-status-msg error';
+        }
+        return false;
+      }
+    }
+
+    // Duplicate check for court_name
+    if (currentDbTable === 'courts') {
+      const courtName = (payload.court_name || '').trim();
+      if (courtName && courts.some(c => c.trim().toLowerCase() === courtName.toLowerCase())) {
+        alert(`❌ Court "${courtName}" already exists!`);
+        if (statusMsg) {
+          statusMsg.textContent = `❌ Court "${courtName}" already exists.`;
+          statusMsg.className = 'update-status-msg error';
+        }
+        return false;
+      }
+    }
+  }
+
   if (statusMsg) {
     statusMsg.textContent = 'Saving to database...';
     statusMsg.className = 'update-status-msg';
   }
 
-  if (action === 'create') {
-    // Insert operation
-    if (supabaseClient) {
-      try {
-        const { data, error } = await supabaseClient.from(currentDbTable).insert([payload]).select();
-        if (error) {
-          console.error(`Supabase insert error on ${currentDbTable}:`, error);
-          if (error.code === '23505') {
-            alert(`❌ Duplicate Entry Error: A record with this unique value already exists in "${currentDbTable}".`);
-          } else {
-            alert(`⚠️ Failed to insert into Supabase: ${error.message || 'Unknown error'}`);
+  try {
+    isSubmittingDbRecord = true;
+    if (modalSaveBtn) modalSaveBtn.disabled = true;
+
+    if (action === 'create') {
+      // Insert operation
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient.from(currentDbTable).insert([payload]).select();
+          if (error) {
+            console.error(`Supabase insert error on ${currentDbTable}:`, error);
+            if (error.code === '23505') {
+              alert(`❌ Duplicate Entry Error: A record with this unique value already exists in "${currentDbTable}".`);
+            } else {
+              alert(`⚠️ Failed to insert into Supabase: ${error.message || 'Unknown error'}`);
+            }
+            if (statusMsg) {
+              statusMsg.textContent = `Error: ${error.message}`;
+              statusMsg.className = 'update-status-msg error';
+            }
+            return false;
           }
-          if (statusMsg) {
-            statusMsg.textContent = `Error: ${error.message}`;
-            statusMsg.className = 'update-status-msg error';
-          }
-          return false;
+        } catch (err) {
+          console.error('Supabase insert exception:', err);
         }
-      } catch (err) {
-        console.error('Supabase insert exception:', err);
       }
-    }
 
-    // Refresh application state
-    await fetchAllDataFromSupabase();
-    await fetchAndRenderDbTable(currentDbTable);
-    closeDbModal();
-    alert(`✅ Record created in "${currentDbTable}" successfully!`);
-  } else {
-    // Update operation
-    if (!recordId) {
-      alert('Cannot update record without an ID.');
-      return false;
-    }
+      // Refresh application state
+      await fetchAllDataFromSupabase();
+      await fetchAndRenderDbTable(currentDbTable);
+      closeDbModal();
+      alert(`✅ Record created in "${currentDbTable}" successfully!`);
+    } else {
+      // Update operation
+      if (!recordId) {
+        alert('Cannot update record without an ID.');
+        return false;
+      }
 
-    if (supabaseClient) {
-      try {
-        const { error } = await supabaseClient.from(currentDbTable).update(payload).eq('id', recordId);
-        if (error) {
-          console.error(`Supabase update error on ${currentDbTable}:`, error);
-          alert(`⚠️ Failed to update record in Supabase: ${error.message || 'Unknown error'}`);
-          if (statusMsg) {
-            statusMsg.textContent = `Error: ${error.message}`;
-            statusMsg.className = 'update-status-msg error';
+      if (supabaseClient) {
+        try {
+          const { error } = await supabaseClient.from(currentDbTable).update(payload).eq('id', recordId);
+          if (error) {
+            console.error(`Supabase update error on ${currentDbTable}:`, error);
+            alert(`⚠️ Failed to update record in Supabase: ${error.message || 'Unknown error'}`);
+            if (statusMsg) {
+              statusMsg.textContent = `Error: ${error.message}`;
+              statusMsg.className = 'update-status-msg error';
+            }
+            return false;
           }
-          return false;
+        } catch (err) {
+          console.error('Supabase update exception:', err);
         }
-      } catch (err) {
-        console.error('Supabase update exception:', err);
       }
-    }
 
-    // Refresh application state
-    await fetchAllDataFromSupabase();
-    await fetchAndRenderDbTable(currentDbTable);
-    closeDbModal();
-    alert(`✅ Record updated in "${currentDbTable}" successfully!`);
+      // Refresh application state
+      await fetchAllDataFromSupabase();
+      await fetchAndRenderDbTable(currentDbTable);
+      closeDbModal();
+      alert(`✅ Record updated in "${currentDbTable}" successfully!`);
+    }
+  } finally {
+    isSubmittingDbRecord = false;
+    if (modalSaveBtn) modalSaveBtn.disabled = false;
   }
 
   return false;
