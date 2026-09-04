@@ -3545,458 +3545,514 @@ html, body {
 }
 
 /* ==============================================================================
-   Bridge in Progress Modal Card UI (Visual Reference Implementation)
+   Upcoming Court Hearings (Next 7 Days) - Executive Judicial Docket Design
+   Completely bespoke design tailored for advocates & legal chambers
    ============================================================================== */
-/* ==============================================================================
-   Upcoming Hearings (Next 7 Days) - Attractive Modern Card Experience
-   ============================================================================== */
-.bridge-modal-page-wrapper {
-  background: #f8fafc !important;
-  min-height: calc(100vh - 120px) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: flex-start !important;
-  align-items: center !important;
-  padding: 32px 20px 64px 20px !important;
-  box-sizing: border-box !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+
+.upcoming-dashboard-wrapper {
+  background: #f8fafc;
+  min-height: calc(100vh - 110px);
+  padding: 24px 20px 60px 20px;
+  box-sizing: border-box;
 }
 
-.upcoming-header-banner {
-  width: 100% !important;
-  max-width: 1320px !important;
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 18px !important;
-  padding: 20px 24px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  margin-bottom: 28px !important;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
-  box-sizing: border-box !important;
+/* --- Executive Hero Control Banner --- */
+.upcoming-hero-banner {
+  max-width: 1380px;
+  margin: 0 auto 24px auto;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #0d3b30 100%);
+  border-radius: 20px;
+  padding: 26px 30px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: 0 12px 32px -6px rgba(15, 23, 42, 0.2), 0 4px 12px rgba(15, 23, 42, 0.08);
+  position: relative;
+  overflow: hidden;
 }
 
-.upcoming-header-title-box {
-  display: flex !important;
-  align-items: center !important;
-  gap: 14px !important;
+.upcoming-hero-banner::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(255,255,255,0) 70%);
+  pointer-events: none;
 }
 
-.upcoming-header-icon {
-  width: 46px !important;
-  height: 46px !important;
-  border-radius: 14px !important;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  color: #ffffff !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 20px !important;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28) !important;
+.upcoming-hero-info {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  position: relative;
+  z-index: 1;
 }
 
-.upcoming-header-title-box h2 {
-  margin: 0 !important;
-  font-size: 20px !important;
-  font-weight: 700 !important;
-  color: #0f172a !important;
-  letter-spacing: -0.02em !important;
+.upcoming-hero-emblem {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #34d399;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-.upcoming-header-title-box p {
-  margin: 3px 0 0 0 !important;
-  font-size: 13px !important;
-  color: #64748b !important;
+.upcoming-hero-text h2 {
+  margin: 0 0 4px 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
 }
 
-.upcoming-header-actions {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
+.upcoming-hero-text p {
+  margin: 0;
+  font-size: 13.5px;
+  color: #cbd5e1;
+  font-weight: 400;
 }
 
-.upcoming-count-pill {
-  background: #ecfdf5 !important;
-  color: #047857 !important;
-  border: 1px solid #a7f3d0 !important;
-  border-radius: 9999px !important;
-  padding: 6px 16px !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
+.upcoming-hero-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
 }
 
-.bridge-modal-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 390px)) !important;
-  justify-content: center !important;
-  gap: 28px !important;
-  width: 100% !important;
-  max-width: 1320px !important;
-  margin: 0 auto !important;
+.upcoming-stat-pill {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: #6ee7b7;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(8px);
 }
 
-.bridge-modal-card {
-  width: 100% !important;
-  background: #ffffff !important;
-  border-radius: 20px !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.05), 0 4px 8px -2px rgba(15, 23, 42, 0.02) !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease !important;
-  display: flex !important;
-  flex-direction: column !important;
-  position: relative !important;
+.upcoming-cal-btn {
+  background: #ffffff;
+  color: #0f172a;
+  border: none;
+  border-radius: 9999px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
 }
 
-.bridge-modal-card:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: 0 18px 36px -6px rgba(15, 23, 42, 0.09), 0 8px 16px -4px rgba(15, 23, 42, 0.04) !important;
-  border-color: #cbd5e1 !important;
+.upcoming-cal-btn:hover {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
-.bridge-card-header {
-  background: #f0fdf4 !important;
-  border-bottom: 1px solid #dcfce7 !important;
-  padding: 14px 20px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
+/* --- Multi-Card Docket Grid --- */
+.legal-hearing-grid {
+  max-width: 1380px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+  gap: 24px;
 }
 
-.bridge-card-header.is-urgent {
-  background: #fef2f2 !important;
-  border-bottom-color: #fee2e2 !important;
+/* --- Modern Legal Hearing Card --- */
+.legal-hearing-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+  position: relative;
 }
 
-.bridge-header-status-badge {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
+.legal-hearing-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 38px -8px rgba(15, 23, 42, 0.10), 0 8px 16px -4px rgba(15, 23, 42, 0.04);
+  border-color: #cbd5e1;
 }
 
-.bridge-status-pulse-dot {
-  width: 9px !important;
-  height: 9px !important;
-  border-radius: 50% !important;
-  background: #10b981 !important;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25) !important;
+/* Urgent state for cards listed today */
+.legal-hearing-card.urgent-today {
+  border-color: #fecaca;
+  box-shadow: 0 8px 24px -4px rgba(239, 68, 68, 0.12), 0 2px 6px rgba(15, 23, 42, 0.03);
 }
 
-.bridge-card-header.is-urgent .bridge-status-pulse-dot {
-  background: #ef4444 !important;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+.legal-hearing-card.urgent-today:hover {
+  border-color: #fca5a5;
+  box-shadow: 0 20px 40px -8px rgba(239, 68, 68, 0.2), 0 8px 16px rgba(15, 23, 42, 0.04);
 }
 
-.bridge-header-title {
-  font-size: 13.5px !important;
-  font-weight: 700 !important;
-  color: #166534 !important;
-  letter-spacing: -0.01em !important;
+/* Card Header Strip */
+.hearing-card-header {
+  padding: 16px 20px 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
 }
 
-.bridge-card-header.is-urgent .bridge-header-title {
-  color: #991b1b !important;
+.hearing-countdown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
 }
 
-.bridge-close-btn {
-  width: 30px !important;
-  height: 30px !important;
-  background-color: #ffffff !important;
-  border-radius: 8px !important;
-  border: 1px solid #e2e8f0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  color: #64748b !important;
-  font-size: 13px !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-  transition: all 0.15s ease !important;
-  padding: 0 !important;
+.hearing-countdown-badge.today {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+  animation: pulseToday 2s infinite ease-in-out;
 }
 
-.bridge-close-btn:hover {
-  background-color: #f1f5f9 !important;
-  color: #0f172a !important;
-  transform: scale(1.04) !important;
+.hearing-countdown-badge.tomorrow {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
 }
 
-.bridge-card-body {
-  padding: 20px 22px 22px 22px !important;
-  background-color: #ffffff !important;
-  display: flex !important;
-  flex-direction: column !important;
-  flex: 1 !important;
+@keyframes pulseToday {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
 }
 
-.bridge-illustration-placeholder {
-  width: 100% !important;
-  min-height: 126px !important;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 14px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin-bottom: 18px !important;
-  overflow: hidden !important;
-  position: relative !important;
+.hearing-type-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.bridge-hero-content {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  text-align: center !important;
-  padding: 16px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
+.hearing-type-badge.civil {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
 }
 
-.bridge-hero-badge-row {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  margin-bottom: 9px !important;
-  flex-wrap: wrap !important;
+.hearing-type-badge.state,
+.hearing-type-badge.criminal {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
 }
 
-.bridge-day-badge {
-  background: #ffffff !important;
-  color: #059669 !important;
-  border: 1px solid #a7f3d0 !important;
-  border-radius: 9999px !important;
-  padding: 3.5px 12px !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.02em !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 5px !important;
+.hearing-type-badge.family {
+  background: #fce7f3;
+  color: #be185d;
+  border: 1px solid #fbcfe8;
 }
 
-.bridge-day-badge.today {
-  background: #fef2f2 !important;
-  color: #dc2626 !important;
-  border-color: #fecaca !important;
+.hearing-type-badge.consumer,
+.hearing-type-badge.revenue {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
 }
 
-.bridge-hero-caseno {
-  font-size: 18px !important;
-  font-weight: 800 !important;
-  color: #0f172a !important;
-  letter-spacing: -0.02em !important;
-  margin: 0 0 5px 0 !important;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+/* Card Case Identity Title Block */
+.hearing-card-title-block {
+  padding: 16px 20px 14px 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.bridge-hero-casename {
-  font-size: 13.5px !important;
-  font-weight: 600 !important;
-  color: #334155 !important;
-  margin: 0 !important;
-  max-width: 96% !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  line-height: 1.4 !important;
+.hearing-caseno-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
 }
 
-.bridge-tx-info-list {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 11px !important;
-  margin-bottom: 18px !important;
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 14px !important;
-  padding: 13px 15px !important;
+.hearing-caseno {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 17.5px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
-.bridge-info-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  font-size: 13px !important;
-  line-height: 1.4 !important;
+.hearing-dossier-pill-btn {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 4px 9px;
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
 }
 
-.bridge-info-label {
-  color: #64748b !important;
-  font-weight: 500 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 7px !important;
+.hearing-dossier-pill-btn:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
 }
 
-.bridge-info-label i {
-  font-size: 13px !important;
-  color: #94a3b8 !important;
-  width: 14px !important;
-  text-align: center !important;
+.hearing-casename {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.bridge-info-value {
-  color: #0f172a !important;
-  font-weight: 600 !important;
-  text-align: right !important;
-  max-width: 60% !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+/* Date & Court Schedule Banner */
+.hearing-datetime-strip {
+  margin: 14px 20px 0 20px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-.bridge-green-link {
-  color: #059669 !important;
-  font-weight: 700 !important;
-  text-decoration: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  font-size: 12.5px !important;
-  background: #ffffff !important;
-  border: 1px solid #d1fae5 !important;
-  padding: 4px 10px !important;
-  border-radius: 8px !important;
-  transition: all 0.15s ease !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+.hearing-card-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #166534;
+  font-weight: 800;
+  font-size: 13.5px;
 }
 
-.bridge-green-link:hover {
-  background: #ecfdf5 !important;
-  color: #047857 !important;
-  border-color: #a7f3d0 !important;
-  transform: translateY(-1px) !important;
-  text-decoration: none !important;
+.hearing-card-date i {
+  color: #10b981;
+  font-size: 15px;
 }
 
-.bridge-green-link i {
-  font-size: 11px !important;
+.hearing-card-court {
+  color: #047857;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+  max-width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.bridge-divider {
-  height: 1px !important;
-  background-color: #f1f5f9 !important;
-  margin: 0 0 18px 0 !important;
-  border: none !important;
+/* Key Metadata Grid */
+.hearing-meta-table {
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
 }
 
-.bridge-progress-stepper {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr !important;
-  gap: 8px !important;
-  text-align: center !important;
-  margin-bottom: 18px !important;
+.hearing-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
-.bridge-step {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  position: relative !important;
+.hearing-meta-lbl {
+  color: #64748b;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
-.bridge-step-circle {
-  width: 28px !important;
-  height: 28px !important;
-  border-radius: 50% !important;
-  background-color: #f1f5f9 !important;
-  color: #64748b !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin-bottom: 6px !important;
-  border: 1.5px solid #e2e8f0 !important;
-  transition: all 0.2s ease !important;
+.hearing-meta-lbl i {
+  font-size: 13px;
+  color: #94a3b8;
+  width: 15px;
+  text-align: center;
 }
 
-.bridge-step.active .bridge-step-circle {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  color: #ffffff !important;
-  border-color: #059669 !important;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35) !important;
+.hearing-meta-val {
+  color: #0f172a;
+  font-weight: 700;
+  text-align: right;
+  max-width: 62%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.bridge-step-title {
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  color: #334155 !important;
-  margin-bottom: 2px !important;
-  line-height: 1.3 !important;
+.hearing-meta-val.highlight-stage {
+  color: #0284c7;
+  background: #f0f9ff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid #e0f2fe;
 }
 
-.bridge-step.active .bridge-step-title {
-  color: #047857 !important;
+/* Case Remark / Chamber Note */
+.hearing-remark-box {
+  margin: 0 20px 14px 20px;
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: 10px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #854d0e;
+  line-height: 1.4;
 }
 
-.bridge-step-time {
-  font-size: 11px !important;
-  color: #64748b !important;
-  font-weight: 500 !important;
+.hearing-remark-box i {
+  color: #eab308;
+  font-size: 13px;
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
-.bridge-warning-box {
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
-  border: 1px solid #fde68a !important;
-  border-radius: 12px !important;
-  padding: 11px 14px !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  gap: 10px !important;
-  margin-bottom: 18px !important;
-  text-align: left !important;
-  box-sizing: border-box !important;
+/* Action Buttons Footer */
+.hearing-card-footer {
+  margin-top: auto;
+  padding: 14px 20px 16px 20px;
+  background: #fafafa;
+  border-top: 1px solid #f1f5f9;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
 }
 
-.bridge-warning-icon {
-  color: #d97706 !important;
-  font-size: 14px !important;
-  line-height: 1.2 !important;
-  flex-shrink: 0 !important;
-  margin-top: 1px !important;
+.hearing-primary-cta {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+  transition: all 0.18s ease;
 }
 
-.bridge-warning-text {
-  color: #92400e !important;
-  font-size: 11.5px !important;
-  line-height: 1.45 !important;
-  font-weight: 500 !important;
+.hearing-primary-cta:hover {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
 }
 
-.bridge-action-button {
-  width: 100% !important;
-  height: 44px !important;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-  border: 1px solid #334155 !important;
-  border-radius: 12px !important;
-  color: #ffffff !important;
-  font-size: 13.5px !important;
-  font-weight: 700 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15) !important;
-  outline: none !important;
-  margin-top: auto !important;
+.hearing-whatsapp-cta {
+  background: #25d366;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 6px rgba(37, 211, 102, 0.25);
 }
 
-.bridge-action-button:hover {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22) !important;
+.hearing-whatsapp-cta:hover {
+  background: #20ba5a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+}
+
+/* Empty State Styling */
+.hearing-empty-state-card {
+  max-width: 520px;
+  margin: 30px auto;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.06);
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.hearing-empty-emblem {
+  width: 72px;
+  height: 72px;
+  border-radius: 24px;
+  background: #ecfdf5;
+  color: #059669;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px auto;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+}
+
+.hearing-empty-state-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.hearing-empty-state-card p {
+  margin: 0 0 24px 0;
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.hearing-empty-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 /* ==============================================================================
