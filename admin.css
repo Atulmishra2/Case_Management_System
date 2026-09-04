@@ -14381,20 +14381,39 @@ input[readonly] {
   font-weight: 600 !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: space-between !important;
-  gap: 10px !important;
-  padding: 8px 14px 8px 16px !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  gap: 12px !important;
+  padding: 9px 14px 9px 16px !important;
   margin: 2px 8px 2px 0 !important;
   border-radius: 0 16px 16px 0 !important;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
   text-decoration: none !important;
+  box-sizing: border-box !important;
 }
 
 .sidebar a i.nav-icon,
-.sidenav a i.nav-icon {
+.sidenav a i.nav-icon,
+.sidebar a i,
+.sidenav a i {
   color: #935073 !important;
-  font-size: 14.5px !important;
+  font-size: 15px !important;
+  width: 22px !important;
+  min-width: 22px !important;
+  text-align: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  margin-right: 2px !important;
   transition: color 0.18s ease, transform 0.18s ease !important;
+}
+
+.sidebar a .badge,
+.sidenav a .badge {
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
 }
 
 .sidebar a:hover,
@@ -14945,5 +14964,272 @@ input[readonly] {
   border-color: #ef4444 !important;
   background-color: #fffaf0 !important;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* ==============================================================================
+   6.7 TABLE FLUSH FIT & ZERO-GAP PRESENTATION SUITE
+   Eliminates all awkward gaps above and below tables across cards and containers
+   ============================================================================== */
+
+/* 1. Eliminate double-card wrapping and inner margins on cause list table card */
+.causelist-table-card {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  margin: 0.5rem 0 1rem 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+/* 2. Seamless flush table containers (zero top/bottom gaps, single clean border) */
+.table-responsive,
+.all-cases-table-wrapper,
+.db-table-wrapper,
+.dossier-history-table-wrap,
+.causelist-table-card .table-responsive {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  border: 1px solid #DDE3E6 !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  overflow: hidden !important;
+  overflow-x: auto !important;
+  position: relative !important;
+}
+
+/* 3. Table elements: Zero margins and seamless border-collapse */
+table.case-table,
+table.causelist-table,
+table.search-results-table,
+table.court-table,
+table.db-raw-table,
+table.all-cases-fixed-table,
+#causeListMainTable,
+#allCasesTable,
+#undatedCasesTable,
+#disposedCasesTable,
+#homeTodayTable,
+#courtsTable,
+#dbManagerTable,
+#guestCasesTable {
+  margin: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  border-spacing: 0 !important;
+  border-collapse: separate !important;
+  width: 100% !important;
+  min-width: 100% !important;
+}
+
+/* 4. Table Header: Perfectly flush to top (0px gap), fills curved card corners */
+table.case-table thead,
+table.causelist-table thead,
+table.search-results-table thead,
+table.court-table thead,
+table.db-raw-table thead,
+table.all-cases-fixed-table thead,
+#causeListMainTable thead,
+#allCasesTable thead,
+#undatedCasesTable thead,
+#disposedCasesTable thead,
+#homeTodayTable thead,
+#courtsTable thead,
+#dbManagerTable thead,
+#guestCasesTable thead {
+  position: sticky !important;
+  top: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 25 !important;
+}
+
+table.case-table thead th,
+table.causelist-table thead th,
+table.search-results-table thead th,
+table.court-table thead th,
+table.db-raw-table thead th,
+table.all-cases-fixed-table thead th,
+#causeListMainTable thead th,
+#allCasesTable thead th,
+#undatedCasesTable thead th,
+#disposedCasesTable thead th,
+#homeTodayTable thead th,
+#courtsTable thead th,
+#dbManagerTable thead th,
+#guestCasesTable thead th {
+  top: 0 !important;
+  border-top: none !important;
+  margin-top: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* First and last header cell curve to hug the card's 12px rounded corner */
+table.case-table thead tr th:first-child,
+table.causelist-table thead tr th:first-child,
+table.search-results-table thead tr th:first-child,
+table.all-cases-fixed-table thead tr th:first-child,
+#causeListMainTable thead tr th:first-child,
+#allCasesTable thead tr th:first-child,
+#undatedCasesTable thead tr th:first-child,
+#homeTodayTable thead tr th:first-child {
+  border-top-left-radius: 11px !important;
+}
+
+table.case-table thead tr th:last-child,
+table.causelist-table thead tr th:last-child,
+table.search-results-table thead tr th:last-child,
+table.all-cases-fixed-table thead tr th:last-child,
+#causeListMainTable thead tr th:last-child,
+#allCasesTable thead tr th:last-child,
+#undatedCasesTable thead tr th:last-child,
+#homeTodayTable thead tr th:last-child {
+  border-top-right-radius: 11px !important;
+}
+
+/* 5. Table Body Bottom: Perfectly flush to bottom (0px gap) */
+table.case-table tbody tr:last-child td,
+table.causelist-table tbody tr:last-child td,
+table.search-results-table tbody tr:last-child td,
+table.court-table tbody tr:last-child td,
+table.db-raw-table tbody tr:last-child td,
+table.all-cases-fixed-table tbody tr:last-child td,
+#causeListMainTable tbody tr:last-child td,
+#allCasesTable tbody tr:last-child td,
+#undatedCasesTable tbody tr:last-child td,
+#disposedCasesTable tbody tr:last-child td,
+#homeTodayTable tbody tr:last-child td,
+#courtsTable tbody tr:last-child td,
+#dbManagerTable tbody tr:last-child td,
+#guestCasesTable tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+table.case-table tbody tr:last-child td:first-child,
+table.causelist-table tbody tr:last-child td:first-child,
+table.all-cases-fixed-table tbody tr:last-child td:first-child,
+#causeListMainTable tbody tr:last-child td:first-child,
+#allCasesTable tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 11px !important;
+}
+
+table.case-table tbody tr:last-child td:last-child,
+table.causelist-table tbody tr:last-child td:last-child,
+table.all-cases-fixed-table tbody tr:last-child td:last-child,
+#causeListMainTable tbody tr:last-child td:last-child,
+#allCasesTable tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 11px !important;
+}
+
+/* ==============================================================================
+   6.8 NAVIGATION BAR: LEFT ALIGN TEXT & ICONS SUITE
+   Ensures all nav links have icons and text tightly grouped and aligned to the left
+   ============================================================================== */
+
+/* Side Navigation Links: Left-align text and icons */
+.sidebar,
+.sidenav {
+  text-align: left !important;
+}
+
+.sidebar a,
+.sidenav a,
+.sidebar .nav-item,
+.sidenav .nav-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  gap: 12px !important;
+  padding: 9px 16px !important;
+  margin: 2px 8px 2px 0 !important;
+  border-radius: 0 16px 16px 0 !important;
+  box-sizing: border-box !important;
+  width: auto !important;
+}
+
+/* Icons in nav links are fixed-width and left-positioned */
+.sidebar a i,
+.sidenav a i,
+.sidebar a .nav-icon,
+.sidenav a .nav-icon,
+.sidebar a i.nav-icon,
+.sidenav a i.nav-icon {
+  width: 22px !important;
+  min-width: 22px !important;
+  max-width: 22px !important;
+  text-align: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  margin-right: 2px !important;
+}
+
+/* Text in nav links is left-aligned */
+.sidebar a span:not(.badge),
+.sidenav a span:not(.badge),
+.sidebar a .nav-text,
+.sidenav a .nav-text {
+  text-align: left !important;
+  flex: 0 1 auto !important;
+}
+
+/* Badges float to the far right, keeping icon + text left-aligned */
+.sidebar a .badge,
+.sidenav a .badge {
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+}
+
+/* Sidenav Subheaders left-aligned */
+.sidebar .subheader,
+.sidenav .subheader,
+.sidebar h2 {
+  text-align: left !important;
+  justify-content: flex-start !important;
+  padding: 0 16px !important;
+}
+
+/* Author card details in sidebar left-aligned */
+.sidebar .sidebar-author-card,
+.sidenav .user-view {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  padding: 14px 16px !important;
+}
+
+.sidebar .author-details,
+.sidenav .user-view .author-details {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  text-align: left !important;
+}
+
+/* Top Navigation Bar Left Section */
+.materialize-nav .header-left-section,
+.top-header .header-left-section,
+.guest-header-bar .header-left-section {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  text-align: left !important;
+}
+
+.materialize-nav .casebook-brand,
+.top-header .casebook-brand,
+.guest-header-bar .casebook-brand {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  text-align: left !important;
 }
 
