@@ -1477,12 +1477,16 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
         }
       }
 
-      // If case number changed, cascade to hearings table
+      // If case number changed, cascade to hearings and tasks
       if (originalNo.toLowerCase() !== newCaseNumber.toLowerCase()) {
-        const { error: hError } = await supabaseClient.from('hearings')
-          .update({ case_number: newCaseNumber })
-          .eq('case_number', originalNo);
-        if (hError) console.error('Supabase update hearings case_number error:', hError);
+        if (typeof cascadeUpdateCaseNumber === 'function') {
+          await cascadeUpdateCaseNumber(originalNo, newCaseNumber);
+        } else {
+          const { error: hError } = await supabaseClient.from('hearings')
+            .update({ case_number: newCaseNumber })
+            .eq('case_number', originalNo);
+          if (hError) console.error('Supabase update hearings case_number error:', hError);
+        }
       }
     } catch (e) {
       console.error('Supabase update error:', e);
@@ -1494,23 +1498,60 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
 
 // Delete Case in Supabase (or local fallback)
 async function deleteCaseFromSupabase(caseNumber) {
+  if (!caseNumber) return;
+  const targetNo = caseNumber.trim();
+
   if (supabaseClient) {
     try {
+      const caseTables = [
+        'civilcases',
+        'statecases',
+        'criminalcases',
+        'familycases',
+        'revenuecases',
+        'misccivilcases',
+        'misccriminalcases',
+        'complaintcases'
+      ];
       await Promise.all([
-        supabaseClient.from('civilcases').delete().eq('case_number', caseNumber),
-        supabaseClient.from('criminalcases').delete().eq('case_number', caseNumber),
-        supabaseClient.from('hearings').delete().eq('case_number', caseNumber)
+        ...caseTables.map(tbl => supabaseClient.from(tbl).delete().ilike('case_number', targetNo)),
+        supabaseClient.from('hearings').delete().ilike('case_number', targetNo),
+        supabaseClient.from('case_todos').delete().ilike('case_number', targetNo)
       ]);
     } catch (e) {
       console.error('Supabase delete error:', e);
     }
   }
 
-  const idx = allCaseRecords.findIndex(c => c.caseNo?.toLowerCase() === caseNumber.toLowerCase() || c.criminalCaseNumber?.toLowerCase() === caseNumber.toLowerCase());
+  const idx = allCaseRecords.findIndex(c => 
+    (c.caseNo || '').trim().toLowerCase() === targetNo.toLowerCase() || 
+    (c.criminalCaseNumber || '').trim().toLowerCase() === targetNo.toLowerCase()
+  );
   if (idx !== -1) {
     allCaseRecords.splice(idx, 1);
   }
+
+  // Cascade in-memory deletion to hearings
+  if (Array.isArray(allHearingRecords)) {
+    allHearingRecords = allHearingRecords.filter(h => 
+      (h.case_number || '').trim().toLowerCase() !== targetNo.toLowerCase()
+    );
+  }
+
+  // Cascade in-memory deletion to tasks
+  if (Array.isArray(caseTasks)) {
+    caseTasks = caseTasks.filter(t => 
+      (t.caseNo || '').trim().toLowerCase() !== targetNo.toLowerCase()
+    );
+    if (typeof saveCaseTasksLocally === 'function') saveCaseTasksLocally();
+    if (typeof renderCaseTasks === 'function') renderCaseTasks(currentTodoFilter);
+  }
+
   refreshAllCaseTables();
+  if (typeof populateTodoCaseDropdown === 'function') populateTodoCaseDropdown();
+  if (typeof renderCalendarView === 'function' && typeof currentCalendarMonth !== 'undefined') {
+    renderCalendarView(currentCalendarMonth, currentCalendarYear);
+  }
 }
 
 // Update Hearing in Supabase (or local fallback)
@@ -1608,7 +1649,163 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
 }
 
 // ==============================================================================
-// Courts Supabase Management (Live Sync)
+// Referential Integrity & Cascading Updates Suite
+// ==============================================================================
+
+async function cascadeUpdateCourtName(oldCourtName, newCourtName) {
+  const oldName = (oldCourtName || '').trim();
+  const newName = (newCourtName || '').trim();
+  if (!oldName || !newName || oldName.toLowerCase() === newName.toLowerCase()) return 0;
+
+  console.log(`[CASCADE] Updating court name from "${oldName}" to "${newName}" across cases and database...`);
+
+  // 1. Update in-memory courts array
+  const cIdx = courts.findIndex(c => c.trim().toLowerCase() === oldName.toLowerCase());
+  if (cIdx !== -1) {
+    courts[cIdx] = newName;
+  } else if (!courts.some(c => c.trim().toLowerCase() === newName.toLowerCase())) {
+    courts.push(newName);
+  }
+
+  // 2. Update in-memory allCaseRecords
+  let affectedCaseCount = 0;
+  if (Array.isArray(allCaseRecords)) {
+    allCaseRecords.forEach(c => {
+      let changed = false;
+      if ((c.courtName || '').trim().toLowerCase() === oldName.toLowerCase()) {
+        c.courtName = newName;
+        changed = true;
+      }
+      if ((c.criminalCourtName || '').trim().toLowerCase() === oldName.toLowerCase()) {
+        c.criminalCourtName = newName;
+        changed = true;
+      }
+      if (changed) affectedCaseCount++;
+    });
+  }
+
+  // 3. Update Supabase database across all tables
+  if (supabaseClient) {
+    const caseTables = [
+      'civilcases',
+      'statecases',
+      'criminalcases',
+      'familycases',
+      'revenuecases',
+      'misccivilcases',
+      'misccriminalcases',
+      'complaintcases'
+    ];
+
+    try {
+      // Update courts table
+      await supabaseClient
+        .from('courts')
+        .update({ court_name: newName, updated_at: new Date().toISOString() })
+        .ilike('court_name', oldName);
+
+      // Update all case tables where court_name = oldName
+      const tableUpdates = caseTables.map(async (table) => {
+        try {
+          const { error } = await supabaseClient
+            .from(table)
+            .update({ court_name: newName, updated_at: new Date().toISOString() })
+            .ilike('court_name', oldName);
+          if (error && !error.message?.includes('column')) {
+            console.warn(`[CASCADE] Note on table ${table}:`, error.message);
+          }
+        } catch (tblErr) {
+          console.warn(`[CASCADE] Exception on table ${table}:`, tblErr);
+        }
+      });
+
+      // Also check criminal_court_name column on criminalcases if exists
+      tableUpdates.push((async () => {
+        try {
+          await supabaseClient
+            .from('criminalcases')
+            .update({ criminal_court_name: newName, updated_at: new Date().toISOString() })
+            .ilike('criminal_court_name', oldName);
+        } catch (e) {}
+      })());
+
+      await Promise.all(tableUpdates);
+      console.log(`[CASCADE] Database cascading court update completed: "${oldName}" -> "${newName}".`);
+    } catch (supaErr) {
+      console.error('[CASCADE] Supabase cascading court update error:', supaErr);
+    }
+  }
+
+  // 4. Re-render UI components to reflect updated court name
+  if (typeof renderCourtOptions === 'function') renderCourtOptions();
+  if (typeof renderCriminalCourtOptions === 'function') renderCriminalCourtOptions();
+  if (typeof renderSearchCourtFilterOptions === 'function') renderSearchCourtFilterOptions();
+  if (typeof renderCourtsTable === 'function') renderCourtsTable();
+  if (typeof refreshAllCaseTables === 'function') refreshAllCaseTables();
+  if (typeof filterCaseTables === 'function') filterCaseTables();
+  if (typeof renderCalendarView === 'function' && typeof currentCalendarMonth !== 'undefined') {
+    renderCalendarView(currentCalendarMonth, currentCalendarYear);
+  }
+  if (typeof populateTodoCaseDropdown === 'function') populateTodoCaseDropdown();
+
+  return affectedCaseCount;
+}
+window.cascadeUpdateCourtName = cascadeUpdateCourtName;
+
+async function cascadeUpdateCaseNumber(oldCaseNo, newCaseNo) {
+  const oldNo = (oldCaseNo || '').trim();
+  const newNo = (newCaseNo || '').trim();
+  if (!oldNo || !newNo || oldNo.toLowerCase() === newNo.toLowerCase()) return;
+
+  console.log(`[CASCADE] Cascading case number change from "${oldNo}" to "${newNo}"...`);
+
+  // 1. In-memory allHearingRecords
+  if (Array.isArray(allHearingRecords)) {
+    allHearingRecords.forEach(h => {
+      if ((h.case_number || '').trim().toLowerCase() === oldNo.toLowerCase()) {
+        h.case_number = newNo;
+      }
+    });
+  }
+
+  // 2. In-memory caseTasks (To-Do items)
+  let tasksUpdated = 0;
+  if (Array.isArray(caseTasks)) {
+    caseTasks.forEach(t => {
+      if ((t.caseNo || '').trim().toLowerCase() === oldNo.toLowerCase()) {
+        t.caseNo = newNo;
+        tasksUpdated++;
+      }
+    });
+    if (tasksUpdated > 0 && typeof saveCaseTasksLocally === 'function') {
+      saveCaseTasksLocally();
+      if (typeof renderCaseTasks === 'function') renderCaseTasks(currentTodoFilter);
+    }
+  }
+
+  // 3. Supabase updates on hearings and case_todos
+  if (supabaseClient) {
+    try {
+      await Promise.all([
+        supabaseClient.from('hearings').update({ case_number: newNo }).ilike('case_number', oldNo),
+        supabaseClient.from('case_todos').update({ case_number: newNo }).ilike('case_number', oldNo)
+      ]);
+      console.log(`[CASCADE] Supabase hearings and case_todos updated for case number "${oldNo}" -> "${newNo}".`);
+    } catch (err) {
+      console.error('[CASCADE] Supabase error cascading case number change:', err);
+    }
+  }
+
+  // 4. Update UI dropdowns & views
+  if (typeof populateTodoCaseDropdown === 'function') populateTodoCaseDropdown(newNo);
+  if (typeof renderCalendarView === 'function' && typeof currentCalendarMonth !== 'undefined') {
+    renderCalendarView(currentCalendarMonth, currentCalendarYear);
+  }
+}
+window.cascadeUpdateCaseNumber = cascadeUpdateCaseNumber;
+
+// ==============================================================================
+// Courts Supabase Management (Live Sync & Cascading Updates)
 // ==============================================================================
 
 async function addCourtToSupabase(courtName) {
@@ -1632,6 +1829,7 @@ async function addCourtToSupabase(courtName) {
           courts.push(existing[0].court_name || trimmed);
           renderCourtOptions();
           renderCriminalCourtOptions();
+          renderSearchCourtFilterOptions();
           renderCourtsTable();
         }
         return;
@@ -1649,45 +1847,49 @@ async function addCourtToSupabase(courtName) {
   }
   renderCourtOptions();
   renderCriminalCourtOptions();
+  renderSearchCourtFilterOptions();
   renderCourtsTable();
 }
 
 async function editCourtInSupabase(oldName, newName) {
-  if (supabaseClient) {
-    try {
-      const { error } = await supabaseClient.from('courts').update({ court_name: newName, updated_at: new Date().toISOString() }).eq('court_name', oldName);
-      if (error) console.error('Supabase edit court error:', error);
-    } catch (e) {
-      console.error('Supabase edit court exception:', e);
-    }
-  }
-
-  const idx = courts.indexOf(oldName);
-  if (idx !== -1) {
-    courts[idx] = newName;
-  }
-  renderCourtOptions();
-  renderCriminalCourtOptions();
-  renderCourtsTable();
+  return await cascadeUpdateCourtName(oldName, newName);
 }
 
 async function deleteCourtFromSupabase(courtName) {
+  const trimmed = (courtName || '').trim();
+  if (!trimmed) return;
+
   if (supabaseClient) {
     try {
-      const { error } = await supabaseClient.from('courts').delete().eq('court_name', courtName);
+      const { error } = await supabaseClient.from('courts').delete().ilike('court_name', trimmed);
       if (error) console.error('Supabase delete court error:', error);
     } catch (e) {
       console.error('Supabase delete court exception:', e);
     }
   }
 
-  const idx = courts.indexOf(courtName);
+  const idx = courts.findIndex(c => c.trim().toLowerCase() === trimmed.toLowerCase());
   if (idx !== -1) {
     courts.splice(idx, 1);
   }
+
+  // Update in-memory cases that belonged to this court
+  if (Array.isArray(allCaseRecords)) {
+    allCaseRecords.forEach(c => {
+      if ((c.courtName || '').trim().toLowerCase() === trimmed.toLowerCase()) {
+        c.courtName = '—';
+      }
+      if ((c.criminalCourtName || '').trim().toLowerCase() === trimmed.toLowerCase()) {
+        c.criminalCourtName = '—';
+      }
+    });
+  }
+
   renderCourtOptions();
   renderCriminalCourtOptions();
+  renderSearchCourtFilterOptions();
   renderCourtsTable();
+  refreshAllCaseTables();
 }
 
 // ==============================================================================
@@ -7278,14 +7480,19 @@ function renderCourtsTable() {
     const deleteBtn = row.querySelector('.delete-court');
 
     editBtn.addEventListener('click', async () => {
-      const newCourt = prompt('Edit court name:', court);
-      if (newCourt && newCourt.trim() && newCourt.trim() !== court) {
-        await editCourtInSupabase(court, newCourt.trim());
+      const newCourt = prompt(`Edit court name "${court}"\n(This will automatically update all cases assigned to this court):`, court);
+      if (newCourt && newCourt.trim() && newCourt.trim().toLowerCase() !== court.toLowerCase()) {
+        const count = await editCourtInSupabase(court, newCourt.trim());
+        alert(`✅ Court renamed to "${newCourt.trim()}".\nUpdated ${count || 0} associated case(s) across the database.`);
       }
     });
 
     deleteBtn.addEventListener('click', async () => {
-      const confirmDelete = confirm(`Delete court: "${court}"?`);
+      const casesInCourt = (allCaseRecords || []).filter(c => 
+        (c.courtName || '').trim().toLowerCase() === court.trim().toLowerCase() || 
+        (c.criminalCourtName || '').trim().toLowerCase() === court.trim().toLowerCase()
+      );
+      const confirmDelete = confirm(`Delete court: "${court}"?${casesInCourt.length > 0 ? `\n\n⚠️ Note: ${casesInCourt.length} case(s) currently belong to this court and will be unlinked.` : ''}`);
       if (confirmDelete) {
         await deleteCourtFromSupabase(court);
       }
@@ -9517,6 +9724,24 @@ async function handleDbRecordFormSubmit(event) {
         return false;
       }
 
+      const existingRow = currentDbTableData.find(r => String(r.id) === String(recordId));
+      const isCourtTable = currentDbTable === 'courts';
+      const isCaseTable = ['civilcases', 'statecases', 'criminalcases', 'familycases', 'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases'].includes(currentDbTable);
+
+      let oldCourtName = '';
+      let newCourtName = '';
+      if (isCourtTable) {
+        oldCourtName = (existingRow?.court_name || '').trim();
+        newCourtName = (payload.court_name || '').trim();
+      }
+
+      let oldCaseNo = '';
+      let newCaseNo = '';
+      if (isCaseTable) {
+        oldCaseNo = (existingRow?.case_number || existingRow?.case_no || '').trim();
+        newCaseNo = (payload.case_number || payload.case_no || '').trim();
+      }
+
       if (supabaseClient) {
         try {
           const { error } = await supabaseClient.from(currentDbTable).update(payload).eq('id', recordId);
@@ -9534,11 +9759,19 @@ async function handleDbRecordFormSubmit(event) {
         }
       }
 
+      // Cascading updates for related tables and application memory
+      if (isCourtTable && oldCourtName && newCourtName && oldCourtName.toLowerCase() !== newCourtName.toLowerCase()) {
+        await cascadeUpdateCourtName(oldCourtName, newCourtName);
+      }
+      if (isCaseTable && oldCaseNo && newCaseNo && oldCaseNo.toLowerCase() !== newCaseNo.toLowerCase()) {
+        await cascadeUpdateCaseNumber(oldCaseNo, newCaseNo);
+      }
+
       // Refresh application state
       await fetchAllDataFromSupabase();
       await fetchAndRenderDbTable(currentDbTable);
       closeDbModal();
-      alert(`✅ Record updated in "${currentDbTable}" successfully!`);
+      alert(`✅ Record updated in "${currentDbTable}" successfully! Related data synchronized.`);
     }
   } finally {
     isSubmittingDbRecord = false;
@@ -9555,6 +9788,9 @@ async function handleDbDeleteRow(rowId, identifier, rowIndex) {
   const confirmMsg = `Are you sure you want to PERMANENTLY delete this record from table "${currentDbTable}"?\n\nIdentifier: ${identifier}\nID: ${rowId || 'Local index #' + rowIndex}`;
   if (!confirm(confirmMsg)) return;
 
+  const isCaseTable = ['civilcases', 'statecases', 'criminalcases', 'familycases', 'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases'].includes(currentDbTable);
+  const isCourtTable = currentDbTable === 'courts';
+
   if (supabaseClient && rowId && !rowId.startsWith('local-')) {
     try {
       const { error } = await supabaseClient.from(currentDbTable).delete().eq('id', rowId);
@@ -9563,6 +9799,14 @@ async function handleDbDeleteRow(rowId, identifier, rowIndex) {
         alert(`⚠️ Failed to delete record from Supabase: ${error.message || 'Unknown error'}`);
         return;
       }
+
+      // Cascade delete related hearings and todos if deleting a case
+      if (isCaseTable && identifier) {
+        await Promise.all([
+          supabaseClient.from('hearings').delete().ilike('case_number', identifier),
+          supabaseClient.from('case_todos').delete().ilike('case_number', identifier)
+        ]);
+      }
     } catch (err) {
       console.error('Supabase delete exception:', err);
     }
@@ -9570,6 +9814,18 @@ async function handleDbDeleteRow(rowId, identifier, rowIndex) {
     // Local in-memory removal
     if (rowIndex !== null && currentDbTableData[rowIndex]) {
       currentDbTableData.splice(rowIndex, 1);
+    }
+  }
+
+  // If deleting from courts, update in-memory courts and unassign cases
+  if (isCourtTable && identifier) {
+    const cIdx = courts.findIndex(c => c.trim().toLowerCase() === identifier.trim().toLowerCase());
+    if (cIdx !== -1) courts.splice(cIdx, 1);
+    if (Array.isArray(allCaseRecords)) {
+      allCaseRecords.forEach(c => {
+        if ((c.courtName || '').trim().toLowerCase() === identifier.trim().toLowerCase()) c.courtName = '—';
+        if ((c.criminalCourtName || '').trim().toLowerCase() === identifier.trim().toLowerCase()) c.criminalCourtName = '—';
+      });
     }
   }
 
