@@ -2700,7 +2700,7 @@ function renderGuestTable(searchText = '') {
       <td>${client}</td>
       <td>${partyName}</td>
       <td><strong>${nextHearing}</strong></td>
-      <td><button type="button" class="table-view-btn">View Details</button></td>
+      <td class="table-actions-td"><button type="button" class="table-view-btn" title="View Details"><i class="fa-solid fa-eye"></i><span class="btn-text"> View Details</span></button></td>
     `;
 
     tr.addEventListener('click', () => {
@@ -3528,10 +3528,10 @@ function renderCauseListTable(dateVal = currentCauseListDate, courtFilter = '') 
           <div>${escapeHtml(clientName)}</div>
           ${clientPhone ? `<small style="color:#64748b;">📞 ${escapeHtml(clientPhone)}</small>` : ''}
         </td>
-        <td style="text-align: center; white-space: nowrap;">
-          <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View case proceedings history">📜 Details</button>
-          <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date">📅 Forward Date</button>
-          <button type="button" class="whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="Send WhatsApp court notice to client">💬</button>
+        <td class="table-actions-td" style="text-align: center; white-space: nowrap;">
+          <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View case proceedings history"><i class="fa-solid fa-scroll"></i><span class="btn-text"> Details</span></button>
+          <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date"><i class="fa-solid fa-calendar-plus"></i><span class="btn-text"> Forward Date</span></button>
+          <button type="button" class="table-view-btn whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="Send WhatsApp court notice to client"><i class="fa-brands fa-whatsapp"></i></button>
         </td>
       </tr>
     `;
@@ -3806,12 +3806,12 @@ function renderHomeDashboard() {
               <div style="font-weight: 600; color: #1e293b;">${escapeHtml(clientName)}</div>
               ${clientPhone ? `<small style="margin-top: 3px; display: inline-block;"><a href="tel:${escapeHtml(clientPhone)}" style="color: #0284c7; text-decoration: none; font-weight: 600;" title="Call Client">📞 ${escapeHtml(clientPhone)}</a></small>` : ''}
             </td>
-            <td style="white-space: nowrap; text-align: center;">
-              <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View proceedings details">📜</button>
-              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case Details">✏️</button>
-              <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date">📅 Forward</button>
-              ${clientPhone ? `<a href="tel:${escapeHtml(clientPhone)}" class="table-view-btn call-btn" title="Call Client directly: ${escapeHtml(clientPhone)}" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;">📞</a>` : ''}
-              <button type="button" class="whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="WhatsApp notice to client">💬</button>
+            <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View proceedings details"><i class="fa-solid fa-scroll"></i><span class="btn-text"> Details</span></button>
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case Details"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
+              <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date"><i class="fa-solid fa-calendar-plus"></i><span class="btn-text"> Forward</span></button>
+              ${clientPhone ? `<a href="tel:${escapeHtml(clientPhone)}" class="table-view-btn call-btn" title="Call Client directly: ${escapeHtml(clientPhone)}" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;"><i class="fa-solid fa-phone"></i></a>` : ''}
+              <button type="button" class="table-view-btn whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="WhatsApp notice to client"><i class="fa-brands fa-whatsapp"></i></button>
             </td>
           </tr>
         `;
@@ -3907,8 +3907,8 @@ function renderCivilCasesTable(cases = null) {
         <td class="case-disposal-cell">${disposalCommentHtml}</td>
         <td>${filingDate}</td>
         <td>${nextHearing}</td>
-        <td style="white-space: nowrap; text-align: center;">
-          <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+        <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
+          <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
         </td>
       </tr>
     `;
@@ -3959,8 +3959,8 @@ function refreshAllCaseTables() {
         <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
         <td class="case-remark-cell">${partiesRemarkHtml}</td>
         <td class="case-disposal-cell">${disposalCommentHtml}</td>
-        <td style="white-space: nowrap; text-align: center;">
-          <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+        <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
+          <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
         </td>
       </tr>
     `;
@@ -4018,8 +4018,8 @@ function refreshAllCaseTables() {
             <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
             <td class="case-remark-cell">${partiesRemarkHtml}</td>
             <td class="case-disposal-cell">${disposalCommentHtml}</td>
-            <td style="white-space: nowrap; text-align: center;">
-              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
             </td>
           </tr>
         `;
@@ -4064,8 +4064,8 @@ function refreshAllCaseTables() {
             <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
             <td class="case-remark-cell">${partiesRemarkHtml}</td>
             <td class="case-disposal-cell">${disposalCommentHtml}</td>
-            <td style="white-space: nowrap; text-align: center;">
-              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
             </td>
           </tr>
         `;
@@ -4111,8 +4111,8 @@ function refreshAllCaseTables() {
             <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
             <td class="case-remark-cell">${partiesRemarkHtml}</td>
             <td class="case-disposal-cell">${disposalCommentHtml}</td>
-            <td style="white-space: nowrap; text-align: center;">
-              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
             </td>
           </tr>
         `;
@@ -4158,8 +4158,8 @@ function refreshAllCaseTables() {
             <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
             <td class="case-remark-cell">${partiesRemarkHtml}</td>
             <td class="case-disposal-cell">${disposalCommentHtml}</td>
-            <td style="white-space: nowrap; text-align: center;">
-              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
             </td>
           </tr>
         `;
@@ -4206,8 +4206,8 @@ function refreshAllCaseTables() {
             <td><strong>${formatDateDMY(c.nextHearing)}</strong></td>
             <td class="case-remark-cell">${partiesRemarkHtml}</td>
             <td class="case-disposal-cell">${disposalCommentHtml}</td>
-            <td style="white-space: nowrap; text-align: center;">
-              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
             </td>
           </tr>
         `;
@@ -4246,8 +4246,8 @@ function refreshAllCaseTables() {
             <td><span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span></td>
             <td class="case-remark-cell">${partiesRemarkHtml}</td>
             <td class="case-disposal-cell">${disposalCommentHtml}</td>
-            <td style="text-align: center; white-space: nowrap;">
-              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Reopen Case">✏️ Edit</button>
+            <td class="table-actions-td" style="text-align: center; white-space: nowrap;">
+              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Reopen Case"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
             </td>
           </tr>
         `;
@@ -4275,12 +4275,12 @@ function refreshAllCaseTables() {
             <td><span class="case-badge ${c.caseType || 'civil'}">${(c.caseType || 'Civil').toUpperCase()}</span></td>
             <td>${escapeHtml(c.courtName || c.criminalCourtName || 'District Court')}</td>
             <td>${formatDateDMY(c.filingDate || c.crimeFilingDate)}</td>
-            <td style="white-space: nowrap; text-align: center;">
+            <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
               <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward Hearing Date">
-                📅 Date
+                <i class="fa-solid fa-calendar-plus"></i><span class="btn-text"> Date</span>
               </button>
               <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case Details">
-                ✏️ Edit
+                <i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span>
               </button>
             </td>
           </tr>
@@ -4711,10 +4711,10 @@ function renderAllCasesTableWithFilters(resetPage = true) {
         <td class="case-remark-cell">${partiesRemarkHtml}</td>
         <td class="case-disposal-cell">${disposalCommentHtml}</td>
         <td class="all-cases-date-cell">${nextHearingStr}</td>
-        <td class="all-cases-actions-cell-td">
+        <td class="all-cases-actions-cell-td table-actions-td">
           <div class="all-cases-actions-cell">
-            <button type="button" class="all-cases-action-btn details-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Proceedings & Dossier">👁️ View</button>
-            <button type="button" class="all-cases-action-btn edit-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case">✏️ Edit</button>
+            <button type="button" class="all-cases-action-btn details-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Proceedings & Dossier"><i class="fa-solid fa-eye"></i><span class="btn-text"> View</span></button>
+            <button type="button" class="all-cases-action-btn edit-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
           </div>
         </td>
       </tr>
@@ -6965,10 +6965,10 @@ function renderCourtsTable() {
           <span>${court}</span>
         </div>
       </td>
-      <td>
+      <td class="table-actions-td">
         <div class="court-actions-cell">
-          <button type="button" class="court-btn-edit edit-court">✏️ Edit</button>
-          <button type="button" class="court-btn-delete delete-court">🗑️ Delete</button>
+          <button type="button" class="court-btn-edit edit-court" title="Edit Court"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
+          <button type="button" class="court-btn-delete delete-court" title="Delete Court"><i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span></button>
         </div>
       </td>
     `;
@@ -8792,7 +8792,7 @@ async function fetchAndRenderDbTable(tableName = currentDbTable) {
     schema.columns.forEach(col => {
       headHtml += `<th title="${col.name}">${col.name}</th>`;
     });
-    headHtml += `<th class="actions-col">Actions</th>`;
+    headHtml += `<th class="actions-col table-actions-th">Actions</th>`;
     thead.innerHTML = headHtml;
   }
 
@@ -8975,9 +8975,9 @@ function renderDbManagerRows(rowsToRender) {
     const identifier = row.case_number || row.court_name || row.task_title || row.id || `Row #${rIdx + 1}`;
 
     html += `
-      <td class="actions-cell">
-        <button type="button" class="db-btn-edit" onclick="openDbEditModal('${escapeHtml(String(row.id || ''))}', ${rIdx})" title="Edit this record">✏️ Edit</button>
-        <button type="button" class="db-btn-delete" onclick="handleDbDeleteRow('${escapeHtml(String(row.id || ''))}', '${escapeHtml(String(identifier))}', ${rIdx})" title="Delete this record permanently">🗑️ Delete</button>
+      <td class="actions-cell table-actions-td">
+        <button type="button" class="db-btn-edit" onclick="openDbEditModal('${escapeHtml(String(row.id || ''))}', ${rIdx})" title="Edit this record"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
+        <button type="button" class="db-btn-delete" onclick="handleDbDeleteRow('${escapeHtml(String(row.id || ''))}', '${escapeHtml(String(identifier))}', ${rIdx})" title="Delete this record permanently"><i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span></button>
       </td>
     `;
     html += `</tr>`;

@@ -13742,3 +13742,203 @@ input[readonly] {
   color: #64748b !important;
   cursor: not-allowed !important;
 }
+
+/* ==============================================================================
+   Universal Sticky Table Actions & Mobile Icon-Only Action Buttons Suite
+   ============================================================================== */
+
+/* 1. Ensure table containers enable smooth horizontal scroll and sticky positioning */
+.table-responsive,
+.all-cases-table-wrapper,
+.db-table-wrapper,
+#homeTodayTableWrapper,
+.causelist-table-card .table-responsive {
+  position: relative !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* 2. Separate border model so position: sticky on th/td behaves consistently */
+.case-table,
+.court-table,
+.causelist-table,
+.db-raw-table,
+.all-cases-fixed-table,
+#guestCasesTable,
+#homeTodayTable,
+#courtsTable,
+#undatedCasesTable,
+#disposedCasesTable,
+#dbManagerTable {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+/* 3. Sticky Action Column Header */
+.table-actions-th,
+#guestCasesTable thead th:last-child,
+#homeTodayTableWrapper thead th:last-child,
+#causeListMainTable thead th:last-child,
+#courtsTable thead th:last-child,
+#undatedCasesTable thead th:last-child,
+#allCasesTable thead th:last-child,
+#disposedCasesTable thead th:last-child,
+#dbManagerTable thead th.actions-col,
+#dbManagerTable thead th:last-child {
+  position: sticky !important;
+  right: 0 !important;
+  top: 0 !important;
+  z-index: 30 !important;
+  background-color: #f8fafc !important;
+  box-shadow: -4px 0 8px -2px rgba(15, 23, 42, 0.08) !important;
+  border-left: 1px solid #e2e8f0 !important;
+}
+
+/* 4. Sticky Action Column Table Cells */
+.table-actions-td,
+.all-cases-actions-cell-td,
+#guestCasesTable tbody td:last-child,
+#homeTodayTableWrapper tbody td:last-child,
+#causeListMainTable tbody td:last-child,
+#courtsTable tbody td:last-child,
+#undatedCasesTable tbody td:last-child,
+#allCasesTable tbody td:last-child,
+#disposedCasesTable tbody td:last-child,
+#dbManagerTable tbody td.actions-cell,
+#dbManagerTable tbody td:last-child {
+  position: sticky !important;
+  right: 0 !important;
+  z-index: 15 !important;
+  background-color: #ffffff !important;
+  box-shadow: -4px 0 8px -2px rgba(15, 23, 42, 0.08) !important;
+  border-left: 1px solid #f1f5f9 !important;
+}
+
+/* 5. Sticky Action Column Background on Row Hover */
+.case-table tbody tr:hover td.table-actions-td,
+.court-table tbody tr:hover td.table-actions-td,
+.causelist-table tbody tr:hover td.table-actions-td,
+.db-raw-table tbody tr:hover td.table-actions-td,
+.all-cases-fixed-table tbody tr:hover td.all-cases-actions-cell-td,
+.all-cases-fixed-table tbody tr:hover td:last-child,
+#guestCasesTable tbody tr:hover td:last-child,
+#homeTodayTableWrapper tbody tr:hover td:last-child,
+#causeListMainTable tbody tr:hover td:last-child,
+#courtsTable tbody tr:hover td:last-child,
+#undatedCasesTable tbody tr:hover td:last-child,
+#disposedCasesTable tbody tr:hover td:last-child,
+#dbManagerTable tbody tr:hover td.actions-cell,
+#dbManagerTable tbody tr:hover td:last-child {
+  background-color: #f8fafc !important;
+}
+
+/* 6. Selected row in guest cases table */
+#guestCasesTable tbody tr.selected-row td:last-child,
+#guestCasesTable tbody tr.selected-row td.table-actions-td {
+  background-color: #e0effe !important;
+}
+
+/* 7. Action Button Flex Layout & Icon Styling */
+.table-actions-td {
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+.table-actions-td .table-view-btn,
+.table-actions-td .all-cases-action-btn,
+.table-actions-td .court-btn-edit,
+.table-actions-td .court-btn-delete,
+.table-actions-td .db-btn-edit,
+.table-actions-td .db-btn-delete,
+.table-actions-td .whatsapp-btn,
+.table-actions-td .call-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  vertical-align: middle !important;
+}
+
+/* 8. Mobile Devices: Icon-Only Action Buttons */
+@media (max-width: 768px) {
+  /* Hide button text on mobile screens across all table action buttons */
+  .table-actions-td .btn-text,
+  .all-cases-actions-cell .btn-text,
+  .all-cases-action-btn .btn-text,
+  .court-actions-cell .btn-text,
+  .actions-cell .btn-text,
+  .table-view-btn .btn-text,
+  .court-btn-edit .btn-text,
+  .court-btn-delete .btn-text,
+  .db-btn-edit .btn-text,
+  .db-btn-delete .btn-text,
+  .update-hearing-btn .btn-text,
+  .edit-case-btn .btn-text {
+    display: none !important;
+  }
+
+  /* Compact touch-friendly icon buttons */
+  .table-actions-td .table-view-btn,
+  .table-actions-td .all-cases-action-btn,
+  .table-actions-td .court-btn-edit,
+  .table-actions-td .court-btn-delete,
+  .table-actions-td .db-btn-edit,
+  .table-actions-td .db-btn-delete,
+  .table-actions-td .whatsapp-btn,
+  .table-actions-td .call-btn,
+  .table-actions-td a.table-view-btn,
+  .all-cases-actions-cell .all-cases-action-btn,
+  .court-actions-cell button,
+  .actions-cell button {
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 34px !important;
+    padding: 0 !important;
+    margin: 2px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13.5px !important;
+    border-radius: 7px !important;
+    box-sizing: border-box !important;
+    line-height: 1 !important;
+  }
+
+  .table-actions-td button i,
+  .table-actions-td a i,
+  .all-cases-action-btn i {
+    margin: 0 !important;
+    font-size: 13.5px !important;
+  }
+
+  .table-actions-td,
+  .all-cases-actions-cell-td {
+    padding: 6px 8px !important;
+    text-align: center !important;
+  }
+
+  .table-actions-td .all-cases-actions-cell,
+  .table-actions-td .court-actions-cell,
+  .table-actions-td .actions-cell {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    white-space: nowrap !important;
+    width: auto !important;
+  }
+
+  .table-actions-th,
+  #guestCasesTable thead th:last-child,
+  #homeTodayTableWrapper thead th:last-child,
+  #causeListMainTable thead th:last-child,
+  #courtsTable thead th:last-child,
+  #undatedCasesTable thead th:last-child,
+  #allCasesTable thead th:last-child,
+  #disposedCasesTable thead th:last-child,
+  #dbManagerTable thead th.actions-col {
+    padding: 6px 8px !important;
+    text-align: center !important;
+    font-size: 11px !important;
+  }
+}
