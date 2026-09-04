@@ -3986,7 +3986,23 @@ function renderAllCasesTableWithFilters(resetPage = true) {
   tbody.innerHTML = pageRecords.map(c => {
     const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
     const rawType = (c.caseType || 'civil').toLowerCase();
-    const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant || 'Opposite'}` : (c.accusedName ? `State vs ${c.accusedName}` : '—'));
+
+    // Sanitize case name and avoid bare 'vs'
+    let caseName = (c.caseName || '').trim();
+    if (!caseName || caseName.toLowerCase() === 'vs' || caseName.toLowerCase() === 'vs.') {
+      if (c.plaintiff && c.defendant) {
+        caseName = `${c.plaintiff} vs ${c.defendant}`;
+      } else if (c.plaintiff) {
+        caseName = `${c.plaintiff} vs Opposite`;
+      } else if (c.accusedName) {
+        caseName = `State vs ${c.accusedName}`;
+      } else if (c.victimName) {
+        caseName = `${c.victimName} vs Accused`;
+      } else {
+        caseName = 'Untitled Matter';
+      }
+    }
+
     const courtName = c.courtName || c.criminalCourtName || 'District Court';
     const clientName = c.clientName || c.criminalClientName || '—';
     const clientPhone = c.clientNumber || c.criminalClientNumber || '';
@@ -4003,7 +4019,8 @@ function renderAllCasesTableWithFilters(resetPage = true) {
       statusBadge = '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
     }
 
-    const filingDateStr = formatDateDMY(c.filingDate || c.crimeFilingDate);
+    const filingDateRaw = c.filingDate || c.crimeFilingDate;
+    const filingDateStr = filingDateRaw ? formatDateDMY(filingDateRaw) : '<span style="color: #94a3b8;">—</span>';
     const nextHearingStr = isUndated
       ? '<span style="color: #d97706; font-weight: 600;">—</span>'
       : `<strong>${formatDateDMY(c.nextHearing)}</strong>`;
@@ -4016,7 +4033,7 @@ function renderAllCasesTableWithFilters(resetPage = true) {
       <tr>
         <td class="copyable-case-no" title="Double-click to copy Case Number"><strong>${escapeHtml(caseNumber)}</strong></td>
         <td>
-          <div style="font-weight: 600; color: #1e293b;">${escapeHtml(caseName)}</div>
+          <div style="font-weight: 600; color: #1e293b; word-break: break-word;">${escapeHtml(caseName)}</div>
           ${c.policeStation ? `<small style="color:#64748b;">🚔 PS: ${escapeHtml(c.policeStation)}` + (c.crimeNumber ? ` | ${escapeHtml(c.crimeNumber)}` : '') + `</small>` : ''}
         </td>
         <td style="text-align: center;"><span class="case-badge ${rawType}">${typeBadgeLabel}</span></td>
@@ -4025,9 +4042,9 @@ function renderAllCasesTableWithFilters(resetPage = true) {
           <div>${escapeHtml(clientName)}</div>
           ${clientPhone ? `<small style="color:#64748b;">📞 ${escapeHtml(clientPhone)}</small>` : ''}
         </td>
-        <td style="text-align: center;">${statusBadge}</td>
-        <td style="text-align: center; font-size: 11.5px;">${filingDateStr}</td>
-        <td style="text-align: center; font-size: 11.5px;">${nextHearingStr}</td>
+        <td class="all-cases-status-cell">${statusBadge}</td>
+        <td class="all-cases-date-cell">${filingDateStr}</td>
+        <td class="all-cases-date-cell">${nextHearingStr}</td>
         <td style="text-align: center; white-space: nowrap;">
           <div class="all-cases-actions-cell">
             <button type="button" class="all-cases-action-btn details-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Proceedings & Dossier">👁️ View</button>
