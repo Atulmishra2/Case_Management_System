@@ -79,6 +79,8 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 .hidden {
@@ -3091,6 +3093,23 @@ html, body {
     min-width: 340px;
   }
 
+  #disposedCasesTable {
+    min-width: 860px !important;
+  }
+
+  #causeListMainTable {
+    min-width: 820px !important;
+  }
+
+  #dbManagerTable {
+    min-width: 900px !important;
+  }
+
+  #homeTodayTableWrapper table,
+  #guestCasesTable {
+    min-width: 680px !important;
+  }
+
   table.search-results-table th,
   table.search-results-table td,
   table.case-table th,
@@ -3359,7 +3378,7 @@ html, body {
 
   .content {
     margin-top: 58px;
-    padding: 10px 6px 30px;
+    padding: 10px 6px 110px !important;
   }
 
   .brand-heading {
@@ -5822,12 +5841,14 @@ html, body {
   }
 
   /* === Update Case Form === */
-  .case-status-card {
+  .case-status-card,
+  .case-disposal-card {
     padding: 14px 12px;
     border-radius: 12px;
   }
 
-  .status-header-row {
+  .status-header-row,
+  .disposal-card-header {
     flex-direction: column;
     gap: 10px;
     align-items: stretch;
@@ -5837,6 +5858,17 @@ html, body {
     width: 100%;
     height: 42px;
     justify-content: center;
+  }
+
+  .disposal-card-title-wrap {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .remarks-quick-chips .remarks-chip-btn {
+    min-height: 32px;
+    padding: 6px 11px;
+    font-size: 12px;
   }
 
   /* === Courts Section === */
@@ -6090,6 +6122,21 @@ html, body {
 
   .hearing-selected-case-box {
     padding: 10px;
+  }
+
+  .disposal-icon-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+
+  .disposal-card-title {
+    font-size: 13.5px;
+  }
+
+  .disposal-card-sub {
+    font-size: 11px;
   }
 
   .modal-card {
@@ -6710,6 +6757,16 @@ html, body {
 @media (max-width: 768px) {
   .hearing-progression-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .hearing-arrow-divider {
+    margin: 4px auto;
+  }
+
+  .hearing-arrow-divider .arrow-circle {
+    transform: rotate(90deg);
+    margin: 0 auto;
   }
 }
 
@@ -9216,6 +9273,25 @@ html, body {
   color: #92400e;
 }
 
+@media (max-width: 768px) {
+  .pwa-modal-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 88vh !important;
+    margin: 0 !important;
+  }
+
+  .pwa-modal-header {
+    padding: 14px 16px !important;
+  }
+
+  .pwa-modal-body {
+    padding: 14px 16px !important;
+    max-height: calc(88vh - 120px) !important;
+  }
+}
+
 /* ==============================================================================
    Beautified Case Remarks & Co-Parties Module
    ============================================================================== */
@@ -10343,6 +10419,11 @@ textarea:focus {
     padding: 0 12px !important;
   }
 
+  .materialize-nav .nav-wrapper {
+    padding: 8px 12px !important;
+    gap: 8px !important;
+  }
+
   .home-kpi-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px !important;
@@ -10408,8 +10489,22 @@ textarea:focus {
 
 /* --- 5.10 Responsive Breakpoints: Small Mobile (max-width: 480px) --- */
 @media (max-width: 480px) {
-  .brand-name {
-    font-size: 17px !important;
+  .materialize-nav .nav-wrapper {
+    padding: 6px 8px !important;
+    gap: 6px !important;
+  }
+
+  .materialize-nav .casebook-brand {
+    gap: 8px !important;
+  }
+
+  .brand-name,
+  .materialize-nav .casebook-brand .brand-name {
+    font-size: 16px !important;
+  }
+
+  .materialize-nav .casebook-brand .brand-fa-icon {
+    font-size: 18px !important;
   }
 
   .header-right-section .logout-btn span {
@@ -12401,7 +12496,7 @@ body.workflow-active-tab [data-chambers-footer],
 }
 
 /* 6. Fixed Bottom Nav Repositioning (No overlap on desktop sidenav) */
-@media (min-width: 769px) {
+@media (min-width: 1025px) {
   .fixed-bottom-nav {
     left: 236px !important;
     width: calc(100% - 236px) !important;
@@ -12413,6 +12508,23 @@ body.workflow-active-tab [data-chambers-footer],
   .fixed-bottom-nav .bottom-nav-btn {
     min-height: 32px !important;
     padding: 4px 14px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Tablet (769px to 1024px) where sidebar width is 210px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .fixed-bottom-nav {
+    left: 210px !important;
+    width: calc(100% - 210px) !important;
+    box-sizing: border-box !important;
+    height: 44px !important;
+    padding: 4px 14px !important;
+  }
+
+  .fixed-bottom-nav .bottom-nav-btn {
+    min-height: 32px !important;
+    padding: 4px 12px !important;
     font-size: 12px !important;
   }
 }
@@ -12561,6 +12673,16 @@ body.workflow-active-tab [data-chambers-footer],
 @media (max-width: 600px) {
   .all-cases-filter-grid {
     grid-template-columns: 1fr !important;
+  }
+
+  .all-cases-filter-grid .filter-actions-item {
+    width: 100% !important;
+  }
+
+  .all-cases-filter-grid .filter-actions-item #allCasesResetBtn {
+    width: 100% !important;
+    justify-content: center !important;
+    height: 44px !important;
   }
 }
 
@@ -13036,7 +13158,7 @@ body.workflow-active-tab [data-chambers-footer],
   }
 
   .all-cases-fixed-table {
-    min-width: 720px !important;
+    min-width: 1080px !important;
     table-layout: auto !important;
   }
 
