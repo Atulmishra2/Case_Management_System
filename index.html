@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=3.2">
+    <link rel="stylesheet" href="admin.css?v=3.8">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -210,16 +210,6 @@
                 </div>
             </div>
 
-            <div class="sidebar-install-widget" id="sidebarInstallWidget">
-                <button type="button" class="sidebar-install-btn" onclick="triggerPwaInstall()" title="Install CaseBook as a Desktop App">
-                    <i class="fa-solid fa-laptop-arrow-down"></i>
-                    <span class="sidebar-install-text">
-                        <strong>Install Desktop App</strong>
-                        <small>Windows / Mac Standalone</small>
-                    </span>
-                </button>
-            </div>
-
             <div class="subheader">Overview & Schedule</div>
             <a href="#" onclick="showTab('home', event)" class="active"><i class="fa-solid fa-house nav-icon"></i> Home Dashboard</a>
             <a href="#" onclick="showTab('search', event)"><i class="fa-solid fa-folder-open nav-icon"></i> My Cases</a>
@@ -244,30 +234,9 @@
 
             <div class="divider"></div>
             <div class="subheader">Case Registers</div>
-            <a href="#" onclick="showTab('all', event)"><i class="fa-solid fa-list-check nav-icon"></i> All Cases</a>
+            <a href="#" onclick="showTab('all', event)"><i class="fa-solid fa-list-check nav-icon"></i> All Cases <span class="badge" id="allCasesNavCount">0</span></a>
             <a href="#" onclick="showTab('undated', event)">
                 <i class="fa-solid fa-circle-question nav-icon"></i> Undated Cases <span class="badge badge-undated" id="undatedCount">0</span>
-            </a>
-            <a href="#" onclick="showTab('civil', event)">
-                <i class="fa-solid fa-scale-balanced nav-icon"></i> Civil Cases <span class="badge badge-civil" id="civilCount">0</span>
-            </a>
-            <a href="#" onclick="showTab('state', event)">
-                <i class="fa-solid fa-gavel nav-icon"></i> State Cases <span class="badge badge-criminal" id="stateCount">0</span>
-            </a>
-            <a href="#" onclick="showTab('family', event)">
-                <i class="fa-solid fa-people-roof nav-icon"></i> Family Cases <span class="badge badge-todo" id="familyCount">0</span>
-            </a>
-            <a href="#" onclick="showTab('revenue', event)">
-                <i class="fa-solid fa-wheat-awn nav-icon"></i> Revenue Cases <span class="badge badge-revenue" id="revenueCount">0</span>
-            </a>
-            <a href="#" onclick="showTab('misccivil', event)">
-                <i class="fa-solid fa-file-contract nav-icon"></i> Misc Civil <span class="badge" id="miscCivilCount">0</span>
-            </a>
-            <a href="#" onclick="showTab('misccriminal', event)">
-                <i class="fa-solid fa-shield-halved nav-icon"></i> Misc Criminal <span class="badge" id="miscCriminalCount">0</span>
-            </a>
-            <a href="#" onclick="showTab('complaint', event)">
-                <i class="fa-solid fa-bullhorn nav-icon"></i> Complaint Cases <span class="badge" id="complaintCount">0</span>
             </a>
             <a href="#" onclick="showTab('disposed', event)">
                 <i class="fa-solid fa-circle-check nav-icon"></i> Disposed Cases <span class="badge badge-disposed" id="disposedCount">0</span>
@@ -540,7 +509,7 @@
                 <div class="my-cases-filter-card">
                     <div class="filter-main-row">
                         <div class="filter-search-box">
-                            <span class="filter-search-icon">🔍</span>
+                            <span class="filter-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                             <input type="text" id="globalSearch" placeholder="Search by Case No, Parties, Client, Sections, Police Station, Remarks..." aria-label="Search cases">
                         </div>
                     </div>
@@ -605,7 +574,19 @@
 
                 <div class="search-results-panel">
                     <div class="results-panel-header">
-                        <h3>📋 Cases Register Table</h3>
+                        <div class="panel-header-left">
+                            <div class="panel-icon-badge"><i class="fa-solid fa-table-list"></i></div>
+                            <div>
+                                <h3 class="panel-title">Cases Register Table</h3>
+                                <p class="panel-subtitle">Comprehensive directory of civil, criminal, and revenue matters</p>
+                            </div>
+                            <span id="myCasesCountBadge" class="panel-count-badge">0 Cases</span>
+                        </div>
+                        <div class="panel-header-right">
+                            <button type="button" id="clearColumnFiltersBtn" class="clear-filters-btn" title="Clear all column filters and resets">
+                                <i class="fa-solid fa-eraser"></i> Clear Filters
+                            </button>
+                        </div>
                     </div>
                     <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
                         <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 search-results-table case-table">
@@ -614,7 +595,6 @@
                                     <th style="width: 60px; text-align: center;">Sr. No.</th>
                                     <th>Case Number</th>
                                     <th>Case Title / Parties</th>
-                                    <th>Remarks / Co-Parties</th>
                                     <th>Client</th>
                                     <th>Type</th>
                                     <th>Court</th>
@@ -624,128 +604,216 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="9" class="no-results">Loading cases...</td>
+                                    <td colspan="8" class="no-results">Loading cases...</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Complete Case Details Card Beneath Search Results Table -->
-                <div id="searchCaseDetailsSection" class="case-details-wrapper">
-                    <div class="case-details-header">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <h3>📋 Complete Case Details</h3>
-                            <span id="searchCaseTypeBadge" class="case-badge">Select a Case</span>
+                <!-- Complete Case Details Dossier Beneath Search Results Table -->
+                <div id="searchCaseDetailsSection" class="modern-dossier-wrapper">
+                    <div class="dossier-top-bar">
+                        <div class="dossier-bar-title">
+                            <div class="dossier-icon-badge"><i class="fa-solid fa-folder-open"></i></div>
+                            <div>
+                                <h3>Complete Case Details &amp; Dossier</h3>
+                                <p class="dossier-subtitle">Master case file, client coordinates, proceedings history &amp; documents</p>
+                            </div>
                         </div>
-                        <button type="button" id="searchAddTodoBtn" class="search-action-btn secondary" style="display: none;" title="Create a To-Do Task for this Case">📝 Add To-Do</button>
+                        <div class="dossier-header-actions">
+                            <button type="button" id="searchAddTodoBtn" class="dossier-action-btn secondary-action" style="display: none;" title="Create a To-Do Task for this Case">
+                                <i class="fa-solid fa-list-check"></i> Add To-Do
+                            </button>
+                            <button type="button" id="detailEditBtn" class="dossier-action-btn primary-action" title="Edit Case Information">
+                                <i class="fa-solid fa-pen-to-square"></i> Update Case
+                            </button>
+                            <button type="button" id="detailHearingBtn" class="dossier-action-btn accent-action" title="Log next hearing date and process">
+                                <i class="fa-solid fa-calendar-plus"></i> Update Hearing
+                            </button>
+                            <button type="button" id="detailWhatsAppBtn" class="dossier-action-btn whatsapp-btn" title="Send WhatsApp notification to client">
+                                <i class="fa-brands fa-whatsapp"></i> WhatsApp Notice
+                            </button>
+                        </div>
                     </div>
 
                     <div id="searchCaseDetailsEmpty" class="case-details-empty">
-                        <p>🔍 Search or click on any case row in the table above to view all its details here.</p>
+                        <div class="empty-dossier-state">
+                            <div class="empty-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                            <h4>No Case Selected</h4>
+                            <p>Click on any row in the Cases Register table above to inspect complete case details, proceedings history, and records.</p>
+                        </div>
                     </div>
 
                     <div id="searchCaseDetailsContent" class="case-details-content hidden">
-                        <div class="case-details-grid">
-                            <div class="detail-item">
-                                <span class="detail-label">Case Number</span>
-                                <span class="detail-value copyable-case-no" id="detailCaseNo" title="Double-click to copy Case Number">—</span>
+                        <!-- Hero Banner Card -->
+                        <div class="dossier-hero-card">
+                            <div class="hero-main-info">
+                                <div class="hero-badge-row">
+                                    <span id="searchCaseTypeBadge" class="case-badge">Civil</span>
+                                    <span id="detailCaseStatusBadge" class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>
+                                    <span class="hero-court-chip"><i class="fa-solid fa-landmark"></i> <span id="detailCourtName">—</span></span>
+                                </div>
+                                <h2 class="hero-case-title" id="detailCaseTitle">—</h2>
+                                <div class="hero-number-wrap">
+                                    <span class="hero-num-label">CASE NUMBER:</span>
+                                    <span class="hero-num-value copyable-case-no" id="detailCaseNo" title="Double-click to copy Case Number">—</span>
+                                    <button type="button" class="hero-copy-btn" id="heroCopyCaseNoBtn" title="Copy Case Number"><i class="fa-regular fa-copy"></i> Copy</button>
+                                </div>
                             </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Year</span>
-                                <span class="detail-value" id="detailCaseYear">—</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Case Type</span>
-                                <span class="detail-value" id="detailCaseType">—</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Court Name</span>
-                                <span class="detail-value" id="detailCourtName">—</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Filing Date</span>
-                                <span class="detail-value" id="detailFilingDate">—</span>
-                            </div>
-                            <div class="detail-item highlight-card">
-                                <span class="detail-label">Next Hearing Date</span>
-                                <span class="detail-value highlight" id="detailNextHearing">—</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Next Process / Stage</span>
-                                <span class="detail-value" id="detailHearingProcess">—</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Previous Hearing Date</span>
-                                <span class="detail-value" id="detailPrevHearing">—</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Previous Process / Stage</span>
-                                <span class="detail-value" id="detailPrevProcess">—</span>
-                            </div>
-
-                            <!-- General Specific Fields -->
-                            <div class="detail-item general-detail">
-                                <span class="detail-label">Plaintiff</span>
-                                <span class="detail-value" id="detailPlaintiff">—</span>
-                            </div>
-                            <div class="detail-item general-detail">
-                                <span class="detail-label">Defendant</span>
-                                <span class="detail-value" id="detailDefendant">—</span>
-                            </div>
-
-                            <!-- Criminal Specific Fields -->
-                            <div class="detail-item criminal-detail hidden">
-                                <span class="detail-label">Police Station</span>
-                                <span class="detail-value" id="detailPoliceStation">—</span>
-                            </div>
-                            <div class="detail-item criminal-detail hidden">
-                                <span class="detail-label">Section / Act</span>
-                                <span class="detail-value" id="detailCrimeSection">—</span>
-                            </div>
-                            <div class="detail-item criminal-detail hidden">
-                                <span class="detail-label">Crime Number</span>
-                                <span class="detail-value" id="detailCrimeNumber">—</span>
-                            </div>
-                            <div class="detail-item criminal-detail hidden">
-                                <span class="detail-label">Victim Name</span>
-                                <span class="detail-value" id="detailVictimName">—</span>
-                            </div>
-                            <div class="detail-item criminal-detail hidden">
-                                <span class="detail-label">Accused Name</span>
-                                <span class="detail-value" id="detailAccusedName">—</span>
-                            </div>
-
-                            <!-- Client Info -->
-                            <div class="detail-item">
-                                <span class="detail-label">Client Name</span>
-                                <span class="detail-value" id="detailClientName">—</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Client Contact</span>
-                                <span class="detail-value" id="detailClientNumber">—</span>
-                            </div>
-
-                            <!-- Case Status & Remark -->
-                            <div class="detail-item">
-                                <span class="detail-label">Case Status</span>
-                                <span class="detail-value" id="detailCaseStatus"><span class="status-badge pending">⏳ Pending</span></span>
-                            </div>
-                            <div class="detail-item full-width-detail" style="grid-column: 1 / -1;">
-                                <span class="detail-label">Case Remarks &amp; Co-Parties</span>
-                                <span class="detail-value remarks-detail-badge" id="detailCaseRemark">—</span>
-                            </div>
-                            <div class="detail-item" style="grid-column: 1 / -1;">
-                                <span class="detail-label">Document / Order Sheet</span>
-                                <span class="detail-value" id="detailCaseDocLink">—</span>
+                            <div class="hero-hearing-highlight">
+                                <div class="hearing-pill-header">
+                                    <i class="fa-solid fa-calendar-day"></i> NEXT HEARING
+                                </div>
+                                <div class="hearing-pill-date" id="detailNextHearing">—</div>
+                                <div class="hearing-pill-process" id="detailHearingProcess">—</div>
                             </div>
                         </div>
 
-                        <div class="case-details-actions">
-                            <button type="button" id="detailEditBtn" class="detail-action-btn primary">✏️ Update This Case</button>
-                            <button type="button" id="detailHearingBtn" class="detail-action-btn secondary">📅 Update Hearing</button>
-                            <button type="button" id="detailWhatsAppBtn" class="detail-action-btn whatsapp-action-btn">💬 Send WhatsApp Notice</button>
-                            <button type="button" id="detailHistoryBtn" class="detail-action-btn history-action-btn">📜 Case History</button>
+                        <!-- 3-Column Dossier Information Cards -->
+                        <div class="dossier-cards-grid">
+                            <!-- Card 1: Court & Classification -->
+                            <div class="dossier-card">
+                                <div class="dossier-card-head">
+                                    <i class="fa-solid fa-gavel"></i>
+                                    <h4>Court &amp; Case Info</h4>
+                                </div>
+                                <div class="dossier-card-body">
+                                    <div class="dossier-prop">
+                                        <span class="prop-label">Case Type</span>
+                                        <span class="prop-val" id="detailCaseType">—</span>
+                                    </div>
+                                    <div class="dossier-prop">
+                                        <span class="prop-label">Registration Year</span>
+                                        <span class="prop-val" id="detailCaseYear">—</span>
+                                    </div>
+                                    <div class="dossier-prop">
+                                        <span class="prop-label">Filing Date</span>
+                                        <span class="prop-val" id="detailFilingDate">—</span>
+                                    </div>
+                                    <div class="dossier-prop">
+                                        <span class="prop-label">Previous Hearing</span>
+                                        <span class="prop-val" id="detailPrevHearing">—</span>
+                                    </div>
+                                    <div class="dossier-prop">
+                                        <span class="prop-label">Previous Stage</span>
+                                        <span class="prop-val" id="detailPrevProcess">—</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Parties & Criminal Particulars -->
+                            <div class="dossier-card">
+                                <div class="dossier-card-head">
+                                    <i class="fa-solid fa-users"></i>
+                                    <h4>Parties &amp; Particulars</h4>
+                                </div>
+                                <div class="dossier-card-body">
+                                    <!-- Civil / General -->
+                                    <div class="dossier-prop general-detail">
+                                        <span class="prop-label">Plaintiff / Petitioner</span>
+                                        <span class="prop-val font-semibold" id="detailPlaintiff">—</span>
+                                    </div>
+                                    <div class="dossier-prop general-detail">
+                                        <span class="prop-label">Defendant / Respondent</span>
+                                        <span class="prop-val font-semibold" id="detailDefendant">—</span>
+                                    </div>
+
+                                    <!-- Criminal -->
+                                    <div class="dossier-prop criminal-detail hidden">
+                                        <span class="prop-label">Police Station</span>
+                                        <span class="prop-val" id="detailPoliceStation">—</span>
+                                    </div>
+                                    <div class="dossier-prop criminal-detail hidden">
+                                        <span class="prop-label">Crime / FIR No.</span>
+                                        <span class="prop-val font-semibold" id="detailCrimeNumber">—</span>
+                                    </div>
+                                    <div class="dossier-prop criminal-detail hidden">
+                                        <span class="prop-label">Sections / Acts</span>
+                                        <span class="prop-val" id="detailCrimeSection">—</span>
+                                    </div>
+                                    <div class="dossier-prop criminal-detail hidden">
+                                        <span class="prop-label">Complainant / Victim</span>
+                                        <span class="prop-val" id="detailVictimName">—</span>
+                                    </div>
+                                    <div class="dossier-prop criminal-detail hidden">
+                                        <span class="prop-label">Accused</span>
+                                        <span class="prop-val font-semibold" id="detailAccusedName">—</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card 3: Client & Documents -->
+                            <div class="dossier-card">
+                                <div class="dossier-card-head">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                    <h4>Client &amp; Documents</h4>
+                                </div>
+                                <div class="dossier-card-body">
+                                    <div class="dossier-prop">
+                                        <span class="prop-label">Client Name</span>
+                                        <span class="prop-val font-semibold text-teal-800" id="detailClientName">—</span>
+                                    </div>
+                                    <div class="dossier-prop">
+                                        <span class="prop-label">Client Contact</span>
+                                        <span class="prop-val" id="detailClientNumber">—</span>
+                                    </div>
+                                    <div class="dossier-prop">
+                                        <span class="prop-label">Case Status</span>
+                                        <span class="prop-val" id="detailCaseStatus"><span class="status-badge pending">Pending</span></span>
+                                    </div>
+                                    <div class="dossier-prop">
+                                        <span class="prop-label">Order Sheet / File</span>
+                                        <span class="prop-val" id="detailCaseDocLink">—</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remarks & Co-Parties Full Width Card -->
+                        <div class="dossier-remarks-box">
+                            <div class="remarks-box-header">
+                                <i class="fa-solid fa-note-sticky"></i>
+                                <strong>Remarks, Notes &amp; Co-Parties:</strong>
+                            </div>
+                            <div class="remarks-box-content" id="detailCaseRemark">—</div>
+                        </div>
+
+                        <!-- Embedded Inline Case Hearing History Section -->
+                        <div class="dossier-history-card">
+                            <div class="dossier-history-header">
+                                <div class="history-head-title">
+                                    <div class="history-icon-badge"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                                    <div>
+                                        <h4>Proceedings &amp; Hearing History</h4>
+                                        <p class="history-sub">Chronological timeline of court appearances, business conducted, and orders</p>
+                                    </div>
+                                </div>
+                                <div class="history-head-actions">
+                                    <button type="button" id="detailHistoryBtn" class="dossier-history-modal-btn" title="Open Full History in Modal View">
+                                        <i class="fa-solid fa-expand"></i> Modal View
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="dossier-history-table-wrap table-responsive">
+                                <table class="dossier-history-table min-w-full">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px; text-align: center;">#</th>
+                                            <th style="width: 140px;">Hearing Date</th>
+                                            <th style="width: 160px;">Stage / Process</th>
+                                            <th style="width: 150px;">Stage Type</th>
+                                            <th>Proceedings &amp; Action Taken</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detailInlineHistoryTableBody">
+                                        <tr>
+                                            <td colspan="5" class="no-results text-center py-4">Select a case to load its proceedings history.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1910,11 +1978,11 @@
                         </div>
                         <div class="delete-search-row">
                             <div class="search-field-box">
-                                <span class="search-field-prefix-icon">🔎</span>
+                                <span class="search-field-prefix-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                                 <input type="text" id="deleteSearchInput" placeholder="Enter Case Number or Case Name..." autocomplete="off">
                             </div>
                             <button type="button" id="deleteFindBtn" class="primary-btn search-action-btn delete-action-btn">
-                                <span>🔍 Find Case</span>
+                                <i class="fa-solid fa-magnifying-glass"></i> <span>Find Case</span>
                             </button>
                         </div>
                         <p id="deleteStatus" class="update-status-msg"></p>
@@ -1992,11 +2060,11 @@
                         </div>
                         <div class="update-search-row">
                             <div class="search-field-box">
-                                <span class="search-field-prefix-icon">🔎</span>
+                                <span class="search-field-prefix-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                                 <input type="text" id="updateSearchInput" placeholder="Enter Case Number, Plaintiff, Defendant, or Client Name..." autocomplete="off">
                             </div>
                             <button type="button" id="updateSearchBtn" class="primary-btn search-action-btn">
-                                <span>🔍 Load Case Details</span>
+                                <i class="fa-solid fa-magnifying-glass"></i> <span>Load Case Details</span>
                             </button>
                         </div>
                         <p id="updateSearchStatus" class="update-status-msg"></p>
@@ -2840,198 +2908,138 @@
                 </div>
             </div>
 
-            <!-- All Cases tab: lists every case in one combined table -->
+            <!-- All Cases Master Register Tab: Unified table with real-time filters -->
             <div id="all" class="tab">
-                <h3>All Cases</h3>
-                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                    <table id="allCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
-                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                            <tr>
-                                <th>Case Number</th>
-                                <th>Case Name</th>
-                                <th>Remarks / Co-Parties</th>
-                                <th>Client</th>
-                                <th>Case Type</th>
-                                <th>Status</th>
-                                <th>Filing Date</th>
-                                <th>Next Hearing Date</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
-                    </table>
+                <div class="all-cases-container">
+                    <div class="section-header-row">
+                        <div class="section-title-box">
+                            <div class="section-icon-badge">📁</div>
+                            <div>
+                                <h3>All Cases Master Register</h3>
+                                <p class="section-subtitle">Comprehensive master registry of all legal matters with real-time case type, status, and court filters.</p>
+                            </div>
+                        </div>
+                        <div class="my-cases-header-actions">
+                            <button type="button" class="primary-btn my-cases-action-btn" onclick="showTab('add')" title="Register a new civil or criminal case">
+                                ➕ Add Case
+                            </button>
+                            <button type="button" id="allCasesExportCsvBtn" class="secondary-btn my-cases-action-btn" onclick="exportAllCasesCsv()" title="Export filtered cases to CSV">
+                                📥 Export CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Case Type Filter Pills Bar -->
+                    <div class="all-cases-type-pills-bar">
+                        <button type="button" class="type-pill-btn active" data-type="" onclick="filterAllCasesByType('')">
+                            <span>All Cases</span> <span class="pill-count" id="pillCountAll">0</span>
+                        </button>
+                        <button type="button" class="type-pill-btn" data-type="civil" onclick="filterAllCasesByType('civil')">
+                            <span>⚖️ Civil Cases</span> <span class="pill-count" id="pillCountCivil">0</span>
+                        </button>
+                        <button type="button" class="type-pill-btn" data-type="state" onclick="filterAllCasesByType('state')">
+                            <span>🚨 State Cases</span> <span class="pill-count" id="pillCountState">0</span>
+                        </button>
+                        <button type="button" class="type-pill-btn" data-type="family" onclick="filterAllCasesByType('family')">
+                            <span>👨‍👩‍👧 Family Cases</span> <span class="pill-count" id="pillCountFamily">0</span>
+                        </button>
+                        <button type="button" class="type-pill-btn" data-type="revenue" onclick="filterAllCasesByType('revenue')">
+                            <span>🌾 Revenue Cases</span> <span class="pill-count" id="pillCountRevenue">0</span>
+                        </button>
+                        <button type="button" class="type-pill-btn" data-type="misc_civil" onclick="filterAllCasesByType('misc_civil')">
+                            <span>📑 Misc Civil</span> <span class="pill-count" id="pillCountMiscCivil">0</span>
+                        </button>
+                        <button type="button" class="type-pill-btn" data-type="misc_criminal" onclick="filterAllCasesByType('misc_criminal')">
+                            <span>⚖️ Misc Criminal</span> <span class="pill-count" id="pillCountMiscCriminal">0</span>
+                        </button>
+                        <button type="button" class="type-pill-btn" data-type="complaint" onclick="filterAllCasesByType('complaint')">
+                            <span>📢 Complaint Cases</span> <span class="pill-count" id="pillCountComplaint">0</span>
+                        </button>
+                    </div>
+
+                    <!-- Multi-Filter Controls Bar -->
+                    <div class="all-cases-filter-card">
+                        <div class="all-cases-search-box">
+                            <span class="filter-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" id="allCasesSearchInput" placeholder="Search by Case No, Parties, Client, Court, Police Station, Crime No, Remarks..." aria-label="Search all cases" oninput="renderAllCasesTableWithFilters()">
+                        </div>
+
+                        <div class="all-cases-filter-grid">
+                            <div class="filter-item">
+                                <label for="allCasesTypeSelect" class="filter-label">⚖️ Case Type</label>
+                                <select id="allCasesTypeSelect" class="filter-select" onchange="handleAllCasesTypeSelectChange()">
+                                    <option value="">All Case Types</option>
+                                    <option value="civil">⚖️ Civil Cases</option>
+                                    <option value="state">🚨 State Cases (Criminal)</option>
+                                    <option value="family">👨‍👩‍👧 Family Cases</option>
+                                    <option value="revenue">🌾 Revenue Cases</option>
+                                    <option value="misc_civil">📑 Misc Civil Cases</option>
+                                    <option value="misc_criminal">⚖️ Misc Criminal Cases</option>
+                                    <option value="complaint">📢 Complaint Cases</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-item">
+                                <label for="allCasesStatusSelect" class="filter-label">📌 Case Status</label>
+                                <select id="allCasesStatusSelect" class="filter-select" onchange="renderAllCasesTableWithFilters()">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">⏳ Pending Cases</option>
+                                    <option value="disposed">✅ Disposed Cases</option>
+                                    <option value="undated">❓ Undated Cases</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-item">
+                                <label for="allCasesCourtSelect" class="filter-label">🏛️ Court / Forum</label>
+                                <select id="allCasesCourtSelect" class="filter-select" onchange="renderAllCasesTableWithFilters()">
+                                    <option value="">All Courts</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-actions-item">
+                                <button type="button" id="allCasesResetBtn" class="clear-filters-btn" onclick="resetAllCasesFilters()" title="Reset all filters">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset Filters
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="all-cases-filter-summary">
+                            <span id="allCasesCountBadge" class="filter-count-badge">Showing 0 cases</span>
+                        </div>
+                    </div>
+
+                    <!-- Master Table -->
+                    <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                        <table id="allCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
+                            <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
+                                <tr>
+                                    <th>Case Number</th>
+                                    <th>Case Name / Parties</th>
+                                    <th>Case Type</th>
+                                    <th>Court / Forum</th>
+                                    <th>Client Name</th>
+                                    <th>Status</th>
+                                    <th>Filing Date</th>
+                                    <th>Next Hearing</th>
+                                    <th style="text-align: center;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 bg-white"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- Civil Cases tab: list only civil cases -->
-            <div id="civil" class="tab">
-                <h3>Civil Cases</h3>
-                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                    <table id="civilCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
-                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                            <tr>
-                                <th>Case No</th>
-                                <th>Case Name</th>
-                                <th>Client</th>
-                                <th>Status</th>
-                                <th>Filing Date</th>
-                                <th>Next Hearing Date</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- State Cases tab: list State criminal matters -->
-            <div id="state" class="tab">
-                <h3>🚨 State Cases (Criminal / FIR)</h3>
-                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                    <table id="stateCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
-                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                            <tr>
-                                <th>Case No</th>
-                                <th>Case Name</th>
-                                <th>Crime / FIR No</th>
-                                <th>Police Station</th>
-                                <th>Section</th>
-                                <th>Client</th>
-                                <th>Status</th>
-                                <th>Next Hearing Date</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Legacy Criminal tab alias -->
-            <div id="criminal" class="tab" style="display:none;">
-                <table id="criminalCasesTable" class="case-table" style="display:none;"><tbody></tbody></table>
-            </div>
-
-            <!-- Family Cases tab: list matrimonial, maintenance 125, DV matters -->
-            <div id="family" class="tab">
-                <h3>👨‍👩‍👧 Family Cases (Matrimonial &amp; Maintenance)</h3>
-                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                    <table id="familyCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
-                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                            <tr>
-                                <th>Case No</th>
-                                <th>Case Name</th>
-                                <th>Dispute / Matter Type</th>
-                                <th>Petitioner</th>
-                                <th>Respondent</th>
-                                <th>Court</th>
-                                <th>Client</th>
-                                <th>Status</th>
-                                <th>Next Hearing Date</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Revenue Cases tab: list land, tehsil & revenue matters -->
-            <div id="revenue" class="tab">
-                <h3>🌾 Revenue Cases (Land &amp; Tehsil)</h3>
-                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                    <table id="revenueCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
-                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                            <tr>
-                                <th>Case No</th>
-                                <th>Case Name</th>
-                                <th>Revenue Section</th>
-                                <th>Village / Mauja</th>
-                                <th>Gata / Khata</th>
-                                <th>Court</th>
-                                <th>Client</th>
-                                <th>Status</th>
-                                <th>Next Hearing Date</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Misc Civil Cases Tab -->
-            <div id="misccivil" class="tab">
-                <h3>📑 Misc Civil Cases (Applications, Appeals &amp; Revisions)</h3>
-                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                    <table id="miscCivilCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
-                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                            <tr>
-                                <th>Case No</th>
-                                <th>Case Name</th>
-                                <th>Proceeding Type</th>
-                                <th>Orig. Suit No.</th>
-                                <th>Applicant</th>
-                                <th>Opposite Party</th>
-                                <th>Court</th>
-                                <th>Client</th>
-                                <th>Status</th>
-                                <th>Next Hearing Date</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Misc Criminal Cases Tab -->
-            <div id="misccriminal" class="tab">
-                <h3>⚖️ Misc Criminal Cases (Bails, Appeals, Revisions &amp; 156(3))</h3>
-                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                    <table id="miscCriminalCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
-                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                            <tr>
-                                <th>Case No</th>
-                                <th>Case Name</th>
-                                <th>Proceeding Type</th>
-                                <th>Orig. FIR / Crime No</th>
-                                <th>Police Station</th>
-                                <th>Accused / Applicant</th>
-                                <th>Court</th>
-                                <th>Client</th>
-                                <th>Status</th>
-                                <th>Next Hearing Date</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Complaint Cases Tab -->
-            <div id="complaint" class="tab">
-                <h3>📢 Complaint Cases (Sec 138 NI Act, Sec 200 CrPC, Defamation)</h3>
-                <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                    <table id="complaintCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
-                        <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                            <tr>
-                                <th>Case No</th>
-                                <th>Case Name</th>
-                                <th>Complaint Type</th>
-                                <th>Sections &amp; Acts</th>
-                                <th>Complainant</th>
-                                <th>Accused / Opp. Party</th>
-                                <th>Police Station</th>
-                                <th>Court</th>
-                                <th>Client</th>
-                                <th>Status</th>
-                                <th>Next Hearing Date</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white"></tbody>
-                    </table>
-                </div>
+            <!-- Hidden Legacy Mounts for safe script compatibility -->
+            <div style="display:none;" aria-hidden="true">
+                <div id="civil" class="tab"><table id="civilCasesTable"><tbody></tbody></table></div>
+                <div id="state" class="tab"><table id="stateCasesTable"><tbody></tbody></table></div>
+                <div id="criminal" class="tab"><table id="criminalCasesTable"><tbody></tbody></table></div>
+                <div id="family" class="tab"><table id="familyCasesTable"><tbody></tbody></table></div>
+                <div id="revenue" class="tab"><table id="revenueCasesTable"><tbody></tbody></table></div>
+                <div id="misccivil" class="tab"><table id="miscCivilCasesTable"><tbody></tbody></table></div>
+                <div id="misccriminal" class="tab"><table id="miscCriminalCasesTable"><tbody></tbody></table></div>
+                <div id="complaint" class="tab"><table id="complaintCasesTable"><tbody></tbody></table></div>
             </div>
 
             <!-- Disposed Cases tab: list closed or disposed matters -->
@@ -3283,39 +3291,63 @@
                 </div>
             </div>
 
-            <!-- Materialize CSS Page Footer Introduction (#00695c) -->
-            <footer class="page-footer materialize-intro-footer">
-                <div class="footer-container">
-                    <div class="footer-row">
-                        <div class="footer-col-intro">
-                            <h5 class="white-text footer-heading">⚖️ Chambers of Atul Kumar Mishra</h5>
-                            <p class="grey-text text-lighten-4 footer-intro-text">
-                                Comprehensive Case Management System for legal chambers. Designed for real-time tracking of judicial proceedings, automated daily cause list generation, synchronized court hearings, and digital register management for Civil, Criminal, Family, Revenue, and Complaint matters across High Court and District Courts.
-                            </p>
-                            <div class="footer-badges-list">
-                                <span class="footer-court-badge">🏛️ District & Sessions Court</span>
-                                <span class="footer-court-badge">⚖️ High Court of Judicature</span>
-                                <span class="footer-court-badge">🌾 Tehsil & Revenue Courts</span>
+            <!-- Modern Chambers Footer -->
+            <footer class="modern-chambers-footer">
+                <div class="footer-top-section">
+                    <div class="footer-brand-column">
+                        <div class="footer-crest-wrapper">
+                            <div class="footer-crest-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                            <div class="footer-crest-meta">
+                                <h4 class="footer-brand-title">CHAMBERS OF ATUL KUMAR MISHRA</h4>
+                                <span class="footer-brand-subtitle">Advocate &amp; Legal Consultant &bull; High Court &amp; District Judiciary</span>
                             </div>
                         </div>
-                        <div class="footer-col-links">
-                            <h5 class="white-text footer-heading">Quick Navigation</h5>
-                            <ul class="footer-links-list">
-                                <li><a class="footer-link-item" href="javascript:void(0);" onclick="showTab('home')">🏠 Home Dashboard</a></li>
-                                <li><a class="footer-link-item" href="javascript:void(0);" onclick="showTab('search')">📁 My Case Registry</a></li>
-                                <li><a class="footer-link-item" href="javascript:void(0);" onclick="showTab('causelist')">📜 Daily Cause List</a></li>
-                                <li><a class="footer-link-item" href="javascript:void(0);" onclick="showTab('calendar')">🗓️ Court Calendar</a></li>
-                                <li><a class="footer-link-item" href="javascript:void(0);" onclick="showTab('dbmanager')">🗄️ Supabase Cloud DB</a></li>
-                            </ul>
+                        <p class="footer-brand-description">
+                            Comprehensive Case Management System for legal chambers. Designed for real-time tracking of judicial proceedings, automated daily cause list generation, synchronized court hearings, and digital register management for Civil, Criminal, Family, Revenue, and Complaint matters.
+                        </p>
+                        <div class="footer-jurisdiction-chips">
+                            <span class="jurisdiction-chip"><i class="fa-solid fa-landmark"></i> Allahabad High Court</span>
+                            <span class="jurisdiction-chip"><i class="fa-solid fa-landmark"></i> Lucknow Bench</span>
+                            <span class="jurisdiction-chip"><i class="fa-solid fa-gavel"></i> District Courts</span>
+                            <span class="jurisdiction-chip"><i class="fa-solid fa-file-invoice"></i> Revenue Boards</span>
+                        </div>
+                    </div>
+
+                    <div class="footer-nav-column">
+                        <h5 class="footer-heading"><i class="fa-solid fa-compass"></i> Navigation Portals</h5>
+                        <div class="footer-nav-pills-grid">
+                            <a href="javascript:void(0);" onclick="showTab('home')" class="footer-nav-pill">
+                                <i class="fa-solid fa-house"></i> <span>Dashboard</span>
+                            </a>
+                            <a href="javascript:void(0);" onclick="showTab('search')" class="footer-nav-pill">
+                                <i class="fa-solid fa-folder-open"></i> <span>Registry</span>
+                            </a>
+                            <a href="javascript:void(0);" onclick="showTab('causelist')" class="footer-nav-pill">
+                                <i class="fa-solid fa-scroll"></i> <span>Cause List</span>
+                            </a>
+                            <a href="javascript:void(0);" onclick="showTab('upcoming')" class="footer-nav-pill">
+                                <i class="fa-solid fa-calendar-days"></i> <span>Upcoming</span>
+                            </a>
+                            <a href="javascript:void(0);" onclick="showTab('calendar')" class="footer-nav-pill">
+                                <i class="fa-solid fa-calendar"></i> <span>Calendar</span>
+                            </a>
+                            <a href="javascript:void(0);" onclick="showTab('dbmanager')" class="footer-nav-pill">
+                                <i class="fa-solid fa-database"></i> <span>Database</span>
+                            </a>
                         </div>
                     </div>
                 </div>
-                <div class="footer-copyright">
-                    <div class="copyright-container">
-                        <span class="copyright-text">© 2026 Case Management System • Designed & Developed by Advocate Atul Kumar Mishra</span>
-                        <span class="copyright-action">
-                            <a class="back-to-top-btn" href="javascript:void(0);" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i> Back to Top</a>
-                        </span>
+
+                <div class="footer-bottom-bar">
+                    <div class="footer-bottom-container">
+                        <div class="footer-copyright-text">
+                            &copy; 2026 <strong>Case Management System</strong> &bull; Crafted for Advocate Atul Kumar Mishra &bull; All Rights Reserved.
+                        </div>
+                        <div class="footer-bottom-action">
+                            <button type="button" class="footer-back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Return to top of page">
+                                <i class="fa-solid fa-arrow-up"></i> Back to Top
+                            </button>
+                        </div>
                     </div>
                 </div>
             </footer>
@@ -3509,6 +3541,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="components/chambers-footer.js" defer></script>
     <script src="admin.js" defer></script>
 </body>
 

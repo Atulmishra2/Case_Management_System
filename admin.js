@@ -1523,6 +1523,23 @@ function showTab(tabId, event, navType = 'navigate') {
     event.preventDefault();
   }
 
+  // Redirect separate case type views to All Cases with filter pre-selected
+  const caseTypeRedirects = {
+    'civil': 'civil',
+    'state': 'state',
+    'criminal': 'state',
+    'family': 'family',
+    'revenue': 'revenue',
+    'misccivil': 'misc_civil',
+    'misccriminal': 'misc_criminal',
+    'complaint': 'complaint'
+  };
+  let filterTypeToApply = null;
+  if (caseTypeRedirects[tabId]) {
+    filterTypeToApply = caseTypeRedirects[tabId];
+    tabId = 'all';
+  }
+
   // Handle history stacks
   if (navType === 'navigate') {
     if (currentActiveTabId && currentActiveTabId !== tabId) {
@@ -1572,6 +1589,15 @@ function showTab(tabId, event, navType = 'navigate') {
 
   if (tabId === 'search') {
     filterCaseTables();
+  }
+
+  if (tabId === 'all') {
+    updateAllCasesTypePillCounts();
+    if (filterTypeToApply !== null) {
+      filterAllCasesByType(filterTypeToApply);
+    } else {
+      renderAllCasesTableWithFilters();
+    }
   }
 
   if (tabId === 'causelist') {
@@ -3600,36 +3626,9 @@ function refreshAllCaseTables() {
     }
   }
 
-  // 6. All Cases Combined Table
-  const allCasesTable = document.querySelector('#allCasesTable tbody');
-  if (allCasesTable) {
-    if (allCaseRecords.length === 0) {
-      allCasesTable.innerHTML = '<tr><td colspan="8" class="no-results">No cases registered.</td></tr>';
-    } else {
-      allCasesTable.innerHTML = allCaseRecords.map(c => {
-        const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
-        const statusBadge = isDisposed
-          ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
-          : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
-        const remark = c.remark || c.remarks || '';
-        const remarkHtml = remark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}">📝 ${escapeHtml(remark)}</span>`
-          : '<span style="color: #94a3b8;">—</span>';
-        return `
-          <tr>
-            <td><strong>${c.caseNo || c.criminalCaseNumber}</strong></td>
-            <td>${c.caseName}</td>
-            <td class="case-remark-cell">${remarkHtml}</td>
-            <td>${c.clientName}</td>
-            <td><span class="case-badge ${c.caseType || 'civil'}">${(c.caseType || 'Civil').toUpperCase()}</span></td>
-            <td>${statusBadge}</td>
-            <td>${formatDateDMY(c.filingDate || c.crimeFilingDate)}</td>
-            <td>${formatDateDMY(c.nextHearing)}</td>
-          </tr>
-        `;
-      }).join('');
-    }
-  }
+  // 6. All Cases Combined Table with Live Filters
+  updateAllCasesTypePillCounts();
+  renderAllCasesTableWithFilters();
 
   // 7. Render Upcoming Hearings (Next 7 Days)
   renderUpcomingWeekHearings();
@@ -3740,6 +3739,361 @@ function exportAllCasesToCSV() {
 }
 
 window.exportAllCasesToCSV = exportAllCasesToCSV;
+
+// ==========================================
+// ALL CASES MASTER REGISTER & LIVE FILTER SUITE
+// ==========================================
+
+let currentAllCasesFilteredList = [];
+
+function updateAllCasesTypePillCounts() {
+  const records = allCaseRecords || [];
+  const counts = {
+    all: records.length,
+    civil: 0,
+    state: 0,
+    family: 0,
+    revenue: 0,
+    misc_civil: 0,
+    misc_criminal: 0,
+    complaint: 0
+  };
+
+  records.forEach(c => {
+    const t = (c.caseType || 'civil').toLowerCase().trim();
+    if (t === 'civil') counts.civil++;
+    else if (t === 'state' || t === 'criminal') counts.state++;
+    else if (t === 'family') counts.family++;
+    else if (t === 'revenue') counts.revenue++;
+    else if (t === 'misc_civil' || t === 'misccivil') counts.misc_civil++;
+    else if (t === 'misc_criminal' || t === 'misccriminal') counts.misc_criminal++;
+    else if (t === 'complaint') counts.complaint++;
+  });
+
+  const setPill = (id, count) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = String(count);
+  };
+
+  setPill('pillCountAll', counts.all);
+  setPill('pillCountCivil', counts.civil);
+  setPill('pillCountState', counts.state);
+  setPill('pillCountFamily', counts.family);
+  setPill('pillCountRevenue', counts.revenue);
+  setPill('pillCountMiscCivil', counts.misc_civil);
+  setPill('pillCountMiscCriminal', counts.misc_criminal);
+  setPill('pillCountComplaint', counts.complaint);
+
+  // Synchronize sidebar nav counter
+  const navBadge = document.getElementById('allCasesNavCount');
+  if (navBadge) navBadge.textContent = String(counts.all);
+}
+
+function filterAllCasesByType(type) {
+  const typeSelect = document.getElementById('allCasesTypeSelect');
+  if (typeSelect) {
+    typeSelect.value = type || '';
+  }
+
+  // Update active pill button
+  document.querySelectorAll('.all-cases-type-pills-bar .type-pill-btn').forEach(btn => {
+    const btnType = btn.getAttribute('data-type') || '';
+    if (btnType === (type || '')) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  renderAllCasesTableWithFilters();
+}
+
+function handleAllCasesTypeSelectChange() {
+  const typeSelect = document.getElementById('allCasesTypeSelect');
+  const val = typeSelect ? typeSelect.value : '';
+
+  // Synchronize pill button active state
+  document.querySelectorAll('.all-cases-type-pills-bar .type-pill-btn').forEach(btn => {
+    const btnType = btn.getAttribute('data-type') || '';
+    if (btnType === val) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  renderAllCasesTableWithFilters();
+}
+
+function resetAllCasesFilters() {
+  const searchInput = document.getElementById('allCasesSearchInput');
+  const typeSelect = document.getElementById('allCasesTypeSelect');
+  const statusSelect = document.getElementById('allCasesStatusSelect');
+  const courtSelect = document.getElementById('allCasesCourtSelect');
+
+  if (searchInput) searchInput.value = '';
+  if (typeSelect) typeSelect.value = '';
+  if (statusSelect) statusSelect.value = '';
+  if (courtSelect) courtSelect.value = '';
+
+  document.querySelectorAll('.all-cases-type-pills-bar .type-pill-btn').forEach(btn => {
+    const btnType = btn.getAttribute('data-type') || '';
+    if (btnType === '') {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  renderAllCasesTableWithFilters();
+}
+
+function renderAllCasesTableWithFilters() {
+  const tbody = document.querySelector('#allCasesTable tbody');
+  const countBadge = document.getElementById('allCasesCountBadge');
+  if (!tbody) return;
+
+  const searchInput = document.getElementById('allCasesSearchInput');
+  const typeSelect = document.getElementById('allCasesTypeSelect');
+  const statusSelect = document.getElementById('allCasesStatusSelect');
+  const courtSelect = document.getElementById('allCasesCourtSelect');
+
+  const query = (searchInput?.value || '').trim().toLowerCase();
+  const selectedType = (typeSelect?.value || '').trim().toLowerCase();
+  const selectedStatus = (statusSelect?.value || '').trim().toLowerCase();
+  const selectedCourt = (courtSelect?.value || '').trim().toLowerCase();
+
+  let filtered = (allCaseRecords || []).slice();
+
+  // 1. Filter by Case Type
+  if (selectedType) {
+    filtered = filtered.filter(c => {
+      const t = (c.caseType || 'civil').toLowerCase().trim();
+      if (selectedType === 'state') return t === 'state' || t === 'criminal';
+      if (selectedType === 'misc_civil') return t === 'misc_civil' || t === 'misccivil';
+      if (selectedType === 'misc_criminal') return t === 'misc_criminal' || t === 'misccriminal';
+      return t === selectedType;
+    });
+  }
+
+  // 2. Filter by Status
+  if (selectedStatus) {
+    filtered = filtered.filter(c => {
+      const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
+      const isUndated = !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !c.nextHearing.trim() || c.nextHearing.toLowerCase() === 'undated';
+      if (selectedStatus === 'disposed') return isDisposed;
+      if (selectedStatus === 'undated') return !isDisposed && isUndated;
+      if (selectedStatus === 'pending') return !isDisposed && !isUndated;
+      return true;
+    });
+  }
+
+  // 3. Filter by Court
+  if (selectedCourt) {
+    filtered = filtered.filter(c => {
+      const courtName = (c.courtName || c.criminalCourtName || '').trim().toLowerCase();
+      return courtName === selectedCourt;
+    });
+  }
+
+  // 4. Live Search across multiple indices
+  if (query) {
+    filtered = filtered.filter(c => {
+      const caseNo = (c.caseNo || c.criminalCaseNumber || '').toLowerCase();
+      const caseName = (c.caseName || '').toLowerCase();
+      const plaintiff = (c.plaintiff || '').toLowerCase();
+      const defendant = (c.defendant || '').toLowerCase();
+      const accused = (c.accusedName || '').toLowerCase();
+      const victim = (c.victimName || '').toLowerCase();
+      const client = (c.clientName || c.criminalClientName || '').toLowerCase();
+      const phone = (c.clientNumber || c.criminalClientNumber || '').toLowerCase();
+      const court = (c.courtName || c.criminalCourtName || '').toLowerCase();
+      const remark = (c.remark || c.remarks || '').toLowerCase();
+      const police = (c.policeStation || '').toLowerCase();
+      const crimeNo = (c.crimeNumber || c.firNumber || '').toLowerCase();
+
+      return caseNo.includes(query) ||
+        caseName.includes(query) ||
+        plaintiff.includes(query) ||
+        defendant.includes(query) ||
+        accused.includes(query) ||
+        victim.includes(query) ||
+        client.includes(query) ||
+        phone.includes(query) ||
+        court.includes(query) ||
+        remark.includes(query) ||
+        police.includes(query) ||
+        crimeNo.includes(query);
+    });
+  }
+
+  currentAllCasesFilteredList = filtered;
+
+  // Update count badge
+  if (countBadge) {
+    countBadge.textContent = `Showing ${filtered.length} of ${allCaseRecords.length} cases`;
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" class="no-results" style="text-align: center; padding: 2rem; color: #64748b;">
+          🔍 No cases match the selected filters or search query.
+          <br><button type="button" class="table-view-btn" onclick="resetAllCasesFilters()" style="margin-top: 8px; font-size: 0.8rem;">Clear Filters</button>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(c => {
+    const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+    const rawType = (c.caseType || 'civil').toLowerCase();
+    const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant || 'Opposite'}` : (c.accusedName ? `State vs ${c.accusedName}` : '—'));
+    const courtName = c.courtName || c.criminalCourtName || 'District Court';
+    const clientName = c.clientName || c.criminalClientName || '—';
+    const clientPhone = c.clientNumber || c.criminalClientNumber || '';
+
+    const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
+    const isUndated = !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !c.nextHearing.trim() || c.nextHearing.toLowerCase() === 'undated';
+
+    let statusBadge = '';
+    if (isDisposed) {
+      statusBadge = '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>';
+    } else if (isUndated) {
+      statusBadge = '<span class="status-badge undated" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a;"><i class="fa-solid fa-calendar-xmark"></i> Undated</span>';
+    } else {
+      statusBadge = '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
+    }
+
+    const filingDateStr = formatDateDMY(c.filingDate || c.crimeFilingDate);
+    const nextHearingStr = isUndated
+      ? '<span style="color: #d97706; font-weight: 600;">—</span>'
+      : `<strong>${formatDateDMY(c.nextHearing)}</strong>`;
+
+    const typeBadgeLabel = rawType === 'state' || rawType === 'criminal'
+      ? 'STATE (CRIMINAL)'
+      : rawType.replace('_', ' ').toUpperCase();
+
+    return `
+      <tr>
+        <td class="copyable-case-no" title="Double-click to copy Case Number"><strong>${escapeHtml(caseNumber)}</strong></td>
+        <td>
+          <div style="font-weight: 600; color: #1e293b;">${escapeHtml(caseName)}</div>
+          ${c.policeStation ? `<small style="color:#64748b;">🚔 PS: ${escapeHtml(c.policeStation)}` + (c.crimeNumber ? ` | Crime: ${escapeHtml(c.crimeNumber)}` : '') + `</small>` : ''}
+        </td>
+        <td><span class="case-badge ${rawType}">${typeBadgeLabel}</span></td>
+        <td>🏛️ ${escapeHtml(courtName)}</td>
+        <td>
+          <div>${escapeHtml(clientName)}</div>
+          ${clientPhone ? `<small style="color:#64748b;">📞 ${escapeHtml(clientPhone)}</small>` : ''}
+        </td>
+        <td>${statusBadge}</td>
+        <td>${filingDateStr}</td>
+        <td>${nextHearingStr}</td>
+        <td style="text-align: center; white-space: nowrap;">
+          <div class="all-cases-actions-cell" style="display:flex; gap:6px; justify-content:center; align-items:center;">
+            <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Dossier & History">👁️ Details</button>
+            <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0;">✏️ Edit</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function editCaseFromTable(caseNo) {
+  if (!caseNo || caseNo === '—') return;
+  showTab('update');
+  const searchInput = document.getElementById('updateSearchInput');
+  if (searchInput) searchInput.value = caseNo;
+  loadCaseForUpdate(caseNo);
+}
+
+function exportAllCasesCsv() {
+  const casesToExport = currentAllCasesFilteredList && currentAllCasesFilteredList.length > 0
+    ? currentAllCasesFilteredList
+    : (allCaseRecords || []);
+
+  if (casesToExport.length === 0) {
+    if (typeof showToast === 'function') {
+      showToast('No cases available to export.', 'error');
+    } else {
+      alert('No cases available to export.');
+    }
+    return;
+  }
+
+  const headers = [
+    'Sr No',
+    'Case Number',
+    'Case Title / Parties',
+    'Case Type',
+    'Court / Forum',
+    'Client Name',
+    'Client Phone',
+    'Case Status',
+    'Filing Date',
+    'Next Hearing Date',
+    'Remarks'
+  ];
+
+  const escapeCSV = (val) => {
+    if (val === null || val === undefined) return '""';
+    const str = String(val).replace(/"/g, '""');
+    return `"${str}"`;
+  };
+
+  const rows = casesToExport.map((c, idx) => {
+    const caseNo = c.caseNo || c.criminalCaseNumber || '';
+    const caseTitle = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant || ''}` : (c.accusedName ? `State vs ${c.accusedName}` : ''));
+    const rawType = (c.caseType || 'civil').toLowerCase();
+    const caseType = rawType === 'state' || rawType === 'criminal' ? 'STATE (CRIMINAL)' : rawType.replace('_', ' ').toUpperCase();
+    const court = c.courtName || c.criminalCourtName || '';
+    const client = c.clientName || c.criminalClientName || '';
+    const phone = c.clientNumber || c.criminalClientNumber || '';
+    const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose');
+    const status = isDisposed ? 'Disposed Off' : 'Pending';
+    const filing = formatDateDMY(c.filingDate || c.crimeFilingDate);
+    const hearing = formatDateDMY(c.nextHearing);
+    const remark = c.remark || c.remarks || '';
+
+    return [
+      idx + 1,
+      escapeCSV(caseNo),
+      escapeCSV(caseTitle),
+      escapeCSV(caseType),
+      escapeCSV(court),
+      escapeCSV(client),
+      escapeCSV(phone),
+      escapeCSV(status),
+      escapeCSV(filing),
+      escapeCSV(hearing),
+      escapeCSV(remark)
+    ].join(',');
+  });
+
+  const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `All_Cases_Register_${today}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Window exposures
+window.updateAllCasesTypePillCounts = updateAllCasesTypePillCounts;
+window.filterAllCasesByType = filterAllCasesByType;
+window.handleAllCasesTypeSelectChange = handleAllCasesTypeSelectChange;
+window.resetAllCasesFilters = resetAllCasesFilters;
+window.renderAllCasesTableWithFilters = renderAllCasesTableWithFilters;
+window.editCaseFromTable = editCaseFromTable;
+window.exportAllCasesCsv = exportAllCasesCsv;
 
 function renderUpcomingWeekHearings() {
   const container = document.getElementById('upcomingWeekContainer');
@@ -5480,6 +5834,19 @@ function renderSearchCourtFilterOptions() {
       causeListMainFilter.appendChild(opt);
     });
     if (prevMainVal) causeListMainFilter.value = prevMainVal;
+  }
+
+  const allCasesCourtFilter = document.getElementById('allCasesCourtSelect');
+  if (allCasesCourtFilter) {
+    const prevAllVal = allCasesCourtFilter.value || '';
+    allCasesCourtFilter.innerHTML = '<option value="">All Courts</option>';
+    Array.from(uniqueCourts).sort().forEach(court => {
+      const opt = document.createElement('option');
+      opt.value = court;
+      opt.textContent = court;
+      allCasesCourtFilter.appendChild(opt);
+    });
+    if (prevAllVal) allCasesCourtFilter.value = prevAllVal;
   }
 }
 
@@ -7804,13 +8171,13 @@ window.addEventListener('appinstalled', () => {
 
 function updateInstallUiState(canPrompt) {
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  const installBtns = document.querySelectorAll('.pwa-install-banner-btn, .header-install-btn, .nav-install-btn, .sidebar-install-widget');
+  const installBtns = document.querySelectorAll('.pwa-install-banner-btn, .header-install-btn, .nav-install-btn');
   
   installBtns.forEach(btn => {
     if (isStandalone) {
       btn.style.display = 'none';
     } else {
-      btn.style.display = btn.classList.contains('sidebar-install-widget') ? 'block' : 'inline-flex';
+      btn.style.display = 'inline-flex';
     }
   });
 }
