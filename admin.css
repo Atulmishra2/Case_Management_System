@@ -8155,14 +8155,20 @@ html, body {
 }
 
 .home-panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 9px;
-  position: relative;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 12px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding-bottom: 10px !important;
+  position: relative !important;
+}
+
+@media (max-width: 680px) {
+  .home-panel-header {
+    flex-wrap: wrap !important;
+  }
 }
 
 .home-panel-header::after {
@@ -8290,45 +8296,56 @@ html, body {
   font-weight: 500;
 }
 
-.panel-action-btn {
+.panel-action-btn,
+.secondary-btn.panel-action-btn,
+.home-panel-header .panel-action-btn {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 6px !important;
   height: 36px !important;
   min-height: 36px !important;
-  padding: 0 15px !important;
+  width: auto !important;
+  max-width: fit-content !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  padding: 0 16px !important;
   font-size: 12.5px !important;
   font-weight: 700 !important;
   border-radius: 10px !important;
   white-space: nowrap !important;
   cursor: pointer !important;
-  border: none !important;
+  border: 1px solid #DDE3E6 !important;
   outline: none !important;
   transition: all 0.2s ease !important;
   background: #FAFBFC !important;
   color: #2E3B41 !important;
-  border: 1px solid #DDE3E6 !important;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04) !important;
+  flex-shrink: 0 !important;
 }
 
-.panel-action-btn:hover {
+.panel-action-btn:hover,
+.secondary-btn.panel-action-btn:hover,
+.home-panel-header .panel-action-btn:hover {
   background: #DDE3E6 !important;
   color: #0f172a !important;
   transform: translateY(-1px) !important;
 }
 
-.home-today-board-card .panel-action-btn {
+.home-today-board-card .panel-action-btn,
+.today-cause-list-btn {
   background: linear-gradient(135deg, #F59E0B, #D97706) !important;
   color: #FFFFFF !important;
   border: none !important;
   box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3) !important;
 }
 
-.home-today-board-card .panel-action-btn:hover {
+.home-today-board-card .panel-action-btn:hover,
+.today-cause-list-btn:hover {
   background: linear-gradient(135deg, #D97706, #B45309) !important;
   box-shadow: 0 5px 14px rgba(245, 158, 11, 0.45) !important;
   transform: translateY(-1px) !important;
+  color: #FFFFFF !important;
 }
 
 /* Home Tasks List */
@@ -11361,161 +11378,279 @@ textarea:focus {
    ============================================================================== */
 
 .modern-chambers-footer {
-  background: linear-gradient(180deg, #00382e 0%, #00221c 100%) !important;
+  background: linear-gradient(145deg, #072e27 0%, #0a3d34 50%, #062620 100%) !important;
   color: #f1f5f9 !important;
-  margin-top: 40px !important;
-  border-top: 3px solid #b45309 !important;
-  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.18) !important;
+  margin: 36px 0 20px 0 !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(20, 184, 166, 0.28) !important;
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.42) !important;
   position: relative !important;
+  overflow: hidden !important;
   z-index: 10 !important;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
-.footer-top-section {
-  max-width: 1240px !important;
-  margin: 0 auto !important;
-  padding: 36px 24px 28px 24px !important;
+.footer-card-inner {
+  position: relative !important;
+  padding: 30px 32px 24px 32px !important;
+  z-index: 2 !important;
+}
+
+.footer-main-grid {
   display: grid !important;
-  grid-template-columns: 1.4fr 1fr !important;
-  gap: 40px !important;
+  grid-template-columns: 1.35fr 1fr !important;
+  gap: 36px !important;
+  position: relative !important;
+  z-index: 3 !important;
 }
 
-@media (max-width: 840px) {
-  .footer-top-section {
+@media (max-width: 960px) {
+  .footer-card-inner {
+    padding: 24px 20px 20px 20px !important;
+  }
+  .footer-main-grid {
     grid-template-columns: 1fr !important;
     gap: 28px !important;
   }
 }
 
-.footer-crest-wrapper {
+/* Brand Header */
+.footer-chambers-header {
   display: flex !important;
   align-items: center !important;
   gap: 14px !important;
-  margin-bottom: 12px !important;
+  margin-bottom: 22px !important;
 }
 
-.footer-crest-icon {
+.footer-brand-crest {
   width: 48px !important;
   height: 48px !important;
+  min-width: 48px !important;
   border-radius: 50% !important;
-  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  background: radial-gradient(circle at 35% 35%, #fb923c 0%, #ea580c 55%, #c2410c 100%) !important;
   color: #ffffff !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 1.3rem !important;
-  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.4) !important;
+  font-size: 20px !important;
+  box-shadow: 0 0 22px rgba(234, 88, 12, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.4) !important;
   flex-shrink: 0 !important;
+}
+
+.footer-brand-text {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
 }
 
 .footer-brand-title {
   color: #fbbf24 !important;
-  font-size: 1.15rem !important;
+  font-size: 16px !important;
   font-weight: 800 !important;
-  letter-spacing: 0.5px !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
   margin: 0 !important;
+  line-height: 1.25 !important;
+  font-family: inherit !important;
 }
 
 .footer-brand-subtitle {
-  color: #99f6e4 !important;
-  font-size: 0.8rem !important;
-  display: block !important;
-  margin-top: 2px !important;
+  color: #6ee7b7 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  margin: 0 !important;
+  font-family: inherit !important;
 }
 
-.footer-brand-description {
+/* 3 Feature Pillars */
+.footer-features-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 16px !important;
+  margin-bottom: 20px !important;
+}
+
+@media (max-width: 640px) {
+  .footer-features-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+}
+
+.footer-feature-item {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.footer-feature-icon {
+  font-size: 26px !important;
+  color: #a7f3d0 !important;
+  margin-bottom: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 32px !important;
+}
+
+.footer-feature-title {
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  letter-spacing: -0.01em !important;
+  font-family: inherit !important;
+}
+
+.footer-feature-desc {
   color: #cbd5e1 !important;
-  font-size: 0.85rem !important;
-  line-height: 1.55 !important;
-  margin: 0 0 16px 0 !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  margin: 0 !important;
+  font-family: inherit !important;
 }
 
-.footer-jurisdiction-chips {
+/* Jurisdiction Chips */
+.footer-jurisdictions-row {
   display: flex !important;
   flex-wrap: wrap !important;
   gap: 8px !important;
+  align-items: center !important;
 }
 
-.jurisdiction-chip {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+.footer-court-chip {
+  background: rgba(10, 42, 37, 0.75) !important;
+  border: 1px solid rgba(45, 125, 115, 0.45) !important;
   color: #e2e8f0 !important;
-  border-radius: 20px !important;
-  padding: 4px 12px !important;
-  font-size: 0.76rem !important;
-  font-weight: 500 !important;
+  border-radius: 8px !important;
+  padding: 6px 13px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 6px !important;
+  gap: 7px !important;
+  transition: all 0.2s ease !important;
 }
 
-.footer-nav-column {
+.footer-court-chip:hover {
+  background: rgba(16, 64, 56, 0.9) !important;
+  border-color: #2dd4bf !important;
+  color: #ffffff !important;
+}
+
+.footer-court-chip i {
+  color: #5eead4 !important;
+  font-size: 11px !important;
+}
+
+/* Right Navigation Portals Column */
+.footer-portals-col {
   display: flex !important;
   flex-direction: column !important;
 }
 
-.footer-heading {
-  color: #ffffff !important;
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
+.footer-portals-title {
+  color: #fbbf24 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.6px !important;
-  margin: 0 0 14px 0 !important;
+  letter-spacing: 0.06em !important;
+  margin: 0 0 16px 0 !important;
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
+  font-family: inherit !important;
 }
 
-.footer-heading i {
+.footer-portals-title i {
   color: #fbbf24 !important;
+  font-size: 14px !important;
 }
 
-.footer-nav-pills-grid {
+.footer-portals-grid {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
   gap: 10px !important;
 }
 
-.footer-nav-pill {
-  background: rgba(255, 255, 255, 0.07) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+.footer-portal-link {
+  background: rgba(10, 42, 37, 0.72) !important;
+  border: 1px solid rgba(45, 125, 115, 0.45) !important;
+  border-radius: 9px !important;
+  padding: 11px 16px !important;
   color: #f8fafc !important;
   text-decoration: none !important;
-  padding: 10px 14px !important;
-  border-radius: 10px !important;
   display: flex !important;
   align-items: center !important;
   gap: 10px !important;
-  font-size: 0.88rem !important;
-  font-weight: 500 !important;
-  transition: all 0.2s ease !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
 }
 
-.footer-nav-pill:hover {
-  background: rgba(217, 119, 6, 0.25) !important;
-  border-color: #fbbf24 !important;
-  color: #fbbf24 !important;
+.footer-portal-link:hover {
+  background: rgba(18, 66, 58, 0.95) !important;
+  border-color: #2dd4bf !important;
+  color: #ffffff !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
-.footer-nav-pill i {
-  color: #99f6e4 !important;
-  font-size: 0.95rem !important;
-  transition: color 0.2s ease !important;
+.footer-portal-link i {
+  font-size: 14px !important;
+  width: 18px !important;
+  text-align: center !important;
+  flex-shrink: 0 !important;
 }
 
-.footer-nav-pill:hover i {
-  color: #fbbf24 !important;
+.portal-ico-pink { color: #f472b6 !important; }
+.portal-ico-teal { color: #2dd4bf !important; }
+.portal-ico-green { color: #86efac !important; }
+.portal-ico-cyan { color: #5eead4 !important; }
+.portal-ico-mint { color: #a7f3d0 !important; }
+.portal-ico-blue { color: #67e8f9 !important; }
+
+/* Watermark & Sparkle */
+.footer-watermark-court {
+  position: absolute !important;
+  right: 20px !important;
+  bottom: 8px !important;
+  width: 150px !important;
+  height: 110px !important;
+  color: rgba(45, 125, 115, 0.28) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  opacity: 0.7 !important;
 }
 
+.footer-watermark-court svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.footer-sparkle-star {
+  position: absolute !important;
+  right: 90px !important;
+  bottom: 30px !important;
+  font-size: 24px !important;
+  color: rgba(167, 243, 208, 0.65) !important;
+  text-shadow: 0 0 12px rgba(167, 243, 208, 0.7) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  line-height: 1 !important;
+}
+
+/* Bottom Bar */
 .footer-bottom-bar {
-  background: rgba(0, 0, 0, 0.35) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-  padding: 14px 24px !important;
+  background: rgba(3, 20, 17, 0.8) !important;
+  border-top: 1px solid rgba(45, 125, 115, 0.3) !important;
+  padding: 13px 32px !important;
+  position: relative !important;
+  z-index: 3 !important;
 }
 
-.footer-bottom-container {
-  max-width: 1240px !important;
-  margin: 0 auto !important;
+.footer-bottom-inner {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
@@ -11523,35 +11658,48 @@ textarea:focus {
   gap: 12px !important;
 }
 
+@media (max-width: 960px) {
+  .footer-bottom-bar {
+    padding: 13px 20px !important;
+  }
+}
+
 .footer-copyright-text {
   color: #94a3b8 !important;
-  font-size: 0.82rem !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  font-family: inherit !important;
 }
 
 .footer-copyright-text strong {
-  color: #e2e8f0 !important;
+  color: #f1f5f9 !important;
+  font-weight: 700 !important;
 }
 
 .footer-back-to-top {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #f8fafc !important;
-  border-radius: 6px !important;
-  padding: 6px 14px !important;
-  font-size: 0.8rem !important;
+  background: transparent !important;
+  border: none !important;
+  color: #f1f5f9 !important;
+  font-size: 12px !important;
   font-weight: 600 !important;
-  cursor: pointer !important;
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
+  cursor: pointer !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
   transition: all 0.2s ease !important;
+  font-family: inherit !important;
 }
 
 .footer-back-to-top:hover {
-  background: #00695c !important;
-  border-color: #99f6e4 !important;
-  color: #ffffff !important;
+  color: #5eead4 !important;
   transform: translateY(-1px) !important;
+}
+
+.footer-back-to-top i {
+  font-size: 12px !important;
 }
 
 /* Hide Modern Chambers Footer on Case Workflow Sections (Add, Update, Hearing, Delete, Courts) */
