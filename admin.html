@@ -229,6 +229,7 @@
             <a href="#" onclick="showTab('add', event)"><i class="fa-solid fa-folder-plus nav-icon"></i> Add New Case</a>
             <a href="#" onclick="showTab('update', event)"><i class="fa-solid fa-pen-to-square nav-icon"></i> Update Case</a>
             <a href="#" onclick="showTab('hearing', event)"><i class="fa-solid fa-calendar-check nav-icon"></i> Update Hearing</a>
+            <a href="#" onclick="showTab('transfer', event)"><i class="fa-solid fa-arrow-right-arrow-left nav-icon"></i> Transfer Case</a>
             <a href="#" onclick="showTab('delete', event)"><i class="fa-solid fa-trash-can nav-icon"></i> Delete Case</a>
             <a href="#" onclick="showTab('courts', event)"><i class="fa-solid fa-landmark nav-icon"></i> Manage Courts</a>
 
@@ -761,6 +762,9 @@
                             <button type="button" id="detailHearingBtn" class="dossier-action-btn accent-action" title="Log next hearing date and process">
                                 <i class="fa-solid fa-calendar-plus"></i> Update Hearing
                             </button>
+                            <button type="button" id="detailTransferBtn" class="dossier-action-btn transfer-action" title="Transfer this case to another court">
+                                <i class="fa-solid fa-arrow-right-arrow-left"></i> Transfer Case
+                            </button>
                             <button type="button" id="detailWhatsAppBtn" class="dossier-action-btn whatsapp-btn" title="Send WhatsApp notification to client">
                                 <i class="fa-brands fa-whatsapp"></i> WhatsApp Notice
                             </button>
@@ -894,6 +898,42 @@
                                     <tbody id="detailInlineHistoryTableBody">
                                         <tr>
                                             <td colspan="5" class="no-results text-center py-4">Select a case to load its proceedings history.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Embedded Inline Case Court Transfer History Section -->
+                        <div class="dossier-history-card dossier-transfer-card" id="detailTransferHistoryCard" style="margin-top: 18px;">
+                            <div class="dossier-history-header">
+                                <div class="history-head-title">
+                                    <div class="history-icon-badge" style="background: #eef2ff; color: #4338ca;"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+                                    <div>
+                                        <h4>🏛️ Court Transfer History</h4>
+                                        <p class="history-sub">Chronological record of case transfers between courts, forums, and judicial benches</p>
+                                    </div>
+                                </div>
+                                <div class="history-head-actions">
+                                    <span id="detailTransferCountBadge" class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 600; padding: 4px 10px; border-radius: 9999px;">0 Transfers</span>
+                                </div>
+                            </div>
+
+                            <div class="dossier-history-table-wrap table-responsive">
+                                <table class="dossier-history-table min-w-full">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px; text-align: center;">#</th>
+                                            <th style="width: 130px;">Transfer Date</th>
+                                            <th>From Court ➔ To Court</th>
+                                            <th style="width: 180px;">Order # / Auth.</th>
+                                            <th>Reason / Grounds</th>
+                                            <th style="width: 110px; text-align: center;">Order Doc</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detailInlineTransferTableBody">
+                                        <tr>
+                                            <td colspan="6" class="no-results text-center py-4">No transfer records found for this case.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -2091,6 +2131,195 @@
                             </thead>
                             <tbody></tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transfer Case tab: transfer case to another court/forum and maintain audit trail -->
+            <div id="transfer" class="tab">
+                <div class="form-container">
+                    <div class="section-header-row">
+                        <div class="section-title-box">
+                            <div class="section-icon-badge" style="background: #eef2ff; color: #4338ca;">🔄</div>
+                            <div>
+                                <h3>Transfer Case to Another Court</h3>
+                                <p class="section-subtitle">Record official inter-court transfers, update jurisdiction/bench, and maintain a permanent transfer audit history.</p>
+                            </div>
+                        </div>
+                        <span id="transfersTotalCountBadge" class="case-badge civil">0 Transfers Logged</span>
+                    </div>
+
+                    <!-- Step 1: Search and Select Case -->
+                    <div class="update-search-card">
+                        <div class="search-card-header">
+                            <div class="search-header-info">
+                                <span class="search-card-badge-icon">🔍</span>
+                                <div>
+                                    <h4 class="search-card-heading">Select Case to Transfer</h4>
+                                    <p class="search-card-subheading">Enter Case Number, Plaintiff, Defendant, or Client Name to fetch case and current court</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="update-search-row">
+                            <div class="search-field-box">
+                                <span class="search-field-prefix-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" id="transferSearchInput" placeholder="Enter Case Number, Party Name, or Client Name to transfer..." autocomplete="off">
+                            </div>
+                            <button type="button" id="transferSearchBtn" class="primary-btn search-action-btn">
+                                <i class="fa-solid fa-magnifying-glass"></i> <span>Find Case</span>
+                            </button>
+                        </div>
+                        <div id="transferSearchStatus" class="update-status-msg"></div>
+                    </div>
+
+                    <!-- Selected Case Preview Summary (Hidden until selected) -->
+                    <div id="transferSelectedCaseCard" class="transfer-selected-card" style="display: none;">
+                        <div class="transfer-card-top">
+                            <div class="transfer-case-pill-box">
+                                <span id="transferCaseTypeBadge" class="case-badge civil">CIVIL</span>
+                                <span class="transfer-case-no" id="transferCaseNoDisplay">—</span>
+                            </div>
+                            <span id="transferCaseStatusBadge" class="status-badge pending">Pending</span>
+                        </div>
+                        <h4 class="transfer-case-title" id="transferCaseTitleDisplay">—</h4>
+                        <div class="transfer-meta-grid">
+                            <div class="transfer-meta-item">
+                                <span class="meta-lbl">🏛️ Current Assigned Court:</span>
+                                <span class="meta-val font-semibold text-indigo-800" id="transferCurrentCourtDisplay">—</span>
+                            </div>
+                            <div class="transfer-meta-item">
+                                <span class="meta-lbl">👤 Client:</span>
+                                <span class="meta-val" id="transferClientDisplay">—</span>
+                            </div>
+                            <div class="transfer-meta-item">
+                                <span class="meta-lbl">📅 Next Hearing:</span>
+                                <span class="meta-val" id="transferHearingDisplay">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Transfer Execution Form -->
+                    <form id="transferCaseForm" class="transfer-execution-form" style="display: none;">
+                        <input type="hidden" id="transferHiddenCaseNo" value="">
+                        <input type="hidden" id="transferHiddenCaseType" value="">
+                        <input type="hidden" id="transferHiddenFromCourt" value="">
+
+                        <div class="form-card transfer-details-card" style="margin-top: 20px;">
+                            <div class="form-card-header">
+                                <div class="card-icon-badge">⚖️</div>
+                                <div>
+                                    <h4 class="form-card-title">Court Transfer Details &amp; Judicial Order</h4>
+                                    <p class="form-card-sub">Specify destination court, transfer order details, and grounds of transfer</p>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="transferFromCourtDisplay">Transferred From (Current Court) <span class="req">*</span></label>
+                                    <div class="input-with-icon">
+                                        <i class="fa-solid fa-landmark"></i>
+                                        <input type="text" id="transferFromCourtDisplay" readonly class="readonly-field" placeholder="Origin Court" style="background:#f1f5f9; cursor:not-allowed; font-weight:600;">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="transferToCourt">Transferred To (New Destination Court) <span class="req">*</span></label>
+                                    <div class="input-with-icon">
+                                        <i class="fa-solid fa-gavel"></i>
+                                        <select id="transferToCourt" required class="status-select">
+                                            <option value="">-- Select Destination Court --</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="transferDate">Date of Transfer Order <span class="req">*</span></label>
+                                    <input type="date" id="transferDate" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="transferOrderNo">Order / Reassignment Reference Number</label>
+                                    <input type="text" id="transferOrderNo" placeholder="e.g. Order No. 248/DJ/2026 or Misc. App. 14/2026">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="transferAuthority">Ordering Authority / Presiding Judge</label>
+                                    <input type="text" id="transferAuthority" placeholder="e.g. Hon'ble District &amp; Sessions Judge / High Court">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="transferDocLink">Transfer Order Sheet URL / Cloud Link</label>
+                                    <div class="input-with-icon">
+                                        <i class="fa-solid fa-link"></i>
+                                        <input type="url" id="transferDocLink" placeholder="https://drive.google.com/file/d/...">
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="transferReason">Grounds / Reason for Transfer <span class="req">*</span></label>
+                                    <div class="remarks-quick-chips" style="margin-bottom: 8px;">
+                                        <span class="remarks-chip-btn" onclick="insertTransferReasonChip('Territorial jurisdiction change')">➕ Territorial Jurisdiction</span>
+                                        <span class="remarks-chip-btn" onclick="insertTransferReasonChip('Administrative reassignment by District Judge')">➕ Admin Reassignment</span>
+                                        <span class="remarks-chip-btn" onclick="insertTransferReasonChip('Transferred to Special Court / Fast Track')">➕ Special / Fast Track Court</span>
+                                        <span class="remarks-chip-btn" onclick="insertTransferReasonChip('Transferred on Application u/s 24 CPC')">➕ Sec 24 CPC Transfer</span>
+                                        <span class="remarks-chip-btn" onclick="insertTransferReasonChip('Transferred u/s 407/408 CrPC')">➕ Sec 407/408 CrPC</span>
+                                        <span class="remarks-chip-btn" onclick="insertTransferReasonChip('Recusal / Transfer to alternate bench')">➕ Bench Recusal</span>
+                                    </div>
+                                    <input type="text" id="transferReason" required placeholder="Enter or choose grounds for transfer...">
+                                </div>
+
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="transferRemarks">Special Instructions / Remarks</label>
+                                    <textarea id="transferRemarks" rows="2" placeholder="e.g. Records transmitted to new court, next listed date retained..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="transfer-actions-row" style="margin-top: 16px; display: flex; gap: 12px; align-items: center;">
+                            <button type="submit" id="submitTransferBtn" class="primary-btn form-submit-btn" style="background: linear-gradient(135deg, #3730a3, #4338ca); max-width: 320px;">
+                                <i class="fa-solid fa-arrow-right-arrow-left"></i> Execute &amp; Save Court Transfer
+                            </button>
+                            <button type="button" id="cancelTransferBtn" class="secondary-btn" onclick="resetTransferForm()" style="max-width: 140px; height: 48px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #fff; color: #475569; font-weight: 600; cursor: pointer;">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Step 3: Recent Case Transfers Registry Card -->
+                    <div class="transfer-history-registry-card" style="margin-top: 28px;">
+                        <div class="dossier-history-header">
+                            <div class="history-head-title">
+                                <div class="history-icon-badge" style="background: #eef2ff; color: #4338ca;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                                <div>
+                                    <h4>Recent Court Transfers Registry</h4>
+                                    <p class="history-sub">Audit trail of all cases transferred across courts and judicial forums</p>
+                                </div>
+                            </div>
+                            <div class="history-head-actions">
+                                <button type="button" class="dossier-history-modal-btn" onclick="renderRecentTransfersTable()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                            <table id="transfersRegistryTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700">
+                                <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
+                                    <tr>
+                                        <th style="width: 50px; text-align: center;">#</th>
+                                        <th style="width: 130px;">Transfer Date</th>
+                                        <th style="width: 160px;">Case Number</th>
+                                        <th>Origin Court ➔ New Court</th>
+                                        <th style="width: 170px;">Order # / Authority</th>
+                                        <th>Reason</th>
+                                        <th style="width: 90px; text-align: center;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transfersRegistryTableBody">
+                                    <tr>
+                                        <td colspan="7" class="no-results text-center py-4">No case transfers recorded yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3415,6 +3644,7 @@
                                     <option value="hearings">📅 hearings (Hearing Dates &amp; Session History)</option>
                                     <option value="courts">🏛️ courts (Court Names &amp; Jurisdictions)</option>
                                     <option value="case_todos">📝 case_todos (Case Tasks &amp; Deadlines)</option>
+                                    <option value="case_transfers">🔄 case_transfers (Court Transfers &amp; Audit Records)</option>
                                 </select>
                             </div>
                             <div class="db-search-box">

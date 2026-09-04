@@ -96,6 +96,8 @@ let allCaseRecords = [];
 let guestCases = [];
 const defaultFallbackHearings = [];
 let allHearingRecords = [];
+let allCaseTransfers = [];
+window.allCaseTransfers = allCaseTransfers;
 
 function getSafeValue(value, fallback = '—') {
   if (value === null || value === undefined || value === '') return fallback;
@@ -514,8 +516,8 @@ async function fetchAllDataFromSupabase() {
       }
     };
 
-    // Fetch from civilcases, statecases, criminalcases, familycases, revenuecases, misccivilcases, misccriminalcases, complaintcases, hearings, courts, and case_todos concurrently
-    const [civilRes, stateRes, criminalRes, familyRes, revenueRes, miscCivilRes, miscCriminalRes, complaintRes, hearingsRes, courtsRes, todosRes] = await Promise.all([
+    // Fetch from civilcases, statecases, criminalcases, familycases, revenuecases, misccivilcases, misccriminalcases, complaintcases, hearings, courts, case_todos, and case_transfers concurrently
+    const [civilRes, stateRes, criminalRes, familyRes, revenueRes, miscCivilRes, miscCriminalRes, complaintRes, hearingsRes, courtsRes, todosRes, transfersRes] = await Promise.all([
       safeFetch(supabaseClient.from('civilcases').select('*').order('created_at', { ascending: false }), supabaseClient.from('civilcases').select('*')),
       safeFetch(supabaseClient.from('statecases').select('*').order('created_at', { ascending: false }), supabaseClient.from('statecases').select('*')),
       safeFetch(supabaseClient.from('criminalcases').select('*').order('created_at', { ascending: false }), supabaseClient.from('criminalcases').select('*')),
@@ -526,7 +528,8 @@ async function fetchAllDataFromSupabase() {
       safeFetch(supabaseClient.from('complaintcases').select('*').order('created_at', { ascending: false }), supabaseClient.from('complaintcases').select('*')),
       safeFetch(supabaseClient.from('hearings').select('*').order('hearing_date', { ascending: false }), supabaseClient.from('hearings').select('*')),
       safeFetch(supabaseClient.from('courts').select('*').order('court_name'), supabaseClient.from('courts').select('*')),
-      safeFetch(supabaseClient.from('case_todos').select('*').order('deadline_date', { ascending: true }), supabaseClient.from('case_todos').select('*'))
+      safeFetch(supabaseClient.from('case_todos').select('*').order('deadline_date', { ascending: true }), supabaseClient.from('case_todos').select('*')),
+      safeFetch(supabaseClient.from('case_transfers').select('*').order('transfer_date', { ascending: false }), supabaseClient.from('case_transfers').select('*'))
     ]);
 
     // 1. Sync Courts (Deduplicated)
@@ -653,6 +656,26 @@ async function fetchAllDataFromSupabase() {
     } else {
       updateTodoSyncIndicator(false);
     }
+
+    // 5. Sync Case Transfers from case_transfers
+    if (transfersRes && transfersRes.data && !transfersRes.error) {
+      allCaseTransfers = transfersRes.data;
+      window.allCaseTransfers = allCaseTransfers;
+      try {
+        localStorage.setItem('case_transfers_backup', JSON.stringify(allCaseTransfers));
+      } catch (e) {}
+      console.log(`Loaded ${allCaseTransfers.length} court transfers from Supabase.`);
+    } else {
+      try {
+        const localBackup = localStorage.getItem('case_transfers_backup');
+        if (localBackup) {
+          allCaseTransfers = JSON.parse(localBackup);
+          window.allCaseTransfers = allCaseTransfers;
+        }
+      } catch (e) {}
+    }
+    if (typeof renderRecentTransfersTable === 'function') renderRecentTransfersTable();
+    if (typeof updateTransfersCountBadge === 'function') updateTransfersCountBadge();
 
     updateSupabaseStatusIndicator(true);
     refreshAllCaseTables();
@@ -1516,7 +1539,8 @@ async function deleteCaseFromSupabase(caseNumber) {
       await Promise.all([
         ...caseTables.map(tbl => supabaseClient.from(tbl).delete().ilike('case_number', targetNo)),
         supabaseClient.from('hearings').delete().ilike('case_number', targetNo),
-        supabaseClient.from('case_todos').delete().ilike('case_number', targetNo)
+        supabaseClient.from('case_todos').delete().ilike('case_number', targetNo),
+        supabaseClient.from('case_transfers').delete().ilike('case_number', targetNo)
       ]);
     } catch (e) {
       console.error('Supabase delete error:', e);
@@ -1545,6 +1569,16 @@ async function deleteCaseFromSupabase(caseNumber) {
     );
     if (typeof saveCaseTasksLocally === 'function') saveCaseTasksLocally();
     if (typeof renderCaseTasks === 'function') renderCaseTasks(currentTodoFilter);
+  }
+
+  // Cascade in-memory deletion to court transfers
+  if (Array.isArray(allCaseTransfers)) {
+    allCaseTransfers = allCaseTransfers.filter(t => 
+      (t.case_number || '').trim().toLowerCase() !== targetNo.toLowerCase()
+    );
+    try { localStorage.setItem('case_transfers_backup', JSON.stringify(allCaseTransfers)); } catch(e) {}
+    if (typeof renderRecentTransfersTable === 'function') renderRecentTransfersTable();
+    if (typeof updateTransfersCountBadge === 'function') updateTransfersCountBadge();
   }
 
   refreshAllCaseTables();
@@ -1783,14 +1817,26 @@ async function cascadeUpdateCaseNumber(oldCaseNo, newCaseNo) {
     }
   }
 
-  // 3. Supabase updates on hearings and case_todos
+  // 2.5 In-memory allCaseTransfers
+  if (Array.isArray(allCaseTransfers)) {
+    allCaseTransfers.forEach(t => {
+      if ((t.case_number || '').trim().toLowerCase() === oldNo.toLowerCase()) {
+        t.case_number = newNo;
+      }
+    });
+    try { localStorage.setItem('case_transfers_backup', JSON.stringify(allCaseTransfers)); } catch(e) {}
+    if (typeof renderRecentTransfersTable === 'function') renderRecentTransfersTable();
+  }
+
+  // 3. Supabase updates on hearings, case_todos and case_transfers
   if (supabaseClient) {
     try {
       await Promise.all([
         supabaseClient.from('hearings').update({ case_number: newNo }).ilike('case_number', oldNo),
-        supabaseClient.from('case_todos').update({ case_number: newNo }).ilike('case_number', oldNo)
+        supabaseClient.from('case_todos').update({ case_number: newNo }).ilike('case_number', oldNo),
+        supabaseClient.from('case_transfers').update({ case_number: newNo }).ilike('case_number', oldNo)
       ]);
-      console.log(`[CASCADE] Supabase hearings and case_todos updated for case number "${oldNo}" -> "${newNo}".`);
+      console.log(`[CASCADE] Supabase hearings, case_todos, and case_transfers updated for case number "${oldNo}" -> "${newNo}".`);
     } catch (err) {
       console.error('[CASCADE] Supabase error cascading case number change:', err);
     }
@@ -2831,12 +2877,22 @@ function renderSelectedCaseDetails(caseObj) {
     };
   }
 
+  const transferBtn = document.getElementById('detailTransferBtn');
+  if (transferBtn) {
+    transferBtn.onclick = () => {
+      openTransferForCase(caseObj.caseNo || caseObj.criminalCaseNumber || '');
+    };
+  }
+
   const whatsappBtn = document.getElementById('detailWhatsAppBtn');
   if (whatsappBtn) {
     whatsappBtn.onclick = () => {
       sendWhatsAppHearingNotice(caseObj);
     };
   }
+
+  // Render Court Transfer History section in dossier
+  renderCaseTransferHistory(caseNumber, caseObj);
 
   const historyBtn = document.getElementById('detailHistoryBtn');
   if (historyBtn) {
@@ -7309,6 +7365,510 @@ async function handleUpdateCaseSubmit(e) {
 }
 
 // ==============================================================================
+// Case Transfer to Another Court (Inter-Court Jurisdictional Transfer)
+// ==============================================================================
+
+let isSubmittingTransfer = false;
+
+function loadCaseForTransfer(caseNoToFind) {
+  const query = (caseNoToFind || document.getElementById('transferSearchInput')?.value || '').trim().toLowerCase();
+  const statusEl = document.getElementById('transferSearchStatus');
+  const previewCard = document.getElementById('transferSelectedCaseCard');
+  const transferForm = document.getElementById('transferCaseForm');
+
+  if (!query) {
+    if (statusEl) {
+      statusEl.textContent = 'Please enter a Case Number, Party Name, or Client Name to search.';
+      statusEl.className = 'update-status-msg error';
+    }
+    return;
+  }
+
+  // 1. Check for exact case number match first
+  let exactMatch = allCaseRecords.find(c => {
+    const num1 = (c.caseNo || '').toLowerCase();
+    const num2 = (c.criminalCaseNumber || '').toLowerCase();
+    return num1 === query || num2 === query;
+  });
+
+  // 2. Filter all potential matches
+  const matches = allCaseRecords.filter(c => {
+    const num1 = (c.caseNo || '').toLowerCase();
+    const num2 = (c.criminalCaseNumber || '').toLowerCase();
+    const name = (c.caseName || '').toLowerCase();
+    const plaintiff = (c.plaintiff || '').toLowerCase();
+    const defendant = (c.defendant || '').toLowerCase();
+    const victim = (c.victimName || '').toLowerCase();
+    const accused = (c.accusedName || '').toLowerCase();
+    const client = (c.clientName || c.criminalClientName || '').toLowerCase();
+    return num1 === query || num2 === query || num1.includes(query) || num2.includes(query) ||
+           name.includes(query) || (plaintiff && plaintiff.includes(query)) ||
+           (defendant && defendant.includes(query)) || (victim && victim.includes(query)) ||
+           (accused && accused.includes(query)) || (client && client.includes(query));
+  });
+
+  if (!exactMatch && matches.length === 0) {
+    if (statusEl) {
+      statusEl.textContent = `❌ Case "${query.toUpperCase()}" not found in database records.`;
+      statusEl.className = 'update-status-msg error';
+    }
+    if (previewCard) previewCard.style.display = 'none';
+    if (transferForm) transferForm.style.display = 'none';
+    return;
+  }
+
+  // 3. Multi-match search disambiguation: render candidate list if > 1 match and no direct exact match
+  if (!caseNoToFind && !exactMatch && matches.length > 1) {
+    if (statusEl) {
+      let html = `
+        <div class="update-search-candidates">
+          <div class="candidate-header">
+            <span>🔍 Found ${matches.length} matches for "<em>${escapeHtml(query)}</em>":</span>
+            <small style="color:#64748b;">Click a case below to load it for transfer</small>
+          </div>
+          <div class="candidate-list">
+      `;
+      matches.slice(0, 8).forEach(m => {
+        const cNo = m.caseNo || m.criminalCaseNumber || '—';
+        const cName = m.caseName || (m.plaintiff ? `${m.plaintiff} vs ${m.defendant}` : (m.victimName ? `${m.victimName} vs ${m.accusedName}` : '—'));
+        const cType = (m.caseType || 'civil').toUpperCase();
+        const cCourt = m.courtName || m.criminalCourtName || 'District Court';
+        html += `
+          <div class="candidate-item" onclick="loadCaseForTransfer('${escapeHtml(cNo)}')">
+            <div class="candidate-item-info">
+              <div class="candidate-item-title">
+                <strong>${escapeHtml(cNo)}</strong>
+                <span class="candidate-item-type ${m.caseType || 'civil'}">${cType}</span>
+                <span class="candidate-item-status">${escapeHtml(m.caseStatus || 'Pending')}</span>
+              </div>
+              <div class="candidate-item-parties">${escapeHtml(cName)}</div>
+              <div class="candidate-item-court">🏛️ Current Court: ${escapeHtml(cCourt)}</div>
+            </div>
+            <div class="candidate-item-action">
+              <button type="button" class="primary-btn candidate-pick-btn">Select ➔</button>
+            </div>
+          </div>
+        `;
+      });
+      html += `
+          </div>
+        </div>
+      `;
+      statusEl.innerHTML = html;
+      statusEl.className = 'update-status-msg';
+    }
+    if (previewCard) previewCard.style.display = 'none';
+    if (transferForm) transferForm.style.display = 'none';
+    return;
+  }
+
+  const targetCase = exactMatch || matches[0];
+  const caseNo = targetCase.caseNo || targetCase.criminalCaseNumber || '—';
+  const caseType = targetCase.caseType || 'civil';
+  const currentCourt = targetCase.courtName || targetCase.criminalCourtName || 'District Court';
+  const clientName = targetCase.clientName || targetCase.criminalClientName || '—';
+  const nextHearing = targetCase.nextHearing && targetCase.nextHearing !== '—' ? formatDateDMY(targetCase.nextHearing) : 'Undated';
+  const caseTitle = targetCase.caseName || (targetCase.plaintiff ? `${targetCase.plaintiff} vs ${targetCase.defendant}` : (targetCase.victimName ? `${targetCase.victimName} vs ${targetCase.accusedName}` : caseNo));
+
+  // Populate preview card
+  const cNoDisp = document.getElementById('transferCaseNoDisplay');
+  if (cNoDisp) cNoDisp.textContent = caseNo;
+
+  const cTypeBadge = document.getElementById('transferCaseTypeBadge');
+  if (cTypeBadge) {
+    cTypeBadge.textContent = caseType.replace('_', ' ').toUpperCase();
+    cTypeBadge.className = `case-badge ${caseType}`;
+  }
+
+  const cStatusBadge = document.getElementById('transferCaseStatusBadge');
+  if (cStatusBadge) {
+    const isDisposed = (targetCase.caseStatus || '').toLowerCase().includes('dispose');
+    cStatusBadge.textContent = isDisposed ? 'Disposed Off' : 'Pending';
+    cStatusBadge.className = isDisposed ? 'status-badge disposed' : 'status-badge pending';
+  }
+
+  const cTitleDisp = document.getElementById('transferCaseTitleDisplay');
+  if (cTitleDisp) cTitleDisp.textContent = caseTitle;
+
+  const cCourtDisp = document.getElementById('transferCurrentCourtDisplay');
+  if (cCourtDisp) cCourtDisp.textContent = currentCourt;
+
+  const cClientDisp = document.getElementById('transferClientDisplay');
+  if (cClientDisp) cClientDisp.textContent = clientName;
+
+  const cHearingDisp = document.getElementById('transferHearingDisplay');
+  if (cHearingDisp) cHearingDisp.textContent = nextHearing;
+
+  // Populate Form Fields
+  const hiddenNo = document.getElementById('transferHiddenCaseNo');
+  if (hiddenNo) hiddenNo.value = caseNo;
+
+  const hiddenType = document.getElementById('transferHiddenCaseType');
+  if (hiddenType) hiddenType.value = caseType;
+
+  const hiddenFrom = document.getElementById('transferHiddenFromCourt');
+  if (hiddenFrom) hiddenFrom.value = currentCourt;
+
+  const fromDisp = document.getElementById('transferFromCourtDisplay');
+  if (fromDisp) fromDisp.value = currentCourt;
+
+  const dateInput = document.getElementById('transferDate');
+  if (dateInput && !dateInput.value) {
+    dateInput.value = new Date().toISOString().split('T')[0];
+  }
+
+  const toCourtSelect = document.getElementById('transferToCourt');
+  if (toCourtSelect) {
+    toCourtSelect.value = '';
+  }
+
+  const searchInput = document.getElementById('transferSearchInput');
+  if (searchInput) searchInput.value = caseNo;
+
+  if (statusEl) {
+    statusEl.textContent = `✅ Case "${caseNo}" loaded. Specify destination court below.`;
+    statusEl.className = 'update-status-msg success';
+  }
+
+  if (previewCard) previewCard.style.display = 'block';
+  if (transferForm) transferForm.style.display = 'block';
+}
+window.loadCaseForTransfer = loadCaseForTransfer;
+
+async function handleTransferCaseSubmit(e) {
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+  if (isSubmittingTransfer) return;
+
+  const caseNo = document.getElementById('transferHiddenCaseNo')?.value?.trim();
+  const caseType = document.getElementById('transferHiddenCaseType')?.value?.trim() || 'civil';
+  const fromCourt = document.getElementById('transferHiddenFromCourt')?.value?.trim() || document.getElementById('transferFromCourtDisplay')?.value?.trim();
+  const toCourt = document.getElementById('transferToCourt')?.value?.trim();
+  const transferDate = document.getElementById('transferDate')?.value?.trim() || new Date().toISOString().split('T')[0];
+  const orderNo = document.getElementById('transferOrderNo')?.value?.trim() || '';
+  const orderDate = document.getElementById('transferOrderDate')?.value?.trim() || null;
+  const authority = document.getElementById('transferAuthority')?.value?.trim() || '';
+  const reason = document.getElementById('transferReason')?.value?.trim() || 'Judicial / Territorial Court Transfer';
+  const docLink = document.getElementById('transferDocLink')?.value?.trim() || '';
+  const remarks = document.getElementById('transferRemarks')?.value?.trim() || '';
+  const statusEl = document.getElementById('transferSearchStatus');
+  const submitBtn = document.getElementById('submitTransferBtn');
+  const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '<i class="fa-solid fa-arrow-right-arrow-left"></i> Execute & Save Court Transfer';
+
+  if (!caseNo) {
+    alert('Please search and select a case to transfer first.');
+    return;
+  }
+
+  if (!toCourt) {
+    alert('Please select a destination court for the transfer.');
+    return;
+  }
+
+  if (toCourt.toLowerCase() === fromCourt.toLowerCase()) {
+    alert(`The case is already assigned to "${toCourt}". Please select a different destination court.`);
+    return;
+  }
+
+  const confirmMsg = `Transfer Case "${caseNo}"\n\nFrom: ${fromCourt}\nTo: ${toCourt}\nDate: ${transferDate}\nReason: ${reason}\n\nDo you wish to execute this court transfer?`;
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    isSubmittingTransfer = true;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Transferring Case...';
+    }
+
+    const transferId = 'transfer_' + Date.now();
+    const transferRecord = {
+      id: transferId,
+      case_number: caseNo,
+      case_type: caseType,
+      from_court: fromCourt,
+      to_court: toCourt,
+      transfer_date: transferDate,
+      order_number: orderNo,
+      order_date: orderDate || null,
+      transferred_by: authority,
+      transfer_reason: reason,
+      doc_link: docLink,
+      remarks: remarks,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    // 1. Insert into Supabase case_transfers table (with graceful fallback)
+    if (supabaseClient) {
+      try {
+        const { data, error } = await supabaseClient.from('case_transfers').insert([transferRecord]).select('id');
+        if (error) {
+          console.warn('Could not insert into Supabase case_transfers (table may need creation):', error.message);
+        } else if (data && data[0]?.id) {
+          transferRecord.id = data[0].id;
+        }
+      } catch (insertErr) {
+        console.warn('Supabase case_transfers insert exception:', insertErr);
+      }
+    }
+
+    // 2. Add to in-memory state & persist to local storage backup
+    allCaseTransfers.unshift(transferRecord);
+    window.allCaseTransfers = allCaseTransfers;
+    try {
+      localStorage.setItem('case_transfers_backup', JSON.stringify(allCaseTransfers));
+    } catch (e) {}
+
+    // 3. Update the case's court in Supabase across the relevant case table
+    const tableMap = {
+      'civil': 'civilcases',
+      'state': 'statecases',
+      'criminal': 'criminalcases',
+      'family': 'familycases',
+      'revenue': 'revenuecases',
+      'misc_civil': 'misccivilcases',
+      'misc_criminal': 'misccriminalcases',
+      'complaint': 'complaintcases'
+    };
+    const targetTable = tableMap[caseType] || 'civilcases';
+
+    if (supabaseClient) {
+      try {
+        const payload = { court_name: toCourt, updated_at: new Date().toISOString() };
+        await supabaseClient.from(targetTable).update(payload).ilike('case_number', caseNo);
+      } catch (courtUpdateErr) {
+        console.warn('Error updating court in Supabase case table:', courtUpdateErr);
+      }
+    }
+
+    // 4. Update in-memory allCaseRecords
+    const foundCase = allCaseRecords.find(c => {
+      const num1 = (c.caseNo || '').toLowerCase();
+      const num2 = (c.criminalCaseNumber || '').toLowerCase();
+      return num1 === caseNo.toLowerCase() || num2 === caseNo.toLowerCase();
+    });
+
+    if (foundCase) {
+      foundCase.courtName = toCourt;
+      foundCase.criminalCourtName = toCourt;
+      foundCase.updatedAt = new Date().toISOString();
+    }
+
+    // 5. If this case is currently open in Case Dossier, re-render it
+    if (currentSelectedCase && ((currentSelectedCase.caseNo || '').toLowerCase() === caseNo.toLowerCase() || (currentSelectedCase.criminalCaseNumber || '').toLowerCase() === caseNo.toLowerCase())) {
+      currentSelectedCase.courtName = toCourt;
+      currentSelectedCase.criminalCourtName = toCourt;
+      renderSelectedCaseDetails(currentSelectedCase);
+    }
+
+    // 6. Refresh views & tables
+    refreshAllCaseTables();
+    renderRecentTransfersTable();
+    updateTransfersCountBadge();
+
+    // 7. Reset form and inform user
+    resetTransferForm();
+    if (statusEl) {
+      statusEl.textContent = `🎉 Success! Case "${caseNo}" successfully transferred from "${fromCourt}" to "${toCourt}".`;
+      statusEl.className = 'update-status-msg success';
+    }
+
+    if (typeof showToast === 'function') {
+      showToast(`Case ${caseNo} transferred to ${toCourt}!`, 'success');
+    } else {
+      alert(`✅ Case ${caseNo} successfully transferred from "${fromCourt}" to "${toCourt}".`);
+    }
+
+  } catch (err) {
+    console.error('Error during case transfer:', err);
+    alert(`Error transferring case: ${err.message || err}`);
+    if (statusEl) {
+      statusEl.textContent = `❌ Error: ${err.message || err}`;
+      statusEl.className = 'update-status-msg error';
+    }
+  } finally {
+    isSubmittingTransfer = false;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHtml;
+    }
+  }
+}
+window.handleTransferCaseSubmit = handleTransferCaseSubmit;
+
+function renderRecentTransfersTable() {
+  const tbody = document.getElementById('transfersRegistryTableBody');
+  const badge = document.getElementById('transfersTotalCountBadge');
+  if (badge) {
+    badge.textContent = `${allCaseTransfers.length} Transfer${allCaseTransfers.length === 1 ? '' : 's'} Logged`;
+  }
+  if (!tbody) return;
+
+  if (allCaseTransfers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="no-results text-center py-4">No case transfers recorded yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = allCaseTransfers.slice(0, 25).map((t, idx) => {
+    const docBtn = t.doc_link && t.doc_link.trim()
+      ? `<a href="${escapeHtml(t.doc_link.trim())}" target="_blank" rel="noopener noreferrer" class="table-action-icon-btn" title="View Order Document" style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe;"><i class="fa-solid fa-file-arrow-down"></i></a>`
+      : '';
+
+    return `
+      <tr>
+        <td style="text-align: center; font-weight: 600; color: #64748b;">#${idx + 1}</td>
+        <td style="white-space: nowrap; font-weight: 600;">${formatDateDMY(t.transfer_date)}</td>
+        <td>
+          <a href="#" onclick="showCaseDetails('${escapeHtml(t.case_number)}'); return false;" style="font-weight: 700; color: #1e40af; text-decoration: underline;">
+            ${escapeHtml(t.case_number)}
+          </a>
+        </td>
+        <td>
+          <div class="transfer-direction-pill">
+            <span class="transfer-from-court-badge">${escapeHtml(t.from_court || '—')}</span>
+            <span class="transfer-arrow-icon"><i class="fa-solid fa-arrow-right"></i></span>
+            <span class="transfer-to-court-badge">${escapeHtml(t.to_court || '—')}</span>
+          </div>
+        </td>
+        <td>
+          <strong style="color: #1e293b;">${escapeHtml(t.order_number || '—')}</strong>
+          ${t.transferred_by ? `<div style="font-size: 11px; color: #64748b;">${escapeHtml(t.transferred_by)}</div>` : ''}
+        </td>
+        <td>
+          <span class="transfer-reason-chip">${escapeHtml(t.transfer_reason || 'Court Transfer')}</span>
+        </td>
+        <td style="text-align: center;">
+          <div style="display: inline-flex; align-items: center; gap: 6px;">
+            <button type="button" class="table-action-icon-btn" onclick="showCaseDetails('${escapeHtml(t.case_number)}')" title="View Case Dossier" style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; background:#f8fafc; color:#334155; border:1px solid #cbd5e1;">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            ${docBtn}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+window.renderRecentTransfersTable = renderRecentTransfersTable;
+
+function renderCaseTransferHistory(caseNumber, caseObj) {
+  const tbody = document.getElementById('detailInlineTransferTableBody');
+  const badge = document.getElementById('detailTransferCountBadge');
+  if (!tbody) return;
+
+  const targetNo = (caseNumber || '').trim().toLowerCase();
+  const transfers = (allCaseTransfers || []).filter(t => (t.case_number || '').trim().toLowerCase() === targetNo);
+
+  // Sort descending by transfer_date or created_at
+  transfers.sort((a, b) => {
+    const da = new Date(a.transfer_date || a.created_at);
+    const db = new Date(b.transfer_date || b.created_at);
+    return db - da;
+  });
+
+  if (badge) {
+    badge.textContent = `${transfers.length} Transfer${transfers.length === 1 ? '' : 's'}`;
+  }
+
+  if (transfers.length === 0) {
+    const currentCourt = caseObj ? (caseObj.courtName || caseObj.criminalCourtName || 'Assigned Court') : 'Assigned Court';
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="no-results text-center py-4" style="color: #64748b; padding: 2rem;">
+          ℹ️ No court transfer records found for this case. Matter is presently pending before <strong>${escapeHtml(currentCourt)}</strong>.
+          <div style="margin-top: 8px;">
+            <button type="button" class="table-view-btn" onclick="openTransferForCase('${escapeHtml(caseNumber)}')" style="font-size: 0.8rem; background: #eef2ff; color: #4338ca; border-color: #c7d2fe;">
+              🔄 Transfer to Another Court
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = transfers.map((t, idx) => {
+    const docLinkHtml = t.doc_link && t.doc_link.trim()
+      ? `<a href="${escapeHtml(t.doc_link.trim())}" target="_blank" rel="noopener noreferrer" class="table-action-icon-btn" title="View Transfer Order Document" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:6px; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe;"><i class="fa-solid fa-file-arrow-down"></i></a>`
+      : '<span style="color:#94a3b8; font-size:12px;">—</span>';
+
+    const authorityHtml = t.transferred_by ? `<div style="font-size:11px; color:#64748b; margin-top:2px;">Auth: ${escapeHtml(t.transferred_by)}</div>` : '';
+    const orderNoHtml = t.order_number ? `<strong style="color:#1e293b;">${escapeHtml(t.order_number)}</strong>` : '<span style="color:#64748b;">Suo-moto / Admin</span>';
+
+    return `
+      <tr>
+        <td style="text-align: center; font-weight: 600; color: #64748b;">#${idx + 1}</td>
+        <td style="white-space: nowrap; font-weight: 600;">${formatDateDMY(t.transfer_date)}</td>
+        <td>
+          <div class="transfer-direction-pill">
+            <span class="transfer-from-court-badge" title="Origin Court">${escapeHtml(t.from_court || 'Origin Court')}</span>
+            <span class="transfer-arrow-icon"><i class="fa-solid fa-arrow-right"></i></span>
+            <span class="transfer-to-court-badge" title="Destination Court">${escapeHtml(t.to_court || 'Destination Court')}</span>
+          </div>
+        </td>
+        <td>
+          ${orderNoHtml}
+          ${authorityHtml}
+        </td>
+        <td>
+          <span class="transfer-reason-chip">${escapeHtml(t.transfer_reason || 'Court Transfer')}</span>
+          ${t.remarks ? `<div style="font-size:11px; color:#475569; margin-top:3px; font-style:italic;">${escapeHtml(t.remarks)}</div>` : ''}
+        </td>
+        <td style="text-align: center;">
+          ${docLinkHtml}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+window.renderCaseTransferHistory = renderCaseTransferHistory;
+
+function insertTransferReasonChip(reasonText) {
+  const reasonInput = document.getElementById('transferReason');
+  if (reasonInput) {
+    reasonInput.value = reasonText;
+    reasonInput.focus();
+  }
+}
+window.insertTransferReasonChip = insertTransferReasonChip;
+
+function resetTransferForm() {
+  const previewCard = document.getElementById('transferSelectedCaseCard');
+  const transferForm = document.getElementById('transferCaseForm');
+  const searchInput = document.getElementById('transferSearchInput');
+  const statusEl = document.getElementById('transferSearchStatus');
+
+  if (previewCard) previewCard.style.display = 'none';
+  if (transferForm) {
+    transferForm.reset();
+    transferForm.style.display = 'none';
+  }
+  if (searchInput) searchInput.value = '';
+  if (statusEl) {
+    statusEl.textContent = '';
+    statusEl.className = 'update-status-msg';
+  }
+}
+window.resetTransferForm = resetTransferForm;
+
+function openTransferForCase(caseNo) {
+  showTab('transfer');
+  const searchInput = document.getElementById('transferSearchInput');
+  if (searchInput) {
+    searchInput.value = caseNo || '';
+  }
+  loadCaseForTransfer(caseNo);
+}
+window.openTransferForCase = openTransferForCase;
+
+function updateTransfersCountBadge() {
+  const badge = document.getElementById('transfersTotalCountBadge');
+  if (badge) {
+    badge.textContent = `${allCaseTransfers.length} Transfer${allCaseTransfers.length === 1 ? '' : 's'} Logged`;
+  }
+}
+window.updateTransfersCountBadge = updateTransfersCountBadge;
+
+// ==============================================================================
 // Courts & Form Options
 // ==============================================================================
 
@@ -7359,7 +7919,8 @@ function renderCourtOptions() {
     document.getElementById('complaintCourtName'),
     document.getElementById('updateComplaintCourtName'),
     document.getElementById('criminalCourtName'),
-    document.getElementById('updateCriminalCourtName')
+    document.getElementById('updateCriminalCourtName'),
+    document.getElementById('transferToCourt')
   ];
 
   selects.forEach((courtSelect) => {
@@ -8110,6 +8671,30 @@ function initializeApp() {
   const updateCaseTypeDropdown = document.getElementById('updateCaseTypeDropdown');
   if (updateCaseTypeDropdown) {
     updateCaseTypeDropdown.addEventListener('change', toggleUpdateCaseFormByType);
+  }
+
+  // 3.6 Handle Transfer Case Form Submit
+  const transferSearchBtn = document.getElementById('transferSearchBtn');
+  const transferSearchInput = document.getElementById('transferSearchInput');
+
+  if (transferSearchBtn) {
+    transferSearchBtn.addEventListener('click', () => {
+      loadCaseForTransfer(transferSearchInput?.value);
+    });
+  }
+
+  if (transferSearchInput) {
+    transferSearchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        loadCaseForTransfer(transferSearchInput.value);
+      }
+    });
+  }
+
+  const transferCaseForm = document.getElementById('transferCaseForm');
+  if (transferCaseForm) {
+    transferCaseForm.addEventListener('submit', handleTransferCaseSubmit);
   }
 
   // 3.5 Handle Mark Case as Disposed Button & Wrapped Status Section Sync
@@ -8926,6 +9511,27 @@ const DB_SCHEMAS = {
       { name: 'created_at', label: 'Created At', type: 'timestamp', readonly: true },
       { name: 'updated_at', label: 'Updated At', type: 'timestamp', readonly: true }
     ]
+  },
+  case_transfers: {
+    title: 'case_transfers',
+    singular: 'Court Transfer Record',
+    badge: 'civil',
+    columns: [
+      { name: 'id', label: 'ID (UUID)', type: 'uuid', readonly: true },
+      { name: 'case_number', label: 'Case Number', type: 'text', required: true, placeholder: 'e.g. CIV-2026-001' },
+      { name: 'case_type', label: 'Case Type', type: 'select', options: ['civil', 'state', 'criminal', 'family', 'revenue', 'misc_civil', 'misc_criminal', 'complaint'], default: 'civil' },
+      { name: 'from_court', label: 'Transferred From (Origin)', type: 'text', required: true, placeholder: 'Origin court name' },
+      { name: 'to_court', label: 'Transferred To (Destination)', type: 'text', required: true, placeholder: 'New court name' },
+      { name: 'transfer_date', label: 'Transfer Date', type: 'date', required: true, default: () => new Date().toISOString().split('T')[0] },
+      { name: 'order_number', label: 'Order / Ref Number', type: 'text', placeholder: 'e.g. Order No. 42/2026' },
+      { name: 'order_date', label: 'Order Date', type: 'date' },
+      { name: 'transferred_by', label: 'Ordering Authority / Judge', type: 'text', placeholder: 'e.g. District & Sessions Judge' },
+      { name: 'transfer_reason', label: 'Reason for Transfer', type: 'text', required: true, placeholder: 'e.g. Administrative reassignment, territorial jurisdiction' },
+      { name: 'doc_link', label: 'Order Sheet / Document URL', type: 'url', placeholder: 'https://drive.google.com/...' },
+      { name: 'remarks', label: 'Remarks / Instructions', type: 'textarea', placeholder: 'Case transfer notes' },
+      { name: 'created_at', label: 'Created At', type: 'timestamp', readonly: true },
+      { name: 'updated_at', label: 'Updated At', type: 'timestamp', readonly: true }
+    ]
   }
 };
 
@@ -9402,6 +10008,23 @@ async function fetchAndRenderDbTable(tableName = currentDbTable) {
         created_at: t.createdAt || new Date().toISOString(),
         updated_at: new Date().toISOString()
       }));
+    } else if (tableName === 'case_transfers') {
+      rows = (allCaseTransfers || []).map(t => ({
+        id: t.id || 'local-transfer-' + Math.random().toString(36).substr(2, 9),
+        case_number: t.case_number,
+        case_type: t.case_type || 'civil',
+        from_court: t.from_court,
+        to_court: t.to_court,
+        transfer_date: t.transfer_date,
+        order_number: t.order_number || '',
+        order_date: t.order_date || null,
+        transferred_by: t.transferred_by || '',
+        transfer_reason: t.transfer_reason || '',
+        doc_link: t.doc_link || '',
+        remarks: t.remarks || '',
+        created_at: t.created_at || new Date().toISOString(),
+        updated_at: t.updated_at || new Date().toISOString()
+      }));
     }
   }
 
@@ -9800,11 +10423,12 @@ async function handleDbDeleteRow(rowId, identifier, rowIndex) {
         return;
       }
 
-      // Cascade delete related hearings and todos if deleting a case
+      // Cascade delete related hearings, todos, and transfers if deleting a case
       if (isCaseTable && identifier) {
         await Promise.all([
           supabaseClient.from('hearings').delete().ilike('case_number', identifier),
-          supabaseClient.from('case_todos').delete().ilike('case_number', identifier)
+          supabaseClient.from('case_todos').delete().ilike('case_number', identifier),
+          supabaseClient.from('case_transfers').delete().ilike('case_number', identifier)
         ]);
       }
     } catch (err) {
@@ -9815,6 +10439,14 @@ async function handleDbDeleteRow(rowId, identifier, rowIndex) {
     if (rowIndex !== null && currentDbTableData[rowIndex]) {
       currentDbTableData.splice(rowIndex, 1);
     }
+  }
+
+  // If deleting from case_transfers directly
+  if (currentDbTable === 'case_transfers') {
+    allCaseTransfers = allCaseTransfers.filter(t => String(t.id) !== String(rowId));
+    try { localStorage.setItem('case_transfers_backup', JSON.stringify(allCaseTransfers)); } catch(e) {}
+    if (typeof renderRecentTransfersTable === 'function') renderRecentTransfersTable();
+    if (typeof updateTransfersCountBadge === 'function') updateTransfersCountBadge();
   }
 
   // If deleting from courts, update in-memory courts and unassign cases
