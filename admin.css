@@ -3781,6 +3781,71 @@ html, body {
   border-color: #d1d5db !important;
 }
 
+.bridge-modal-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 28px !important;
+  width: 100% !important;
+  max-width: 1300px !important;
+  margin: 0 auto !important;
+}
+
+.bridge-hero-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 14px 18px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.bridge-hero-badge-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.bridge-day-badge {
+  background: #ffffff !important;
+  color: #15803d !important;
+  border: 1px solid #bbf7d0 !important;
+  border-radius: 20px !important;
+  padding: 3px 10px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.bridge-day-badge.today {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+  border-color: #fecaca !important;
+}
+
+.bridge-hero-caseno {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.01em !important;
+  margin: 0 0 4px 0 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+.bridge-hero-casename {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #475569 !important;
+  margin: 0 !important;
+  max-width: 90% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
 /* ==============================================================================
    Upcoming Hearings (Next 7 Days) Widget Styles
    ============================================================================== */

@@ -20,7 +20,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=4.7">
+    <link rel="stylesheet" href="admin.css?v=4.8">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#00695c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -856,98 +856,97 @@
                 </div>
             </div>
 
-            <!-- Upcoming Hearings Tab: Recreated visual reference per specification -->
+            <!-- Upcoming Hearings Tab: Recreated visual reference adapted for Legal Case Management -->
             <div id="upcoming" class="tab">
                 <div class="bridge-modal-page-wrapper">
-                    <div class="bridge-modal-card">
-                        <!-- Top status header with soft light-green background -->
-                        <div class="bridge-card-header">
-                            <span class="bridge-header-title">Bridge in progress</span>
-                            <button type="button" class="bridge-close-btn" aria-label="Close" onclick="showTab('home')">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-
-                        <!-- Card Inner Body -->
-                        <div class="bridge-card-body">
-                            <!-- Large light-gray image/illustration placeholder section -->
-                            <div class="bridge-illustration-placeholder">
-                                <svg width="110" height="105" viewBox="0 0 110 105" fill="none" xmlns="http://www.w3.org/2000/svg" class="bridge-illustration-svg">
-                                    <!-- Post beneath -->
-                                    <path d="M47 52 L63 52 L63 94 L47 94 Z" fill="#dce6d2" stroke="#6b7280" stroke-width="1.2" stroke-linejoin="round"/>
-                                    <path d="M51 60 L59 60 L59 94 L51 94 Z" fill="#ccd8c2" stroke="#6b7280" stroke-width="0.8" stroke-linejoin="round"/>
-                                    <!-- Signboard with slight tilt -->
-                                    <g transform="rotate(-3 55 35)">
-                                        <rect x="22" y="14" width="66" height="40" rx="8" fill="#dbeafe" stroke="#64748b" stroke-width="1.4"/>
-                                        <path d="M41 33 L49 41 L68 23" fill="none" stroke="#16a34a" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </g>
-                                </svg>
+                    <div id="upcomingWeekContainer" class="bridge-modal-grid">
+                        <div class="bridge-modal-card">
+                            <!-- Top status header with soft light-green background -->
+                            <div class="bridge-card-header">
+                                <span class="bridge-header-title">Court Hearing in Progress</span>
+                                <button type="button" class="bridge-close-btn" aria-label="Close" onclick="showTab('home')" title="Back to Dashboard">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
                             </div>
 
-                            <!-- Transaction information displayed in clean two-column rows -->
-                            <div class="bridge-tx-info-list">
-                                <div class="bridge-info-row">
-                                    <span class="bridge-info-label">Received</span>
-                                    <span class="bridge-info-value">0.02 ETH</span>
+                            <!-- Card Inner Body -->
+                            <div class="bridge-card-body">
+                                <!-- Large light-gray image/illustration placeholder section -->
+                                <div class="bridge-illustration-placeholder">
+                                    <div class="bridge-hero-content">
+                                        <div class="bridge-hero-badge-row">
+                                            <span class="bridge-day-badge">Upcoming Listing</span>
+                                            <span class="case-badge civil">CIVIL</span>
+                                        </div>
+                                        <h3 class="bridge-hero-caseno">Loading hearings...</h3>
+                                        <p class="bridge-hero-casename">Synchronizing court calendar schedule</p>
+                                    </div>
                                 </div>
-                                <div class="bridge-info-row">
-                                    <span class="bridge-info-label">Paid in gas</span>
-                                    <span class="bridge-info-value">0.000266 ETH</span>
+
+                                <!-- Case information displayed in clean two-column rows -->
+                                <div class="bridge-tx-info-list">
+                                    <div class="bridge-info-row">
+                                        <span class="bridge-info-label">Court / Forum</span>
+                                        <span class="bridge-info-value">🏛️ District Court</span>
+                                    </div>
+                                    <div class="bridge-info-row">
+                                        <span class="bridge-info-label">Hearing Stage</span>
+                                        <span class="bridge-info-value">📌 Scheduled Appearance</span>
+                                    </div>
+                                    <div class="bridge-info-row">
+                                        <span class="bridge-info-label">Case Dossier</span>
+                                        <a href="javascript:void(0);" onclick="showTab('search')" class="bridge-green-link">
+                                            Open Case Dossier <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                        </a>
+                                    </div>
+                                    <div class="bridge-info-row">
+                                        <span class="bridge-info-label">Client Notice</span>
+                                        <a href="javascript:void(0);" class="bridge-green-link">
+                                            WhatsApp Notice <i class="fa-brands fa-whatsapp"></i>
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="bridge-info-row">
-                                    <span class="bridge-info-label">L2 Details</span>
-                                    <a href="javascript:void(0);" class="bridge-green-link">
-                                        Block Explorer <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                    </a>
+
+                                <!-- Thin horizontal divider -->
+                                <div class="bridge-divider"></div>
+
+                                <!-- Three-step progress indicator -->
+                                <div class="bridge-progress-stepper">
+                                    <div class="bridge-step active">
+                                        <div class="bridge-step-circle">1.</div>
+                                        <div class="bridge-step-title">Filing & Notice</div>
+                                        <div class="bridge-step-time">Completed</div>
+                                    </div>
+                                    <div class="bridge-step">
+                                        <div class="bridge-step-circle">2.</div>
+                                        <div class="bridge-step-title">Court Hearing</div>
+                                        <div class="bridge-step-time">Scheduled</div>
+                                    </div>
+                                    <div class="bridge-step">
+                                        <div class="bridge-step-circle">3.</div>
+                                        <div class="bridge-step-title">Order & Next</div>
+                                        <div class="bridge-step-time">Post-Hearing</div>
+                                    </div>
                                 </div>
-                                <div class="bridge-info-row">
-                                    <span class="bridge-info-label">L1 Details</span>
-                                    <a href="javascript:void(0);" class="bridge-green-link">
-                                        Etherscan <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                    </a>
+
+                                <!-- Pale yellow warning/info box -->
+                                <div class="bridge-warning-box">
+                                    <span class="bridge-warning-icon">⚠</span>
+                                    <div class="bridge-warning-text">
+                                        Court Preparation Advisory: Ensure original case files, evidence documents, and client appearance coordinates are prepared prior to 10:30 AM.
+                                    </div>
                                 </div>
+
+                                <!-- Full-width rounded action button -->
+                                <button type="button" class="bridge-action-button" onclick="showTab('all')">
+                                    Inspect Complete Case Dossier →
+                                </button>
                             </div>
-
-                            <!-- Thin horizontal divider -->
-                            <div class="bridge-divider"></div>
-
-                            <!-- Three-step progress indicator -->
-                            <div class="bridge-progress-stepper">
-                                <div class="bridge-step active">
-                                    <div class="bridge-step-circle">1.</div>
-                                    <div class="bridge-step-title">Send request</div>
-                                    <div class="bridge-step-time">Up to 2 seconds</div>
-                                </div>
-                                <div class="bridge-step">
-                                    <div class="bridge-step-circle">2.</div>
-                                    <div class="bridge-step-title">Roll up</div>
-                                    <div class="bridge-step-time">Up to 8 hours</div>
-                                </div>
-                                <div class="bridge-step">
-                                    <div class="bridge-step-circle">3.</div>
-                                    <div class="bridge-step-title">Complete</div>
-                                    <div class="bridge-step-time">30 seconds</div>
-                                </div>
-                            </div>
-
-                            <!-- Pale yellow warning/info box -->
-                            <div class="bridge-warning-box">
-                                <span class="bridge-warning-icon">⚠</span>
-                                <div class="bridge-warning-text">
-                                    Zircuit native withdrawals must be completed on mainnet after the state is rolled up. The Zircuit testnet roll up process can take up to 8 hours.
-                                </div>
-                            </div>
-
-                            <!-- Full-width rounded "See my transactions →" button -->
-                            <button type="button" class="bridge-action-button" onclick="showTab('all')">
-                                See my transactions →
-                            </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Preserved Mount for existing scripts/services compatibility -->
-                <div id="upcomingWeekContainer" style="display: none;"></div>
                 <span id="upcomingTotalBadge" style="display: none;">0 Hearings Listed</span>
                 <span id="upcomingWeekCount" style="display: none;">0</span>
             </div>
