@@ -1400,18 +1400,6 @@
                                     <input id="defendant" type="text" placeholder="e.g. State of U.P. & Ors. or Defendant Name" required>
                                     <small style="display:block; margin-top:3px; color:#64748b; font-size:11.5px;">⚖️ Multi-party: e.g. <i>State of U.P. &amp; Ors.</i> or <i>Suresh Sharma &amp; Another</i></small>
                                 </div>
-                                <div class="form-group">
-                                    <label for="clientName">Client Name</label>
-                                    <input id="clientName" type="text" placeholder="Enter Client Name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="clientNumber">Client Number</label>
-                                    <input id="clientNumber" type="tel" placeholder="Enter Client Number" required>
-                                </div>
-                                <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label for="caseDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
-                                    <input id="caseDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
-                                </div>
                                 <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
                                     <div class="remarks-box-header">
                                         <div class="remarks-box-title-wrap">
@@ -1430,6 +1418,18 @@
                                     <div class="remarks-box-footer">
                                         <span class="remarks-box-tip">💡 <b>Search Index:</b> Any co-plaintiff, co-defendant, or connected matter note entered here will be indexed &amp; searchable across My Cases &amp; Client Portal.</span>
                                     </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="clientName">Client Name</label>
+                                    <input id="clientName" type="text" placeholder="Enter Client Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="clientNumber">Client Number</label>
+                                    <input id="clientNumber" type="tel" placeholder="Enter Client Number" required>
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="caseDocLink">Document / Order Sheet Link (Drive/PDF URL)</label>
+                                    <input id="caseDocLink" type="url" placeholder="https://drive.google.com/... or document URL">
                                 </div>
                             </div>
                         </div>
@@ -2218,12 +2218,12 @@
                     </div>
 
                     <form id="updateCaseForm">
-                        <!-- Case Status & Co-Parties Card (With Wrapped Case Disposal & Judgment Record) -->
+                        <!-- Case Status Card (With Wrapped Case Disposal & Judgment Record) -->
                         <div class="case-status-card">
                             <div class="status-header-row">
                                 <div class="status-label-col">
-                                    <label for="updateCaseStatus">Case Status &amp; Co-Parties</label>
-                                    <span class="status-help-text">Set case active/disposed status, judgment record, and manage multiple co-parties</span>
+                                    <label for="updateCaseStatus">Case Status &amp; Disposal</label>
+                                    <span class="status-help-text">Set case active/disposed status and manage final judgment record</span>
                                 </div>
                                 <button type="button" id="markDisposeBtn" class="dispose-action-btn" title="Quickly mark this case as Disposed Off">
                                     ⚖️ Mark as Disposed Off
@@ -2264,28 +2264,6 @@
                                                 <span class="disposal-footer-tip">💡 <b>Disposal Index:</b> When marked as disposed, these judgment notes will appear in the Disposed Cases register, All Cases table, and Case Dossier.</span>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <!-- Parties / Co-Parties Remark (For multiple parties, co-plaintiffs, co-defendants, co-accused) -->
-                                <div style="grid-column: 1 / -1;" class="remarks-coparties-box">
-                                    <div class="remarks-box-header">
-                                        <div class="remarks-box-title-wrap">
-                                            <span class="remarks-box-icon">👥</span>
-                                            <label for="updateCaseRemark" class="remarks-box-label">Parties / Co-Parties Remark (सह-पक्षकार विवरण / अन्य पक्षकार)</label>
-                                        </div>
-                                        <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
-                                    </div>
-                                    <div class="remarks-quick-chips">
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Co-Plaintiffs: ')">➕ Co-Plaintiffs</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Co-Defendants: ')">➕ Co-Defendants</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Co-Accused: ')">➕ Co-Accused</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Opposite Parties: ')">➕ Opposite Parties</span>
-                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'State & Ors.')">➕ State &amp; Ors.</span>
-                                    </div>
-                                    <textarea id="updateCaseRemark" rows="2" placeholder="e.g. Co-Plaintiffs: 1. Ramesh Kumar, 2. Suresh Kumar; Co-Defendants: 1. State of U.P., 2. Tehsildar Sadar..."></textarea>
-                                    <div class="remarks-box-footer">
-                                        <span class="remarks-box-tip">💡 <b>Multiple Parties:</b> Use this remark field to record all additional parties, co-plaintiffs, co-defendants, or co-accused in this matter.</span>
                                     </div>
                                 </div>
                             </div>
@@ -2329,6 +2307,28 @@
                                 <div class="form-group">
                                     <label for="updateDefendant">Defendant</label>
                                     <input id="updateDefendant" type="text" placeholder="Enter Defendant Name" required>
+                                </div>
+
+                                <!-- Parties / Co-Parties Remark (Positioned right beneath Plaintiff & Defendant) -->
+                                <div id="updateCaseRemarkWrapper" style="grid-column: 1 / -1;" class="remarks-coparties-box">
+                                    <div class="remarks-box-header">
+                                        <div class="remarks-box-title-wrap">
+                                            <span class="remarks-box-icon">👥</span>
+                                            <label for="updateCaseRemark" class="remarks-box-label">Parties / Co-Parties Remark (सह-पक्षकार विवरण / अन्य पक्षकार)</label>
+                                        </div>
+                                        <span class="remarks-searchable-badge">🔍 Live Searchable in Portal</span>
+                                    </div>
+                                    <div class="remarks-quick-chips">
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Co-Plaintiffs: ')">➕ Co-Plaintiffs</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Co-Defendants: ')">➕ Co-Defendants</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Co-Accused: ')">➕ Co-Accused</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'Opposite Parties: ')">➕ Opposite Parties</span>
+                                        <span class="remarks-chip-btn" onclick="insertRemarkChip('updateCaseRemark', 'State & Ors.')">➕ State &amp; Ors.</span>
+                                    </div>
+                                    <textarea id="updateCaseRemark" rows="2" placeholder="e.g. Co-Plaintiffs: 1. Ramesh Kumar, 2. Suresh Kumar; Co-Defendants: 1. State of U.P., 2. Tehsildar Sadar..."></textarea>
+                                    <div class="remarks-box-footer">
+                                        <span class="remarks-box-tip">💡 <b>Multiple Parties:</b> Use this remark field to record all additional parties, co-plaintiffs, co-defendants, or co-accused in this matter.</span>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="updateClientName">Client Name</label>

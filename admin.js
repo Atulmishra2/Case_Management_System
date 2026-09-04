@@ -7068,6 +7068,23 @@ function toggleUpdateCaseFormByType() {
       p.querySelectorAll('input:not([readonly]), select, textarea').forEach(field => { field.disabled = true; });
     }
   });
+
+  // Ensure Parties / Co-Parties Remark section is positioned beneath the primary parties of the active panel
+  const targetPartyAnchor = {
+    civil: document.getElementById('updateDefendant')?.closest('.form-group'),
+    state: document.getElementById('updateStateAccusedName')?.closest('.form-group'),
+    criminal: document.getElementById('updateStateAccusedName')?.closest('.form-group'),
+    family: document.getElementById('updateFamilyRespondent')?.closest('.form-group'),
+    revenue: document.getElementById('updateRevenueOppositeParty')?.closest('.form-group'),
+    misc_civil: document.getElementById('updateMiscOppositeParty')?.closest('.form-group'),
+    misc_criminal: document.getElementById('updateMiscCrimOppositeParty')?.closest('.form-group'),
+    complaint: document.getElementById('updateComplaintAccused')?.closest('.form-group')
+  };
+  const anchor = targetPartyAnchor[selectedType] || targetPartyAnchor.civil;
+  const remarkWrapper = document.getElementById('updateCaseRemarkWrapper');
+  if (anchor && remarkWrapper && anchor.parentNode) {
+    anchor.parentNode.insertBefore(remarkWrapper, anchor.nextSibling);
+  }
 }
 
 function setupOtherFieldToggles() {
