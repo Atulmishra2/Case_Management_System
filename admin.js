@@ -6412,6 +6412,9 @@ function loadCaseForUpdate(caseNoToFind) {
   if (disposalCommentInput) {
     disposalCommentInput.value = found.disposalComment || found.disposal_comment || found.disposalRemark || '';
   }
+  if (typeof syncDisposalSectionVisibility === 'function') {
+    syncDisposalSectionVisibility();
+  }
 
   if (caseType === 'state' || caseType === 'criminal') {
     setVal('updateStateCaseNumber', found.caseNo || found.criminalCaseNumber);
@@ -7621,13 +7624,45 @@ function initializeApp() {
     updateCaseTypeDropdown.addEventListener('change', toggleUpdateCaseFormByType);
   }
 
-  // 3.5 Handle Mark Case as Disposed Button
+  // 3.5 Handle Mark Case as Disposed Button & Wrapped Status Section Sync
+  function syncDisposalSectionVisibility() {
+    const statusSelect = document.getElementById('updateCaseStatus');
+    const disposalSection = document.getElementById('updateCaseDisposalSection') || document.getElementById('updateCaseDisposalCard');
+    if (!statusSelect || !disposalSection) return;
+    const isDisposed = (statusSelect.value || '').toLowerCase().includes('dispose');
+    if (isDisposed) {
+      disposalSection.style.display = 'block';
+    } else {
+      disposalSection.style.display = 'none';
+    }
+  }
+  window.syncDisposalSectionVisibility = syncDisposalSectionVisibility;
+
+  const updateCaseStatusSelect = document.getElementById('updateCaseStatus');
+  if (updateCaseStatusSelect) {
+    updateCaseStatusSelect.addEventListener('change', () => {
+      syncDisposalSectionVisibility();
+      if (updateCaseStatusSelect.value === 'Disposed') {
+        const disposalInput = document.getElementById('updateCaseDisposalComment');
+        if (disposalInput) {
+          if (!disposalInput.value.trim()) {
+            disposalInput.value = 'Disposed Off on merits';
+          }
+          disposalInput.focus();
+        }
+      }
+    });
+  }
+
   const markDisposeBtn = document.getElementById('markDisposeBtn');
   if (markDisposeBtn) {
     markDisposeBtn.addEventListener('click', () => {
       const statusSelect = document.getElementById('updateCaseStatus');
       const disposalInput = document.getElementById('updateCaseDisposalComment');
-      if (statusSelect) statusSelect.value = 'Disposed';
+      if (statusSelect) {
+        statusSelect.value = 'Disposed';
+        syncDisposalSectionVisibility();
+      }
       if (disposalInput) {
         if (!disposalInput.value.trim()) {
           disposalInput.value = 'Disposed Off on merits';

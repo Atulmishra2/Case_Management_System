@@ -2252,8 +2252,23 @@ html, body {
   background: #059669;
   transform: translateY(-1px);
 }
+/* Wrapped Case Disposal Section inside Case Status Card */
+.case-disposal-section-wrap {
+  width: 100%;
+  animation: fadeInDisposal 0.25s ease-out;
+}
 
-/* Dedicated Separated Case Disposal Card */
+@keyframes fadeInDisposal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .case-disposal-card {
   background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
   border: 1.5px solid #a7f3d0;
@@ -2262,6 +2277,13 @@ html, body {
   margin-bottom: 20px;
   box-shadow: 0 2px 6px rgba(16, 185, 129, 0.08);
   transition: all 0.2s ease;
+}
+
+.case-status-card .case-disposal-card {
+  margin-bottom: 0 !important;
+  border: 1.5px solid #6ee7b7 !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1) !important;
 }
 
 .case-disposal-card:hover,
