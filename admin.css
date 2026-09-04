@@ -9776,7 +9776,7 @@ textarea:focus {
   margin-bottom: 20px !important;
   padding-bottom: 16px !important;
   border-bottom: 1.5px solid #e2e8f0 !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
@@ -9786,8 +9786,8 @@ textarea:focus {
   display: flex !important;
   align-items: center !important;
   gap: 14px !important;
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
+  flex: 1 1 280px !important;
+  min-width: 260px !important;
 }
 
 #causelist .section-title-box > div,
@@ -9796,6 +9796,8 @@ textarea:focus {
   flex-direction: column !important;
   justify-content: center !important;
   min-width: 0 !important;
+  white-space: normal !important;
+  word-break: normal !important;
 }
 
 #causelist .section-title-box h2,
@@ -9808,6 +9810,7 @@ textarea:focus {
   color: #1e293b !important;
   line-height: 1.25 !important;
   letter-spacing: -0.01em !important;
+  white-space: normal !important;
 }
 
 #causelist .section-title-box .section-subtitle,
@@ -9852,7 +9855,7 @@ textarea:focus {
   align-items: center !important;
   justify-content: flex-end !important;
   gap: 12px !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   flex-shrink: 0 !important;
   width: auto !important;
   margin: 0 !important;
@@ -9971,6 +9974,7 @@ textarea:focus {
   }
 }
 
+@media (max-width: 480px) {
   .causelist-header-actions {
     display: flex !important;
     width: 100% !important;
@@ -9979,8 +9983,8 @@ textarea:focus {
 
   .causelist-header-actions .causelist-btn {
     flex: 1 1 0 !important;
-    padding: 0 12px !important;
-    font-size: 12.5px !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
     height: 40px !important;
     min-height: 40px !important;
   }
