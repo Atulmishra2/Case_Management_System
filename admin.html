@@ -95,11 +95,11 @@
                     </div>
                 </div>
                 <div class="header-right-section nav-right-actions">
-                    <button type="button" id="guestDesktopInstallBtn" class="nav-install-btn" onclick="triggerPwaInstall()" title="Install CaseBook Desktop App (Windows/Mac)">
-                        <i class="fa-solid fa-laptop-arrow-down"></i> <span>Install App</span>
+                    <button type="button" id="guestDesktopInstallBtn" class="nav-install-btn nav-icon-action-btn" onclick="triggerPwaInstall()" title="Install CaseBook Desktop App" aria-label="Install CaseBook Desktop App">
+                        <i class="fa-solid fa-download"></i>
                     </button>
-                    <button id="guestLogoutBtn" class="logout-btn nav-logout-btn" onclick="handleLogout(event)" title="Exit Guest Portal">
-                        <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
+                    <button id="guestLogoutBtn" class="logout-btn nav-logout-btn nav-icon-action-btn" onclick="handleLogout(event)" title="Exit Guest Portal" aria-label="Exit Guest Portal">
+                        <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
             </div>
@@ -133,8 +133,13 @@
             <!-- Complete Case Details Card Beneath Guest Search Table -->
             <div id="guestCaseDetailsSection" class="case-details-wrapper">
                 <div class="case-details-header">
-                    <h3>📋 Case Full Details</h3>
-                    <span id="guestCaseTypeBadge" class="case-badge">Select a Case</span>
+                    <div>
+                        <h3>📋 Case Full Details</h3>
+                        <span id="guestCaseTypeBadge" class="case-badge">Select a Case</span>
+                    </div>
+                    <button type="button" id="guestDetailPrintBtn" class="dossier-action-btn print-action" onclick="printCurrentGuestCaseDossier()" title="Print Case Details" style="margin: 0;">
+                        <i class="fa-solid fa-print"></i> Print Case
+                    </button>
                 </div>
                 <div id="guestCaseDetailsEmpty" class="case-details-empty">
                     <p>🔍 Search or click any case row in the table above to view all its details here.</p>
@@ -198,11 +203,11 @@
                 </div>
                 
                 <div class="header-right-section nav-right-actions">
-                    <button type="button" id="desktopInstallBtn" class="nav-install-btn" onclick="triggerPwaInstall()" title="Install CaseBook Desktop App (Windows/Mac)">
-                        <i class="fa-solid fa-laptop-arrow-down"></i> <span>Install App</span>
+                    <button type="button" id="desktopInstallBtn" class="nav-install-btn nav-icon-action-btn" onclick="triggerPwaInstall()" title="Install CaseBook Desktop App" aria-label="Install CaseBook Desktop App">
+                        <i class="fa-solid fa-download"></i>
                     </button>
-                    <button id="adminLogoutBtn" class="logout-btn nav-logout-btn" onclick="handleAdminLogout(event)" title="Logout from CaseBook">
-                        <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
+                    <button id="adminLogoutBtn" class="logout-btn nav-logout-btn nav-icon-action-btn" onclick="handleAdminLogout(event)" title="Logout from CaseBook" aria-label="Logout from CaseBook">
+                        <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
             </div>
@@ -293,116 +298,236 @@
                         </div>
                     </div>
 
-                    <!-- Section Title matching image -->
-                    <div class="home-kpi-dashboard-title">LEGAL CASE MANAGEMENT DASHBOARD</div>
-
-                    <!-- Executive KPI Statistics Grid -->
-                    <div class="home-kpi-grid">
-                        <!-- Total Case Records Card -->
-                        <div class="home-kpi-card kpi-theme-total" onclick="showTab('search')">
-                            <div class="card-accent-top"></div>
-                            <div class="kpi-main-block">
-                                <div class="kpi-visual-icon"><i class="fa-solid fa-folder"></i></div>
-                                <div class="kpi-metric-info">
-                                    <div class="kpi-metric-title">TOTAL CASE<br>RECORDS</div>
-                                    <div class="kpi-metric-value" id="homeTotalCases">0</div>
-                                </div>
-                            </div>
-                            <div class="kpi-footer-block">
-                                <div class="kpi-breakdown-card" id="homePortfolioBreakdown">
-                                    <div class="breakdown-col-left">
-                                        <div class="breakdown-item"><span class="breakdown-bullet"></span>0 Civil</div>
-                                        <div class="breakdown-item"><span class="breakdown-bullet"></span>0 Criminal</div>
-                                        <div class="breakdown-item"><span class="breakdown-bullet"></span>0 Revenue</div>
+                    <!-- Executive 6 KPI Rectangular Cards (Materialize CSS Grid: 3,3 Desktop | 1-by-1 Mobile) -->
+                    <div class="row kpi-materialize-row">
+                        <!-- 1. Total Cases -->
+                        <div class="col s12 m6 l4">
+                            <div class="card kpi-rect-card kpi-theme-total hoverable" onclick="showTab('all', event)">
+                                <div class="card-content">
+                                    <div class="kpi-rect-top">
+                                        <div class="kpi-rect-icon-wrap"><i class="fa-solid fa-folder-open"></i></div>
+                                        <div class="kpi-rect-meta">
+                                            <span class="kpi-rect-badge">All Categories</span>
+                                        </div>
                                     </div>
-                                    <div class="breakdown-col-right">
-                                        <span class="breakdown-bullet"></span>
-                                        <span class="breakdown-bullet"></span>
-                                        <span class="breakdown-bullet"></span>
+                                    <div class="kpi-rect-content-grid">
+                                        <div class="kpi-rect-metric-col">
+                                            <div class="kpi-rect-title">Total Case Records</div>
+                                            <div class="kpi-rect-val-row">
+                                                <div class="kpi-rect-value" id="homeTotalCases">0</div>
+                                                <div class="kpi-aesthetic-chip chip-total"><i class="fa-solid fa-database"></i> <span>Repository</span></div>
+                                            </div>
+                                            <div class="kpi-rect-sub" id="homePortfolioBreakdown">
+                                                <div class="breakdown-inline-row">
+                                                    <span>0 Civil</span>
+                                                    <span class="breakdown-dot">•</span>
+                                                    <span>0 Criminal</span>
+                                                    <span class="breakdown-dot">•</span>
+                                                    <span>0 Revenue</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="kpi-rect-status-widget">
+                                            <div class="kpi-widget-icon"><i class="fa-solid fa-layer-group"></i></div>
+                                            <div class="kpi-widget-content">
+                                                <div class="kpi-widget-title">Master Registry</div>
+                                                <div class="kpi-widget-sub">All Judicial Files</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card-meter-track">
+                                        <div class="kpi-card-meter-fill" style="width: 100%;"></div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card-accent-bottom"></div>
-                        </div>
-
-                        <!-- Today's Court Cases Card -->
-                        <div class="home-kpi-card kpi-theme-today" onclick="showTab('causelist')">
-                            <div class="card-accent-top"></div>
-                            <div class="kpi-main-block">
-                                <div class="kpi-visual-icon"><i class="fa-solid fa-thumbtack"></i></div>
-                                <div class="kpi-metric-info">
-                                    <div class="kpi-metric-title">TODAY'S<br>COURT CASES</div>
-                                    <div class="kpi-metric-value" id="homeTodayCases">0</div>
+                                <div class="card-action">
+                                    <a href="#" onclick="event.stopPropagation(); showTab('all', event)">View All Cases <i class="fa-solid fa-arrow-right"></i></a>
                                 </div>
                             </div>
-                            <div class="kpi-footer-block">
-                                <button type="button" class="kpi-action-btn" onclick="event.stopPropagation(); showTab('causelist')">OPEN CAUSE LIST</button>
-                            </div>
-                            <div class="card-accent-bottom"></div>
                         </div>
 
-                        <!-- Upcoming (7 Days) Card -->
-                        <div class="home-kpi-card kpi-theme-upcoming" onclick="showTab('upcoming')">
-                            <div class="card-accent-top"></div>
-                            <div class="kpi-main-block">
-                                <div class="kpi-visual-icon"><i class="fa-solid fa-bolt"></i></div>
-                                <div class="kpi-metric-info">
-                                    <div class="kpi-metric-title">UPCOMING<br>(7 DAYS)</div>
-                                    <div class="kpi-metric-value" id="homeUpcomingCases">0</div>
+                        <!-- 2. Today's Court Cases -->
+                        <div class="col s12 m6 l4">
+                            <div class="card kpi-rect-card kpi-theme-today hoverable" onclick="showTab('causelist', event)">
+                                <div class="card-content">
+                                    <div class="kpi-rect-top">
+                                        <div class="kpi-rect-icon-wrap"><i class="fa-solid fa-gavel"></i></div>
+                                        <div class="kpi-rect-meta">
+                                            <span class="kpi-rect-badge live">Live Today</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-rect-content-grid">
+                                        <div class="kpi-rect-metric-col">
+                                            <div class="kpi-rect-title">Today's Court Cases</div>
+                                            <div class="kpi-rect-val-row">
+                                                <div class="kpi-rect-value" id="homeTodayCases">0</div>
+                                                <div class="kpi-aesthetic-chip chip-today"><span class="aesthetic-pulse-dot"></span> <span>Listing</span></div>
+                                            </div>
+                                            <div class="kpi-rect-sub">Cases listed for today</div>
+                                        </div>
+                                        <div class="kpi-rect-status-widget">
+                                            <div class="kpi-widget-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
+                                            <div class="kpi-widget-content">
+                                                <div class="kpi-widget-title">Daily Cause List</div>
+                                                <div class="kpi-widget-sub">Court Appearances</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card-meter-track">
+                                        <div class="kpi-card-meter-fill" style="width: 75%;"></div>
+                                    </div>
+                                </div>
+                                <div class="card-action">
+                                    <a href="#" onclick="event.stopPropagation(); showTab('causelist', event)">Daily Cause List <i class="fa-solid fa-arrow-right"></i></a>
                                 </div>
                             </div>
-                            <div class="kpi-footer-block">
-                                <div class="kpi-status-caption">Next 7 days court schedule</div>
-                            </div>
-                            <div class="card-accent-bottom"></div>
                         </div>
 
-                        <!-- Active Pending Cases Card -->
-                        <div class="home-kpi-card kpi-theme-pending" onclick="showTab('search')">
-                            <div class="card-accent-top"></div>
-                            <div class="kpi-main-block">
-                                <div class="kpi-visual-icon"><i class="fa-solid fa-hourglass-half"></i></div>
-                                <div class="kpi-metric-info">
-                                    <div class="kpi-metric-title">ACTIVE<br>PENDING CASES</div>
-                                    <div class="kpi-metric-value" id="homePendingCases">0</div>
+                        <!-- 3. Upcoming (7 Days) -->
+                        <div class="col s12 m6 l4">
+                            <div class="card kpi-rect-card kpi-theme-upcoming hoverable" onclick="showTab('upcoming', event)">
+                                <div class="card-content">
+                                    <div class="kpi-rect-top">
+                                        <div class="kpi-rect-icon-wrap"><i class="fa-solid fa-calendar-week"></i></div>
+                                        <div class="kpi-rect-meta">
+                                            <span class="kpi-rect-badge">Next 7 Days</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-rect-content-grid">
+                                        <div class="kpi-rect-metric-col">
+                                            <div class="kpi-rect-title">Upcoming Hearings</div>
+                                            <div class="kpi-rect-val-row">
+                                                <div class="kpi-rect-value" id="homeUpcomingCases">0</div>
+                                                <div class="kpi-aesthetic-chip chip-upcoming"><i class="fa-solid fa-calendar-check"></i> <span>Scheduled</span></div>
+                                            </div>
+                                            <div class="kpi-rect-sub">Scheduled within upcoming week</div>
+                                        </div>
+                                        <div class="kpi-rect-status-widget">
+                                            <div class="kpi-widget-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                                            <div class="kpi-widget-content">
+                                                <div class="kpi-widget-title">7-Day Horizon</div>
+                                                <div class="kpi-widget-sub">Hearings Scheduled</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card-meter-track">
+                                        <div class="kpi-card-meter-fill" style="width: 60%;"></div>
+                                    </div>
+                                </div>
+                                <div class="card-action">
+                                    <a href="#" onclick="event.stopPropagation(); showTab('upcoming', event)">View Schedule <i class="fa-solid fa-arrow-right"></i></a>
                                 </div>
                             </div>
-                            <div class="kpi-footer-block">
-                                <div class="kpi-status-caption" id="homePendingPercent">0% of total caseload</div>
-                            </div>
-                            <div class="card-accent-bottom"></div>
                         </div>
 
-                        <!-- Undated Cases Card -->
-                        <div class="home-kpi-card kpi-theme-undated" onclick="showTab('undated')">
-                            <div class="card-accent-top"></div>
-                            <div class="kpi-main-block">
-                                <div class="kpi-visual-icon"><span class="kpi-symbol-icon">?</span></div>
-                                <div class="kpi-metric-info">
-                                    <div class="kpi-metric-title">UNDATED<br>CASES</div>
-                                    <div class="kpi-metric-value" id="homeUndatedCases">0</div>
+                        <!-- 4. Active Pending Cases -->
+                        <div class="col s12 m6 l4">
+                            <div class="card kpi-rect-card kpi-theme-pending hoverable" onclick="showTab('search', event)">
+                                <div class="card-content">
+                                    <div class="kpi-rect-top">
+                                        <div class="kpi-rect-icon-wrap"><i class="fa-solid fa-hourglass-half"></i></div>
+                                        <div class="kpi-rect-meta">
+                                            <span class="kpi-rect-badge">In Progress</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-rect-content-grid">
+                                        <div class="kpi-rect-metric-col">
+                                            <div class="kpi-rect-title">Active Pending Cases</div>
+                                            <div class="kpi-rect-val-row">
+                                                <div class="kpi-rect-value" id="homePendingCases">0</div>
+                                                <div class="kpi-aesthetic-chip chip-pending"><i class="fa-solid fa-chart-pie"></i> <span>Active File</span></div>
+                                            </div>
+                                            <div class="kpi-rect-sub" id="homePendingPercent">0% of total caseload</div>
+                                        </div>
+                                        <div class="kpi-rect-status-widget">
+                                            <div class="kpi-widget-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                                            <div class="kpi-widget-content">
+                                                <div class="kpi-widget-title">Active Matters</div>
+                                                <div class="kpi-widget-sub">Ongoing Litigation</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card-meter-track">
+                                        <div class="kpi-card-meter-fill" style="width: 80%;"></div>
+                                    </div>
+                                </div>
+                                <div class="card-action">
+                                    <a href="#" onclick="event.stopPropagation(); showTab('search', event)">Explore Active <i class="fa-solid fa-arrow-right"></i></a>
                                 </div>
                             </div>
-                            <div class="kpi-footer-block">
-                                <div class="kpi-pill-badge" onclick="event.stopPropagation(); showTab('undated')">Needs hearing schedule</div>
-                            </div>
-                            <div class="card-accent-bottom"></div>
                         </div>
 
-                        <!-- Disposed / Resolved Card -->
-                        <div class="home-kpi-card kpi-theme-disposed" onclick="showTab('disposed')">
-                            <div class="card-accent-top"></div>
-                            <div class="kpi-main-block">
-                                <div class="kpi-visual-icon"><i class="fa-solid fa-check"></i></div>
-                                <div class="kpi-metric-info">
-                                    <div class="kpi-metric-title">DISPOSED /<br>RESOLVED</div>
-                                    <div class="kpi-metric-value" id="homeDisposedCases">0</div>
+                        <!-- 5. Undated Cases -->
+                        <div class="col s12 m6 l4">
+                            <div class="card kpi-rect-card kpi-theme-undated hoverable" onclick="showTab('undated', event)">
+                                <div class="card-content">
+                                    <div class="kpi-rect-top">
+                                        <div class="kpi-rect-icon-wrap"><i class="fa-solid fa-circle-question"></i></div>
+                                        <div class="kpi-rect-meta">
+                                            <span class="kpi-rect-badge alert">Needs Date</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-rect-content-grid">
+                                        <div class="kpi-rect-metric-col">
+                                            <div class="kpi-rect-title">Undated Cases</div>
+                                            <div class="kpi-rect-val-row">
+                                                <div class="kpi-rect-value" id="homeUndatedCases">0</div>
+                                                <div class="kpi-aesthetic-chip chip-undated"><i class="fa-solid fa-bell"></i> <span>Priority</span></div>
+                                            </div>
+                                            <div class="kpi-rect-sub">Awaiting hearing fixture</div>
+                                        </div>
+                                        <div class="kpi-rect-status-widget">
+                                            <div class="kpi-widget-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                                            <div class="kpi-widget-content">
+                                                <div class="kpi-widget-title">Action Required</div>
+                                                <div class="kpi-widget-sub">Needs Court Listing</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card-meter-track">
+                                        <div class="kpi-card-meter-fill" style="width: 45%;"></div>
+                                    </div>
+                                </div>
+                                <div class="card-action">
+                                    <a href="#" onclick="event.stopPropagation(); showTab('undated', event)">Assign Dates <i class="fa-solid fa-arrow-right"></i></a>
                                 </div>
                             </div>
-                            <div class="kpi-footer-block">
-                                <div class="kpi-status-caption" id="homeDisposedPercent">0% Resolution Rate</div>
+                        </div>
+
+                        <!-- 6. Disposed / Resolved -->
+                        <div class="col s12 m6 l4">
+                            <div class="card kpi-rect-card kpi-theme-disposed hoverable" onclick="showTab('disposed', event)">
+                                <div class="card-content">
+                                    <div class="kpi-rect-top">
+                                        <div class="kpi-rect-icon-wrap"><i class="fa-solid fa-circle-check"></i></div>
+                                        <div class="kpi-rect-meta">
+                                            <span class="kpi-rect-badge success">Completed</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-rect-content-grid">
+                                        <div class="kpi-rect-metric-col">
+                                            <div class="kpi-rect-title">Disposed / Resolved</div>
+                                            <div class="kpi-rect-val-row">
+                                                <div class="kpi-rect-value" id="homeDisposedCases">0</div>
+                                                <div class="kpi-aesthetic-chip chip-disposed"><i class="fa-solid fa-circle-check"></i> <span>Archived</span></div>
+                                            </div>
+                                            <div class="kpi-rect-sub" id="homeDisposedPercent">0% Resolution Rate</div>
+                                        </div>
+                                        <div class="kpi-rect-status-widget">
+                                            <div class="kpi-widget-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                                            <div class="kpi-widget-content">
+                                                <div class="kpi-widget-title">Concluded Files</div>
+                                                <div class="kpi-widget-sub">Resolved Matters</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card-meter-track">
+                                        <div class="kpi-card-meter-fill" style="width: 100%;"></div>
+                                    </div>
+                                </div>
+                                <div class="card-action">
+                                    <a href="#" onclick="event.stopPropagation(); showTab('disposed', event)">View Archives <i class="fa-solid fa-arrow-right"></i></a>
+                                </div>
                             </div>
-                            <div class="card-accent-bottom"></div>
                         </div>
                     </div>
 
@@ -458,17 +583,17 @@
                         <!-- Priority Tasks Board -->
                         <div class="home-panel-card">
                             <div class="home-panel-header">
-                                <div class="panel-title-wrap">
-                                    <span class="panel-icon tasks-icon"><i class="fa-solid fa-list-check"></i></span>
-                                    <div class="panel-heading-group">
-                                        <h3 class="panel-main-title">Priority Tasks &amp; Deadlines</h3>
-                                        <div class="panel-sub-row">
-                                            <span class="section-title-badge tasks-badge">Active Items</span>
-                                            <p class="panel-subtitle">Upcoming action items &amp; legal filings</p>
-                                        </div>
+                                <div class="panel-header-top-row">
+                                    <div class="panel-header-icon-group">
+                                        <span class="panel-icon tasks-icon"><i class="fa-solid fa-list-check"></i></span>
+                                        <span class="section-title-badge tasks-badge">Active Items</span>
                                     </div>
+                                    <button type="button" class="panel-action-btn" onclick="showTab('todo')">Manage Tasks ➔</button>
                                 </div>
-                                <button type="button" class="panel-action-btn" onclick="showTab('todo')">Manage Tasks ➔</button>
+                                <div class="panel-heading-group">
+                                    <h3 class="panel-main-title">Priority Tasks &amp; Deadlines</h3>
+                                    <p class="panel-subtitle">Upcoming action items &amp; legal filings</p>
+                                </div>
                             </div>
                             <div id="homeTasksListContainer" class="home-tasks-list">
                                 <div class="home-empty-tasks">
@@ -481,17 +606,17 @@
                         <!-- Chambers Quick Jump Directory -->
                         <div class="home-panel-card">
                             <div class="home-panel-header">
-                                <div class="panel-title-wrap">
-                                    <span class="panel-icon tools-icon"><i class="fa-solid fa-landmark"></i></span>
-                                    <div class="panel-heading-group">
-                                        <h3 class="panel-main-title">Quick Registers &amp; Tools</h3>
-                                        <div class="panel-sub-row">
-                                            <span class="section-title-badge tools-badge">Directories</span>
-                                            <p class="panel-subtitle">Instant jump to specialized registers</p>
-                                        </div>
+                                <div class="panel-header-top-row">
+                                    <div class="panel-header-icon-group">
+                                        <span class="panel-icon tools-icon"><i class="fa-solid fa-landmark"></i></span>
+                                        <span class="section-title-badge tools-badge">Directories</span>
                                     </div>
+                                    <button type="button" class="panel-action-btn" onclick="showTab('all')">All Cases ➔</button>
                                 </div>
-                                <button type="button" class="panel-action-btn" onclick="showTab('search')">All Cases ➔</button>
+                                <div class="panel-heading-group">
+                                    <h3 class="panel-main-title">Quick Registers &amp; Tools</h3>
+                                    <p class="panel-subtitle">Instant jump to specialized registers</p>
+                                </div>
                             </div>
                             <div class="shortcuts-grid">
                                 <div class="shortcut-box" onclick="showTab('civil')">
@@ -532,17 +657,17 @@
                         <!-- Undated Cases Analysis & Graph Card -->
                         <div class="home-panel-card undated-analysis-card">
                             <div class="home-panel-header">
-                                <div class="panel-title-wrap">
-                                    <span class="panel-icon chart-icon"><i class="fa-solid fa-chart-pie"></i></span>
-                                    <div class="panel-heading-group">
-                                        <h3 class="panel-main-title">Undated Cases Tracker</h3>
-                                        <div class="panel-sub-row">
-                                            <span class="section-title-badge undated-badge">Needs Schedule</span>
-                                            <p class="panel-subtitle">Matters awaiting next court date</p>
-                                        </div>
+                                <div class="panel-header-top-row">
+                                    <div class="panel-header-icon-group">
+                                        <span class="panel-icon chart-icon"><i class="fa-solid fa-chart-pie"></i></span>
+                                        <span class="section-title-badge undated-badge">Needs Schedule</span>
                                     </div>
+                                    <button type="button" class="panel-action-btn" onclick="showTab('undated')">View Undated ➔</button>
                                 </div>
-                                <button type="button" class="panel-action-btn" onclick="showTab('undated')">View Undated ➔</button>
+                                <div class="panel-heading-group">
+                                    <h3 class="panel-main-title">Undated Cases Tracker</h3>
+                                    <p class="panel-subtitle">Matters awaiting next court date</p>
+                                </div>
                             </div>
                             <div class="undated-chart-content">
                                 <div class="undated-donut-wrap">
@@ -777,6 +902,9 @@
                             </button>
                             <button type="button" id="detailWhatsAppBtn" class="dossier-action-btn whatsapp-btn" title="Send WhatsApp notification to client">
                                 <i class="fa-brands fa-whatsapp"></i> WhatsApp Notice
+                            </button>
+                            <button type="button" id="detailPrintBtn" class="dossier-action-btn print-action" onclick="printCurrentCaseDossier()" title="Print complete case dossier and proceedings">
+                                <i class="fa-solid fa-print"></i> Print Case
                             </button>
                         </div>
                     </div>
@@ -2106,13 +2234,13 @@
                                 <p class="section-subtitle">Add and configure courts available across all case forms and judicial filings.</p>
                             </div>
                         </div>
-                        <span id="courtsTotalCountBadge" class="case-badge civil">6 Courts Configured</span>
+                        <span id="courtsTotalCountBadge" class="case-badge civil">Loading Courts...</span>
                     </div>
 
                     <div class="court-add-card">
                         <div class="search-card-header">
                             <div class="search-header-info">
-                                <span class="search-card-badge-icon">🏛️</span>
+                                <span class="search-card-badge-icon court-badge-icon"><i class="fa-solid fa-landmark"></i></span>
                                 <div>
                                     <h4 class="search-card-heading">Add New Court to Directory</h4>
                                     <p class="search-card-subheading">Enter judicial forum name (e.g. Fast Track Special Court, Labour Court, NCLT, High Court)</p>
@@ -2121,7 +2249,7 @@
                         </div>
                         <div class="court-input-action-row">
                             <div class="search-field-box">
-                                <span class="search-field-prefix-icon">⚖️</span>
+                                <span class="search-field-prefix-icon"><i class="fa-solid fa-scale-balanced"></i></span>
                                 <input type="text" id="courtInput" placeholder="Enter court name (e.g. Fast Track Special Court, Labour Court, NCLT, Family Court)...">
                             </div>
                             <button type="button" id="saveCourtBtn" class="court-submit-btn primary-btn">
@@ -2130,12 +2258,23 @@
                         </div>
                     </div>
 
+                    <!-- Court Directory Search & Live Filter Toolbar -->
+                    <div class="court-table-toolbar">
+                        <div class="search-field-box court-search-box">
+                            <span class="search-field-prefix-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" id="courtSearchInput" placeholder="Search configured courts by name..." oninput="filterCourtsTable(this.value)">
+                        </div>
+                        <button type="button" class="secondary-btn court-refresh-btn" onclick="syncAllCourtsFromDatabase()">
+                            <i class="fa-solid fa-arrows-rotate"></i> <span>Sync All Courts</span>
+                        </button>
+                    </div>
+
                     <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
                         <table id="courtsTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 court-table">
                             <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
                                 <tr>
-                                    <th style="width: 100px;">Sr. No.</th>
-                                    <th>Court Name</th>
+                                    <th style="width: 80px; text-align: center;">Sr. No.</th>
+                                    <th>Court Name &amp; Active Caseload</th>
                                     <th class="table-actions-th" style="width: 190px; text-align: right;">Actions</th>
                                 </tr>
                             </thead>
@@ -3842,7 +3981,7 @@
                     </div>
 
                     <!-- Dedicated Tool: Update Case Number, Filing Year & Filing Date -->
-                    <div class="db-case-modifier-card">
+                    <div class="db-case-modifier-card panel-disabled" id="dbCaseModifierCard">
                         <div class="db-modifier-header">
                             <div class="modifier-title-box">
                                 <span class="modifier-icon">🔄</span>
@@ -3851,13 +3990,20 @@
                                     <p class="modifier-subtitle">Select or type any Civil, State, Family, Revenue, Misc, or Complaint case to update its Case Number, Filing Year, and Filing Date with automatic cascading updates to linked hearings in Supabase.</p>
                                 </div>
                             </div>
-                            <span class="db-live-badge">⚡ Direct Supabase Sync</span>
+                            <div class="db-modifier-header-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <span class="db-live-badge">⚡ Direct Supabase Sync</span>
+                                <label class="db-modifier-toggle-wrap" title="Toggle to enable or disable panel editing">
+                                    <input type="checkbox" id="dbModToggleCheckbox" onchange="toggleDbCaseModifierPanel(this.checked)">
+                                    <span class="db-modifier-toggle-slider"></span>
+                                    <span id="dbModToggleLabel" class="db-modifier-toggle-text"><i class="fa-solid fa-lock"></i> Disabled</span>
+                                </label>
+                            </div>
                         </div>
                         
-                        <div class="db-modifier-form-grid">
+                        <div class="db-modifier-form-grid" id="dbModFormGrid">
                             <div class="modifier-form-group">
                                 <label for="dbModCaseType" class="db-toolbar-label">1. Case Category / Table:</label>
-                                <select id="dbModCaseType" class="form-select db-select" onchange="populateDbModifierCaseSelect()">
+                                <select id="dbModCaseType" class="form-select db-select" onchange="populateDbModifierCaseSelect()" disabled>
                                     <option value="civil">⚖️ Civil Cases (civilcases)</option>
                                     <option value="state">🚨 State Cases (statecases)</option>
                                     <option value="criminal">🔒 Criminal Cases (criminalcases)</option>
@@ -3872,9 +4018,9 @@
                             <div class="modifier-form-group" style="grid-column: span 2;">
                                 <label for="dbModCaseSearchInput" class="db-toolbar-label">2. Search / Type or Select Existing Case:</label>
                                 <div class="modifier-case-picker-row" style="display: flex; gap: 8px;">
-                                    <input type="text" id="dbModCaseSearchInput" list="dbModCaseDatalist" class="db-search-input" placeholder="Type Case Number, Party Name, or choose..." oninput="onDbModifierCaseSearch(this.value)" autocomplete="off">
+                                    <input type="text" id="dbModCaseSearchInput" list="dbModCaseDatalist" class="db-search-input" placeholder="Type Case Number, Party Name, or choose..." oninput="onDbModifierCaseSearch(this.value)" autocomplete="off" disabled>
                                     <datalist id="dbModCaseDatalist"></datalist>
-                                    <select id="dbModCaseSelect" class="form-select db-select" style="max-width: 220px;" onchange="onDbModifierCaseSelected(this.value)">
+                                    <select id="dbModCaseSelect" class="form-select db-select" style="max-width: 220px;" onchange="onDbModifierCaseSelected(this.value)" disabled>
                                         <option value="">-- Choose from List --</option>
                                     </select>
                                 </div>
@@ -3883,29 +4029,29 @@
 
                             <div class="modifier-form-group">
                                 <label for="dbModNewCaseNo" class="db-toolbar-label">3. New Case Number:</label>
-                                <input type="text" id="dbModNewCaseNo" class="db-search-input" placeholder="e.g. OS/45/2024 or CR-2024-102">
+                                <input type="text" id="dbModNewCaseNo" class="db-search-input" placeholder="e.g. OS/45/2024 or CR-2024-102" disabled>
                             </div>
 
                             <div class="modifier-form-group">
                                 <label for="dbModNewYear" class="db-toolbar-label">4. New Filing / Case Year:</label>
-                                <input type="number" id="dbModNewYear" class="db-search-input" placeholder="e.g. 2024" min="1950" max="2099">
+                                <input type="number" id="dbModNewYear" class="db-search-input" placeholder="e.g. 2024" min="1950" max="2099" disabled>
                             </div>
 
                             <div class="modifier-form-group">
                                 <label for="dbModNewFilingDate" class="db-toolbar-label">5. New Filing Date:</label>
-                                <input type="date" id="dbModNewFilingDate" class="db-search-input">
+                                <input type="date" id="dbModNewFilingDate" class="db-search-input" disabled>
                             </div>
 
                             <div class="modifier-form-group modifier-checkbox-group" style="grid-column: 1 / -1;">
                                 <label class="remember-me-label" style="margin-top: 6px !important;">
-                                    <input type="checkbox" id="dbModSyncHearings" checked>
+                                    <input type="checkbox" id="dbModSyncHearings" checked disabled>
                                     <span>Also update linked hearing records in <code>hearings</code> table</span>
                                 </label>
                             </div>
 
                             <div class="modifier-action-group" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; flex-wrap: wrap;">
                                 <span id="dbModStatusMsg" class="update-status-msg" style="margin: 0; text-align: left; flex: 1;"></span>
-                                <button type="button" id="dbModSubmitBtn" class="primary-btn db-action-btn" onclick="executeDbCaseNumberYearUpdate()" style="width: auto; padding: 10px 24px;">
+                                <button type="button" id="dbModSubmitBtn" class="primary-btn db-action-btn" onclick="executeDbCaseNumberYearUpdate()" style="width: auto; padding: 10px 24px;" disabled>
                                     💾 Save Case Number, Year & Filing Date
                                 </button>
                             </div>
@@ -4034,22 +4180,28 @@
                                     <div class="footer-feature-icon">
                                         <i class="fa-solid fa-file-contract"></i>
                                     </div>
-                                    <h5 class="footer-feature-title">Case Tracking</h5>
-                                    <p class="footer-feature-desc">Real-time judicial tracking.</p>
+                                    <div class="footer-feature-content">
+                                        <h5 class="footer-feature-title">Case Tracking</h5>
+                                        <p class="footer-feature-desc">Real-time judicial tracking.</p>
+                                    </div>
                                 </div>
                                 <div class="footer-feature-item">
                                     <div class="footer-feature-icon">
                                         <i class="fa-solid fa-calendar-check"></i>
                                     </div>
-                                    <h5 class="footer-feature-title">Cause Lists</h5>
-                                    <p class="footer-feature-desc">Automated generation &amp; hearing sync.</p>
+                                    <div class="footer-feature-content">
+                                        <h5 class="footer-feature-title">Cause Lists</h5>
+                                        <p class="footer-feature-desc">Automated generation &amp; hearing sync.</p>
+                                    </div>
                                 </div>
                                 <div class="footer-feature-item">
                                     <div class="footer-feature-icon">
                                         <i class="fa-solid fa-file-pen"></i>
                                     </div>
-                                    <h5 class="footer-feature-title">Digital Registers</h5>
-                                    <p class="footer-feature-desc">Comprehensive matter details.</p>
+                                    <div class="footer-feature-content">
+                                        <h5 class="footer-feature-title">Digital Registers</h5>
+                                        <p class="footer-feature-desc">Comprehensive matter details.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -4182,6 +4334,220 @@
             <div class="cause-footer-note">Generated via Case Management System • Atul Kumar Mishra, Advocate & Developer</div>
             <div class="cause-signature-line">
                 <span>Advocate Signature: _______________________</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Full Case Dossier Document (Simple Infographic A4 Print/PDF) -->
+    <div id="printableCaseDossier" class="printable-case-dossier infographic-dossier">
+        <!-- Infographic Header -->
+        <div class="dossier-info-header">
+            <div class="dossier-info-crest">⚖️</div>
+            <div class="dossier-info-brand">
+                <h2>CHAMBERS OF ATUL KUMAR MISHRA</h2>
+                <div class="dossier-info-sub">Advocate & Legal Consultant • High Court & District Courts</div>
+            </div>
+            <div class="dossier-info-badge" id="casePrintTypeBadge">CIVIL CASE</div>
+        </div>
+
+        <!-- Case Title & Identification Banner -->
+        <div class="dossier-info-title-strip">
+            <div class="dossier-info-case-title" id="casePrintTitle">Case Title</div>
+            <div class="dossier-info-case-num-wrap">
+                <span class="dossier-info-label">CASE NO:</span>
+                <span class="dossier-info-num" id="casePrintNo">—</span>
+            </div>
+        </div>
+
+        <!-- Infographic 4-Metric Strip -->
+        <div class="dossier-info-metrics-grid">
+            <div class="dossier-info-metric-card next-hearing-card">
+                <div class="metric-icon">📅</div>
+                <div class="metric-body">
+                    <span class="metric-lbl">Next Hearing</span>
+                    <span class="metric-val" id="casePrintNextHearing">—</span>
+                    <span class="metric-sub" id="casePrintNextProcess">—</span>
+                </div>
+            </div>
+
+            <div class="dossier-info-metric-card court-card">
+                <div class="metric-icon">🏛️</div>
+                <div class="metric-body">
+                    <span class="metric-lbl">Court / Forum</span>
+                    <span class="metric-val" id="casePrintCourt">—</span>
+                    <span class="metric-sub" id="casePrintCourtFull">—</span>
+                </div>
+            </div>
+
+            <div class="dossier-info-metric-card status-card">
+                <div class="metric-icon">🚦</div>
+                <div class="metric-body">
+                    <span class="metric-lbl">Case Status</span>
+                    <span class="metric-val" id="casePrintStatus">—</span>
+                    <span class="metric-sub" id="casePrintCaseType">Civil</span>
+                </div>
+            </div>
+
+            <div class="dossier-info-metric-card filing-card">
+                <div class="metric-icon">📜</div>
+                <div class="metric-body">
+                    <span class="metric-lbl">Filing & Year</span>
+                    <span class="metric-val" id="casePrintFilingDate">—</span>
+                    <span class="metric-sub">Year: <span id="casePrintYear">—</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two-Column Particulars & Representation Infographic Cards -->
+        <div class="dossier-info-two-col">
+            <!-- Left: Parties & Particulars -->
+            <div class="dossier-info-panel">
+                <div class="dossier-panel-header">
+                    <span class="panel-icon">👥</span>
+                    <span>Parties & Case Particulars</span>
+                </div>
+                <div id="casePrintPartiesContent" class="dossier-info-particulars-list">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Right: Client, Representation & Notes -->
+            <div class="dossier-info-panel">
+                <div class="dossier-panel-header">
+                    <span class="panel-icon">💼</span>
+                    <span>Client Representation & Matter Notes</span>
+                </div>
+                <div class="dossier-info-client-body">
+                    <div class="info-row">
+                        <span class="info-row-lbl">Client Name:</span>
+                        <span class="info-row-val font-bold" id="casePrintClientName">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-row-lbl">Client Contact:</span>
+                        <span class="info-row-val" id="casePrintClientPhone">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-row-lbl">Previous Stage:</span>
+                        <span class="info-row-val"><span id="casePrintPrevHearing">—</span> (<span id="casePrintPrevProcess">—</span>)</span>
+                    </div>
+                    <div class="info-row" style="border-bottom: none;">
+                        <span class="info-row-lbl">Remarks / Notes:</span>
+                        <span class="info-row-val" id="casePrintRemarks">—</span>
+                    </div>
+                    <div class="info-row disposal-info-row" id="casePrintDisposalRow" style="display: none;">
+                        <span class="info-row-lbl" style="color: #991b1b;">Disposal Details:</span>
+                        <span class="info-row-val" id="casePrintDisposalComment" style="color: #991b1b; font-weight: 600;">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proceedings Timeline Infographic -->
+        <div class="dossier-info-panel proceedings-panel">
+            <div class="dossier-panel-header">
+                <span class="panel-icon">📜</span>
+                <span>Proceedings & Appearance Timeline</span>
+            </div>
+            <table class="dossier-info-timeline-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30px; text-align: center;">#</th>
+                        <th style="width: 85px;">Date</th>
+                        <th style="width: 130px;">Stage / Purpose</th>
+                        <th style="width: 90px;">Milestone</th>
+                        <th>Action Conducted / Court Orders</th>
+                    </tr>
+                </thead>
+                <tbody id="casePrintHistoryBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="dossier-info-footer">
+            <div class="info-footer-meta">
+                <span>⚖️ Confidential Case Dossier • Printed: <strong id="casePrintTimestamp">—</strong></span>
+            </div>
+            <div class="info-footer-sig">
+                <span>Advocate Signature: _______________________</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Court Modal Dialog -->
+    <div id="editCourtModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="editCourtModalTitle">
+        <div class="modal-card modal-card-sm">
+            <div class="modal-header">
+                <div class="modal-header-info">
+                    <div class="modal-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+                    <div>
+                        <h3 id="editCourtModalTitle">Edit Court Name</h3>
+                        <p id="editCourtModalSubtitle" class="modal-subtitle">Rename this judicial forum and sync all associated case filings.</p>
+                    </div>
+                </div>
+                <button type="button" id="closeEditCourtModalBtn" class="modal-close-btn" aria-label="Close" onclick="closeEditCourtModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editCourtOriginalName" value="">
+                <div style="margin-bottom: 16px;">
+                    <label for="editCourtNameInput" style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #1e293b;">
+                        Court / Judicial Forum Name
+                    </label>
+                    <div class="search-field-box" style="margin: 0; width: 100%;">
+                        <span class="search-field-prefix-icon"><i class="fa-solid fa-scale-balanced"></i></span>
+                        <input type="text" id="editCourtNameInput" placeholder="Enter updated court name..." style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 12px 10px 42px; font-size: 14px;">
+                    </div>
+                </div>
+                <div id="editCourtWarningNotice" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px; display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #1e40af;">
+                    <i class="fa-solid fa-circle-info" style="margin-top: 2px; color: #3b82f6;"></i>
+                    <span id="editCourtNoticeText">This will automatically rename this court and synchronize all associated case filings.</span>
+                </div>
+                <div id="editCourtErrorMsg" class="hidden" style="margin-top: 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #b91c1c;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" onclick="closeEditCourtModal()">Cancel</button>
+                <button type="button" id="saveEditCourtBtn" class="primary-btn" onclick="confirmSaveEditedCourt()">
+                    <i class="fa-solid fa-check"></i> <span id="saveEditCourtBtnText">Save Changes</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Court Confirmation Modal Dialog -->
+    <div id="deleteCourtModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="deleteCourtModalTitle">
+        <div class="modal-card modal-card-sm">
+            <div class="modal-header modal-header-danger">
+                <div class="modal-header-info">
+                    <div class="modal-icon modal-icon-danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div>
+                        <h3 id="deleteCourtModalTitle">Delete Court</h3>
+                        <p id="deleteCourtModalSubtitle" class="modal-subtitle">Confirm removal of this judicial forum from directory.</p>
+                    </div>
+                </div>
+                <button type="button" id="closeDeleteCourtModalBtn" class="modal-close-btn" aria-label="Close" onclick="closeDeleteCourtModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="deleteCourtTargetName" value="">
+                
+                <p style="font-size: 14.5px; color: #1e293b; margin: 0 0 14px 0; line-height: 1.5;">
+                    Are you sure you want to delete <strong id="deleteCourtDisplayName" style="color: #b91c1c; background: #fef2f2; padding: 2px 7px; border-radius: 5px; border: 1px solid #fecaca; display: inline-block;"></strong> from the court directory?
+                </p>
+
+                <div id="deleteCourtActiveCasesNotice" class="hidden" style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px; display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #92400e; margin-bottom: 12px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="margin-top: 2px; color: #d97706; flex-shrink: 0;"></i>
+                    <span id="deleteCourtCasesNoticeText"></span>
+                </div>
+
+                <div id="deleteCourtErrorMsg" class="hidden" style="margin-top: 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #b91c1c;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" onclick="closeDeleteCourtModal()">Cancel</button>
+                <button type="button" id="confirmDeleteCourtBtn" class="primary-btn btn-danger-action" onclick="executeDeleteCourtConfirm()">
+                    <i class="fa-solid fa-trash-can"></i> <span id="confirmDeleteCourtBtnText">Delete Court</span>
+                </button>
             </div>
         </div>
     </div>

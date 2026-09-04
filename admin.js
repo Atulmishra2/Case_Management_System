@@ -97,8 +97,84 @@ window.ensureSupabaseClient = ensureSupabaseClient;
 
 // Dataset arrays (hydrated live from Supabase or user entries)
 const defaultFallbackCases = [];
-let defaultCourts = [];
-let courts = [];
+let defaultCourts = [
+  'Add. Civil Judge Junior Division-3rd /AJM-3rd Lakhimpur Kheri',
+  'Add. Civil Judge Junior Division Court No. 4/AJM-4',
+  'Add. Civil Judge Junior Division Court No. 5',
+  'Add. Civil Judge Junior Division/FTC',
+  'Add. Civil Judge SD/ ACJM-Ftc Kheri',
+  'Add. Civil Judge Senior Division Court No.2',
+  'Add. Civil Judge Senior Division Court No.3',
+  'Add. Civil Judge Senior Division Court No. 5',
+  'Add. Civil Judge Senior Division/ACJM',
+  'Add. District Judge FTC/New',
+  'Add. District Magistrate Judicial (ADM-J)',
+  'Add. District Magistrate Revenue (ADM-Rev)',
+  'Add. Family Court -Ist Lakhimpur Kheri',
+  'Add. Sub Divisional Magistrate/ASDM Lakhimpur Kheri',
+  'Civil Judge Junior Division Lakhimpur Kheri',
+  'Civil Judge Senior Division Lakhimpur Kheri',
+  'District & Session Judge Lakhimpur Kheri',
+  'Family Court Lakhimpur',
+  'Gram Nyayalaya Gola',
+  'Gram Nyayalaya Gola Tehsil Gola',
+  'S.O.C. Lakhimpur Kheri',
+  'Sub Divisional Magistrate/SDM Lakhimpur Kheri',
+  'Tehsildar Lakhimpur'
+];
+function getDeletedCourtsSet() {
+  try {
+    const list = JSON.parse(localStorage.getItem('cmDeletedCourts') || '[]');
+    if (Array.isArray(list)) {
+      return new Set(list.map(c => (c || '').trim().toLowerCase()).filter(Boolean));
+    }
+  } catch (e) {}
+  return new Set();
+}
+
+function markCourtAsDeleted(courtName) {
+  const trimmed = (courtName || '').trim();
+  if (!trimmed) return;
+  try {
+    const list = JSON.parse(localStorage.getItem('cmDeletedCourts') || '[]');
+    const lower = trimmed.toLowerCase();
+    if (!list.some(c => (c || '').trim().toLowerCase() === lower)) {
+      list.push(trimmed);
+      localStorage.setItem('cmDeletedCourts', JSON.stringify(list));
+    }
+  } catch (e) {}
+  defaultCourts = defaultCourts.filter(c => (c || '').trim().toLowerCase() !== trimmed.toLowerCase());
+}
+
+function unmarkCourtAsDeleted(courtName) {
+  const trimmed = (courtName || '').trim();
+  if (!trimmed) return;
+  try {
+    let list = JSON.parse(localStorage.getItem('cmDeletedCourts') || '[]');
+    if (Array.isArray(list)) {
+      list = list.filter(c => (c || '').trim().toLowerCase() !== trimmed.toLowerCase());
+      localStorage.setItem('cmDeletedCourts', JSON.stringify(list));
+    }
+  } catch (e) {}
+}
+
+function saveCourtsToBackup() {
+  try {
+    courts.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    localStorage.setItem('cmCourts_backup', JSON.stringify(courts));
+  } catch (e) {}
+}
+
+let courts = [...defaultCourts];
+try {
+  const cachedCourts = JSON.parse(localStorage.getItem('cmCourts_backup') || '[]');
+  const deletedSet = getDeletedCourtsSet();
+  if (Array.isArray(cachedCourts) && cachedCourts.length > 0) {
+    courts = cachedCourts.filter(c => c && !deletedSet.has(c.trim().toLowerCase()));
+  } else {
+    courts = defaultCourts.filter(c => c && !deletedSet.has(c.trim().toLowerCase()));
+  }
+} catch (e) {}
 let allCaseRecords = [];
 let guestCases = [];
 const defaultFallbackHearings = [];
@@ -540,20 +616,28 @@ async function fetchAllDataFromSupabase() {
     ]);
 
     // 1. Sync Courts (Deduplicated)
+    const deletedSet = getDeletedCourtsSet();
+    const seenCourtNames = new Set();
+    courts = [];
     if (courtsRes.data && courtsRes.data.length > 0) {
-      const seenCourtNames = new Set();
-      courts = [];
       courtsRes.data.forEach(c => {
         const name = (c.court_name || '').trim();
-        if (name && !seenCourtNames.has(name.toLowerCase())) {
+        if (name && !seenCourtNames.has(name.toLowerCase()) && !deletedSet.has(name.toLowerCase())) {
           seenCourtNames.add(name.toLowerCase());
           courts.push(name);
         }
       });
       console.log(`Loaded ${courts.length} unique courts from Supabase.`);
     } else {
-      courts = [...defaultCourts];
+      defaultCourts.forEach(dc => {
+        const name = (dc || '').trim();
+        if (name && !seenCourtNames.has(name.toLowerCase()) && !deletedSet.has(name.toLowerCase())) {
+          seenCourtNames.add(name.toLowerCase());
+          courts.push(name);
+        }
+      });
     }
+    saveCourtsToBackup();
     renderCourtOptions();
     renderCriminalCourtOptions();
     renderCourtsTable();
@@ -684,14 +768,35 @@ async function fetchAllDataFromSupabase() {
     if (typeof renderRecentTransfersTable === 'function') renderRecentTransfersTable();
     if (typeof updateTransfersCountBadge === 'function') updateTransfersCountBadge();
 
+    // Ensure all courts mentioned in case records are merged into courts directory (skipping deleted courts)
+    if (Array.isArray(allCaseRecords)) {
+      const deletedSet = getDeletedCourtsSet();
+      let courtsUpdated = false;
+      allCaseRecords.forEach(item => {
+        const cName = (item.courtName || item.criminalCourtName || '').trim();
+        if (cName && cName !== '—' && !deletedSet.has(cName.toLowerCase()) && !courts.some(c => c.trim().toLowerCase() === cName.toLowerCase())) {
+          courts.push(cName);
+          courtsUpdated = true;
+        }
+      });
+      if (courtsUpdated) {
+        saveCourtsToBackup();
+        renderCourtOptions();
+        renderCriminalCourtOptions();
+        renderCourtsTable();
+      }
+    }
+
     updateSupabaseStatusIndicator(true);
     refreshAllCaseTables();
   } catch (error) {
     console.error('Supabase live fetch error:', error);
     updateSupabaseStatusIndicator(false);
-    allCaseRecords = [];
-    allHearingRecords = [];
-    courts = [];
+    const deletedSet = getDeletedCourtsSet();
+    if (!courts || courts.length === 0) {
+      courts = defaultCourts.filter(c => c && !deletedSet.has(c.trim().toLowerCase()));
+    }
+    saveCourtsToBackup();
     renderCourtOptions();
     renderCriminalCourtOptions();
     renderCourtsTable();
@@ -1700,12 +1805,23 @@ async function cascadeUpdateCourtName(oldCourtName, newCourtName) {
 
   console.log(`[CASCADE] Updating court name from "${oldName}" to "${newName}" across cases and database...`);
 
+  unmarkCourtAsDeleted(newName);
+  markCourtAsDeleted(oldName);
+
   // 1. Update in-memory courts array
   const cIdx = courts.findIndex(c => c.trim().toLowerCase() === oldName.toLowerCase());
   if (cIdx !== -1) {
     courts[cIdx] = newName;
   } else if (!courts.some(c => c.trim().toLowerCase() === newName.toLowerCase())) {
     courts.push(newName);
+  }
+
+  // Update defaultCourts in-memory array
+  const dIdx = defaultCourts.findIndex(c => c.trim().toLowerCase() === oldName.toLowerCase());
+  if (dIdx !== -1) {
+    defaultCourts[dIdx] = newName;
+  } else if (!defaultCourts.some(c => c.trim().toLowerCase() === newName.toLowerCase())) {
+    defaultCourts.push(newName);
   }
 
   // 2. Update in-memory allCaseRecords
@@ -1725,6 +1841,19 @@ async function cascadeUpdateCourtName(oldCourtName, newCourtName) {
     });
   }
 
+  // Update in-memory allCaseTransfers
+  if (Array.isArray(allCaseTransfers)) {
+    allCaseTransfers.forEach(t => {
+      if ((t.fromCourt || '').trim().toLowerCase() === oldName.toLowerCase()) {
+        t.fromCourt = newName;
+      }
+      if ((t.toCourt || '').trim().toLowerCase() === oldName.toLowerCase()) {
+        t.toCourt = newName;
+      }
+    });
+    try { localStorage.setItem('case_transfers_backup', JSON.stringify(allCaseTransfers)); } catch(e) {}
+  }
+
   // 3. Update Supabase database across all tables
   if (supabaseClient) {
     const caseTables = [
@@ -1739,11 +1868,23 @@ async function cascadeUpdateCourtName(oldCourtName, newCourtName) {
     ];
 
     try {
-      // Update courts table
-      await supabaseClient
+      // Check if oldName existed in courts table
+      const { data: existingCourt } = await supabaseClient
         .from('courts')
-        .update({ court_name: newName, updated_at: new Date().toISOString() })
-        .ilike('court_name', oldName);
+        .select('id')
+        .ilike('court_name', oldName)
+        .limit(1);
+
+      if (existingCourt && existingCourt.length > 0) {
+        await supabaseClient
+          .from('courts')
+          .update({ court_name: newName, updated_at: new Date().toISOString() })
+          .eq('id', existingCourt[0].id);
+      } else {
+        await supabaseClient
+          .from('courts')
+          .insert([{ court_name: newName, court_type: 'District Court' }]);
+      }
 
       // Update all case tables where court_name = oldName
       const tableUpdates = caseTables.map(async (table) => {
@@ -1770,12 +1911,32 @@ async function cascadeUpdateCourtName(oldCourtName, newCourtName) {
         } catch (e) {}
       })());
 
+      // Update case_transfers
+      tableUpdates.push((async () => {
+        try {
+          await supabaseClient
+            .from('case_transfers')
+            .update({ from_court: newName })
+            .ilike('from_court', oldName);
+        } catch (e) {}
+      })());
+      tableUpdates.push((async () => {
+        try {
+          await supabaseClient
+            .from('case_transfers')
+            .update({ to_court: newName })
+            .ilike('to_court', oldName);
+        } catch (e) {}
+      })());
+
       await Promise.all(tableUpdates);
       console.log(`[CASCADE] Database cascading court update completed: "${oldName}" -> "${newName}".`);
     } catch (supaErr) {
       console.error('[CASCADE] Supabase cascading court update error:', supaErr);
     }
   }
+
+  saveCourtsToBackup();
 
   // 4. Re-render UI components to reflect updated court name
   if (typeof renderCourtOptions === 'function') renderCourtOptions();
@@ -1784,6 +1945,7 @@ async function cascadeUpdateCourtName(oldCourtName, newCourtName) {
   if (typeof renderCourtsTable === 'function') renderCourtsTable();
   if (typeof refreshAllCaseTables === 'function') refreshAllCaseTables();
   if (typeof filterCaseTables === 'function') filterCaseTables();
+  if (typeof renderRecentTransfersTable === 'function') renderRecentTransfersTable();
   if (typeof renderCalendarView === 'function' && typeof currentCalendarMonth !== 'undefined') {
     renderCalendarView(currentCalendarMonth, currentCalendarYear);
   }
@@ -1863,7 +2025,9 @@ window.cascadeUpdateCaseNumber = cascadeUpdateCaseNumber;
 
 async function addCourtToSupabase(courtName) {
   const trimmed = (courtName || '').trim();
-  if (!trimmed) return;
+  if (!trimmed) return false;
+
+  unmarkCourtAsDeleted(trimmed);
 
   const alreadyInMemory = courts.some(c => c.trim().toLowerCase() === trimmed.toLowerCase());
 
@@ -1880,16 +2044,11 @@ async function addCourtToSupabase(courtName) {
         console.warn(`Court "${trimmed}" already exists in Supabase courts table.`);
         if (!alreadyInMemory) {
           courts.push(existing[0].court_name || trimmed);
-          renderCourtOptions();
-          renderCriminalCourtOptions();
-          renderSearchCourtFilterOptions();
-          renderCourtsTable();
         }
-        return;
+      } else {
+        const { error } = await supabaseClient.from('courts').insert([{ court_name: trimmed, court_type: 'District Court' }]);
+        if (error) console.error('Supabase add court error:', error);
       }
-
-      const { error } = await supabaseClient.from('courts').insert([{ court_name: trimmed, court_type: 'District Court' }]);
-      if (error) console.error('Supabase add court error:', error);
     } catch (e) {
       console.error('Supabase add court exception:', e);
     }
@@ -1898,10 +2057,16 @@ async function addCourtToSupabase(courtName) {
   if (!alreadyInMemory) {
     courts.push(trimmed);
   }
+  if (!defaultCourts.some(c => c.trim().toLowerCase() === trimmed.toLowerCase())) {
+    defaultCourts.push(trimmed);
+  }
+
+  saveCourtsToBackup();
   renderCourtOptions();
   renderCriminalCourtOptions();
   renderSearchCourtFilterOptions();
   renderCourtsTable();
+  return true;
 }
 
 async function editCourtInSupabase(oldName, newName) {
@@ -1910,23 +2075,55 @@ async function editCourtInSupabase(oldName, newName) {
 
 async function deleteCourtFromSupabase(courtName) {
   const trimmed = (courtName || '').trim();
-  if (!trimmed) return;
+  if (!trimmed) return false;
+
+  markCourtAsDeleted(trimmed);
+
+  const caseTables = [
+    'civilcases',
+    'statecases',
+    'criminalcases',
+    'familycases',
+    'revenuecases',
+    'misccivilcases',
+    'misccriminalcases',
+    'complaintcases'
+  ];
 
   if (supabaseClient) {
     try {
-      const { error } = await supabaseClient.from('courts').delete().ilike('court_name', trimmed);
-      if (error) console.error('Supabase delete court error:', error);
+      // 1. Delete court record from courts table
+      const { error: delErr } = await supabaseClient.from('courts').delete().ilike('court_name', trimmed);
+      if (delErr) console.error('Supabase delete court error:', delErr);
+
+      // 2. Unlink all cases in Supabase that belonged to this court
+      const unlinks = caseTables.map(async (table) => {
+        try {
+          await supabaseClient
+            .from(table)
+            .update({ court_name: '—', updated_at: new Date().toISOString() })
+            .ilike('court_name', trimmed);
+        } catch (e) {}
+      });
+      unlinks.push((async () => {
+        try {
+          await supabaseClient
+            .from('criminalcases')
+            .update({ criminal_court_name: '—', updated_at: new Date().toISOString() })
+            .ilike('criminal_court_name', trimmed);
+        } catch (e) {}
+      })());
+      await Promise.all(unlinks);
     } catch (e) {
       console.error('Supabase delete court exception:', e);
     }
   }
 
-  const idx = courts.findIndex(c => c.trim().toLowerCase() === trimmed.toLowerCase());
-  if (idx !== -1) {
-    courts.splice(idx, 1);
-  }
+  // 3. Remove from in-memory courts & defaultCourts
+  courts = courts.filter(c => c.trim().toLowerCase() !== trimmed.toLowerCase());
+  defaultCourts = defaultCourts.filter(c => c.trim().toLowerCase() !== trimmed.toLowerCase());
 
-  // Update in-memory cases that belonged to this court
+  // 4. Update in-memory cases that belonged to this court
   if (Array.isArray(allCaseRecords)) {
     allCaseRecords.forEach(c => {
       if ((c.courtName || '').trim().toLowerCase() === trimmed.toLowerCase()) {
@@ -1938,11 +2135,13 @@ async function deleteCourtFromSupabase(courtName) {
     });
   }
 
+  saveCourtsToBackup();
   renderCourtOptions();
   renderCriminalCourtOptions();
   renderSearchCourtFilterOptions();
   renderCourtsTable();
   refreshAllCaseTables();
+  return true;
 }
 
 // ==============================================================================
@@ -2234,6 +2433,10 @@ function showTab(tabId, event, navType = 'navigate') {
 
   if (tabId === 'dbmanager') {
     initDbManagerTab();
+  }
+
+  if (tabId === 'courts') {
+    renderCourtsTable();
   }
 
   if (tabId === 'settings') {
@@ -2970,6 +3173,13 @@ function renderSelectedCaseDetails(caseObj) {
     };
   }
 
+  const printBtn = document.getElementById('detailPrintBtn');
+  if (printBtn) {
+    printBtn.onclick = () => {
+      printCurrentCaseDossier(caseObj);
+    };
+  }
+
   const addTodoBtn = document.getElementById('searchAddTodoBtn');
   if (addTodoBtn) {
     addTodoBtn.style.display = 'inline-flex';
@@ -3142,12 +3352,15 @@ if (typeof window !== 'undefined') {
   });
 }
 
+let currentGuestSelectedCase = null;
+
 function renderGuestCaseDetails(caseObj) {
   const emptyBox = document.getElementById('guestCaseDetailsEmpty');
   const contentBox = document.getElementById('guestCaseDetailsContent');
   const badge = document.getElementById('guestCaseTypeBadge');
 
   if (!caseObj) {
+    currentGuestSelectedCase = null;
     if (emptyBox) emptyBox.classList.remove('hidden');
     if (contentBox) contentBox.classList.add('hidden');
     if (badge) {
@@ -3156,6 +3369,8 @@ function renderGuestCaseDetails(caseObj) {
     }
     return;
   }
+
+  currentGuestSelectedCase = caseObj;
 
   if (emptyBox) emptyBox.classList.add('hidden');
   if (contentBox) contentBox.classList.remove('hidden');
@@ -3187,6 +3402,13 @@ function renderGuestCaseDetails(caseObj) {
     } else {
       gDocEl.textContent = '—';
     }
+  }
+
+  const guestPrintBtn = document.getElementById('guestDetailPrintBtn');
+  if (guestPrintBtn) {
+    guestPrintBtn.onclick = () => {
+      printCurrentGuestCaseDossier();
+    };
   }
 }
 
@@ -4217,15 +4439,12 @@ function renderHomeDashboard() {
   if (totalEl) totalEl.textContent = String(totalCount);
   if (breakdownEl) {
     breakdownEl.innerHTML = `
-      <div class="breakdown-col-left">
-        <div class="breakdown-item"><span class="breakdown-bullet"></span>${civilCount} Civil</div>
-        <div class="breakdown-item"><span class="breakdown-bullet"></span>${criminalCount} Criminal</div>
-        <div class="breakdown-item"><span class="breakdown-bullet"></span>${revenueCount} Revenue</div>
-      </div>
-      <div class="breakdown-col-right">
-        <span class="breakdown-bullet"></span>
-        <span class="breakdown-bullet"></span>
-        <span class="breakdown-bullet"></span>
+      <div class="breakdown-inline-row">
+        <span>${civilCount} Civil</span>
+        <span class="breakdown-dot">•</span>
+        <span>${criminalCount} Criminal</span>
+        <span class="breakdown-dot">•</span>
+        <span>${revenueCount} Revenue</span>
       </div>
     `;
   }
@@ -6395,9 +6614,9 @@ function renderCalendarView(year = currentCalendarYear, month = currentCalendarM
 
     if (hYear === year && hMonth === month) {
       totalHearingsCount++;
-      const type = (c.caseType || 'civil').toLowerCase();
-      if (type === 'civil') civilHearingsCount++;
-      else if (type === 'criminal') criminalHearingsCount++;
+      const type = (c.caseType || 'civil').toLowerCase().trim();
+      if (type === 'civil' || type === 'misc_civil') civilHearingsCount++;
+      else if (type === 'criminal' || type === 'state' || type === 'complaint' || type === 'misc_criminal') criminalHearingsCount++;
       else if (type === 'revenue') revenueHearingsCount++;
 
       if (!dayHearingsMap[hDay]) dayHearingsMap[hDay] = [];
@@ -6449,9 +6668,15 @@ function renderCalendarView(year = currentCalendarYear, month = currentCalendarM
       hearingsHtml = `
         <div class="day-hearings-container">
           ${hearings.slice(0, 2).map(h => {
-            const type = (h.caseType || 'civil').toLowerCase();
-            const caseNo = h.caseNo || h.criminalCaseNumber;
-            return `<span class="day-hearing-pill ${type}" title="${caseNo}: ${h.caseName || 'Case'}">${caseNo}</span>`;
+            const rawType = (h.caseType || 'civil').toLowerCase().trim();
+            const caseNo = h.caseNo || h.criminalCaseNumber || '—';
+            let extraClass = '';
+            if (rawType === 'state' || rawType === 'complaint' || rawType === 'misc_criminal') {
+              extraClass = 'criminal';
+            } else if (rawType === 'misc_civil') {
+              extraClass = 'civil';
+            }
+            return `<span class="day-hearing-pill ${escapeHtml(rawType)} ${extraClass}" title="${escapeHtml(caseNo)}: ${escapeHtml(h.caseName || 'Case')}">${escapeHtml(caseNo)}</span>`;
           }).join('')}
           ${hearings.length > 2 ? `<span class="day-count-badge">+${hearings.length - 2} more</span>` : ''}
         </div>
@@ -6692,10 +6917,306 @@ function printDailyCauseList(targetDateStr = '') {
     }
   }
 
+  document.body.classList.remove('printing-case-dossier');
   window.print();
 }
 
 window.printDailyCauseList = printDailyCauseList;
+
+// ==============================================================================
+// Full Case Dossier Printable Engine
+// ==============================================================================
+function populatePrintableCaseDossier(caseObj) {
+  if (!caseObj) return;
+
+  const caseType = (caseObj.caseType || 'civil').toLowerCase();
+  const isCriminal = caseType === 'criminal';
+  const isFamily = caseType === 'family';
+  const isRevenue = caseType === 'revenue';
+
+  const caseNumber = caseObj.caseNo || caseObj.criminalCaseNumber || '—';
+  const caseYear = caseObj.caseYear || caseObj.crimeYear || '—';
+  const courtName = caseObj.courtName || caseObj.criminalCourtName || '—';
+  const filingDateVal = caseObj.filingDate || caseObj.crimeFilingDate;
+  const filingDate = formatDateDMY(filingDateVal);
+  const nextHearing = formatDateDMY(caseObj.nextHearing);
+  const nextProcess = caseObj.hearingProcess || '—';
+  const prevHearing = formatDateDMY(caseObj.previousHearing);
+  const prevProcess = caseObj.previousProcess || '—';
+  const clientName = caseObj.clientName || caseObj.criminalClientName || caseObj.client || '—';
+  const clientPhone = caseObj.clientNumber || caseObj.criminalClientNumber || '';
+
+  // Status calculation
+  const isDisposed = caseObj.status === 'disposed' || Boolean(caseObj.disposalComment || caseObj.disposal_comment);
+  const isUndated = !caseObj.nextHearing || caseObj.nextHearing === '—' || String(caseObj.nextHearing).trim() === '';
+  let statusText = 'Pending';
+  if (isDisposed) statusText = 'Disposed Off';
+  else if (isUndated) statusText = 'Undated / Unscheduled';
+
+  // Case Title
+  let caseTitle = caseObj.caseName || '';
+  if (!caseTitle) {
+    if (isCriminal) {
+      const v = caseObj.victimName || caseObj.firstParty;
+      const a = caseObj.accusedName || caseObj.oppositeParty;
+      caseTitle = v && a ? `${v} vs ${a}` : (v || a || 'Criminal Matter');
+    } else if (isFamily) {
+      const p = caseObj.petitioner || caseObj.plaintiff;
+      const r = caseObj.respondent || caseObj.defendant;
+      caseTitle = p && r ? `${p} vs ${r}` : (p || r || 'Family Dispute');
+    } else if (isRevenue) {
+      const app = caseObj.applicant || caseObj.plaintiff;
+      const opp = caseObj.respondent || caseObj.defendant;
+      caseTitle = app && opp ? `${app} vs ${opp}` : (app || opp || 'Revenue Matter');
+    } else {
+      const p = caseObj.plaintiff || caseObj.firstParty;
+      const d = caseObj.defendant || caseObj.oppositeParty;
+      caseTitle = p && d ? `${p} vs ${d}` : (p || d || 'Civil Suit');
+    }
+  }
+
+  // Header & Title
+  const badgeEl = document.getElementById('casePrintTypeBadge');
+  if (badgeEl) badgeEl.textContent = `${caseType.toUpperCase()} CASE`;
+
+  const titleEl = document.getElementById('casePrintTitle');
+  if (titleEl) titleEl.textContent = caseTitle;
+
+  const noEl = document.getElementById('casePrintNo');
+  if (noEl) noEl.textContent = caseNumber;
+
+  const courtEl = document.getElementById('casePrintCourt');
+  if (courtEl) courtEl.textContent = courtName;
+
+  const statusEl = document.getElementById('casePrintStatus');
+  if (statusEl) statusEl.textContent = statusText;
+
+  // Grid details
+  const ctEl = document.getElementById('casePrintCaseType');
+  if (ctEl) ctEl.textContent = caseType.toUpperCase();
+
+  const yrEl = document.getElementById('casePrintYear');
+  if (yrEl) yrEl.textContent = caseYear;
+
+  const fdEl = document.getElementById('casePrintFilingDate');
+  if (fdEl) fdEl.textContent = filingDate;
+
+  const cfEl = document.getElementById('casePrintCourtFull');
+  if (cfEl) cfEl.textContent = courtName;
+
+  const nhEl = document.getElementById('casePrintNextHearing');
+  if (nhEl) nhEl.textContent = nextHearing;
+
+  const npEl = document.getElementById('casePrintNextProcess');
+  if (npEl) npEl.textContent = nextProcess;
+
+  const phEl = document.getElementById('casePrintPrevHearing');
+  if (phEl) phEl.textContent = prevHearing;
+
+  const ppEl = document.getElementById('casePrintPrevProcess');
+  if (ppEl) ppEl.textContent = prevProcess;
+
+  // Parties & Matter Particulars
+  const partiesContainer = document.getElementById('casePrintPartiesContent');
+  if (partiesContainer) {
+    const items = [];
+    if (isCriminal || caseType === 'state' || caseType === 'complaint' || caseType === 'misc_criminal') {
+      if (caseObj.victimName || caseObj.firstParty) items.push(['Complainant / Victim', caseObj.victimName || caseObj.firstParty]);
+      if (caseObj.accusedName || caseObj.oppositeParty) items.push(['Accused / Opposite', caseObj.accusedName || caseObj.oppositeParty]);
+      if (caseObj.policeStation) items.push(['Police Station', caseObj.policeStation]);
+      if (caseObj.crimeNumber) items.push(['FIR / Crime No.', `${caseObj.crimeNumber}${caseObj.crimeYear ? ` / ${caseObj.crimeYear}` : ''}`]);
+      if (caseObj.crimeSection) items.push(['Sections (IPC/BNS)', caseObj.crimeSection]);
+      if (caseObj.custodyStatus) items.push(['Custody / Bail Status', caseObj.custodyStatus]);
+    } else if (isFamily) {
+      if (caseObj.petitioner || caseObj.plaintiff) items.push(['Petitioner / Applicant', caseObj.petitioner || caseObj.plaintiff]);
+      if (caseObj.respondent || caseObj.defendant) items.push(['Respondent / Opposite', caseObj.respondent || caseObj.defendant]);
+      if (caseObj.familyMatterType || caseObj.matterType) items.push(['Dispute Nature', caseObj.familyMatterType || caseObj.matterType]);
+      if (caseObj.marriageDate) items.push(['Marriage Date', formatDateDMY(caseObj.marriageDate)]);
+      if (caseObj.maintenance) items.push(['Maintenance Details', caseObj.maintenance]);
+    } else if (isRevenue) {
+      if (caseObj.applicant || caseObj.plaintiff) items.push(['Applicant / Petitioner', caseObj.applicant || caseObj.plaintiff]);
+      if (caseObj.respondent || caseObj.defendant) items.push(['Opposite Party', caseObj.respondent || caseObj.defendant]);
+      if (caseObj.revenueMatterType) items.push(['Revenue Matter Nature', caseObj.revenueMatterType]);
+      if (caseObj.village) items.push(['Village / Mauza', caseObj.village]);
+      if (caseObj.khataNo || caseObj.gataNo) items.push(['Khata / Gata No.', [caseObj.khataNo ? `Khata: ${caseObj.khataNo}` : '', caseObj.gataNo ? `Gata: ${caseObj.gataNo}` : ''].filter(Boolean).join(' | ')]);
+    } else {
+      if (caseObj.plaintiff || caseObj.firstParty) items.push(['Plaintiff / Petitioner', caseObj.plaintiff || caseObj.firstParty]);
+      if (caseObj.defendant || caseObj.oppositeParty) items.push(['Defendant / Respondent', caseObj.defendant || caseObj.oppositeParty]);
+      if (caseObj.matterType) items.push(['Matter / Suit Nature', caseObj.matterType]);
+    }
+
+    if (items.length === 0) {
+      items.push(['Parties', caseTitle]);
+    }
+
+    partiesContainer.innerHTML = items.map(([k, v]) => `
+      <div class="dossier-print-prop-cell">
+        <span class="dossier-print-prop-lbl">${escapeHtml(k)}:</span>
+        <span class="dossier-print-prop-val">${escapeHtml(v)}</span>
+      </div>
+    `).join('');
+  }
+
+  // Client & Remarks
+  const cNameEl = document.getElementById('casePrintClientName');
+  if (cNameEl) cNameEl.textContent = clientName;
+
+  const cPhoneEl = document.getElementById('casePrintClientPhone');
+  if (cPhoneEl) cPhoneEl.textContent = clientPhone ? clientPhone : '—';
+
+  const remEl = document.getElementById('casePrintRemarks');
+  const remarkVal = caseObj.remark || caseObj.remarks || '';
+  if (remEl) remEl.textContent = remarkVal.trim() ? remarkVal.trim() : 'None recorded.';
+
+  const dispRow = document.getElementById('casePrintDisposalRow');
+  const dispEl = document.getElementById('casePrintDisposalComment');
+  const disposalVal = caseObj.disposalComment || caseObj.disposal_comment || '';
+  if (dispRow && dispEl) {
+    if (disposalVal.trim()) {
+      dispRow.style.display = '';
+      dispEl.textContent = disposalVal.trim();
+    } else if (isDisposed) {
+      dispRow.style.display = '';
+      dispEl.textContent = 'Matter disposed of.';
+    } else {
+      dispRow.style.display = 'none';
+    }
+  }
+
+  // Proceedings History
+  const historyBody = document.getElementById('casePrintHistoryBody');
+  if (historyBody) {
+    const history = typeof getCaseHearingHistory === 'function' ? getCaseHearingHistory(caseNumber) : [];
+    const events = [];
+
+    history.forEach(h => {
+      const isNext = Boolean(caseObj.nextHearing && (h.hearing_date === caseObj.nextHearing));
+      events.push({
+        date: h.hearing_date,
+        process: h.process || 'Court Hearing',
+        type: isNext ? 'Upcoming Hearing' : 'Past Hearing',
+        action: h.action_taken || h.remarks || 'Court proceedings conducted.'
+      });
+    });
+
+    if (caseObj.nextHearing && caseObj.nextHearing !== '—' && !events.some(e => e.date === caseObj.nextHearing)) {
+      events.push({
+        date: caseObj.nextHearing,
+        process: caseObj.hearingProcess || 'Scheduled Hearing',
+        type: 'Upcoming Hearing',
+        action: `Next appearance scheduled at ${courtName}`
+      });
+    }
+
+    if (caseObj.previousHearing && caseObj.previousHearing !== '—' && !events.some(e => e.date === caseObj.previousHearing)) {
+      events.push({
+        date: caseObj.previousHearing,
+        process: caseObj.previousProcess || 'Previous Stage',
+        type: 'Past Hearing',
+        action: `Previous proceedings recorded at ${courtName}`
+      });
+    }
+
+    if (filingDateVal && filingDateVal !== '—' && !events.some(e => e.date === filingDateVal)) {
+      events.push({
+        date: filingDateVal,
+        process: 'Case Inception & Filing',
+        type: 'Initial Filing',
+        action: `Case instituted and registered at ${courtName}`
+      });
+    }
+
+    // Sort newest first
+    events.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (events.length === 0) {
+      historyBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:8px; color:#64748b; font-style:italic;">No recorded proceedings logged yet.</td></tr>';
+    } else {
+      // Limit to latest 8 hearings to guarantee a clean, single A4 page fit
+      const displayEvents = events.slice(0, 8);
+      let rowsHtml = displayEvents.map((ev, idx) => {
+        const typeClass = String(ev.type || '').toLowerCase().replace(/\s+/g, '-');
+        return `
+          <tr>
+            <td style="text-align: center; font-weight: bold; color: #64748b;">${idx + 1}</td>
+            <td style="white-space: nowrap; font-weight: 700; color: #0f172a;">${formatDateDMY(ev.date)}</td>
+            <td style="font-weight: 700; color: #1e40af;">${escapeHtml(ev.process || '—')}</td>
+            <td><span class="dossier-timeline-tag ${typeClass}">${escapeHtml(ev.type)}</span></td>
+            <td>${escapeHtml(ev.action || '—')}</td>
+          </tr>
+        `;
+      }).join('');
+
+      if (events.length > 8) {
+        rowsHtml += `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 3px; font-size: 8.5px; color: #64748b; background: #f8fafc; font-style: italic;">
+              + ${events.length - 8} earlier proceedings on record in CaseBook database
+            </td>
+          </tr>
+        `;
+      }
+
+      historyBody.innerHTML = rowsHtml;
+    }
+  }
+
+  // Timestamp
+  const tsEl = document.getElementById('casePrintTimestamp');
+  if (tsEl) {
+    const now = new Date();
+    tsEl.textContent = now.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+}
+
+function printCurrentCaseDossier(customCaseObj = null) {
+  const caseObj = customCaseObj || currentSelectedCase;
+  if (!caseObj) {
+    if (typeof showToast === 'function') {
+      showToast('Please select a case to print.', 'warning');
+    } else {
+      alert('Please select a case to print.');
+    }
+    return;
+  }
+
+  populatePrintableCaseDossier(caseObj);
+  document.body.classList.add('printing-case-dossier');
+
+  const cleanup = () => {
+    document.body.classList.remove('printing-case-dossier');
+    window.removeEventListener('afterprint', cleanup);
+  };
+
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(cleanup, 4000);
+
+  window.print();
+}
+
+function printCurrentGuestCaseDossier() {
+  if (!currentGuestSelectedCase) {
+    if (typeof showToast === 'function') {
+      showToast('Please select a case to print.', 'warning');
+    } else {
+      alert('Please select a case to print.');
+    }
+    return;
+  }
+  printCurrentCaseDossier(currentGuestSelectedCase);
+}
+
+window.populatePrintableCaseDossier = populatePrintableCaseDossier;
+window.printCurrentCaseDossier = printCurrentCaseDossier;
+window.printCurrentGuestCaseDossier = printCurrentGuestCaseDossier;
+
 
 // ==============================================================================
 // WhatsApp Client Notification Engine
@@ -8451,29 +8972,66 @@ function renderSearchCourtFilterOptions() {
   }
 }
 
-function renderCourtsTable() {
+function renderCourtsTable(filterQuery = '') {
   const tbody = document.querySelector('#courtsTable tbody');
   const countBadge = document.getElementById('courtsTotalCountBadge');
+  const searchInput = document.getElementById('courtSearchInput');
+  const query = (filterQuery !== undefined && filterQuery !== null && filterQuery !== '' ? filterQuery : (searchInput ? searchInput.value : '') || '').trim().toLowerCase();
+
+  const deletedSet = getDeletedCourtsSet();
+  const seen = new Set();
+  const allCourtsList = [];
+
+  courts.forEach(c => {
+    const t = (c || '').trim();
+    if (t && !deletedSet.has(t.toLowerCase()) && !seen.has(t.toLowerCase())) {
+      seen.add(t.toLowerCase());
+      allCourtsList.push(t);
+    }
+  });
+
+  allCourtsList.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+  const filteredCourts = query
+    ? allCourtsList.filter(c => c.toLowerCase().includes(query))
+    : allCourtsList;
+
   if (countBadge) {
-    countBadge.textContent = `${courts.length} Court${courts.length === 1 ? '' : 's'} Configured`;
+    if (query) {
+      countBadge.textContent = `${filteredCourts.length} of ${allCourtsList.length} Courts`;
+    } else {
+      countBadge.textContent = `${allCourtsList.length} Court${allCourtsList.length === 1 ? '' : 's'} Configured`;
+    }
   }
+
   if (!tbody) return;
 
-  if (courts.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="3" class="no-results">No courts configured yet. Add a court using the form above.</td></tr>';
+  if (filteredCourts.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" class="no-results">${query ? `No courts matching "${escapeHtml(query)}".` : 'No courts configured yet. Add a court using the form above.'}</td></tr>`;
     return;
   }
 
   tbody.innerHTML = '';
 
-  courts.forEach((court, index) => {
+  filteredCourts.forEach((court, index) => {
     const row = document.createElement('tr');
+    const casesInCourt = (allCaseRecords || []).filter(c => 
+      (c.courtName || '').trim().toLowerCase() === court.trim().toLowerCase() || 
+      (c.criminalCourtName || '').trim().toLowerCase() === court.trim().toLowerCase()
+    );
+    const count = casesInCourt.length;
+
     row.innerHTML = `
-      <td><span class="court-index-badge">#${index + 1}</span></td>
+      <td style="text-align: center;"><span class="court-index-badge">#${index + 1}</span></td>
       <td>
         <div class="court-name-cell">
-          <span>🏛️</span>
-          <span>${court}</span>
+          <span style="font-size: 18px;">🏛️</span>
+          <div class="court-name-meta">
+            <span class="court-name-title">${escapeHtml(court)}</span>
+            <span class="court-cases-count-badge ${count > 0 ? 'has-cases' : 'zero-cases'}">
+              <i class="fa-solid fa-briefcase"></i> ${count} Case${count === 1 ? '' : 's'} Assigned
+            </span>
+          </div>
         </div>
       </td>
       <td class="table-actions-td">
@@ -8487,28 +9045,262 @@ function renderCourtsTable() {
     const editBtn = row.querySelector('.edit-court');
     const deleteBtn = row.querySelector('.delete-court');
 
-    editBtn.addEventListener('click', async () => {
-      const newCourt = prompt(`Edit court name "${court}"\n(This will automatically update all cases assigned to this court):`, court);
-      if (newCourt && newCourt.trim() && newCourt.trim().toLowerCase() !== court.toLowerCase()) {
-        const count = await editCourtInSupabase(court, newCourt.trim());
-        alert(`✅ Court renamed to "${newCourt.trim()}".\nUpdated ${count || 0} associated case(s) across the database.`);
-      }
+    editBtn.addEventListener('click', () => {
+      openEditCourtModal(court, count);
     });
 
-    deleteBtn.addEventListener('click', async () => {
-      const casesInCourt = (allCaseRecords || []).filter(c => 
-        (c.courtName || '').trim().toLowerCase() === court.trim().toLowerCase() || 
-        (c.criminalCourtName || '').trim().toLowerCase() === court.trim().toLowerCase()
-      );
-      const confirmDelete = confirm(`Delete court: "${court}"?${casesInCourt.length > 0 ? `\n\n⚠️ Note: ${casesInCourt.length} case(s) currently belong to this court and will be unlinked.` : ''}`);
-      if (confirmDelete) {
-        await deleteCourtFromSupabase(court);
-      }
+    deleteBtn.addEventListener('click', () => {
+      openDeleteCourtModal(court, count);
     });
 
     tbody.appendChild(row);
   });
 }
+
+function openEditCourtModal(courtName, count = 0) {
+  const modal = document.getElementById('editCourtModal');
+  const origInput = document.getElementById('editCourtOriginalName');
+  const nameInput = document.getElementById('editCourtNameInput');
+  const noticeText = document.getElementById('editCourtNoticeText');
+  const errorDiv = document.getElementById('editCourtErrorMsg');
+  const saveBtn = document.getElementById('saveEditCourtBtn');
+  const saveBtnText = document.getElementById('saveEditCourtBtnText');
+
+  if (!modal || !nameInput) {
+    const newCourt = prompt(`Edit court name "${courtName}"\n(${count} case(s) currently assigned):`, courtName);
+    if (newCourt && newCourt.trim() && newCourt.trim().toLowerCase() !== courtName.toLowerCase()) {
+      if (courts.some(c => c.trim().toLowerCase() === newCourt.trim().toLowerCase())) {
+        alert(`A court named "${newCourt.trim()}" already exists.`);
+        return;
+      }
+      cascadeUpdateCourtName(courtName, newCourt.trim()).then(updatedCount => {
+        alert(`✅ Court renamed to "${newCourt.trim()}".\nUpdated ${updatedCount || 0} associated case(s) across the database.`);
+      });
+    }
+    return;
+  }
+
+  if (origInput) origInput.value = courtName;
+  nameInput.value = courtName;
+  if (errorDiv) {
+    errorDiv.textContent = '';
+    errorDiv.classList.add('hidden');
+  }
+  if (noticeText) {
+    if (count > 0) {
+      noticeText.innerHTML = `<strong>${count} active case(s)</strong> currently assigned to this court will be automatically updated across all tables and filings.`;
+    } else {
+      noticeText.textContent = 'This court currently has no active cases assigned. Renaming will update the court directory.';
+    }
+  }
+  if (saveBtn) saveBtn.disabled = false;
+  if (saveBtnText) saveBtnText.textContent = 'Save Changes';
+
+  modal.classList.remove('hidden');
+  setTimeout(() => {
+    nameInput.focus();
+    nameInput.select();
+  }, 100);
+}
+
+function closeEditCourtModal() {
+  const modal = document.getElementById('editCourtModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function confirmSaveEditedCourt() {
+  const origInput = document.getElementById('editCourtOriginalName');
+  const nameInput = document.getElementById('editCourtNameInput');
+  const errorDiv = document.getElementById('editCourtErrorMsg');
+  const saveBtn = document.getElementById('saveEditCourtBtn');
+  const saveBtnText = document.getElementById('saveEditCourtBtnText');
+
+  const oldName = (origInput?.value || '').trim();
+  const newName = (nameInput?.value || '').trim();
+
+  if (!newName) {
+    if (errorDiv) {
+      errorDiv.textContent = 'Please enter a valid court name.';
+      errorDiv.classList.remove('hidden');
+    }
+    return;
+  }
+
+  if (oldName.toLowerCase() === newName.toLowerCase()) {
+    closeEditCourtModal();
+    return;
+  }
+
+  const alreadyExists = courts.some(c => c.trim().toLowerCase() === newName.toLowerCase() && c.trim().toLowerCase() !== oldName.toLowerCase());
+  if (alreadyExists) {
+    if (errorDiv) {
+      errorDiv.textContent = `A court named "${newName}" already exists. Please choose a different name.`;
+      errorDiv.classList.remove('hidden');
+    }
+    return;
+  }
+
+  try {
+    if (saveBtn) saveBtn.disabled = true;
+    if (saveBtnText) saveBtnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+    if (errorDiv) errorDiv.classList.add('hidden');
+
+    const updatedCount = await cascadeUpdateCourtName(oldName, newName);
+    closeEditCourtModal();
+    alert(`✅ Court renamed to "${newName}".\nUpdated ${updatedCount || 0} associated case(s) across the database.`);
+  } catch (err) {
+    console.error('Error renaming court:', err);
+    if (errorDiv) {
+      errorDiv.textContent = `Error saving changes: ${err.message || err}`;
+      errorDiv.classList.remove('hidden');
+    }
+  } finally {
+    if (saveBtn) saveBtn.disabled = false;
+    if (saveBtnText) saveBtnText.textContent = 'Save Changes';
+  }
+}
+
+function openDeleteCourtModal(courtName, count = 0) {
+  const modal = document.getElementById('deleteCourtModal');
+  const targetInput = document.getElementById('deleteCourtTargetName');
+  const displaySpan = document.getElementById('deleteCourtDisplayName');
+  const casesNotice = document.getElementById('deleteCourtActiveCasesNotice');
+  const casesNoticeText = document.getElementById('deleteCourtCasesNoticeText');
+  const errorDiv = document.getElementById('deleteCourtErrorMsg');
+  const confirmBtn = document.getElementById('confirmDeleteCourtBtn');
+  const confirmBtnText = document.getElementById('confirmDeleteCourtBtnText');
+
+  if (!modal) {
+    if (confirm(`Delete court: "${courtName}"?${count > 0 ? `\n\n⚠️ Note: ${count} case(s) currently belong to this court and will be unlinked.` : ''}`)) {
+      deleteCourtFromSupabase(courtName);
+    }
+    return;
+  }
+
+  if (targetInput) targetInput.value = courtName;
+  if (displaySpan) displaySpan.textContent = `"${courtName}"`;
+
+  if (errorDiv) {
+    errorDiv.textContent = '';
+    errorDiv.classList.add('hidden');
+  }
+
+  if (casesNotice && casesNoticeText) {
+    if (count > 0) {
+      casesNoticeText.innerHTML = `<strong>⚠️ Warning:</strong> <strong>${count} active case(s)</strong> are currently assigned to this court and will have their court reference unlinked.`;
+      casesNotice.classList.remove('hidden');
+    } else {
+      casesNotice.classList.add('hidden');
+      casesNoticeText.textContent = '';
+    }
+  }
+
+  if (confirmBtn) confirmBtn.disabled = false;
+  if (confirmBtnText) confirmBtnText.textContent = 'Delete Court';
+
+  modal.classList.remove('hidden');
+}
+
+function closeDeleteCourtModal() {
+  const modal = document.getElementById('deleteCourtModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function executeDeleteCourtConfirm() {
+  const targetInput = document.getElementById('deleteCourtTargetName');
+  const errorDiv = document.getElementById('deleteCourtErrorMsg');
+  const confirmBtn = document.getElementById('confirmDeleteCourtBtn');
+  const confirmBtnText = document.getElementById('confirmDeleteCourtBtnText');
+
+  const courtName = (targetInput?.value || '').trim();
+  if (!courtName) {
+    closeDeleteCourtModal();
+    return;
+  }
+
+  if (confirmBtn) confirmBtn.disabled = true;
+  if (confirmBtnText) confirmBtnText.textContent = 'Deleting...';
+
+  try {
+    await deleteCourtFromSupabase(courtName);
+    closeDeleteCourtModal();
+    if (typeof showToastNotification === 'function') {
+      showToastNotification(`✅ Court "${courtName}" deleted successfully.`, 2500);
+    } else if (typeof M !== 'undefined' && M.toast) {
+      M.toast({ html: `✅ Court "${courtName}" deleted successfully.` });
+    }
+  } catch (err) {
+    console.error('Error deleting court:', err);
+    if (errorDiv) {
+      errorDiv.textContent = `Error deleting court: ${err.message || err}`;
+      errorDiv.classList.remove('hidden');
+    }
+    if (confirmBtn) confirmBtn.disabled = false;
+    if (confirmBtnText) confirmBtnText.textContent = 'Delete Court';
+  }
+}
+
+window.openEditCourtModal = openEditCourtModal;
+window.closeEditCourtModal = closeEditCourtModal;
+window.confirmSaveEditedCourt = confirmSaveEditedCourt;
+window.editCourtPrompt = openEditCourtModal;
+window.openDeleteCourtModal = openDeleteCourtModal;
+window.closeDeleteCourtModal = closeDeleteCourtModal;
+window.executeDeleteCourtConfirm = executeDeleteCourtConfirm;
+window.deleteCourtFromList = function(courtName) {
+  openDeleteCourtModal(courtName);
+};
+
+function filterCourtsTable(query) {
+  renderCourtsTable(query);
+}
+window.filterCourtsTable = filterCourtsTable;
+window.renderCourtsTable = renderCourtsTable;
+
+async function syncAllCourtsFromDatabase() {
+  const syncBtn = document.querySelector('.court-refresh-btn');
+  if (syncBtn) {
+    syncBtn.disabled = true;
+    syncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Syncing...</span>';
+  }
+  try {
+    const deletedSet = getDeletedCourtsSet();
+    if (supabaseClient) {
+      const { data: courtsData } = await supabaseClient.from('courts').select('*').order('court_name');
+      if (courtsData && courtsData.length > 0) {
+        const seen = new Set();
+        courts = [];
+        courtsData.forEach(c => {
+          const name = (c.court_name || '').trim();
+          if (name && !deletedSet.has(name.toLowerCase()) && !seen.has(name.toLowerCase())) {
+            seen.add(name.toLowerCase());
+            courts.push(name);
+          }
+        });
+      }
+    }
+    // Also include any courts referenced in cases if not deleted
+    (allCaseRecords || []).forEach(item => {
+      const cName = (item.courtName || item.criminalCourtName || '').trim();
+      if (cName && cName !== '—' && !deletedSet.has(cName.toLowerCase()) && !courts.some(c => c.trim().toLowerCase() === cName.toLowerCase())) {
+        courts.push(cName);
+      }
+    });
+    saveCourtsToBackup();
+    renderCourtOptions();
+    renderCriminalCourtOptions();
+    renderSearchCourtFilterOptions();
+    renderCourtsTable();
+  } catch (err) {
+    console.error('Error syncing courts:', err);
+  } finally {
+    if (syncBtn) {
+      syncBtn.disabled = false;
+      syncBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> <span>Sync All Courts</span>';
+    }
+  }
+}
+window.syncAllCourtsFromDatabase = syncAllCourtsFromDatabase;
 
 function renderCriminalCourtOptions() {
   const selects = [
@@ -9464,10 +10256,13 @@ function initializeApp() {
     });
   }
 
-  // Court mini buttons
+  // Court mini buttons with return-tab tracking
+  let returnToCaseFormTab = null;
+
   const addCourtBtn = document.getElementById('addCourtBtn');
   if (addCourtBtn) {
     addCourtBtn.addEventListener('click', () => {
+      returnToCaseFormTab = 'add';
       showTab('courts');
       setTimeout(() => {
         const courtInput = document.getElementById('courtInput');
@@ -9479,6 +10274,7 @@ function initializeApp() {
   const addCriminalCourtBtn = document.getElementById('addCriminalCourtBtn');
   if (addCriminalCourtBtn) {
     addCriminalCourtBtn.addEventListener('click', () => {
+      returnToCaseFormTab = 'add';
       showTab('courts');
       setTimeout(() => {
         const courtInput = document.getElementById('courtInput');
@@ -9490,6 +10286,7 @@ function initializeApp() {
   const updateAddCourtBtn = document.getElementById('updateAddCourtBtn');
   if (updateAddCourtBtn) {
     updateAddCourtBtn.addEventListener('click', () => {
+      returnToCaseFormTab = 'update';
       showTab('courts');
       setTimeout(() => {
         const courtInput = document.getElementById('courtInput');
@@ -9501,6 +10298,7 @@ function initializeApp() {
   const updateAddCriminalCourtBtn = document.getElementById('updateAddCriminalCourtBtn');
   if (updateAddCriminalCourtBtn) {
     updateAddCriminalCourtBtn.addEventListener('click', () => {
+      returnToCaseFormTab = 'update';
       showTab('courts');
       setTimeout(() => {
         const courtInput = document.getElementById('courtInput');
@@ -9509,10 +10307,25 @@ function initializeApp() {
     });
   }
 
-  ['addStateCourtBtn', 'addFamilyCourtBtn', 'addRevenueCourtBtn', 'addMiscCivilCourtBtn', 'addMiscCriminalCourtBtn', 'addComplaintCourtBtn', 'updateAddStateCourtBtn', 'updateAddFamilyCourtBtn', 'updateAddRevenueCourtBtn', 'updateAddMiscCivilCourtBtn', 'updateAddMiscCriminalCourtBtn', 'updateAddComplaintCourtBtn'].forEach(btnId => {
+  ['addStateCourtBtn', 'addFamilyCourtBtn', 'addRevenueCourtBtn', 'addMiscCivilCourtBtn', 'addMiscCriminalCourtBtn', 'addComplaintCourtBtn'].forEach(btnId => {
     const btn = document.getElementById(btnId);
     if (btn) {
       btn.addEventListener('click', () => {
+        returnToCaseFormTab = 'add';
+        showTab('courts');
+        setTimeout(() => {
+          const courtInput = document.getElementById('courtInput');
+          if (courtInput) courtInput.focus();
+        }, 120);
+      });
+    }
+  });
+
+  ['updateAddStateCourtBtn', 'updateAddFamilyCourtBtn', 'updateAddRevenueCourtBtn', 'updateAddMiscCivilCourtBtn', 'updateAddMiscCriminalCourtBtn', 'updateAddComplaintCourtBtn'].forEach(btnId => {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.addEventListener('click', () => {
+        returnToCaseFormTab = 'update';
         showTab('courts');
         setTimeout(() => {
           const courtInput = document.getElementById('courtInput');
@@ -9525,50 +10338,118 @@ function initializeApp() {
   // 6. Handle Add Court Button (Live Supabase sync)
   let isSubmittingCourt = false;
   const saveCourtBtn = document.getElementById('saveCourtBtn');
+  const courtInput = document.getElementById('courtInput');
+
+  async function handleAddCourtSubmit() {
+    if (isSubmittingCourt) return;
+    const input = document.getElementById('courtInput');
+    const courtName = (input?.value || '').trim();
+
+    if (!courtName) {
+      alert('Please enter a court name.');
+      input?.focus();
+      return;
+    }
+
+    const alreadyExists = courts.some(c => c.trim().toLowerCase() === courtName.toLowerCase());
+    if (alreadyExists) {
+      alert(`Court "${courtName}" already exists.`);
+      input?.focus();
+      return;
+    }
+
+    const saveBtn = document.getElementById('saveCourtBtn');
+    const originalContent = saveBtn ? saveBtn.innerHTML : 'Submit Court';
+    try {
+      isSubmittingCourt = true;
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Saving Court...</span>';
+      }
+
+      await addCourtToSupabase(courtName);
+      if (input) input.value = '';
+
+      const activeCaseType = document.getElementById('caseTypeDropdown')?.value;
+      const courtSelect = document.getElementById(activeCaseType === 'criminal' ? 'criminalCourtName' : 'courtName');
+      if (courtSelect) {
+        courtSelect.value = courtName;
+      }
+
+      if (returnToCaseFormTab) {
+        const dest = returnToCaseFormTab;
+        returnToCaseFormTab = null;
+        showTab(dest);
+        alert(`✅ Court "${courtName}" added and selected in your form!`);
+      } else {
+        alert(`✅ Court "${courtName}" added successfully to the directory!`);
+      }
+    } catch (err) {
+      console.error('Error saving court:', err);
+      alert(`Error saving court: ${err.message || err}`);
+    } finally {
+      isSubmittingCourt = false;
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalContent;
+      }
+    }
+  }
+
   if (saveCourtBtn) {
-    saveCourtBtn.addEventListener('click', async () => {
-      if (isSubmittingCourt) return;
-      const input = document.getElementById('courtInput');
-      const courtName = input?.value.trim();
+    saveCourtBtn.addEventListener('click', handleAddCourtSubmit);
+  }
 
-      if (!courtName) {
-        alert('Please enter a court name.');
-        return;
-      }
-
-      const alreadyExists = courts.some(c => c.trim().toLowerCase() === courtName.toLowerCase());
-      if (alreadyExists) {
-        alert(`Court "${courtName}" already exists.`);
-        return;
-      }
-
-      const originalText = saveCourtBtn.textContent;
-      try {
-        isSubmittingCourt = true;
-        saveCourtBtn.disabled = true;
-        saveCourtBtn.textContent = 'Saving Court...';
-
-        await addCourtToSupabase(courtName);
-        input.value = '';
-
-        const activeCaseType = document.getElementById('caseTypeDropdown')?.value;
-        const courtSelect = document.getElementById(activeCaseType === 'criminal' ? 'criminalCourtName' : 'courtName');
-        if (courtSelect) {
-          courtSelect.value = courtName;
-        }
-
-        showTab('add');
-        alert(`Court "${courtName}" added successfully!`);
-      } catch (err) {
-        console.error('Error saving court:', err);
-        alert(`Error saving court: ${err.message || err}`);
-      } finally {
-        isSubmittingCourt = false;
-        saveCourtBtn.disabled = false;
-        saveCourtBtn.textContent = originalText;
+  if (courtInput) {
+    courtInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddCourtSubmit();
       }
     });
   }
+
+  // Edit Court Modal keyboard and overlay backdrop listeners
+  const editCourtModal = document.getElementById('editCourtModal');
+  if (editCourtModal) {
+    editCourtModal.addEventListener('click', (e) => {
+      if (e.target === editCourtModal) {
+        closeEditCourtModal();
+      }
+    });
+  }
+
+  const editCourtNameInput = document.getElementById('editCourtNameInput');
+  if (editCourtNameInput) {
+    editCourtNameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        confirmSaveEditedCourt();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closeEditCourtModal();
+      }
+    });
+  }
+
+  // Delete Court Modal keyboard and overlay backdrop listeners
+  const deleteCourtModal = document.getElementById('deleteCourtModal');
+  if (deleteCourtModal) {
+    deleteCourtModal.addEventListener('click', (e) => {
+      if (e.target === deleteCourtModal) {
+        closeDeleteCourtModal();
+      }
+    });
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const delModal = document.getElementById('deleteCourtModal');
+      if (delModal && !delModal.classList.contains('hidden')) {
+        closeDeleteCourtModal();
+      }
+    }
+  });
 
   const caseTypeDropdownChange = document.getElementById('caseTypeDropdown');
   if (caseTypeDropdownChange) {
@@ -10090,6 +10971,7 @@ function initDbManagerTab() {
   }
   fetchAndRenderDbTable(currentDbTable);
   populateDbModifierCaseSelect();
+  toggleDbCaseModifierPanel(false);
 }
 
 function populateDbModifierCaseSelect() {
@@ -10231,6 +11113,12 @@ function onDbModifierCaseSelected(selectedId) {
 }
 
 async function executeDbCaseNumberYearUpdate() {
+  const card = document.getElementById('dbCaseModifierCard');
+  if (card && card.classList.contains('panel-disabled')) {
+    alert('Modification panel is disabled. Please toggle the switch above to enable editing.');
+    return;
+  }
+
   const typeSelect = document.getElementById('dbModCaseType');
   const hiddenId = document.getElementById('dbModSelectedCaseId');
   const caseSelect = document.getElementById('dbModCaseSelect');
@@ -10337,10 +11225,36 @@ async function executeDbCaseNumberYearUpdate() {
   }
 }
 
+function toggleDbCaseModifierPanel(enable = null) {
+  const card = document.getElementById('dbCaseModifierCard');
+  const checkbox = document.getElementById('dbModToggleCheckbox');
+  const label = document.getElementById('dbModToggleLabel');
+  if (!card) return;
+
+  const isEnabled = enable !== null ? !!enable : !card.classList.contains('panel-enabled');
+  if (checkbox) checkbox.checked = isEnabled;
+
+  if (isEnabled) {
+    card.classList.remove('panel-disabled');
+    card.classList.add('panel-enabled');
+    if (label) label.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
+  } else {
+    card.classList.add('panel-disabled');
+    card.classList.remove('panel-enabled');
+    if (label) label.innerHTML = '<i class="fa-solid fa-lock"></i> Disabled';
+  }
+
+  const controls = card.querySelectorAll('#dbModFormGrid input, #dbModFormGrid select, #dbModFormGrid button');
+  controls.forEach(el => {
+    el.disabled = !isEnabled;
+  });
+}
+
 window.populateDbModifierCaseSelect = populateDbModifierCaseSelect;
 window.onDbModifierCaseSearch = onDbModifierCaseSearch;
 window.onDbModifierCaseSelected = onDbModifierCaseSelected;
 window.executeDbCaseNumberYearUpdate = executeDbCaseNumberYearUpdate;
+window.toggleDbCaseModifierPanel = toggleDbCaseModifierPanel;
 
 async function fetchAndRenderDbTable(tableName = currentDbTable) {
   currentDbTable = tableName;
