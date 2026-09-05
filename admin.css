@@ -2527,7 +2527,7 @@ html.auth-guest #guestScreen {
 .court-input-action-row .search-field-box input {
   width: 100% !important;
   height: 48px !important;
-  padding: 10px 16px 10px 48px !important;
+  padding: 10px 14px 10px 44px !important;
   background-color: #ffffff !important;
   border: 1.5px solid #cbd5e1 !important;
   border-radius: 10px !important;
@@ -17906,7 +17906,7 @@ table.all-cases-fixed-table tbody tr:last-child td:last-child,
     border-radius: 14px !important;
   }
 
-  input[type="text"],
+  input[type="text"]:not(#courtSearchInput):not(#courtInput):not(#todoSearchInput):not(#globalSearch):not(#allCasesSearchInput):not(#updateSearchInput):not(#deleteSearchInput):not(#hearingSearchInput):not(#helperSearchInput):not(#editCourtInput):not(.todo-search-input):not(.todo-combobox-input):not(.with-icon),
   input[type="password"],
   input[type="number"],
   input[type="date"],
@@ -17915,6 +17915,31 @@ table.all-cases-fixed-table tbody tr:last-child td:last-child,
   select,
   textarea {
     padding: 10px 12px !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Explicitly guarantee 44px left padding on search/icon inputs on small mobile */
+  input[type="text"]#courtSearchInput,
+  input[type="text"]#courtInput,
+  input[type="text"]#todoSearchInput,
+  input[type="text"]#globalSearch,
+  input[type="text"]#allCasesSearchInput,
+  input[type="text"]#updateSearchInput,
+  input[type="text"]#deleteSearchInput,
+  input[type="text"]#hearingSearchInput,
+  input[type="text"]#helperSearchInput,
+  input[type="text"]#editCourtInput,
+  .search-field-box input[type="text"],
+  .court-search-box input[type="text"],
+  .todo-search-box input[type="text"],
+  .filter-search-box input[type="text"],
+  .all-cases-search-box input[type="text"],
+  .helper-search-box input[type="text"],
+  .todo-combobox-input-wrap input[type="text"],
+  .todo-input-icon-wrap input[type="text"],
+  .todo-custom-input.with-icon {
+    padding: 10px 14px 10px 44px !important;
     font-size: 14px !important;
     border-radius: 8px !important;
   }
@@ -18094,3 +18119,404 @@ table.all-cases-fixed-table tbody tr:last-child td:last-child,
   gap: 10px !important;
 }
 
+/* --- Component 7: DB Case Modifier Card Fixes & Collapsible Support --- */
+.db-case-modifier-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.db-modifier-header {
+  cursor: pointer;
+}
+
+.db-modifier-collapse-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.db-modifier-collapse-btn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.db-modifier-collapse-btn:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+.db-modifier-collapse-btn .collapse-chevron {
+  transition: transform 0.28s ease !important;
+}
+
+.db-case-modifier-card.is-collapsed .db-modifier-collapse-btn .collapse-chevron {
+  transform: rotate(-90deg) !important;
+}
+
+.db-case-modifier-card.is-collapsed {
+  padding-bottom: 14px !important;
+}
+
+.db-case-modifier-card.is-collapsed .db-modifier-header {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+}
+
+.db-case-modifier-card.is-collapsed #dbModFormGrid {
+  display: none !important;
+}
+
+/* Fix Year Input and Form Grid Overflow */
+.db-modifier-form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.modifier-form-group {
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.modifier-form-group input.db-search-input,
+.modifier-form-group select.db-select {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* --- Component 8: Cases Register Table Height & 5-Row Vertical Scroll --- */
+.search-results-panel .table-responsive {
+  max-height: 330px !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  position: relative !important;
+}
+
+.search-results-panel .table-responsive thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+  background-color: #f8fafc !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* --- Component 9: Section-Level Collapsible Controls within Case Dossier --- */
+.dossier-card-head {
+  justify-content: space-between !important;
+}
+
+.dossier-card-head > div:first-child {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.dossier-section-collapse-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  color: #64748b !important;
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.dossier-section-collapse-btn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.dossier-section-collapse-btn .collapse-chevron {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  font-size: 11px !important;
+}
+
+.dossier-card.is-collapsed .dossier-section-collapse-btn .collapse-chevron,
+.dossier-remarks-box.is-collapsed .dossier-section-collapse-btn .collapse-chevron,
+.dossier-history-card.is-collapsed .dossier-section-collapse-btn .collapse-chevron {
+  transform: rotate(-90deg) !important;
+}
+
+.dossier-card.is-collapsed .dossier-card-body {
+  display: none !important;
+}
+
+.dossier-card.is-collapsed .dossier-card-head {
+  border-bottom: none !important;
+}
+
+.dossier-remarks-box.is-collapsed .remarks-box-content {
+  display: none !important;
+}
+
+.dossier-remarks-box.is-collapsed {
+  padding-bottom: 12px !important;
+}
+
+.dossier-history-card.is-collapsed .dossier-history-table-wrap {
+  display: none !important;
+}
+
+.dossier-history-card.is-collapsed .dossier-history-header {
+  border-bottom: none !important;
+}
+
+
+
+
+/* ==============================================================================
+   Mobile Responsiveness & Prefix Icon Alignment Master Rules
+   ============================================================================== */
+
+/* 1. Perfect Centering for All Search Prefix Icons */
+.search-field-box .search-field-prefix-icon,
+.court-search-box .search-field-prefix-icon,
+.court-input-action-row .search-field-prefix-icon,
+.todo-search-box .todo-search-icon,
+.filter-search-box .filter-search-icon,
+.all-cases-search-box .filter-search-icon,
+.helper-search-box .search-field-prefix-icon,
+.todo-combobox-input-wrap .todo-combobox-search-icon,
+.todo-input-icon-wrap .todo-input-inner-icon {
+  position: absolute !important;
+  left: 14px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 15px !important;
+  color: #64748b !important;
+  pointer-events: none !important;
+  z-index: 5 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  line-height: 1 !important;
+}
+
+/* 2. Absolute Highest Specificity 44px Left Padding for All Search Inputs */
+input[type="text"]#courtSearchInput,
+input[type="text"]#courtInput,
+input[type="text"]#todoSearchInput,
+input[type="text"]#globalSearch,
+input[type="text"]#allCasesSearchInput,
+input[type="text"]#updateSearchInput,
+input[type="text"]#deleteSearchInput,
+input[type="text"]#hearingSearchInput,
+input[type="text"]#helperSearchInput,
+input[type="text"]#editCourtInput,
+.search-field-box input[type="text"],
+.court-search-box input[type="text"],
+.todo-search-box input[type="text"],
+.filter-search-box input[type="text"],
+.all-cases-search-box input[type="text"],
+.helper-search-box input[type="text"],
+.todo-combobox-input-wrap input[type="text"],
+.todo-input-icon-wrap input[type="text"],
+.todo-custom-input.with-icon {
+  padding-left: 44px !important;
+  padding-right: 14px !important;
+  box-sizing: border-box !important;
+}
+
+/* 3. Mobile Spacing & Bottom Nav Clearance */
+@media (max-width: 767.98px) {
+  .main-content,
+  .page-shell,
+  .tab {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Ensure compact toolbar margins on mobile */
+  .court-table-toolbar,
+  .helper-table-toolbar {
+    margin-bottom: 8px !important;
+    margin-top: 0 !important;
+    gap: 6px !important;
+  }
+
+  .court-refresh-btn,
+  .helper-submit-btn,
+  .helper-export-btn {
+    min-height: 44px !important;
+  }
+
+  /* Single-column grid on small mobile for DB modifier card */
+  .db-modifier-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Database Manager controls layout on mobile */
+  .db-toolbar-actions-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .db-buttons-group {
+    display: flex !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .db-buttons-group button {
+    flex: 1 !important;
+    justify-content: center !important;
+    height: 42px !important;
+  }
+}
+
+
+/* ==============================================================================
+   Complete Spacing Removal & Compact Layout for Manage Courts & Helper Directory
+   ============================================================================== */
+
+/* 1. Container & Section Header Spacing */
+#courts .form-container,
+#helpers .form-container {
+  padding: 16px 18px !important;
+}
+
+#courts .section-header-row,
+#helpers .section-header-row {
+  margin-bottom: 10px !important;
+  padding-bottom: 8px !important;
+}
+
+/* 2. Add Cards: Tight Padding and Minimal Bottom Margin */
+#courts .court-add-card,
+#helpers .helper-add-card {
+  padding: 12px 16px !important;
+  margin-bottom: 8px !important;
+  margin-top: 0 !important;
+  gap: 8px !important;
+}
+
+#courts .court-input-action-row,
+#helpers .helper-form-grid,
+#helpers .helper-form-row {
+  gap: 8px 10px !important;
+  margin: 0 !important;
+}
+
+#helpers .helper-input-group {
+  gap: 3px !important;
+  margin: 0 !important;
+}
+
+#helpers .helper-input-group label {
+  margin-bottom: 2px !important;
+}
+
+#helpers .helper-form-actions {
+  margin-top: 4px !important;
+  margin-bottom: 0 !important;
+}
+
+#courts .court-submit-btn,
+#helpers .helper-submit-btn {
+  height: 42px !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+}
+
+/* 3. Search & Filter Toolbars: Zero Top Margin, Compact Gap, Tight Bottom Margin */
+#courts .court-table-toolbar,
+#helpers .court-table-toolbar,
+#helpers .helper-table-toolbar {
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
+  gap: 8px !important;
+  padding: 0 !important;
+}
+
+#courts .court-search-box,
+#helpers .helper-search-box,
+#courts .search-field-box,
+#helpers .search-field-box {
+  margin: 0 !important;
+}
+
+#courts .court-table-toolbar input,
+#helpers .helper-table-toolbar input {
+  height: 42px !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+}
+
+#helpers .helper-toolbar-right {
+  gap: 6px !important;
+  margin: 0 !important;
+}
+
+#helpers .helper-filter-court-box {
+  margin: 0 !important;
+}
+
+#helpers .helper-filter-court-box select {
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 6px 12px !important;
+  margin: 0 !important;
+}
+
+#courts .court-refresh-btn,
+#helpers .helper-export-btn {
+  height: 42px !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+}
+
+/* 4. Mobile Refinements (<= 768px and <= 480px) */
+@media (max-width: 768px) {
+  #courts .form-container,
+  #helpers .form-container {
+    padding: 12px 10px !important;
+  }
+
+  #courts .court-add-card,
+  #helpers .helper-add-card {
+    padding: 10px 12px !important;
+    margin-bottom: 6px !important;
+    gap: 6px !important;
+  }
+
+  #courts .court-table-toolbar,
+  #helpers .court-table-toolbar,
+  #helpers .helper-table-toolbar {
+    margin-top: 0 !important;
+    margin-bottom: 6px !important;
+    gap: 6px !important;
+  }
+
+  #helpers .helper-toolbar-right {
+    gap: 6px !important;
+    margin-top: 0 !important;
+  }
+
+  #helpers .helper-form-row {
+    gap: 6px !important;
+  }
+}

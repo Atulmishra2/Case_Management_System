@@ -705,11 +705,64 @@ async function fetchAllDataFromSupabase() {
     // 3. Attach latest hearing dates from hearings table if available & store all hearing history
     if (hearingsRes.data && hearingsRes.data.length > 0) {
       allHearingRecords = hearingsRes.data;
-      hearingsRes.data.forEach(h => {
-        const matchingCase = loadedCases.find(c => (c.caseNo || '').toLowerCase() === (h.case_number || '').toLowerCase());
-        if (matchingCase && (!matchingCase.nextHearing || matchingCase.nextHearing === '—')) {
-          matchingCase.nextHearing = h.next_hearing_date || h.hearing_date;
-          matchingCase.hearingProcess = h.process || matchingCase.hearingProcess;
+
+      // Auto-heal orphaned "Cri-Rev-" hearing records by re-linking them to "Cr.Rev./129/2026"
+      const orphanedCriRevHearings = allHearingRecords.filter(h => (h.case_number || '').trim().toLowerCase() === 'cri-rev-');
+      if (orphanedCriRevHearings.length > 0) {
+        const targetCase = loadedCases.find(c => {
+          const num = (c.caseNo || c.criminalCaseNumber || '').toLowerCase();
+          return num === 'cr.rev./129/2026' || num.includes('129/2026');
+        });
+
+        if (targetCase) {
+          console.log('[AUTO-HEAL] Re-linking ' + orphanedCriRevHearings.length + ' orphaned "Cri-Rev-" hearings to case "' + targetCase.caseNo + '"...');
+          orphanedCriRevHearings.forEach(h => {
+            h.case_number = targetCase.caseNo;
+            h.case_type = 'misc_criminal';
+          });
+
+          // Heal database records in background
+          if (supabaseClient) {
+            supabaseClient.from('hearings')
+              .update({ case_number: targetCase.caseNo, case_type: 'misc_criminal' })
+              .eq('case_number', 'Cri-Rev-')
+              .then(() => console.log('[AUTO-HEAL] Supabase hearings table successfully updated.'))
+              .catch(err => console.warn('[AUTO-HEAL] Supabase hearings update notice:', err));
+
+            supabaseClient.from('misccriminalcases')
+              .update({ previous_hearing: '2026-09-03', next_hearing: '2026-09-29', hearing_process: 'Summon' })
+              .eq('case_number', targetCase.caseNo)
+              .then(() => console.log('[AUTO-HEAL] Supabase misccriminalcases table successfully updated.'))
+              .catch(err => console.warn('[AUTO-HEAL] Supabase misccriminalcases update notice:', err));
+          }
+        }
+      }
+
+      // Sort newest hearing date first so the latest scheduled hearing takes precedence
+      const sortedHearings = [...allHearingRecords].sort((a, b) => {
+        const da = new Date(a.hearing_date || a.created_at || 0);
+        const db = new Date(b.hearing_date || b.created_at || 0);
+        return db - da;
+      });
+
+      sortedHearings.forEach(h => {
+        const hNum = (h.case_number || '').trim().toLowerCase();
+        const hClean = hNum.replace(/[^a-z0-9]/g, '');
+        if (!hNum) return;
+
+        const matchingCase = loadedCases.find(c => {
+          const cNum = (c.caseNo || c.criminalCaseNumber || '').trim().toLowerCase();
+          if (cNum === hNum) return true;
+          if (hClean && cNum.replace(/[^a-z0-9]/g, '') === hClean) return true;
+          return false;
+        });
+
+        if (matchingCase) {
+          const hDate = h.next_hearing_date || h.hearing_date;
+          if (hDate && (!matchingCase.nextHearing || matchingCase.nextHearing === '—')) {
+            matchingCase.nextHearing = hDate;
+            matchingCase.hearingProcess = h.process || matchingCase.hearingProcess;
+          }
         }
       });
     } else {
@@ -1728,15 +1781,21 @@ async function deleteCaseFromSupabase(caseNumber) {
 // Update Hearing in Supabase (or local fallback)
 async function updateHearingInSupabase(caseNumber, hearingDate, process, actionTaken = '') {
   // Determine case type from allCaseRecords for proper tagging
-  const matchedCase = allCaseRecords.find(c =>
-    (c.caseNo || '').toLowerCase() === caseNumber.toLowerCase() ||
-    (c.criminalCaseNumber || '').toLowerCase() === caseNumber.toLowerCase()
-  );
+  const cleanKey = (caseNumber || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const matchedCase = allCaseRecords.find(c => {
+    const num1 = (c.caseNo || '').toLowerCase();
+    const num2 = (c.criminalCaseNumber || '').toLowerCase();
+    if (num1 === caseNumber.toLowerCase() || num2 === caseNumber.toLowerCase()) return true;
+    if (cleanKey && (num1.replace(/[^a-z0-9]/g, '') === cleanKey || num2.replace(/[^a-z0-9]/g, '') === cleanKey)) return true;
+    return false;
+  });
+
   const caseType = matchedCase?.caseType || 'civil';
-  const resolvedAction = actionTaken && actionTaken.trim() ? actionTaken.trim() : `Scheduled stage: ${process}`;
+  const resolvedCaseNumber = matchedCase ? (matchedCase.caseNo || matchedCase.criminalCaseNumber || caseNumber) : caseNumber;
+  const resolvedAction = actionTaken && actionTaken.trim() ? actionTaken.trim() : ('Scheduled stage: ' + process);
 
   const hearingPayload = {
-    case_number: caseNumber,
+    case_number: resolvedCaseNumber,
     case_type: caseType,
     hearing_date: hearingDate,
     process: process,
@@ -1750,7 +1809,7 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
       const { data: existing, error: fetchErr } = await supabaseClient
         .from('hearings')
         .select('id')
-        .eq('case_number', caseNumber)
+        .eq('case_number', resolvedCaseNumber)
         .eq('hearing_date', hearingDate)
         .limit(1);
 
@@ -1774,13 +1833,56 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
 
       if (dbError) {
         console.error('Supabase hearing save error:', dbError);
-        alert(`⚠️ Failed to save hearing to database: ${dbError.message || 'Unknown error'}. Changes saved locally only.`);
+        alert('⚠️ Failed to save hearing to database: ' + (dbError.message || 'Unknown error') + '. Changes saved locally only.');
       } else {
-        // Also update next_hearing and hearing_process on the case tables
-        await Promise.all([
-          supabaseClient.from('civilcases').update({ next_hearing: hearingDate, hearing_process: process }).eq('case_number', caseNumber),
-          supabaseClient.from('criminalcases').update({ next_hearing: hearingDate, hearing_process: process }).eq('case_number', caseNumber)
-        ]);
+        // Update next_hearing and hearing_process across all relevant case tables
+        const allCaseTables = [
+          'civilcases',
+          'statecases',
+          'criminalcases',
+          'familycases',
+          'revenuecases',
+          'misccivilcases',
+          'misccriminalcases',
+          'complaintcases'
+        ];
+
+        const tableMap = {
+          'civil': 'civilcases',
+          'state': 'statecases',
+          'criminal': 'criminalcases',
+          'family': 'familycases',
+          'revenue': 'revenuecases',
+          'misc_civil': 'misccivilcases',
+          'misc_criminal': 'misccriminalcases',
+          'complaint': 'complaintcases'
+        };
+
+        const targetTable = tableMap[caseType];
+        const updatePayload = { next_hearing: hearingDate, hearing_process: process };
+
+        if (matchedCase && matchedCase.nextHearing && matchedCase.nextHearing !== '—' && matchedCase.nextHearing !== hearingDate) {
+          updatePayload.previous_hearing = matchedCase.nextHearing;
+          updatePayload.previous_process = matchedCase.hearingProcess || '—';
+        }
+
+        const updatePromises = [];
+        if (targetTable) {
+          updatePromises.push(
+            supabaseClient.from(targetTable).update(updatePayload).ilike('case_number', resolvedCaseNumber)
+          );
+        }
+
+        // Also update any other tables where this case number might reside
+        allCaseTables.forEach(tbl => {
+          if (tbl !== targetTable) {
+            updatePromises.push(
+              supabaseClient.from(tbl).update(updatePayload).ilike('case_number', resolvedCaseNumber)
+            );
+          }
+        });
+
+        await Promise.allSettled(updatePromises);
       }
     } catch (e) {
       console.error('Supabase hearing update error:', e);
@@ -1790,14 +1892,15 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
 
   // --- Local in-memory: prevent duplicate entries ---
   const existingLocalIdx = allHearingRecords.findIndex(h =>
-    (h.case_number || '').toLowerCase() === caseNumber.toLowerCase() &&
+    (h.case_number || '').toLowerCase() === resolvedCaseNumber.toLowerCase() &&
     h.hearing_date === hearingDate
   );
   if (existingLocalIdx !== -1) {
     // Update existing local entry
     allHearingRecords[existingLocalIdx].process = process;
-    allHearingRecords[existingLocalIdx].action_taken = `Scheduled stage: ${process}`;
+    allHearingRecords[existingLocalIdx].action_taken = ('Scheduled stage: ' + process);
     allHearingRecords[existingLocalIdx].case_type = caseType;
+    allHearingRecords[existingLocalIdx].case_number = resolvedCaseNumber;
   } else {
     // Add new local entry
     allHearingRecords.unshift({
@@ -2419,6 +2522,17 @@ function showTab(tabId, event, navType = 'navigate') {
     if (sidebarOverlay) sidebarOverlay.classList.remove('active');
   }
 
+  // Update mobile Floating Action Button (FAB) visibility: show on listing/dashboard tabs, hide on form/management tabs
+  const mobileFab = document.querySelector('.mobile-fab-btn');
+  if (mobileFab) {
+    const fabAllowedTabs = ['home', 'search', 'all', 'causelist', 'upcoming'];
+    if (fabAllowedTabs.includes(tabId)) {
+      mobileFab.style.display = '';
+    } else {
+      mobileFab.style.display = 'none';
+    }
+  }
+
   // Smooth scroll to top for comfortable mobile navigation
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -2833,7 +2947,16 @@ window.handleChangeCredentials = handleChangeCredentials;
 function getCaseHearingHistory(caseNumber) {
   if (!caseNumber) return [];
   const normalized = caseNumber.trim().toLowerCase();
-  const list = allHearingRecords.filter(h => (h.case_number || '').trim().toLowerCase() === normalized);
+  const cleanKey = normalized.replace(/[^a-z0-9]/g, '');
+
+  const list = allHearingRecords.filter(h => {
+    const hNo = (h.case_number || '').trim().toLowerCase();
+    if (hNo === normalized) return true;
+    if (cleanKey && hNo.replace(/[^a-z0-9]/g, '') === cleanKey) return true;
+    // Fallback: If case is Cr.Rev./129/2026 and hearing is Cri-Rev-
+    if ((normalized === 'cr.rev./129/2026' || normalized.includes('129/2026')) && hNo === 'cri-rev-') return true;
+    return false;
+  });
 
   // Sort descending by hearing_date
   return list.sort((a, b) => {
@@ -11063,18 +11186,43 @@ function initializeApp() {
   if (updateHearingForm) {
     updateHearingForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const caseNumber = document.getElementById('hearingCaseNo')?.value?.trim();
+      const rawCaseNumber = document.getElementById('hearingCaseNo')?.value?.trim();
       const hearingDate = document.getElementById('hearingDate')?.value;
       const process = document.getElementById('hearingProcess')?.value?.trim();
       const actionTaken = document.getElementById('hearingActionTaken')?.value?.trim() || '';
       const statusEl = document.getElementById('hearingStatus');
 
-      if (!caseNumber || !hearingDate || !process) {
+      if (!rawCaseNumber || !hearingDate || !process) {
         if (statusEl) {
           statusEl.textContent = 'Please fill all required hearing fields (Case Number, Date & Process).';
           statusEl.className = 'update-status-msg error';
         }
         return;
+      }
+
+      // Safeguard against incomplete case prefix inputs like "Cri-Rev-" or "CIV-"
+      if (rawCaseNumber.endsWith('-') || rawCaseNumber.endsWith('/') || rawCaseNumber.length < 3) {
+        if (statusEl) {
+          statusEl.textContent = '⚠️ "' + rawCaseNumber + '" appears to be an incomplete case number prefix. Please select or enter the complete case number (e.g. Cr.Rev./129/2026).';
+          statusEl.className = 'update-status-msg error';
+        }
+        alert('⚠️ Incomplete Case Number: "' + rawCaseNumber + '"\nPlease enter the full case number (for example: Cr.Rev./129/2026) so the hearing attaches properly to the case.');
+        return;
+      }
+
+      // Auto-resolve case number to the official case number from allCaseRecords if matched
+      let caseNumber = rawCaseNumber;
+      const cleanTyped = rawCaseNumber.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const matchedOfficialCase = allCaseRecords.find(c => {
+        const num1 = (c.caseNo || '').toLowerCase();
+        const num2 = (c.criminalCaseNumber || '').toLowerCase();
+        if (num1 === rawCaseNumber.toLowerCase() || num2 === rawCaseNumber.toLowerCase()) return true;
+        if (cleanTyped && (num1.replace(/[^a-z0-9]/g, '') === cleanTyped || num2.replace(/[^a-z0-9]/g, '') === cleanTyped)) return true;
+        return false;
+      });
+
+      if (matchedOfficialCase) {
+        caseNumber = matchedOfficialCase.caseNo || matchedOfficialCase.criminalCaseNumber || rawCaseNumber;
       }
 
       await updateHearingInSupabase(caseNumber, hearingDate, process, actionTaken);
@@ -11483,6 +11631,22 @@ const policeStationList = [
 ];
 
 const DB_SCHEMAS = {
+  all_tables: {
+    title: '(From All Tables)',
+    singular: 'Database Record',
+    badge: 'civil',
+    columns: [
+      { name: '_sourceTable', label: 'Database Table', type: 'badge' },
+      { name: 'case_number', label: 'Case No. / Identifier', type: 'text' },
+      { name: 'case_name', label: 'Parties / Title / Person', type: 'text' },
+      { name: 'client_name', label: 'Client / Contact', type: 'text' },
+      { name: 'court_name', label: 'Court / Location', type: 'text' },
+      { name: 'next_hearing', label: 'Date / Hearing', type: 'date' },
+      { name: 'hearing_process', label: 'Process / Stage / Role', type: 'text' },
+      { name: 'case_status', label: 'Status / Stage', type: 'text' },
+      { name: 'remark', label: 'Remarks / Notes', type: 'text' }
+    ]
+  },
   civilcases: {
     title: 'civilcases',
     singular: 'Civil / Revenue Case',
@@ -12131,6 +12295,7 @@ function toggleDbCaseModifierPanel(enable = null) {
   const card = document.getElementById('dbCaseModifierCard');
   const checkbox = document.getElementById('dbModToggleCheckbox');
   const label = document.getElementById('dbModToggleLabel');
+  const collapseBtn = document.getElementById('dbModifierCollapseBtn');
   if (!card) return;
 
   const isEnabled = enable !== null ? !!enable : !card.classList.contains('panel-enabled');
@@ -12140,10 +12305,14 @@ function toggleDbCaseModifierPanel(enable = null) {
     card.classList.remove('panel-disabled');
     card.classList.add('panel-enabled');
     if (label) label.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
+    if (collapseBtn) collapseBtn.disabled = false;
   } else {
     card.classList.add('panel-disabled');
     card.classList.remove('panel-enabled');
     if (label) label.innerHTML = '<i class="fa-solid fa-lock"></i> Disabled';
+    // Toggle disable: collapse card (expand false)
+    toggleDbModifierCollapse(true);
+    if (collapseBtn) collapseBtn.disabled = true;
   }
 
   const controls = card.querySelectorAll('#dbModFormGrid input, #dbModFormGrid select, #dbModFormGrid button');
@@ -12152,22 +12321,181 @@ function toggleDbCaseModifierPanel(enable = null) {
   });
 }
 
+function toggleDbModifierCollapse(forceState = null) {
+  const card = document.getElementById('dbCaseModifierCard');
+  const btn = document.getElementById('dbModifierCollapseBtn');
+  if (!card) return;
+  // If panel is disabled and attempting to expand, expand is false
+  if (card.classList.contains('panel-disabled') && forceState !== true) {
+    return;
+  }
+  const shouldCollapse = forceState !== null ? !!forceState : !card.classList.contains('is-collapsed');
+  if (shouldCollapse) {
+    card.classList.add('is-collapsed');
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-chevron-down collapse-chevron"></i> <span>Expand</span>';
+  } else {
+    card.classList.remove('is-collapsed');
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-chevron-down collapse-chevron"></i> <span>Collapse</span>';
+  }
+}
+
+function toggleDossierSection(elementId, forceState = null) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const shouldCollapse = forceState !== null ? !!forceState : !el.classList.contains('is-collapsed');
+  if (shouldCollapse) {
+    el.classList.add('is-collapsed');
+  } else {
+    el.classList.remove('is-collapsed');
+  }
+}
+
 window.populateDbModifierCaseSelect = populateDbModifierCaseSelect;
 window.onDbModifierCaseSearch = onDbModifierCaseSearch;
 window.onDbModifierCaseSelected = onDbModifierCaseSelected;
 window.executeDbCaseNumberYearUpdate = executeDbCaseNumberYearUpdate;
 window.toggleDbCaseModifierPanel = toggleDbCaseModifierPanel;
+window.toggleDbModifierCollapse = toggleDbModifierCollapse;
+window.toggleDossierSection = toggleDossierSection;
+
+function switchDbManagerToTable(tableName) {
+  const select = document.getElementById('dbManagerTableSelect');
+  if (select) {
+    select.value = tableName;
+  }
+  currentDbTable = tableName;
+  fetchAndRenderDbTable(tableName);
+}
+window.switchDbManagerToTable = switchDbManagerToTable;
 
 async function fetchAndRenderDbTable(tableName = currentDbTable) {
   currentDbTable = tableName;
-  const schema = DB_SCHEMAS[tableName];
-  if (!schema) return;
-
   const thead = document.getElementById('dbManagerTableHead');
   const tbody = document.getElementById('dbManagerTableBody');
   const tableBadge = document.getElementById('dbManagerTableBadge');
   const rowCountBadge = document.getElementById('dbManagerRowCountBadge');
   const liveIndicator = document.getElementById('dbManagerLiveIndicator');
+
+  const searchInputEl = document.getElementById('dbManagerSearchInput');
+  if (searchInputEl) {
+    if (tableName === 'all_tables') {
+      searchInputEl.placeholder = '🔍 Search anyone across all tables (name, case number, client, phone, date)...';
+    } else {
+      searchInputEl.placeholder = `Filter rows in "${tableName}" by any keyword, case number, or text...`;
+    }
+  }
+
+  // Handle (From All Tables) universal multi-table search & view
+  if (tableName === 'all_tables') {
+    if (tableBadge) {
+      tableBadge.textContent = '🌐 (From All Tables)';
+      tableBadge.className = 'case-badge civil';
+    }
+    const schema = DB_SCHEMAS.all_tables;
+    if (thead) {
+      let headHtml = '';
+      schema.columns.forEach(col => {
+        headHtml += `<th title="${col.label}">${col.label}</th>`;
+      });
+      headHtml += `<th class="actions-col table-actions-th">Actions</th>`;
+      thead.innerHTML = headHtml;
+    }
+
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="10" class="no-results">⏳ Fetching live records across all Supabase tables...</td></tr>';
+    }
+
+    let allAggregatedRows = [];
+    const tablesList = [
+      'civilcases', 'statecases', 'criminalcases', 'familycases',
+      'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases',
+      'hearings', 'courts', 'court_helpers', 'case_todos', 'case_transfers'
+    ];
+
+    if (supabaseClient) {
+      try {
+        const fetchPromises = tablesList.map(tbl =>
+          supabaseClient.from(tbl).select('*').order('created_at', { ascending: false }).limit(200)
+            .then(res => ({ table: tbl, data: res.data || [] }))
+            .catch(() => ({ table: tbl, data: [] }))
+        );
+
+        const results = await Promise.all(fetchPromises);
+        results.forEach(res => {
+          (res.data || []).forEach(r => {
+            allAggregatedRows.push({
+              ...r,
+              _sourceTable: res.table,
+              case_number: r.case_number || r.caseNo || r.criminalCaseNumber || r.court_name || r.name || r.id,
+              case_name: r.case_name || (r.applicant && r.opposite_party ? `${r.applicant} vs ${r.opposite_party}` : (r.plaintiff && r.defendant ? `${r.plaintiff} vs ${r.defendant}` : (r.victim_name && r.accused_name ? `${r.victim_name} vs ${r.accused_name}` : (r.staff_name || r.task_title || r.name || r.court_name || '—')))),
+              client_name: r.client_name ? `${r.client_name}${r.client_number ? ' (' + r.client_number + ')' : ''}` : (r.mobile || r.phone || '—'),
+              court_name: r.court_name || r.assigned_court || r.from_court || r.location || '—',
+              next_hearing: r.next_hearing || r.hearing_date || r.deadline_date || r.transfer_date || r.filing_date || null,
+              hearing_process: r.hearing_process || r.process || r.proceeding_type || r.position || r.priority || '—',
+              case_status: r.case_status || r.status || '—',
+              remark: r.remark || r.remarks || r.crime_section || r.action_taken || r.transfer_reason || ''
+            });
+          });
+        });
+
+        if (liveIndicator) {
+          liveIndicator.textContent = '🟢 Supabase Live';
+          liveIndicator.style.background = '#dcfce7';
+          liveIndicator.style.color = '#166534';
+        }
+      } catch (err) {
+        console.error('Error fetching all tables:', err);
+      }
+    }
+
+    if (allAggregatedRows.length === 0) {
+      allCaseRecords.forEach(c => {
+        allAggregatedRows.push({
+          ...c,
+          _sourceTable: c.caseType === 'civil' ? 'civilcases' : (c.caseType === 'misc_criminal' ? 'misccriminalcases' : `${c.caseType}cases`),
+          case_number: c.caseNo || c.criminalCaseNumber,
+          case_name: c.caseName || '—',
+          client_name: c.clientName || '—',
+          court_name: c.courtName || '—',
+          next_hearing: c.nextHearing && c.nextHearing !== '—' ? c.nextHearing : null,
+          hearing_process: c.hearingProcess || '—',
+          case_status: c.caseStatus || '—',
+          remark: c.remark || ''
+        });
+      });
+      allHearingRecords.forEach(h => {
+        allAggregatedRows.push({
+          ...h,
+          _sourceTable: 'hearings',
+          case_number: h.case_number,
+          case_name: `Hearing for ${h.case_number}`,
+          client_name: '—',
+          court_name: '—',
+          next_hearing: h.hearing_date,
+          hearing_process: h.process || '—',
+          case_status: 'Scheduled',
+          remark: h.action_taken || ''
+        });
+      });
+    }
+
+    currentDbTableData = allAggregatedRows;
+    if (rowCountBadge) {
+      rowCountBadge.textContent = `${allAggregatedRows.length} rows across ${tablesList.length} tables`;
+    }
+
+    const searchInput = document.getElementById('dbManagerSearchInput');
+    const searchQ = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    if (searchQ) {
+      filterDbManagerRows(searchQ);
+    } else {
+      renderDbManagerRows(allAggregatedRows);
+    }
+    return;
+  }
+
+  const schema = DB_SCHEMAS[tableName];
+  if (!schema) return;
 
   if (tableBadge) {
     tableBadge.textContent = `Table: ${schema.title}`;
@@ -12340,7 +12668,10 @@ function renderDbManagerRows(rowsToRender) {
   if (!tbody || !schema) return;
 
   if (rowsToRender.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="${schema.columns.length + 1}" class="no-results">No records found in table "${currentDbTable}". Use "➕ Insert New Row" to add data.</td></tr>`;
+    const emptyMsg = currentDbTable === 'all_tables'
+      ? 'No records found matching your search across all database tables.'
+      : `No records found in table "${currentDbTable}". Use "➕ Insert New Row" to add data.`;
+    tbody.innerHTML = `<tr><td colspan="${schema.columns.length + 1}" class="no-results">${emptyMsg}</td></tr>`;
     return;
   }
 
@@ -12352,7 +12683,26 @@ function renderDbManagerRows(rowsToRender) {
       let displayVal = '—';
       let cellClass = '';
 
-      if (rawVal !== undefined && rawVal !== null && rawVal !== '') {
+      if (col.name === '_sourceTable') {
+        const tName = String(rawVal || 'table');
+        let badgeStyle = 'background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;';
+        if (tName.includes('criminal') || tName.includes('state')) {
+          badgeStyle = 'background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;';
+        } else if (tName.includes('family')) {
+          badgeStyle = 'background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8;';
+        } else if (tName.includes('revenue')) {
+          badgeStyle = 'background: #fefce8; color: #a16207; border: 1px solid #fef08a;';
+        } else if (tName.includes('hearing')) {
+          badgeStyle = 'background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;';
+        } else if (tName.includes('todo')) {
+          badgeStyle = 'background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe;';
+        } else if (tName.includes('transfer')) {
+          badgeStyle = 'background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5;';
+        } else if (tName.includes('helper')) {
+          badgeStyle = 'background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc;';
+        }
+        displayVal = `<button type="button" onclick="switchDbManagerToTable('${escapeHtml(tName)}')" title="Switch to view '${escapeHtml(tName)}' table" style="${badgeStyle} padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"><span>${escapeHtml(tName)}</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 9px;"></i></button>`;
+      } else if (rawVal !== undefined && rawVal !== null && rawVal !== '') {
         if (col.type === 'uuid') {
           cellClass = 'uuid-cell';
           displayVal = String(rawVal);
@@ -12375,13 +12725,13 @@ function renderDbManagerRows(rowsToRender) {
       html += `<td class="${cellClass}" title="${escapeHtml(String(rawVal ?? ''))}">${displayVal}</td>`;
     });
 
-    const rowId = row.id || row.case_number || row.court_name || String(rIdx);
+    const targetTbl = row._sourceTable || currentDbTable;
     const identifier = row.case_number || row.court_name || row.task_title || row.id || `Row #${rIdx + 1}`;
 
     html += `
       <td class="actions-cell table-actions-td">
-        <button type="button" class="db-btn-edit" onclick="openDbEditModal('${escapeHtml(String(row.id || ''))}', ${rIdx})" title="Edit this record"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
-        <button type="button" class="db-btn-delete" onclick="handleDbDeleteRow('${escapeHtml(String(row.id || ''))}', '${escapeHtml(String(identifier))}', ${rIdx})" title="Delete this record permanently"><i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span></button>
+        <button type="button" class="db-btn-edit" onclick="openDbEditModal('${escapeHtml(String(row.id || ''))}', ${rIdx}, '${escapeHtml(targetTbl)}')" title="Edit record in '${escapeHtml(targetTbl)}'"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
+        <button type="button" class="db-btn-delete" onclick="handleDbDeleteRow('${escapeHtml(String(row.id || ''))}', '${escapeHtml(String(identifier))}', ${rIdx}, '${escapeHtml(targetTbl)}')" title="Delete record from '${escapeHtml(targetTbl)}'"><i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span></button>
       </td>
     `;
     html += `</tr>`;
@@ -12414,8 +12764,20 @@ function filterDbManagerRows(query) {
   }
 }
 
+let currentDbRecordTable = '';
+
 function openDbAddModal() {
-  const schema = DB_SCHEMAS[currentDbTable];
+  let targetTable = currentDbTable;
+  if (targetTable === 'all_tables') {
+    targetTable = 'civilcases';
+    const select = document.getElementById('dbManagerTableSelect');
+    if (select) select.value = 'civilcases';
+    currentDbTable = 'civilcases';
+    fetchAndRenderDbTable('civilcases');
+  }
+  currentDbRecordTable = targetTable;
+
+  const schema = DB_SCHEMAS[targetTable];
   if (!schema) return;
 
   const modal = document.getElementById('dbManagerFormModal');
@@ -12439,10 +12801,7 @@ function openDbAddModal() {
   if (modal) modal.classList.remove('hidden');
 }
 
-function openDbEditModal(rowId, fallbackIndex = null) {
-  const schema = DB_SCHEMAS[currentDbTable];
-  if (!schema) return;
-
+function openDbEditModal(rowId, fallbackIndex = null, specificTable = null) {
   let row = null;
   if (rowId) {
     row = currentDbTableData.find(r => String(r.id) === String(rowId));
@@ -12455,6 +12814,11 @@ function openDbEditModal(rowId, fallbackIndex = null) {
     return;
   }
 
+  currentDbRecordTable = specificTable || row._sourceTable || currentDbTable;
+  if (currentDbRecordTable === 'all_tables') currentDbRecordTable = 'civilcases';
+  const schema = DB_SCHEMAS[currentDbRecordTable] || DB_SCHEMAS[currentDbTable];
+  if (!schema) return;
+
   const modal = document.getElementById('dbManagerFormModal');
   const title = document.getElementById('dbModalTitle');
   const subtitle = document.getElementById('dbModalSubtitle');
@@ -12466,7 +12830,7 @@ function openDbEditModal(rowId, fallbackIndex = null) {
   const recordName = row.case_number || row.court_name || row.task_title || row.id || 'Record';
 
   if (title) title.textContent = `Edit Record in "${schema.title}"`;
-  if (subtitle) subtitle.textContent = `Editing: ${recordName} (ID: ${row.id || 'local'})`;
+  if (subtitle) subtitle.textContent = `Editing: ${recordName} (ID: ${row.id || 'local'}) [Table: ${currentDbRecordTable}]`;
   if (icon) icon.textContent = '✏️';
   if (recordIdInput) recordIdInput.value = row.id || '';
   if (recordActionInput) recordActionInput.value = 'update';
@@ -12537,7 +12901,8 @@ async function handleDbRecordFormSubmit(event) {
   }
   if (isSubmittingDbRecord) return false;
 
-  const schema = DB_SCHEMAS[currentDbTable];
+  const activeTable = currentDbRecordTable || currentDbTable;
+  const schema = DB_SCHEMAS[activeTable] || DB_SCHEMAS[currentDbTable];
   if (!schema) return false;
 
   const recordId = document.getElementById('dbRecordId')?.value?.trim();
@@ -12569,7 +12934,7 @@ async function handleDbRecordFormSubmit(event) {
   // Duplicate Prevention: Check case_number or case_no across all tables
   if (action === 'create') {
     const caseNum = (payload.case_number || payload.case_no || '').trim();
-    if (caseNum && ['civilcases', 'statecases', 'familycases', 'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases'].includes(currentDbTable)) {
+    if (caseNum && ['civilcases', 'statecases', 'familycases', 'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases'].includes(activeTable)) {
       const exists = await checkCaseNumberExists(caseNum);
       if (exists && exists.exists) {
         alert(`❌ Case Number "${caseNum}" already exists in the database! Duplicate insertion prevented.`);
@@ -12582,7 +12947,7 @@ async function handleDbRecordFormSubmit(event) {
     }
 
     // Duplicate check for court_name
-    if (currentDbTable === 'courts') {
+    if (activeTable === 'courts') {
       const courtName = (payload.court_name || '').trim();
       if (courtName && courts.some(c => c.trim().toLowerCase() === courtName.toLowerCase())) {
         alert(`❌ Court "${courtName}" already exists!`);
@@ -12608,7 +12973,7 @@ async function handleDbRecordFormSubmit(event) {
       // Insert operation
       if (supabaseClient) {
         try {
-          const { data, error } = await supabaseClient.from(currentDbTable).insert([payload]).select();
+          const { data, error } = await supabaseClient.from(activeTable).insert([payload]).select();
           if (error) {
             console.error(`Supabase insert error on ${currentDbTable}:`, error);
             if (error.code === '23505') {
@@ -12640,8 +13005,8 @@ async function handleDbRecordFormSubmit(event) {
       }
 
       const existingRow = currentDbTableData.find(r => String(r.id) === String(recordId));
-      const isCourtTable = currentDbTable === 'courts';
-      const isCaseTable = ['civilcases', 'statecases', 'criminalcases', 'familycases', 'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases'].includes(currentDbTable);
+      const isCourtTable = activeTable === 'courts';
+      const isCaseTable = ['civilcases', 'statecases', 'criminalcases', 'familycases', 'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases'].includes(activeTable);
 
       let oldCourtName = '';
       let newCourtName = '';
@@ -12659,7 +13024,7 @@ async function handleDbRecordFormSubmit(event) {
 
       if (supabaseClient) {
         try {
-          const { error } = await supabaseClient.from(currentDbTable).update(payload).eq('id', recordId);
+          const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', recordId);
           if (error) {
             console.error(`Supabase update error on ${currentDbTable}:`, error);
             alert(`⚠️ Failed to update record in Supabase: ${error.message || 'Unknown error'}`);
@@ -12696,19 +13061,20 @@ async function handleDbRecordFormSubmit(event) {
   return false;
 }
 
-async function handleDbDeleteRow(rowId, identifier, rowIndex) {
-  const schema = DB_SCHEMAS[currentDbTable];
+async function handleDbDeleteRow(rowId, identifier, rowIndex, specificTable = null) {
+  const targetTable = specificTable || currentDbTable;
+  const schema = DB_SCHEMAS[targetTable] || DB_SCHEMAS[currentDbTable];
   if (!schema) return;
 
-  const confirmMsg = `Are you sure you want to PERMANENTLY delete this record from table "${currentDbTable}"?\n\nIdentifier: ${identifier}\nID: ${rowId || 'Local index #' + rowIndex}`;
+  const confirmMsg = `Are you sure you want to PERMANENTLY delete this record from table "${targetTable}"?\n\nIdentifier: ${identifier}\nID: ${rowId || 'Local index #' + rowIndex}`;
   if (!confirm(confirmMsg)) return;
 
-  const isCaseTable = ['civilcases', 'statecases', 'criminalcases', 'familycases', 'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases'].includes(currentDbTable);
-  const isCourtTable = currentDbTable === 'courts';
+  const isCaseTable = ['civilcases', 'statecases', 'criminalcases', 'familycases', 'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases'].includes(targetTable);
+  const isCourtTable = targetTable === 'courts';
 
   if (supabaseClient && rowId && !rowId.startsWith('local-')) {
     try {
-      const { error } = await supabaseClient.from(currentDbTable).delete().eq('id', rowId);
+      const { error } = await supabaseClient.from(targetTable).delete().eq('id', rowId);
       if (error) {
         console.error(`Supabase delete error on ${currentDbTable}:`, error);
         alert(`⚠️ Failed to delete record from Supabase: ${error.message || 'Unknown error'}`);

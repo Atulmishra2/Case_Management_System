@@ -30,7 +30,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=6.3">
+    <link rel="stylesheet" href="admin.css?v=6.5">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#502D55">
     <meta name="mobile-web-app-capable" content="yes">
@@ -959,10 +959,15 @@
                         <!-- 3-Column Dossier Information Cards (Dynamic related fields) -->
                         <div class="dossier-cards-grid">
                             <!-- Card 1: Court & Classification -->
-                            <div class="dossier-card">
+                            <div class="dossier-card is-collapsed" id="detailCourtCard">
                                 <div class="dossier-card-head">
-                                    <i class="fa-solid fa-gavel"></i>
-                                    <h4>Court &amp; Case Info</h4>
+                                    <div>
+                                        <i class="fa-solid fa-gavel"></i>
+                                        <h4>Court &amp; Case Info</h4>
+                                    </div>
+                                    <button type="button" class="dossier-section-collapse-btn" onclick="toggleDossierSection('detailCourtCard')" title="Collapse / Expand Court & Case Info" aria-label="Collapse / Expand Court & Case Info">
+                                        <i class="fa-solid fa-chevron-down collapse-chevron"></i>
+                                    </button>
                                 </div>
                                 <div class="dossier-card-body" id="detailCourtCardBody">
                                     <div class="dossier-prop">
@@ -973,10 +978,15 @@
                             </div>
 
                             <!-- Card 2: Parties & Particulars -->
-                            <div class="dossier-card">
+                            <div class="dossier-card is-collapsed" id="detailPartiesCard">
                                 <div class="dossier-card-head">
-                                    <i class="fa-solid fa-users"></i>
-                                    <h4>Parties &amp; Particulars</h4>
+                                    <div>
+                                        <i class="fa-solid fa-users"></i>
+                                        <h4>Parties &amp; Particulars</h4>
+                                    </div>
+                                    <button type="button" class="dossier-section-collapse-btn" onclick="toggleDossierSection('detailPartiesCard')" title="Collapse / Expand Parties & Particulars" aria-label="Collapse / Expand Parties & Particulars">
+                                        <i class="fa-solid fa-chevron-down collapse-chevron"></i>
+                                    </button>
                                 </div>
                                 <div class="dossier-card-body" id="detailPartiesCardBody">
                                     <div class="dossier-prop">
@@ -987,10 +997,15 @@
                             </div>
 
                             <!-- Card 3: Client & Documents -->
-                            <div class="dossier-card">
+                            <div class="dossier-card is-collapsed" id="detailClientCard">
                                 <div class="dossier-card-head">
-                                    <i class="fa-solid fa-user-tie"></i>
-                                    <h4>Client &amp; Documents</h4>
+                                    <div>
+                                        <i class="fa-solid fa-user-tie"></i>
+                                        <h4>Client &amp; Documents</h4>
+                                    </div>
+                                    <button type="button" class="dossier-section-collapse-btn" onclick="toggleDossierSection('detailClientCard')" title="Collapse / Expand Client & Documents" aria-label="Collapse / Expand Client & Documents">
+                                        <i class="fa-solid fa-chevron-down collapse-chevron"></i>
+                                    </button>
                                 </div>
                                 <div class="dossier-card-body" id="detailClientCardBody">
                                     <div class="dossier-prop">
@@ -1002,25 +1017,35 @@
                         </div>
 
                         <!-- Remarks & Co-Parties Full Width Card -->
-                        <div class="dossier-remarks-box">
-                            <div class="remarks-box-header">
-                                <i class="fa-solid fa-users"></i>
-                                <strong>Parties &amp; Co-Parties Remark:</strong>
+                        <div class="dossier-remarks-box is-collapsed" id="detailRemarksBox" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                            <div class="remarks-box-header" style="justify-content: space-between; width: 100%;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-users"></i>
+                                    <strong>Parties &amp; Co-Parties Remark:</strong>
+                                </div>
+                                <button type="button" class="dossier-section-collapse-btn" onclick="toggleDossierSection('detailRemarksBox')" title="Collapse / Expand Parties & Co-Parties Remark" aria-label="Collapse / Expand Parties & Co-Parties Remark">
+                                    <i class="fa-solid fa-chevron-down collapse-chevron"></i>
+                                </button>
                             </div>
                             <div class="remarks-box-content" id="detailCaseRemark">—</div>
                         </div>
 
                         <!-- Disposal Comment Full Width Card -->
-                        <div class="dossier-remarks-box dossier-disposal-box" style="margin-top: 10px;">
-                            <div class="remarks-box-header" style="color: #047857;">
-                                <i class="fa-solid fa-gavel"></i>
-                                <strong>Disposal Comment &amp; Final Notes:</strong>
+                        <div class="dossier-remarks-box dossier-disposal-box is-collapsed" id="detailDisposalBox" style="margin-top: 10px; flex-direction: column; align-items: stretch; gap: 8px;">
+                            <div class="remarks-box-header" style="color: #047857; justify-content: space-between; width: 100%;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-gavel"></i>
+                                    <strong>Disposal Comment &amp; Final Notes:</strong>
+                                </div>
+                                <button type="button" class="dossier-section-collapse-btn" onclick="toggleDossierSection('detailDisposalBox')" title="Collapse / Expand Disposal Comment & Final Notes" aria-label="Collapse / Expand Disposal Comment & Final Notes">
+                                    <i class="fa-solid fa-chevron-down collapse-chevron"></i>
+                                </button>
                             </div>
                             <div class="remarks-box-content" id="detailCaseDisposalComment" style="border-left: 3px solid #10b981; background: #f0fdf4; color: #065f46;">—</div>
                         </div>
 
                         <!-- Embedded Inline Case Hearing History Section -->
-                        <div class="dossier-history-card">
+                        <div class="dossier-history-card is-collapsed" id="detailHistoryCard">
                             <div class="dossier-history-header">
                                 <div class="history-head-title">
                                     <div class="history-icon-badge"><i class="fa-solid fa-clock-rotate-left"></i></div>
@@ -1029,9 +1054,12 @@
                                         <p class="history-sub">Chronological timeline of court appearances, business conducted, and orders</p>
                                     </div>
                                 </div>
-                                <div class="history-head-actions">
+                                <div class="history-head-actions" style="display: flex; align-items: center; gap: 8px;">
                                     <button type="button" id="detailHistoryBtn" class="dossier-history-modal-btn" title="Open Full History in Modal View">
                                         <i class="fa-solid fa-expand"></i> Modal View
+                                    </button>
+                                    <button type="button" class="dossier-section-collapse-btn" onclick="toggleDossierSection('detailHistoryCard')" title="Collapse / Expand Proceedings & Hearing History" aria-label="Collapse / Expand Proceedings & Hearing History">
+                                        <i class="fa-solid fa-chevron-down collapse-chevron"></i>
                                     </button>
                                 </div>
                             </div>
@@ -1057,7 +1085,7 @@
                         </div>
 
                         <!-- Embedded Inline Case Court Transfer History Section -->
-                        <div class="dossier-history-card dossier-transfer-card" id="detailTransferHistoryCard" style="margin-top: 18px;">
+                        <div class="dossier-history-card dossier-transfer-card is-collapsed" id="detailTransferHistoryCard" style="margin-top: 18px;">
                             <div class="dossier-history-header">
                                 <div class="history-head-title">
                                     <div class="history-icon-badge" style="background: #eef2ff; color: #4338ca;"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
@@ -1066,8 +1094,11 @@
                                         <p class="history-sub">Chronological record of case transfers between courts, forums, and judicial benches</p>
                                     </div>
                                 </div>
-                                <div class="history-head-actions">
+                                <div class="history-head-actions" style="display: flex; align-items: center; gap: 8px;">
                                     <span id="detailTransferCountBadge" class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 600; padding: 4px 10px; border-radius: 9999px;">0 Transfers</span>
+                                    <button type="button" class="dossier-section-collapse-btn" onclick="toggleDossierSection('detailTransferHistoryCard')" title="Collapse / Expand Court Transfer History" aria-label="Collapse / Expand Court Transfer History">
+                                        <i class="fa-solid fa-chevron-down collapse-chevron"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -2335,47 +2366,35 @@
                             <div class="helper-form-row">
                                 <div class="helper-input-group">
                                     <label for="helperNameInput"><i class="fa-solid fa-user"></i> Worker / Staff Name *</label>
-                                    <div class="search-field-box">
-                                        <span class="search-field-prefix-icon"><i class="fa-solid fa-user"></i></span>
-                                        <input type="text" id="helperNameInput" placeholder="Worker / staff name (e.g. Ramesh Chandra)..." required>
-                                    </div>
+                                    <input type="text" id="helperNameInput" placeholder="Worker / staff name (e.g. Ramesh Chandra)..." required>
                                 </div>
                                 <div class="helper-input-group">
                                     <label for="helperCourtSelect"><i class="fa-solid fa-landmark"></i> Court / Forum *</label>
-                                    <div class="search-field-box">
-                                        <span class="search-field-prefix-icon"><i class="fa-solid fa-landmark"></i></span>
-                                        <select id="helperCourtSelect" class="browser-default helper-select" required>
-                                            <option value="" disabled selected>Select Court...</option>
-                                        </select>
-                                    </div>
+                                    <select id="helperCourtSelect" class="browser-default helper-select" required>
+                                        <option value="" disabled selected>Select Court...</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="helper-form-row">
                                 <div class="helper-input-group">
                                     <label for="helperPositionInput"><i class="fa-solid fa-briefcase"></i> Position / Role *</label>
-                                    <div class="search-field-box">
-                                        <span class="search-field-prefix-icon"><i class="fa-solid fa-briefcase"></i></span>
-                                        <input type="text" id="helperPositionInput" placeholder="e.g. Reader, Ahlmad, Peon, Steno, Munshi..." list="helperPositionSuggestions" required>
-                                        <datalist id="helperPositionSuggestions">
-                                            <option value="Reader (पेशकार)">
-                                            <option value="Ahlmad (अहलमद)">
-                                            <option value="Stenographer (स्टेनो)">
-                                            <option value="Peon / Orderly (चपरासी)">
-                                            <option value="Naib Court (नायब कोर्ट)">
-                                            <option value="Munshi / Advocate Clerk (मुंशी)">
-                                            <option value="Process Server (समन तामीलकर्ता)">
-                                            <option value="Court Manager / Registrar">
-                                            <option value="Typist / Data Entry Operator">
-                                            <option value="Associate / Legal Assistant">
-                                        </datalist>
-                                    </div>
+                                    <input type="text" id="helperPositionInput" placeholder="e.g. Reader, Ahlmad, Peon, Steno, Munshi..." list="helperPositionSuggestions" required>
+                                    <datalist id="helperPositionSuggestions">
+                                        <option value="Reader (पेशकार)">
+                                        <option value="Ahlmad (अहलमद)">
+                                        <option value="Stenographer (स्टेनो)">
+                                        <option value="Peon / Orderly (चपरासी)">
+                                        <option value="Naib Court (नायब कोर्ट)">
+                                        <option value="Munshi / Advocate Clerk (मुंशी)">
+                                        <option value="Process Server (समन तामीलकर्ता)">
+                                        <option value="Court Manager / Registrar">
+                                        <option value="Typist / Data Entry Operator">
+                                        <option value="Associate / Legal Assistant">
+                                    </datalist>
                                 </div>
                                 <div class="helper-input-group">
                                     <label for="helperMobileInput"><i class="fa-solid fa-phone"></i> Mobile Number *</label>
-                                    <div class="search-field-box">
-                                        <span class="search-field-prefix-icon"><i class="fa-solid fa-phone"></i></span>
-                                        <input type="tel" id="helperMobileInput" placeholder="10-digit mobile (e.g. 9876543210)..." pattern="[0-9+\- ]{10,15}" required>
-                                    </div>
+                                    <input type="tel" id="helperMobileInput" placeholder="10-digit mobile (e.g. 9876543210)..." pattern="[0-9+\- ]{10,15}" required>
                                 </div>
                             </div>
                             <div class="helper-form-actions">
@@ -4100,6 +4119,7 @@
                             <div class="db-table-selector-box">
                                 <label for="dbManagerTableSelect" class="db-toolbar-label">Select Supabase Table:</label>
                                 <select id="dbManagerTableSelect" class="form-select db-select">
+                                    <option value="all_tables">🌐 (From All Tables) — Search Across Entire Database</option>
                                     <option value="civilcases">⚖️ civilcases (Civil Suits &amp; Writs)</option>
                                     <option value="statecases">🚨 statecases (State Cases, FIRs, Thana)</option>
                                     <option value="criminalcases">🔒 criminalcases (Legacy Criminal Cases)</option>
@@ -4141,7 +4161,7 @@
                     </div>
 
                     <!-- Dedicated Tool: Update Case Number, Filing Year & Filing Date -->
-                    <div class="db-case-modifier-card panel-enabled" id="dbCaseModifierCard">
+                    <div class="db-case-modifier-card panel-enabled is-collapsed" id="dbCaseModifierCard">
                         <div class="db-modifier-header">
                             <div class="modifier-title-box">
                                 <span class="modifier-icon">🔄</span>
@@ -4157,6 +4177,9 @@
                                     <span class="db-modifier-toggle-slider"></span>
                                     <span id="dbModToggleLabel" class="db-modifier-toggle-text"><i class="fa-solid fa-lock-open"></i> Enabled</span>
                                 </label>
+                                <button type="button" id="dbModifierCollapseBtn" class="db-modifier-collapse-btn" onclick="toggleDbModifierCollapse()" title="Collapse / Expand this card">
+                                    <i class="fa-solid fa-chevron-down collapse-chevron"></i> <span>Expand</span>
+                                </button>
                             </div>
                         </div>
                         
@@ -4731,38 +4754,26 @@
                     <label for="editHelperNameInput" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13.5px; color: #1e293b;">
                         Staff Member Name *
                     </label>
-                    <div class="search-field-box" style="margin: 0; width: 100%;">
-                        <span class="search-field-prefix-icon"><i class="fa-solid fa-user"></i></span>
-                        <input type="text" id="editHelperNameInput" placeholder="Staff name..." style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 12px 10px 42px; font-size: 14px;" required>
-                    </div>
+                    <input type="text" id="editHelperNameInput" placeholder="Staff name..." style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; font-size: 14px; box-sizing: border-box;" required>
                 </div>
                 <div style="margin-bottom: 14px;">
                     <label for="editHelperCourtSelect" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13.5px; color: #1e293b;">
                         Assigned Court / Forum *
                     </label>
-                    <div class="search-field-box" style="margin: 0; width: 100%;">
-                        <span class="search-field-prefix-icon"><i class="fa-solid fa-landmark"></i></span>
-                        <select id="editHelperCourtSelect" class="browser-default helper-select" style="width: 100%; height: 44px; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 8px 12px 8px 42px; font-size: 14px; background: #ffffff;" required>
-                        </select>
-                    </div>
+                    <select id="editHelperCourtSelect" class="browser-default helper-select" style="width: 100%; height: 44px; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 8px 14px; font-size: 14px; background: #ffffff; box-sizing: border-box;" required>
+                    </select>
                 </div>
                 <div style="margin-bottom: 14px;">
                     <label for="editHelperPositionInput" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13.5px; color: #1e293b;">
                         Position / Role *
                     </label>
-                    <div class="search-field-box" style="margin: 0; width: 100%;">
-                        <span class="search-field-prefix-icon"><i class="fa-solid fa-briefcase"></i></span>
-                        <input type="text" id="editHelperPositionInput" placeholder="Position (e.g. Reader, Ahlmad, Peon)..." list="helperPositionSuggestions" style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 12px 10px 42px; font-size: 14px;" required>
-                    </div>
+                    <input type="text" id="editHelperPositionInput" placeholder="Position (e.g. Reader, Ahlmad, Peon)..." list="helperPositionSuggestions" style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; font-size: 14px; box-sizing: border-box;" required>
                 </div>
                 <div style="margin-bottom: 14px;">
                     <label for="editHelperMobileInput" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13.5px; color: #1e293b;">
                         Mobile Number *
                     </label>
-                    <div class="search-field-box" style="margin: 0; width: 100%;">
-                        <span class="search-field-prefix-icon"><i class="fa-solid fa-phone"></i></span>
-                        <input type="tel" id="editHelperMobileInput" placeholder="Mobile number..." pattern="[0-9+\- ]{10,15}" style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 12px 10px 42px; font-size: 14px;" required>
-                    </div>
+                    <input type="tel" id="editHelperMobileInput" placeholder="Mobile number..." pattern="[0-9+\- ]{10,15}" style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; font-size: 14px; box-sizing: border-box;" required>
                 </div>
                 <div id="editHelperErrorMsg" class="hidden" style="margin-top: 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #b91c1c;">
                 </div>
