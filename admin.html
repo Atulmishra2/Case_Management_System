@@ -730,7 +730,7 @@
                 <div class="my-cases-header-card">
                     <div class="my-cases-header-top">
                         <div class="section-title-box">
-                            <div class="section-icon-badge">📁</div>
+                            <div class="section-icon-badge"><i class="fa-solid fa-folder-open"></i></div>
                             <div>
                                 <h2>My Cases Registry</h2>
                                 <p class="section-subtitle">Comprehensive dashboard to search, filter, and manage your active and disposed cases.</p>
@@ -1345,7 +1345,7 @@
                                 </div>
                                 <div class="todo-combobox-wrapper" id="todoComboboxWrapper">
                                     <div class="todo-combobox-input-wrap">
-                                        <span class="todo-combobox-search-icon">🔎</span>
+                                        <span class="todo-combobox-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                                         <input type="text" 
                                                id="todoCaseSearchInput" 
                                                class="todo-combobox-input" 
@@ -1387,7 +1387,7 @@
                                     <span class="todo-field-hint">Preparation or Filing</span>
                                 </div>
                                 <div class="todo-input-icon-wrap">
-                                    <span class="todo-input-inner-icon">✍️</span>
+                                    <span class="todo-input-inner-icon"><i class="fa-solid fa-pen"></i></span>
                                     <input type="text" id="todoTitle" class="todo-custom-input with-icon" placeholder="e.g. Draft Written Statement, File Bail, Collect Evidence" required>
                                 </div>
                             </div>
@@ -1398,7 +1398,7 @@
                                     <span class="todo-field-hint">Due before or on hearing</span>
                                 </div>
                                 <div class="todo-input-icon-wrap">
-                                    <span class="todo-input-inner-icon">📅</span>
+                                    <span class="todo-input-inner-icon"><i class="fa-solid fa-calendar-day"></i></span>
                                     <input type="date" id="todoDeadline" class="todo-custom-input with-icon highlight-date-input" required>
                                 </div>
                                 <div class="todo-shortcuts-row">
@@ -1435,7 +1435,7 @@
                         <div class="todo-list-header">
                             <div class="todo-list-header-top">
                                 <div class="todo-search-box">
-                                    <span class="todo-search-icon">🔍</span>
+                                    <span class="todo-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                                     <input type="text" id="todoSearchInput" class="todo-search-input" placeholder="Search tasks by title, case number, party..." oninput="onTodoSearchInput(this.value)">
                                 </div>
                             </div>
@@ -3889,7 +3889,7 @@
                 <div class="all-cases-container">
                     <div class="section-header-row">
                         <div class="section-title-box">
-                            <div class="section-icon-badge">📁</div>
+                            <div class="section-icon-badge"><i class="fa-solid fa-list-check"></i></div>
                             <div>
                                 <h3>All Cases Master Register</h3>
                                 <p class="section-subtitle">Comprehensive master registry of all legal matters with real-time case type, status, and court filters.</p>
@@ -4141,7 +4141,7 @@
                     </div>
 
                     <!-- Dedicated Tool: Update Case Number, Filing Year & Filing Date -->
-                    <div class="db-case-modifier-card panel-disabled" id="dbCaseModifierCard">
+                    <div class="db-case-modifier-card panel-enabled" id="dbCaseModifierCard">
                         <div class="db-modifier-header">
                             <div class="modifier-title-box">
                                 <span class="modifier-icon">🔄</span>
@@ -4153,9 +4153,9 @@
                             <div class="db-modifier-header-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                                 <span class="db-live-badge">⚡ Direct Supabase Sync</span>
                                 <label class="db-modifier-toggle-wrap" title="Toggle to enable or disable panel editing">
-                                    <input type="checkbox" id="dbModToggleCheckbox" onchange="toggleDbCaseModifierPanel(this.checked)">
+                                    <input type="checkbox" id="dbModToggleCheckbox" onchange="toggleDbCaseModifierPanel(this.checked)" checked>
                                     <span class="db-modifier-toggle-slider"></span>
-                                    <span id="dbModToggleLabel" class="db-modifier-toggle-text"><i class="fa-solid fa-lock"></i> Disabled</span>
+                                    <span id="dbModToggleLabel" class="db-modifier-toggle-text"><i class="fa-solid fa-lock-open"></i> Enabled</span>
                                 </label>
                             </div>
                         </div>
@@ -4163,7 +4163,7 @@
                         <div class="db-modifier-form-grid" id="dbModFormGrid">
                             <div class="modifier-form-group">
                                 <label for="dbModCaseType" class="db-toolbar-label">1. Case Category / Table:</label>
-                                <select id="dbModCaseType" class="form-select db-select" onchange="populateDbModifierCaseSelect()" disabled>
+                                <select id="dbModCaseType" class="form-select db-select" onchange="populateDbModifierCaseSelect()">
                                     <option value="civil">⚖️ Civil Cases (civilcases)</option>
                                     <option value="state">🚨 State Cases (statecases)</option>
                                     <option value="criminal">🔒 Criminal Cases (criminalcases)</option>
@@ -4178,9 +4178,9 @@
                             <div class="modifier-form-group" style="grid-column: span 2;">
                                 <label for="dbModCaseSearchInput" class="db-toolbar-label">2. Search / Type or Select Existing Case:</label>
                                 <div class="modifier-case-picker-row" style="display: flex; gap: 8px;">
-                                    <input type="text" id="dbModCaseSearchInput" list="dbModCaseDatalist" class="db-search-input" placeholder="Type Case Number, Party Name, or choose..." oninput="onDbModifierCaseSearch(this.value)" autocomplete="off" disabled>
+                                    <input type="text" id="dbModCaseSearchInput" list="dbModCaseDatalist" class="db-search-input" placeholder="Type Case Number, Party Name, or choose..." oninput="onDbModifierCaseSearch(this.value)" autocomplete="off">
                                     <datalist id="dbModCaseDatalist"></datalist>
-                                    <select id="dbModCaseSelect" class="form-select db-select" style="max-width: 220px;" onchange="onDbModifierCaseSelected(this.value)" disabled>
+                                    <select id="dbModCaseSelect" class="form-select db-select" style="max-width: 220px;" onchange="onDbModifierCaseSelected(this.value)">
                                         <option value="">-- Choose from List --</option>
                                     </select>
                                 </div>
@@ -4189,29 +4189,29 @@
 
                             <div class="modifier-form-group">
                                 <label for="dbModNewCaseNo" class="db-toolbar-label">3. New Case Number:</label>
-                                <input type="text" id="dbModNewCaseNo" class="db-search-input" placeholder="e.g. OS/45/2024 or CR-2024-102" disabled>
+                                <input type="text" id="dbModNewCaseNo" class="db-search-input" placeholder="e.g. OS/45/2024 or CR-2024-102">
                             </div>
 
                             <div class="modifier-form-group">
                                 <label for="dbModNewYear" class="db-toolbar-label">4. New Filing / Case Year:</label>
-                                <input type="number" id="dbModNewYear" class="db-search-input" placeholder="e.g. 2024" min="1950" max="2099" disabled>
+                                <input type="number" id="dbModNewYear" class="db-search-input" placeholder="e.g. 2024" min="1950" max="2099">
                             </div>
 
                             <div class="modifier-form-group">
                                 <label for="dbModNewFilingDate" class="db-toolbar-label">5. New Filing Date:</label>
-                                <input type="date" id="dbModNewFilingDate" class="db-search-input" disabled>
+                                <input type="date" id="dbModNewFilingDate" class="db-search-input">
                             </div>
 
                             <div class="modifier-form-group modifier-checkbox-group" style="grid-column: 1 / -1;">
                                 <label class="remember-me-label" style="margin-top: 6px !important;">
-                                    <input type="checkbox" id="dbModSyncHearings" checked disabled>
+                                    <input type="checkbox" id="dbModSyncHearings" checked>
                                     <span>Also update linked hearing records in <code>hearings</code> table</span>
                                 </label>
                             </div>
 
                             <div class="modifier-action-group" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; flex-wrap: wrap;">
                                 <span id="dbModStatusMsg" class="update-status-msg" style="margin: 0; text-align: left; flex: 1;"></span>
-                                <button type="button" id="dbModSubmitBtn" class="primary-btn db-action-btn" onclick="executeDbCaseNumberYearUpdate()" style="width: auto; padding: 10px 24px;" disabled>
+                                <button type="button" id="dbModSubmitBtn" class="primary-btn db-action-btn" onclick="executeDbCaseNumberYearUpdate()" style="width: auto; padding: 10px 24px;">
                                     💾 Save Case Number, Year & Filing Date
                                 </button>
                             </div>

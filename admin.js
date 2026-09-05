@@ -11872,7 +11872,7 @@ function initDbManagerTab() {
   }
   fetchAndRenderDbTable(currentDbTable);
   populateDbModifierCaseSelect();
-  toggleDbCaseModifierPanel(false);
+  toggleDbCaseModifierPanel(true);
 }
 
 function populateDbModifierCaseSelect() {
@@ -12074,12 +12074,13 @@ async function executeDbCaseNumberYearUpdate() {
   try {
     const updatePayload = {
       case_number: newCaseNo,
-      case_year: newYearVal,
       filing_date: newFilingDate || null,
       updated_at: new Date().toISOString()
     };
-    if (targetType === 'state' || targetType === 'criminal' || targetType === 'misc_criminal') {
+    if (tableName === 'statecases' || tableName === 'criminalcases' || tableName === 'misccriminalcases') {
       updatePayload.crime_year = newYearVal;
+    } else {
+      updatePayload.case_year = newYearVal;
     }
 
     if (supabaseClient) {

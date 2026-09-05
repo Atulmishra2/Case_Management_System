@@ -17982,3 +17982,115 @@ table.all-cases-fixed-table tbody tr:last-child td:last-child,
   box-sizing: border-box !important;
 }
 
+/* ==============================================================================
+   UI Refinements: Todo Input Icons & Form Spacing Reductions
+   ============================================================================== */
+
+/* --- Component 3: To-Do Tab Input Icons & Overlapping Text Fix --- */
+.todo-combobox-input-wrap,
+.todo-input-icon-wrap,
+.todo-search-box {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.todo-combobox-search-icon,
+.todo-input-inner-icon,
+.todo-search-icon {
+  position: absolute !important;
+  left: 13px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 14px !important;
+  color: #00695c !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.todo-combobox-input,
+.todo-custom-input.with-icon,
+.todo-search-input {
+  padding-left: 40px !important;
+}
+
+/* --- Component 4: Spacing Reductions in Add New Case Form (#add) --- */
+#add .form-container {
+  padding: 22px 24px !important;
+  margin-bottom: 20px !important;
+}
+
+#add .form-grid-2col,
+#add .form-grid-3col {
+  gap: 10px 14px !important;
+  margin-top: 6px !important;
+}
+
+#add .form-group {
+  margin-bottom: 8px !important;
+}
+
+#add label {
+  margin-bottom: 3px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+#add input,
+#add select,
+#add textarea {
+  padding: 8px 12px !important;
+  font-size: 13.5px !important;
+}
+
+#add .remarks-coparties-box {
+  padding: 12px 14px !important;
+  margin-top: 6px !important;
+}
+
+/* --- Component 5: Spacing Reductions in Manage Courts Tab (#courts) --- */
+#courts .form-container {
+  padding: 20px 24px !important;
+}
+
+.court-add-card {
+  padding: 14px 18px !important;
+  margin-bottom: 14px !important;
+  gap: 10px !important;
+}
+
+.court-input-action-row {
+  gap: 10px !important;
+}
+
+.court-table-toolbar {
+  margin-bottom: 12px !important;
+  margin-top: 4px !important;
+  gap: 10px !important;
+}
+
+/* --- Component 6: Spacing Reductions in Court Helpers Directory (#helpers) --- */
+#helpers .form-container {
+  padding: 20px 24px !important;
+}
+
+.helper-add-card {
+  padding: 14px 18px !important;
+  margin-bottom: 14px !important;
+  gap: 10px !important;
+}
+
+.helper-form-row {
+  gap: 10px 14px !important;
+}
+
+.helper-table-toolbar {
+  margin-bottom: 12px !important;
+  margin-top: 4px !important;
+  gap: 10px !important;
+}
+
