@@ -247,6 +247,7 @@
             <a href="#" onclick="showTab('transfer', event)"><i class="fa-solid fa-arrow-right-arrow-left nav-icon"></i> Transfer Case</a>
             <a href="#" onclick="showTab('delete', event)"><i class="fa-solid fa-trash-can nav-icon"></i> Delete Case</a>
             <a href="#" onclick="showTab('courts', event)"><i class="fa-solid fa-landmark nav-icon"></i> Manage Courts</a>
+            <a href="#" onclick="showTab('helpers', event)"><i class="fa-solid fa-id-badge nav-icon"></i> Court Helpers Directory <span class="badge" id="helpersNavCount">0</span></a>
 
             <div class="divider"></div>
             <div class="subheader">Case Registers</div>
@@ -2284,6 +2285,135 @@
                 </div>
             </div>
 
+            <!-- Court Helpers & Staff Directory tab -->
+            <div id="helpers" class="tab">
+                <div class="form-container">
+                    <div class="section-header-row">
+                        <div class="section-title-box">
+                            <div class="section-icon-badge" style="background: rgba(14, 165, 233, 0.12); color: #0284c7;">
+                                <i class="fa-solid fa-id-badge"></i>
+                            </div>
+                            <div>
+                                <h3>Court Helpers &amp; Staff Directory</h3>
+                                <p class="section-subtitle">Save and manage court workers, readers, ahlmads, stenos, peons, and clerks with direct phone and WhatsApp contact.</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="helpersCloudStatusBadge" class="db-live-badge" style="font-size: 11px; padding: 4px 8px;">🟢 Cloud Ready</span>
+                            <button type="button" class="secondary-btn" onclick="showTab('courts')" style="height: 38px; padding: 0 14px; font-size: 12.5px; margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-landmark"></i> <span>Manage Courts</span>
+                            </button>
+                            <span id="helpersTotalCountBadge" class="case-badge civil">0 Helpers</span>
+                        </div>
+                    </div>
+
+                    <!-- Add New Helper Form Card -->
+                    <div class="helper-add-card">
+                        <div class="search-card-header">
+                            <div class="search-header-info">
+                                <span class="search-card-badge-icon helper-badge-icon"><i class="fa-solid fa-user-plus"></i></span>
+                                <div>
+                                    <h4 class="search-card-heading">Add New Court Worker / Helper</h4>
+                                    <p class="search-card-subheading">Enter worker's full name, assigned court, position / role, and mobile number.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <form id="helperAddForm" onsubmit="handleSaveHelper(event)" class="helper-form-grid">
+                            <div class="helper-form-row">
+                                <div class="helper-input-group">
+                                    <label for="helperNameInput"><i class="fa-solid fa-user"></i> Worker / Staff Name *</label>
+                                    <div class="search-field-box">
+                                        <span class="search-field-prefix-icon"><i class="fa-solid fa-user"></i></span>
+                                        <input type="text" id="helperNameInput" placeholder="Worker / staff name (e.g. Ramesh Chandra)..." required>
+                                    </div>
+                                </div>
+                                <div class="helper-input-group">
+                                    <label for="helperCourtSelect"><i class="fa-solid fa-landmark"></i> Court / Forum *</label>
+                                    <div class="search-field-box">
+                                        <span class="search-field-prefix-icon"><i class="fa-solid fa-landmark"></i></span>
+                                        <select id="helperCourtSelect" class="browser-default helper-select" required>
+                                            <option value="" disabled selected>Select Court...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="helper-form-row">
+                                <div class="helper-input-group">
+                                    <label for="helperPositionInput"><i class="fa-solid fa-briefcase"></i> Position / Role *</label>
+                                    <div class="search-field-box">
+                                        <span class="search-field-prefix-icon"><i class="fa-solid fa-briefcase"></i></span>
+                                        <input type="text" id="helperPositionInput" placeholder="e.g. Reader, Ahlmad, Peon, Steno, Munshi..." list="helperPositionSuggestions" required>
+                                        <datalist id="helperPositionSuggestions">
+                                            <option value="Reader (पेशकार)">
+                                            <option value="Ahlmad (अहलमद)">
+                                            <option value="Stenographer (स्टेनो)">
+                                            <option value="Peon / Orderly (चपरासी)">
+                                            <option value="Naib Court (नायब कोर्ट)">
+                                            <option value="Munshi / Advocate Clerk (मुंशी)">
+                                            <option value="Process Server (समन तामीलकर्ता)">
+                                            <option value="Court Manager / Registrar">
+                                            <option value="Typist / Data Entry Operator">
+                                            <option value="Associate / Legal Assistant">
+                                        </datalist>
+                                    </div>
+                                </div>
+                                <div class="helper-input-group">
+                                    <label for="helperMobileInput"><i class="fa-solid fa-phone"></i> Mobile Number *</label>
+                                    <div class="search-field-box">
+                                        <span class="search-field-prefix-icon"><i class="fa-solid fa-phone"></i></span>
+                                        <input type="tel" id="helperMobileInput" placeholder="10-digit mobile (e.g. 9876543210)..." pattern="[0-9+\- ]{10,15}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="helper-form-actions">
+                                <button type="submit" id="saveHelperSubmitBtn" class="primary-btn helper-submit-btn">
+                                    <i class="fa-solid fa-user-check"></i> <span>Save Worker to Directory</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Helpers Directory Search & Filter Toolbar -->
+                    <div class="court-table-toolbar helper-table-toolbar">
+                        <div class="search-field-box helper-search-box">
+                            <span class="search-field-prefix-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" id="helperSearchInput" placeholder="Search by name, court, position, or mobile..." oninput="filterHelpersTable(this.value)">
+                        </div>
+                        <div class="helper-toolbar-right">
+                            <div class="helper-filter-court-box">
+                                <select id="helperFilterCourtSelect" class="browser-default helper-select" onchange="filterHelpersTable()">
+                                    <option value="">All Courts (All Forums)</option>
+                                </select>
+                            </div>
+                            <button type="button" id="helpersSyncDbBtn" class="secondary-btn helper-export-btn" onclick="syncCourtHelpersFromCloud(true)" title="Fetch and synchronize court helpers from database">
+                                <i class="fa-solid fa-arrows-rotate"></i> <span>Sync DB</span>
+                            </button>
+                            <button type="button" class="secondary-btn helper-export-btn" onclick="exportHelpersCsv()" title="Export helpers list as CSV">
+                                <i class="fa-solid fa-file-csv"></i> <span>Export CSV</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Helpers Table -->
+                    <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
+                        <table id="helpersTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 helper-table">
+                            <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
+                                <tr>
+                                    <th style="width: 60px; text-align: center;">Sr.</th>
+                                    <th>Staff Member &amp; Position</th>
+                                    <th>Assigned Court / Forum</th>
+                                    <th>Mobile &amp; Quick Contact</th>
+                                    <th class="table-actions-th" style="width: 170px; text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="helpersTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- Transfer Case tab: transfer case to another court/forum and maintain audit trail -->
             <div id="transfer" class="tab">
                 <div class="form-container">
@@ -3951,6 +4081,7 @@
                                     <option value="complaintcases">📢 complaintcases (Cheque Bounce, NI Act &amp; Complaints)</option>
                                     <option value="hearings">📅 hearings (Hearing Dates &amp; Session History)</option>
                                     <option value="courts">🏛️ courts (Court Names &amp; Jurisdictions)</option>
+                                    <option value="court_helpers">🪪 court_helpers (Court Staff &amp; Workers Directory)</option>
                                     <option value="case_todos">📝 case_todos (Case Tasks &amp; Deadlines)</option>
                                     <option value="case_transfers">🔄 case_transfers (Court Transfers &amp; Audit Records)</option>
                                 </select>
@@ -4547,6 +4678,100 @@
                 <button type="button" class="secondary-btn" onclick="closeDeleteCourtModal()">Cancel</button>
                 <button type="button" id="confirmDeleteCourtBtn" class="primary-btn btn-danger-action" onclick="executeDeleteCourtConfirm()">
                     <i class="fa-solid fa-trash-can"></i> <span id="confirmDeleteCourtBtnText">Delete Court</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Helper Modal Dialog -->
+    <div id="editHelperModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="editHelperModalTitle">
+        <div class="modal-card modal-card-sm">
+            <div class="modal-header">
+                <div class="modal-header-info">
+                    <div class="modal-icon"><i class="fa-solid fa-user-pen"></i></div>
+                    <div>
+                        <h3 id="editHelperModalTitle">Edit Court Staff Member</h3>
+                        <p id="editHelperModalSubtitle" class="modal-subtitle">Update contact details, court assignment, or designation.</p>
+                    </div>
+                </div>
+                <button type="button" id="closeEditHelperModalBtn" class="modal-close-btn" aria-label="Close" onclick="closeEditHelperModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editHelperId" value="">
+                <div style="margin-bottom: 14px;">
+                    <label for="editHelperNameInput" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13.5px; color: #1e293b;">
+                        Staff Member Name *
+                    </label>
+                    <div class="search-field-box" style="margin: 0; width: 100%;">
+                        <span class="search-field-prefix-icon"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="editHelperNameInput" placeholder="Staff name..." style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 12px 10px 42px; font-size: 14px;" required>
+                    </div>
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <label for="editHelperCourtSelect" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13.5px; color: #1e293b;">
+                        Assigned Court / Forum *
+                    </label>
+                    <div class="search-field-box" style="margin: 0; width: 100%;">
+                        <span class="search-field-prefix-icon"><i class="fa-solid fa-landmark"></i></span>
+                        <select id="editHelperCourtSelect" class="browser-default helper-select" style="width: 100%; height: 44px; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 8px 12px 8px 42px; font-size: 14px; background: #ffffff;" required>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <label for="editHelperPositionInput" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13.5px; color: #1e293b;">
+                        Position / Role *
+                    </label>
+                    <div class="search-field-box" style="margin: 0; width: 100%;">
+                        <span class="search-field-prefix-icon"><i class="fa-solid fa-briefcase"></i></span>
+                        <input type="text" id="editHelperPositionInput" placeholder="Position (e.g. Reader, Ahlmad, Peon)..." list="helperPositionSuggestions" style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 12px 10px 42px; font-size: 14px;" required>
+                    </div>
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <label for="editHelperMobileInput" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 13.5px; color: #1e293b;">
+                        Mobile Number *
+                    </label>
+                    <div class="search-field-box" style="margin: 0; width: 100%;">
+                        <span class="search-field-prefix-icon"><i class="fa-solid fa-phone"></i></span>
+                        <input type="tel" id="editHelperMobileInput" placeholder="Mobile number..." pattern="[0-9+\- ]{10,15}" style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 12px 10px 42px; font-size: 14px;" required>
+                    </div>
+                </div>
+                <div id="editHelperErrorMsg" class="hidden" style="margin-top: 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #b91c1c;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" onclick="closeEditHelperModal()">Cancel</button>
+                <button type="button" id="saveEditHelperBtn" class="primary-btn" onclick="confirmSaveEditedHelper()">
+                    <i class="fa-solid fa-check"></i> <span id="saveEditHelperBtnText">Save Changes</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Helper Confirmation Modal Dialog -->
+    <div id="deleteHelperModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="deleteHelperModalTitle">
+        <div class="modal-card modal-card-sm">
+            <div class="modal-header modal-header-danger">
+                <div class="modal-header-info">
+                    <div class="modal-icon modal-icon-danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div>
+                        <h3 id="deleteHelperModalTitle">Delete Court Staff Member</h3>
+                        <p id="deleteHelperModalSubtitle" class="modal-subtitle">Confirm removal of this contact from directory.</p>
+                    </div>
+                </div>
+                <button type="button" id="closeDeleteHelperModalBtn" class="modal-close-btn" aria-label="Close" onclick="closeDeleteHelperModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="deleteHelperTargetId" value="">
+                <p style="font-size: 14.5px; color: #1e293b; margin: 0 0 14px 0; line-height: 1.5;">
+                    Are you sure you want to delete <strong id="deleteHelperDisplayName" style="color: #b91c1c; background: #fef2f2; padding: 2px 7px; border-radius: 5px; border: 1px solid #fecaca; display: inline-block;"></strong> from the court staff directory?
+                </p>
+                <div id="deleteHelperErrorMsg" class="hidden" style="margin-top: 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #b91c1c;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" onclick="closeDeleteHelperModal()">Cancel</button>
+                <button type="button" id="confirmDeleteHelperBtn" class="primary-btn btn-danger-action" onclick="executeDeleteHelperConfirm()">
+                    <i class="fa-solid fa-trash-can"></i> <span id="confirmDeleteHelperBtnText">Delete Staff Member</span>
                 </button>
             </div>
         </div>

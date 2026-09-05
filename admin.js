@@ -599,8 +599,8 @@ async function fetchAllDataFromSupabase() {
       }
     };
 
-    // Fetch from civilcases, statecases, criminalcases, familycases, revenuecases, misccivilcases, misccriminalcases, complaintcases, hearings, courts, case_todos, and case_transfers concurrently
-    const [civilRes, stateRes, criminalRes, familyRes, revenueRes, miscCivilRes, miscCriminalRes, complaintRes, hearingsRes, courtsRes, todosRes, transfersRes] = await Promise.all([
+    // Fetch from civilcases, statecases, criminalcases, familycases, revenuecases, misccivilcases, misccriminalcases, complaintcases, hearings, courts, case_todos, case_transfers, and court_helpers concurrently
+    const [civilRes, stateRes, criminalRes, familyRes, revenueRes, miscCivilRes, miscCriminalRes, complaintRes, hearingsRes, courtsRes, todosRes, transfersRes, helpersRes] = await Promise.all([
       safeFetch(supabaseClient.from('civilcases').select('*').order('created_at', { ascending: false }), supabaseClient.from('civilcases').select('*')),
       safeFetch(supabaseClient.from('statecases').select('*').order('created_at', { ascending: false }), supabaseClient.from('statecases').select('*')),
       safeFetch(supabaseClient.from('criminalcases').select('*').order('created_at', { ascending: false }), supabaseClient.from('criminalcases').select('*')),
@@ -612,7 +612,8 @@ async function fetchAllDataFromSupabase() {
       safeFetch(supabaseClient.from('hearings').select('*').order('hearing_date', { ascending: false }), supabaseClient.from('hearings').select('*')),
       safeFetch(supabaseClient.from('courts').select('*').order('court_name'), supabaseClient.from('courts').select('*')),
       safeFetch(supabaseClient.from('case_todos').select('*').order('deadline_date', { ascending: true }), supabaseClient.from('case_todos').select('*')),
-      safeFetch(supabaseClient.from('case_transfers').select('*').order('transfer_date', { ascending: false }), supabaseClient.from('case_transfers').select('*'))
+      safeFetch(supabaseClient.from('case_transfers').select('*').order('transfer_date', { ascending: false }), supabaseClient.from('case_transfers').select('*')),
+      safeFetch(supabaseClient.from('court_helpers').select('*').order('created_at', { ascending: false }), supabaseClient.from('helpers').select('*'))
     ]);
 
     // 1. Sync Courts (Deduplicated)
@@ -767,6 +768,28 @@ async function fetchAllDataFromSupabase() {
     }
     if (typeof renderRecentTransfersTable === 'function') renderRecentTransfersTable();
     if (typeof updateTransfersCountBadge === 'function') updateTransfersCountBadge();
+
+    // 6. Sync Court Helpers from court_helpers table
+    if (helpersRes && helpersRes.data && !helpersRes.error) {
+      const mappedHelpers = helpersRes.data.map(h => ({
+        id: String(h.id || ('helper_' + Date.now())),
+        name: h.name || '',
+        court: h.court || '',
+        position: h.position || '',
+        mobile: h.mobile || '',
+        createdAt: h.created_at || new Date().toISOString()
+      }));
+      courtHelpersList = mappedHelpers;
+      try {
+        localStorage.setItem(COURT_HELPERS_STORAGE_KEY, JSON.stringify(courtHelpersList));
+      } catch (e) {}
+      updateHelpersBadges();
+      if (typeof updateHelpersCloudSyncIndicator === 'function') updateHelpersCloudSyncIndicator(true);
+      if (typeof renderHelpersTable === 'function') renderHelpersTable();
+      console.log(`Loaded ${courtHelpersList.length} court staff members from Supabase.`);
+    } else {
+      if (typeof updateHelpersCloudSyncIndicator === 'function') updateHelpersCloudSyncIndicator(false);
+    }
 
     // Ensure all courts mentioned in case records are merged into courts directory (skipping deleted courts)
     if (Array.isArray(allCaseRecords)) {
@@ -2362,14 +2385,18 @@ function showTab(tabId, event, navType = 'navigate') {
   currentActiveTabId = tabId;
   updateNavigationButtons();
 
-  // Persist current active tab for page refresh retention
+  // Persist current active tab for page refresh retention & synchronize browser history
   try {
     safeStorage.set('cmActiveTab', tabId);
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.setItem('cmActiveTab', tabId);
     }
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', '#' + tabId);
+    if (window.history) {
+      if (navType === 'navigate') {
+        window.history.pushState({ app: 'casebook', tab: tabId, timestamp: Date.now() }, '', '#' + tabId);
+      } else {
+        window.history.replaceState({ app: 'casebook', tab: tabId }, '', '#' + tabId);
+      }
     }
   } catch (e) {}
 
@@ -2439,6 +2466,10 @@ function showTab(tabId, event, navType = 'navigate') {
     renderCourtsTable();
   }
 
+  if (tabId === 'helpers') {
+    renderHelpersTable();
+  }
+
   if (tabId === 'settings') {
     const currentAdminEl = document.getElementById('currentAdminUsername');
     const newUsernameEl = document.getElementById('newUsername');
@@ -2467,7 +2498,172 @@ function showTab(tabId, event, navType = 'navigate') {
   }
 }
 
+/* ==============================================================================
+   Mobile Back Button & History Navigation Architecture
+   ============================================================================== */
+
+let lastExitBackPressTime = 0;
+let isInternalHistoryNav = false;
+
+// Return open modal info if any modal dialog is currently displayed
+function getOpenModalInfo() {
+  const modalList = [
+    { id: 'editHelperModal', close: () => (typeof closeEditHelperModal === 'function' ? closeEditHelperModal() : null) },
+    { id: 'deleteHelperModal', close: () => (typeof closeDeleteHelperModal === 'function' ? closeDeleteHelperModal() : null) },
+    { id: 'editCourtModal', close: () => (typeof closeEditCourtModal === 'function' ? closeEditCourtModal() : null) },
+    { id: 'deleteCourtModal', close: () => (typeof closeDeleteCourtModal === 'function' ? closeDeleteCourtModal() : null) },
+    { id: 'caseHistoryModal', close: () => (typeof closeCaseHistoryModal === 'function' ? closeCaseHistoryModal() : null) },
+    { id: 'dbManagerFormModal', close: () => (typeof closeDbModal === 'function' ? closeDbModal() : null) },
+    { id: 'pwaGuideModal', close: () => (typeof closePwaGuideModal === 'function' ? closePwaGuideModal() : null) }
+  ];
+
+  for (let i = 0; i < modalList.length; i++) {
+    const el = document.getElementById(modalList[i].id);
+    if (el && !el.classList.contains('hidden') && el.style.display !== 'none') {
+      return modalList[i];
+    }
+  }
+  return null;
+}
+
+function isMobileSidebarOpen() {
+  const sidebar = document.querySelector('.sidebar');
+  return !!(sidebar && sidebar.classList.contains('mobile-open'));
+}
+
+function closeMobileSidebarDrawer() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.remove('mobile-open');
+  if (overlay) overlay.classList.remove('active');
+}
+
+function handlePopStateNavigation(event) {
+  if (isInternalHistoryNav) {
+    isInternalHistoryNav = false;
+    return;
+  }
+
+  // 1. If any modal dialog is currently open, close it and prevent window back
+  const openModal = getOpenModalInfo();
+  if (openModal) {
+    openModal.close();
+    try {
+      if (window.history && window.history.pushState) {
+        window.history.pushState({ app: 'casebook', tab: currentActiveTabId }, '', '#' + currentActiveTabId);
+      }
+    } catch (e) {}
+    return;
+  }
+
+  // 2. If mobile sidebar navigation drawer is open, close it and stay in app
+  if (isMobileSidebarOpen()) {
+    closeMobileSidebarDrawer();
+    try {
+      if (window.history && window.history.pushState) {
+        window.history.pushState({ app: 'casebook', tab: currentActiveTabId }, '', '#' + currentActiveTabId);
+      }
+    } catch (e) {}
+    return;
+  }
+
+  // 3. Guest Screen: if case details card is open on guest portal, dismiss it
+  const guestDetails = document.getElementById('guestCaseDetailsContent');
+  if (guestDetails && !guestDetails.classList.contains('hidden')) {
+    guestDetails.classList.add('hidden');
+    const guestEmpty = document.getElementById('guestCaseDetailsEmpty');
+    if (guestEmpty) guestEmpty.classList.remove('hidden');
+    try {
+      if (window.history && window.history.pushState) {
+        window.history.pushState({ app: 'casebook', screen: 'guest' }, '', window.location.hash);
+      }
+    } catch (e) {}
+    return;
+  }
+
+  // 4. Tab Navigation History Check
+  const state = event.state;
+  const targetTab = (state && state.tab) ? state.tab : ((window.location.hash || '').replace(/^#/, '').trim());
+
+  if (targetTab && document.getElementById(targetTab) && targetTab !== currentActiveTabId) {
+    showTab(targetTab, null, 'history');
+    return;
+  }
+
+  // 5. Internal tab navigation history stack
+  if (tabNavigationHistory.length > 0) {
+    const prevTab = tabNavigationHistory.pop();
+    if (prevTab && prevTab !== currentActiveTabId && document.getElementById(prevTab)) {
+      if (currentActiveTabId) {
+        tabForwardHistory.push(currentActiveTabId);
+      }
+      showTab(prevTab, null, 'history');
+      return;
+    }
+  }
+
+  // 6. If currently on a sub-tab (not 'home'), navigate back to Home Dashboard
+  if (currentActiveTabId && currentActiveTabId !== 'home') {
+    showTab('home', null, 'history');
+    return;
+  }
+
+  // 7. On Home Dashboard with no history left:
+  // Mobile double-back exit confirmation (prevents accidental window closes)
+  const now = Date.now();
+  if (now - lastExitBackPressTime < 2500) {
+    // Second back press within 2.5s: allow user to exit application
+    return;
+  } else {
+    lastExitBackPressTime = now;
+    try {
+      if (window.history && window.history.pushState) {
+        window.history.pushState({ app: 'casebook', tab: 'home', exitGuard: true }, '', '#home');
+      }
+    } catch (e) {}
+    if (typeof showToastNotification === 'function') {
+      showToastNotification('📱 Press back again to exit CaseBook', 2500);
+    } else if (typeof M !== 'undefined' && M.toast) {
+      M.toast({ html: '📱 Press back again to exit CaseBook' });
+    }
+  }
+}
+
+function setupMobileBackAndHistory() {
+  const initialTab = (window.location.hash || '').replace(/^#/, '').trim() || currentActiveTabId || 'home';
+  try {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({ app: 'casebook', tab: initialTab, isInitial: true }, '', '#' + initialTab);
+      // Push an initial safety state so that pressing back on mobile triggers popstate instead of exiting the page immediately
+      window.history.pushState({ app: 'casebook', tab: initialTab }, '', '#' + initialTab);
+    }
+  } catch (e) {}
+
+  window.removeEventListener('popstate', handlePopStateNavigation);
+  window.addEventListener('popstate', handlePopStateNavigation);
+}
+
 function goPreviousTab() {
+  // 1. If any modal dialog is currently open, close it
+  const openModal = getOpenModalInfo();
+  if (openModal) {
+    openModal.close();
+    return;
+  }
+
+  // 2. If mobile drawer is open, close it
+  if (isMobileSidebarOpen()) {
+    closeMobileSidebarDrawer();
+    return;
+  }
+
+  // 3. If browser history exists and we have internal history, let browser go back
+  if (window.history && window.history.length > 1 && tabNavigationHistory.length > 0) {
+    window.history.back();
+    return;
+  }
+
+  // 4. Fallback in-memory history
   if (tabNavigationHistory.length > 0) {
     const previousTabId = tabNavigationHistory.pop();
     if (previousTabId) {
@@ -2475,7 +2671,13 @@ function goPreviousTab() {
         tabForwardHistory.push(currentActiveTabId);
       }
       showTab(previousTabId, null, 'back');
+      return;
     }
+  }
+
+  // 5. If on any tab other than home, return to home
+  if (currentActiveTabId && currentActiveTabId !== 'home') {
+    showTab('home', null, 'navigate');
   }
 }
 
@@ -2488,6 +2690,8 @@ function goForwardTab() {
       }
       showTab(nextTabId, null, 'forward');
     }
+  } else if (window.history && window.history.length > 1) {
+    window.history.forward();
   }
 }
 
@@ -2497,7 +2701,7 @@ function updateNavigationButtons() {
   const homeBtn = document.getElementById('bottomNavHomeBtn');
 
   if (backBtn) {
-    const hasBack = tabNavigationHistory.length > 0;
+    const hasBack = tabNavigationHistory.length > 0 || (currentActiveTabId && currentActiveTabId !== 'home');
     backBtn.disabled = !hasBack;
     backBtn.classList.toggle('disabled', !hasBack);
   }
@@ -2513,6 +2717,11 @@ function updateNavigationButtons() {
   }
 }
 
+window.getOpenModalInfo = getOpenModalInfo;
+window.isMobileSidebarOpen = isMobileSidebarOpen;
+window.closeMobileSidebarDrawer = closeMobileSidebarDrawer;
+window.handlePopStateNavigation = handlePopStateNavigation;
+window.setupMobileBackAndHistory = setupMobileBackAndHistory;
 window.goPreviousTab = goPreviousTab;
 window.goForwardTab = goForwardTab;
 window.updateNavigationButtons = updateNavigationButtons;
@@ -8905,6 +9114,9 @@ function renderCourtOptions() {
   });
 
   renderSearchCourtFilterOptions();
+  if (typeof populateHelperCourtDropdowns === 'function') {
+    populateHelperCourtDropdowns();
+  }
 }
 
 function renderSearchCourtFilterOptions() {
@@ -9302,6 +9514,626 @@ async function syncAllCourtsFromDatabase() {
 }
 window.syncAllCourtsFromDatabase = syncAllCourtsFromDatabase;
 
+// ==============================================================================
+// Court Helpers & Staff Directory Engine
+// ==============================================================================
+
+const COURT_HELPERS_STORAGE_KEY = 'casebook_court_helpers';
+let courtHelpersList = [];
+
+function getCourtHelpersList() {
+  try {
+    const raw = localStorage.getItem(COURT_HELPERS_STORAGE_KEY);
+    if (raw) {
+      courtHelpersList = JSON.parse(raw);
+      if (Array.isArray(courtHelpersList)) return courtHelpersList;
+    }
+  } catch (e) {
+    console.error('Error reading court helpers:', e);
+  }
+  courtHelpersList = [];
+  return courtHelpersList;
+}
+
+function saveCourtHelpersList(list) {
+  courtHelpersList = list || [];
+  try {
+    localStorage.setItem(COURT_HELPERS_STORAGE_KEY, JSON.stringify(courtHelpersList));
+  } catch (e) {
+    console.error('Error saving court helpers:', e);
+  }
+  updateHelpersBadges();
+}
+
+function updateHelpersBadges() {
+  const helpers = getCourtHelpersList();
+  const count = helpers.length;
+  const navBadge = document.getElementById('helpersNavCount');
+  const totalBadge = document.getElementById('helpersTotalCountBadge');
+  if (navBadge) navBadge.textContent = String(count);
+  if (totalBadge) totalBadge.textContent = `${count} ${count === 1 ? 'Helper' : 'Helpers'} Registered`;
+}
+
+function updateHelpersCloudSyncIndicator(isSynced) {
+  const badge = document.getElementById('helpersCloudStatusBadge');
+  if (!badge) return;
+  if (isSynced) {
+    badge.textContent = '🟢 Cloud Synced';
+    badge.className = 'db-live-badge';
+    badge.style.background = '#f0fdf4';
+    badge.style.color = '#15803d';
+    badge.style.border = '1px solid #bbf7d0';
+  } else {
+    badge.textContent = '💾 Local Storage';
+    badge.className = 'db-live-badge';
+    badge.style.background = '#fefce8';
+    badge.style.color = '#854d0e';
+    badge.style.border = '1px solid #fef08a';
+  }
+}
+
+async function syncCourtHelpersFromCloud(showToast = false) {
+  const syncBtn = document.getElementById('helpersSyncDbBtn');
+  const originalHtml = syncBtn ? syncBtn.innerHTML : '';
+  if (syncBtn) {
+    syncBtn.disabled = true;
+    syncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Syncing...</span>';
+  }
+
+  ensureSupabaseClient();
+  if (!supabaseClient) {
+    if (syncBtn) {
+      syncBtn.disabled = false;
+      syncBtn.innerHTML = originalHtml;
+    }
+    updateHelpersCloudSyncIndicator(false);
+    if (showToast && typeof showToastNotification === 'function') {
+      showToastNotification('⚠️ Cloud database not connected. Using local offline storage.', 2500);
+    }
+    return;
+  }
+
+  try {
+    let res = await supabaseClient.from('court_helpers').select('*').order('created_at', { ascending: false });
+    if (res && res.error) {
+      // Fallback try table named 'helpers'
+      res = await supabaseClient.from('helpers').select('*').order('created_at', { ascending: false });
+    }
+
+    if (res && res.data && !res.error) {
+      const mapped = res.data.map(h => ({
+        id: String(h.id || ('helper_' + Date.now())),
+        name: h.name || '',
+        court: h.court || '',
+        position: h.position || '',
+        mobile: h.mobile || '',
+        createdAt: h.created_at || new Date().toISOString()
+      }));
+
+      courtHelpersList = mapped;
+      try {
+        localStorage.setItem(COURT_HELPERS_STORAGE_KEY, JSON.stringify(courtHelpersList));
+      } catch (e) {}
+
+      updateHelpersBadges();
+      updateHelpersCloudSyncIndicator(true);
+      renderHelpersTable();
+
+      if (showToast && typeof showToastNotification === 'function') {
+        showToastNotification(`✅ Fetched ${mapped.length} court staff records from database.`, 2500);
+      }
+    } else {
+      updateHelpersCloudSyncIndicator(false);
+      if (showToast && typeof showToastNotification === 'function') {
+        showToastNotification('ℹ️ Database connected. No records found or table not yet created.', 2500);
+      }
+    }
+  } catch (err) {
+    console.warn('Error fetching court helpers from database:', err);
+    updateHelpersCloudSyncIndicator(false);
+    if (showToast && typeof showToastNotification === 'function') {
+      showToastNotification('⚠️ Unable to sync with database: ' + (err.message || err), 2500);
+    }
+  } finally {
+    if (syncBtn) {
+      syncBtn.disabled = false;
+      syncBtn.innerHTML = originalHtml || '<i class="fa-solid fa-arrows-rotate"></i> <span>Sync DB</span>';
+    }
+  }
+}
+
+function populateHelperCourtDropdowns() {
+  const selects = [
+    document.getElementById('helperCourtSelect'),
+    document.getElementById('editHelperCourtSelect'),
+    document.getElementById('helperFilterCourtSelect')
+  ];
+
+  // Unique sorted courts list
+  const activeCourts = Array.from(new Set((courts || []).filter(c => c && c.trim())));
+  activeCourts.sort((a, b) => a.localeCompare(b));
+
+  selects.forEach(select => {
+    if (!select) return;
+    const isFilter = select.id === 'helperFilterCourtSelect';
+    const currentVal = select.value;
+
+    select.innerHTML = '';
+    if (isFilter) {
+      const allOpt = document.createElement('option');
+      allOpt.value = '';
+      allOpt.textContent = 'All Courts (All Forums)';
+      select.appendChild(allOpt);
+    } else {
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = '';
+      defaultOpt.disabled = true;
+      defaultOpt.selected = true;
+      defaultOpt.textContent = 'Select Court / Forum...';
+      select.appendChild(defaultOpt);
+
+      const generalOpt = document.createElement('option');
+      generalOpt.value = 'General / All Courts';
+      generalOpt.textContent = 'General / All Courts';
+      select.appendChild(generalOpt);
+    }
+
+    activeCourts.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      select.appendChild(opt);
+    });
+
+    if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
+      select.value = currentVal;
+    }
+  });
+}
+
+function renderHelpersTable(searchQuery = '') {
+  const tbody = document.getElementById('helpersTableBody');
+  if (!tbody) return;
+
+  populateHelperCourtDropdowns();
+  const helpers = getCourtHelpersList();
+  const filterCourtSelect = document.getElementById('helperFilterCourtSelect');
+  const courtFilterVal = (filterCourtSelect?.value || '').toLowerCase().trim();
+  const query = (searchQuery || document.getElementById('helperSearchInput')?.value || '').toLowerCase().trim();
+
+  let filtered = helpers.filter(h => {
+    const nameMatch = (h.name || '').toLowerCase().includes(query);
+    const courtMatch = (h.court || '').toLowerCase().includes(query);
+    const posMatch = (h.position || '').toLowerCase().includes(query);
+    const mobMatch = (h.mobile || '').replace(/\D/g, '').includes(query.replace(/\D/g, '')) || (h.mobile || '').includes(query);
+    const textMatch = !query || nameMatch || courtMatch || posMatch || mobMatch;
+
+    const courtDropMatch = !courtFilterVal || (h.court || '').toLowerCase().trim() === courtFilterVal;
+    return textMatch && courtDropMatch;
+  });
+
+  tbody.innerHTML = '';
+
+  if (filtered.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td colspan="5" style="text-align: center; padding: 32px 16px; color: #64748b;">
+        <div style="font-size: 32px; margin-bottom: 8px; opacity: 0.6;"><i class="fa-solid fa-users-slash"></i></div>
+        <div style="font-weight: 700; font-size: 15px; color: #334155;">No court helpers or workers found</div>
+        <div style="font-size: 13px; margin-top: 4px;">${query || courtFilterVal ? 'Try adjusting your search or court filter.' : 'Add your first court staff member using the form above.'}</div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+    updateHelpersBadges();
+    return;
+  }
+
+  filtered.forEach((h, index) => {
+    const tr = document.createElement('tr');
+    const initial = (h.name || 'W').trim().charAt(0).toUpperCase();
+    const cleanMobile = (h.mobile || '').trim();
+    const waDigits = cleanMobile.replace(/\D/g, '');
+    const waLink = waDigits.length === 10 ? `https://wa.me/91${waDigits}` : `https://wa.me/${waDigits}`;
+
+    tr.innerHTML = `
+      <td style="text-align: center; font-weight: 700; color: #64748b;">${index + 1}</td>
+      <td>
+        <div class="helper-user-cell">
+          <div class="helper-avatar">${escapeHtml(initial)}</div>
+          <div class="helper-user-info">
+            <div class="helper-user-name">${escapeHtml(h.name || '—')}</div>
+            <div class="helper-user-role"><i class="fa-solid fa-briefcase"></i> ${escapeHtml(h.position || 'Staff')}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="helper-court-tag">
+          <i class="fa-solid fa-landmark" style="color: #0284c7;"></i>
+          <span>${escapeHtml(h.court || 'General')}</span>
+        </div>
+      </td>
+      <td>
+        <div class="helper-contact-cell">
+          ${cleanMobile ? `
+            <a href="tel:${escapeHtml(cleanMobile)}" class="helper-call-btn" title="Call ${escapeHtml(h.name)}">
+              <i class="fa-solid fa-phone"></i> <span>${escapeHtml(cleanMobile)}</span>
+            </a>
+            <a href="${escapeHtml(waLink)}" target="_blank" rel="noopener noreferrer" class="helper-wa-btn" title="Chat on WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i>
+            </a>
+          ` : '<span style="color: #94a3b8; font-size: 13px;">No mobile provided</span>'}
+        </div>
+      </td>
+      <td style="text-align: right;">
+        <div class="court-actions-cell" style="justify-content: flex-end;">
+          <button type="button" class="court-btn-edit edit-helper-btn" title="Edit Staff Details">
+            <i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span>
+          </button>
+          <button type="button" class="court-btn-delete delete-helper-btn" title="Delete Staff Member">
+            <i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span>
+          </button>
+        </div>
+      </td>
+    `;
+
+    const editBtn = tr.querySelector('.edit-helper-btn');
+    const delBtn = tr.querySelector('.delete-helper-btn');
+
+    if (editBtn) {
+      editBtn.addEventListener('click', () => openEditHelperModal(h.id));
+    }
+    if (delBtn) {
+      delBtn.addEventListener('click', () => openDeleteHelperModal(h.id));
+    }
+
+    tbody.appendChild(tr);
+  });
+
+  updateHelpersBadges();
+}
+
+function filterHelpersTable(query) {
+  renderHelpersTable(query);
+}
+
+async function handleSaveHelper(e) {
+  if (e && e.preventDefault) e.preventDefault();
+
+  const nameInput = document.getElementById('helperNameInput');
+  const courtSelect = document.getElementById('helperCourtSelect');
+  const positionInput = document.getElementById('helperPositionInput');
+  const mobileInput = document.getElementById('helperMobileInput');
+  const submitBtn = document.getElementById('saveHelperSubmitBtn');
+
+  const name = (nameInput?.value || '').trim();
+  const court = (courtSelect?.value || '').trim();
+  const position = (positionInput?.value || '').trim();
+  const mobile = (mobileInput?.value || '').trim();
+
+  if (!name) {
+    if (typeof showToastNotification === 'function') {
+      showToastNotification('⚠️ Please enter the worker / staff name.', 2500);
+    }
+    nameInput?.focus();
+    return;
+  }
+
+  if (!court) {
+    if (typeof showToastNotification === 'function') {
+      showToastNotification('⚠️ Please select the assigned court.', 2500);
+    }
+    courtSelect?.focus();
+    return;
+  }
+
+  if (!position) {
+    if (typeof showToastNotification === 'function') {
+      showToastNotification('⚠️ Please enter the position / role.', 2500);
+    }
+    positionInput?.focus();
+    return;
+  }
+
+  if (!mobile) {
+    if (typeof showToastNotification === 'function') {
+      showToastNotification('⚠️ Please enter the mobile number.', 2500);
+    }
+    mobileInput?.focus();
+    return;
+  }
+
+  const helperId = 'helper_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+  const newHelper = {
+    id: helperId,
+    name,
+    court,
+    position,
+    mobile,
+    createdAt: new Date().toISOString()
+  };
+
+  const currentList = getCourtHelpersList();
+  currentList.unshift(newHelper);
+  saveCourtHelpersList(currentList);
+
+  // Reset form
+  if (nameInput) nameInput.value = '';
+  if (positionInput) positionInput.value = '';
+  if (mobileInput) mobileInput.value = '';
+  if (courtSelect) courtSelect.selectedIndex = 0;
+
+  renderHelpersTable();
+
+  // Asynchronously insert into Supabase court_helpers
+  ensureSupabaseClient();
+  if (supabaseClient) {
+    try {
+      if (submitBtn) submitBtn.disabled = true;
+      const { data, error } = await supabaseClient.from('court_helpers').insert([{
+        name,
+        court,
+        position,
+        mobile
+      }]).select();
+
+      if (!error && data && data[0] && data[0].id) {
+        newHelper.id = String(data[0].id);
+        saveCourtHelpersList(currentList);
+        updateHelpersCloudSyncIndicator(true);
+      }
+    } catch (err) {
+      console.warn('Notice: Insert to Supabase court_helpers:', err);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  }
+
+  if (typeof showToastNotification === 'function') {
+    showToastNotification(`✅ Staff member "${name}" (${position}) saved successfully!`, 3000);
+  } else if (typeof M !== 'undefined' && M.toast) {
+    M.toast({ html: `✅ Staff member "${name}" saved!` });
+  }
+}
+
+function openEditHelperModal(helperId) {
+  const helpers = getCourtHelpersList();
+  const helper = helpers.find(h => h.id === helperId);
+  if (!helper) return;
+
+  const modal = document.getElementById('editHelperModal');
+  const idInput = document.getElementById('editHelperId');
+  const nameInput = document.getElementById('editHelperNameInput');
+  const courtSelect = document.getElementById('editHelperCourtSelect');
+  const positionInput = document.getElementById('editHelperPositionInput');
+  const mobileInput = document.getElementById('editHelperMobileInput');
+  const errorDiv = document.getElementById('editHelperErrorMsg');
+
+  if (!modal) return;
+
+  populateHelperCourtDropdowns();
+
+  if (idInput) idInput.value = helper.id;
+  if (nameInput) nameInput.value = helper.name || '';
+  if (positionInput) positionInput.value = helper.position || '';
+  if (mobileInput) mobileInput.value = helper.mobile || '';
+
+  if (courtSelect) {
+    let found = false;
+    Array.from(courtSelect.options).forEach(opt => {
+      if (opt.value.toLowerCase() === (helper.court || '').toLowerCase()) {
+        opt.selected = true;
+        found = true;
+      }
+    });
+    if (!found && helper.court) {
+      const newOpt = document.createElement('option');
+      newOpt.value = helper.court;
+      newOpt.textContent = helper.court;
+      newOpt.selected = true;
+      courtSelect.appendChild(newOpt);
+    }
+  }
+
+  if (errorDiv) {
+    errorDiv.textContent = '';
+    errorDiv.classList.add('hidden');
+  }
+
+  modal.classList.remove('hidden');
+  setTimeout(() => {
+    nameInput?.focus();
+  }, 100);
+}
+
+function closeEditHelperModal() {
+  const modal = document.getElementById('editHelperModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function confirmSaveEditedHelper() {
+  const idInput = document.getElementById('editHelperId');
+  const nameInput = document.getElementById('editHelperNameInput');
+  const courtSelect = document.getElementById('editHelperCourtSelect');
+  const positionInput = document.getElementById('editHelperPositionInput');
+  const mobileInput = document.getElementById('editHelperMobileInput');
+  const errorDiv = document.getElementById('editHelperErrorMsg');
+  const saveBtn = document.getElementById('saveEditHelperBtn');
+
+  const id = idInput?.value;
+  const name = (nameInput?.value || '').trim();
+  const court = (courtSelect?.value || '').trim();
+  const position = (positionInput?.value || '').trim();
+  const mobile = (mobileInput?.value || '').trim();
+
+  if (!name || !court || !position || !mobile) {
+    if (errorDiv) {
+      errorDiv.textContent = 'Please fill out all required fields.';
+      errorDiv.classList.remove('hidden');
+    }
+    return;
+  }
+
+  const helpers = getCourtHelpersList();
+  const index = helpers.findIndex(h => h.id === id);
+  if (index === -1) {
+    closeEditHelperModal();
+    return;
+  }
+
+  helpers[index] = {
+    ...helpers[index],
+    name,
+    court,
+    position,
+    mobile,
+    updatedAt: new Date().toISOString()
+  };
+
+  saveCourtHelpersList(helpers);
+  closeEditHelperModal();
+  renderHelpersTable();
+
+  // Asynchronously update in Supabase court_helpers
+  ensureSupabaseClient();
+  if (supabaseClient && id && !id.startsWith('helper_')) {
+    try {
+      if (saveBtn) saveBtn.disabled = true;
+      await supabaseClient.from('court_helpers').update({
+        name,
+        court,
+        position,
+        mobile,
+        updated_at: new Date().toISOString()
+      }).eq('id', id);
+      updateHelpersCloudSyncIndicator(true);
+    } catch (err) {
+      console.warn('Notice: Update to Supabase court_helpers:', err);
+    } finally {
+      if (saveBtn) saveBtn.disabled = false;
+    }
+  }
+
+  if (typeof showToastNotification === 'function') {
+    showToastNotification(`✅ Staff details for "${name}" updated successfully!`, 2500);
+  }
+}
+
+function openDeleteHelperModal(helperId) {
+  const helpers = getCourtHelpersList();
+  const helper = helpers.find(h => h.id === helperId);
+  if (!helper) return;
+
+  const modal = document.getElementById('deleteHelperModal');
+  const idInput = document.getElementById('deleteHelperTargetId');
+  const nameSpan = document.getElementById('deleteHelperDisplayName');
+  const errorDiv = document.getElementById('deleteHelperErrorMsg');
+
+  if (!modal) {
+    if (confirm(`Delete court staff member "${helper.name}"?`)) {
+      const remaining = helpers.filter(h => h.id !== helperId);
+      saveCourtHelpersList(remaining);
+      renderHelpersTable();
+    }
+    return;
+  }
+
+  if (idInput) idInput.value = helper.id;
+  if (nameSpan) nameSpan.textContent = `"${helper.name}" (${helper.position} • ${helper.court})`;
+  if (errorDiv) {
+    errorDiv.textContent = '';
+    errorDiv.classList.add('hidden');
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeDeleteHelperModal() {
+  const modal = document.getElementById('deleteHelperModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function executeDeleteHelperConfirm() {
+  const idInput = document.getElementById('deleteHelperTargetId');
+  const id = idInput?.value;
+  if (!id) {
+    closeDeleteHelperModal();
+    return;
+  }
+
+  const helpers = getCourtHelpersList();
+  const target = helpers.find(h => h.id === id);
+  const remaining = helpers.filter(h => h.id !== id);
+  saveCourtHelpersList(remaining);
+
+  closeDeleteHelperModal();
+  renderHelpersTable();
+
+  // Asynchronously delete from Supabase court_helpers
+  ensureSupabaseClient();
+  if (supabaseClient && id && !id.startsWith('helper_')) {
+    try {
+      await supabaseClient.from('court_helpers').delete().eq('id', id);
+      updateHelpersCloudSyncIndicator(true);
+    } catch (err) {
+      console.warn('Notice: Delete from Supabase court_helpers:', err);
+    }
+  }
+
+  if (typeof showToastNotification === 'function') {
+    showToastNotification(`✅ Staff member "${target ? target.name : 'Helper'}" removed from directory.`, 2500);
+  }
+}
+
+function exportHelpersCsv() {
+  const helpers = getCourtHelpersList();
+  if (helpers.length === 0) {
+    if (typeof showToastNotification === 'function') {
+      showToastNotification('⚠️ No court staff records to export.', 2200);
+    }
+    return;
+  }
+
+  let csvContent = 'data:text/csv;charset=utf-8,';
+  csvContent += 'Sr No,Staff Name,Position,Assigned Court,Mobile Number,Date Added\r\n';
+
+  helpers.forEach((h, idx) => {
+    const row = [
+      idx + 1,
+      `"${(h.name || '').replace(/"/g, '""')}"`,
+      `"${(h.position || '').replace(/"/g, '""')}"`,
+      `"${(h.court || '').replace(/"/g, '""')}"`,
+      `"${(h.mobile || '').replace(/"/g, '""')}"`,
+      `"${(h.createdAt || '').split('T')[0]}"`
+    ];
+    csvContent += row.join(',') + '\r\n';
+  });
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `Court_Helpers_Directory_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  if (typeof showToastNotification === 'function') {
+    showToastNotification('✅ Court staff directory exported to CSV.', 2500);
+  }
+}
+
+window.handleSaveHelper = handleSaveHelper;
+window.renderHelpersTable = renderHelpersTable;
+window.filterHelpersTable = filterHelpersTable;
+window.openEditHelperModal = openEditHelperModal;
+window.closeEditHelperModal = closeEditHelperModal;
+window.confirmSaveEditedHelper = confirmSaveEditedHelper;
+window.openDeleteHelperModal = openDeleteHelperModal;
+window.closeDeleteHelperModal = closeDeleteHelperModal;
+window.executeDeleteHelperConfirm = executeDeleteHelperConfirm;
+window.exportHelpersCsv = exportHelpersCsv;
+window.syncCourtHelpersFromCloud = syncCourtHelpersFromCloud;
+window.updateHelpersCloudSyncIndicator = updateHelpersCloudSyncIndicator;
+
 function renderCriminalCourtOptions() {
   const selects = [
     document.getElementById('criminalCourtName'),
@@ -9527,6 +10359,11 @@ function initializeApp() {
       }
     });
   });
+
+  // Initialize mobile back button interception & browser history tracking
+  if (typeof setupMobileBackAndHistory === 'function') {
+    setupMobileBackAndHistory();
+  }
 
   // Listen to browser hash navigation
   window.addEventListener('hashchange', () => {
@@ -10442,11 +11279,39 @@ function initializeApp() {
     });
   }
 
+  // Edit Helper Modal backdrop listener
+  const editHelperModal = document.getElementById('editHelperModal');
+  if (editHelperModal) {
+    editHelperModal.addEventListener('click', (e) => {
+      if (e.target === editHelperModal) {
+        closeEditHelperModal();
+      }
+    });
+  }
+
+  // Delete Helper Modal backdrop listener
+  const deleteHelperModal = document.getElementById('deleteHelperModal');
+  if (deleteHelperModal) {
+    deleteHelperModal.addEventListener('click', (e) => {
+      if (e.target === deleteHelperModal) {
+        closeDeleteHelperModal();
+      }
+    });
+  }
+
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       const delModal = document.getElementById('deleteCourtModal');
       if (delModal && !delModal.classList.contains('hidden')) {
         closeDeleteCourtModal();
+      }
+      const editHModal = document.getElementById('editHelperModal');
+      if (editHModal && !editHModal.classList.contains('hidden')) {
+        closeEditHelperModal();
+      }
+      const delHModal = document.getElementById('deleteHelperModal');
+      if (delHModal && !delHModal.classList.contains('hidden')) {
+        closeDeleteHelperModal();
       }
     }
   });
@@ -10558,6 +11423,8 @@ function initializeApp() {
   toggleCaseFormByType();
   toggleUpdateCaseFormByType();
   renderCourtsTable();
+  if (typeof populateHelperCourtDropdowns === 'function') populateHelperCourtDropdowns();
+  if (typeof updateHelpersBadges === 'function') updateHelpersBadges();
   renderCalendarView();
   fetchAllDataFromSupabase();
   filterCaseTables();
@@ -10886,6 +11753,20 @@ const DB_SCHEMAS = {
       { name: 'transfer_reason', label: 'Reason for Transfer', type: 'text', required: true, placeholder: 'e.g. Administrative reassignment, territorial jurisdiction' },
       { name: 'doc_link', label: 'Order Sheet / Document URL', type: 'url', placeholder: 'https://drive.google.com/...' },
       { name: 'remarks', label: 'Remarks / Instructions', type: 'textarea', placeholder: 'Case transfer notes' },
+      { name: 'created_at', label: 'Created At', type: 'timestamp', readonly: true },
+      { name: 'updated_at', label: 'Updated At', type: 'timestamp', readonly: true }
+    ]
+  },
+  court_helpers: {
+    title: 'court_helpers',
+    singular: 'Court Staff Member / Helper',
+    badge: 'civil',
+    columns: [
+      { name: 'id', label: 'ID (UUID)', type: 'uuid', readonly: true },
+      { name: 'name', label: 'Staff Member Name', type: 'text', required: true, placeholder: 'Staff name (e.g. Ramesh Chandra)' },
+      { name: 'court', label: 'Assigned Court / Forum', type: 'text', required: true, placeholder: 'Court name (e.g. Court No. 1)' },
+      { name: 'position', label: 'Position / Role', type: 'text', required: true, placeholder: 'e.g. Reader, Ahlmad, Peon, Steno' },
+      { name: 'mobile', label: 'Mobile Number', type: 'tel', required: true, placeholder: '10-digit mobile number' },
       { name: 'created_at', label: 'Created At', type: 'timestamp', readonly: true },
       { name: 'updated_at', label: 'Updated At', type: 'timestamp', readonly: true }
     ]
