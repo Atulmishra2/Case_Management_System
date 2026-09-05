@@ -981,10 +981,10 @@ async function addCaseToSupabase(newCase) {
   // Pre-check database for duplicate before attempting insert
   if (cleanCaseNo) {
     const dupCheck = await checkCaseNumberExists(cleanCaseNo);
-    if (dupCheck.exists) {
+    if (dupCheck && dupCheck.exists) {
       console.warn(`[Duplicate Blocked] Case ${cleanCaseNo} already exists in ${dupCheck.source} (${dupCheck.table || 'records'}).`);
       alert(`❌ Duplicate Entry Blocked!\n\nCase Number "${cleanCaseNo}" is already registered in the database (${dupCheck.source === 'database' ? 'Table: ' + dupCheck.table : 'Case Register'}).\n\nRepeated entry is blocked to preserve database integrity.`);
-      return;
+      return { success: false, duplicate: true };
     }
   }
 
@@ -1349,7 +1349,9 @@ async function addCaseToSupabase(newCase) {
       allCaseRecords.unshift(newCase);
     }
     refreshAllCaseTables();
+    return { success: true };
   }
+  return { success: false, error: 'Database insert failed' };
 }
 
 // Update Case in Supabase (or local fallback)
@@ -2435,6 +2437,20 @@ function showTab(tabId, event, navType = 'navigate') {
     } else {
       renderAllCasesTableWithFilters();
     }
+  }
+
+  if (tabId === 'add') {
+    renderCaseTypeOptions();
+    renderCourtOptions();
+    renderCriminalCourtOptions();
+    toggleCaseFormByType();
+  }
+
+  if (tabId === 'update') {
+    renderCaseTypeOptions();
+    renderCourtOptions();
+    renderCriminalCourtOptions();
+    toggleUpdateCaseFormByType();
   }
 
   if (tabId === 'causelist') {
@@ -7917,7 +7933,7 @@ async function handleUpdateCaseSubmit(e) {
       submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking Duplicate...';
     }
     const duplicateExists = await checkCaseNumberExists(newCaseNumber, originalCaseNo);
-    if (duplicateExists) {
+    if (duplicateExists && duplicateExists.exists) {
       alert(`❌ Case Number "${newCaseNumber}" already exists in the database! Please choose a unique Case Number.`);
       if (statusEl) {
         statusEl.textContent = `❌ Case Number "${newCaseNumber}" already exists on another case.`;
@@ -10721,21 +10737,25 @@ function initializeApp() {
 
       // Live Supabase + local memory uniqueness verification
       const exists = await checkCaseNumberExists(newCase.caseNo);
-      if (exists) {
+      if (exists && exists.exists) {
         alert(`❌ Case Number "${newCase.caseNo}" already exists in the database!\n\nPlease use a unique case number or update the existing record.`);
         return;
       }
 
       const recordCountBefore = allCaseRecords.length;
-      await addCaseToSupabase(newCase);
+      const addResult = await addCaseToSupabase(newCase);
 
       // Only show success and reset form if the case was actually added
-      if (allCaseRecords.length > recordCountBefore) {
+      const wasAdded = (addResult && addResult.success) ||
+        (allCaseRecords.length > recordCountBefore) ||
+        allCaseRecords.some(c => (c.caseNo || '').toLowerCase() === (newCase.caseNo || '').toLowerCase());
+
+      if (wasAdded) {
         this.reset();
         if (typeof clearCaseNumberValidationBadges === 'function') {
           clearCaseNumberValidationBadges();
         }
-        alert(`Case ${newCase.caseNo} added successfully!`);
+        alert(`🎉 Case ${newCase.caseNo} added successfully!`);
       }
     } catch (err) {
       console.error('Error submitting case:', err);
@@ -12550,7 +12570,7 @@ async function handleDbRecordFormSubmit(event) {
     const caseNum = (payload.case_number || payload.case_no || '').trim();
     if (caseNum && ['civilcases', 'statecases', 'familycases', 'revenuecases', 'misccivilcases', 'misccriminalcases', 'complaintcases'].includes(currentDbTable)) {
       const exists = await checkCaseNumberExists(caseNum);
-      if (exists) {
+      if (exists && exists.exists) {
         alert(`❌ Case Number "${caseNum}" already exists in the database! Duplicate insertion prevented.`);
         if (statusMsg) {
           statusMsg.textContent = `❌ Case Number "${caseNum}" already exists in database.`;
@@ -12847,6 +12867,111 @@ function closePwaGuideModal() {
 window.triggerPwaInstall = triggerPwaInstall;
 window.openPwaGuideModal = openPwaGuideModal;
 window.closePwaGuideModal = closePwaGuideModal;
+
+// ==============================================================================
+// Mobile Filter Drawer & Active Filter Count Controllers
+// ==============================================================================
+
+function updateMobileFilterBadges() {
+  try {
+    // Search tab active filters
+    const sType = document.getElementById('searchTypeFilter')?.value || '';
+    const sCourt = document.getElementById('searchCourtFilter')?.value || '';
+    const sStatus = document.getElementById('searchStatusFilter')?.value || '';
+    const sDate = document.getElementById('searchDateFilter')?.value || '';
+    let sCount = 0;
+    if (sType) sCount++;
+    if (sCourt) sCount++;
+    if (sStatus) sCount++;
+    if (sDate) sCount++;
+
+    const sBadge = document.getElementById('searchFilterCountBadge');
+    if (sBadge) {
+      sBadge.textContent = String(sCount);
+      sBadge.style.display = sCount > 0 ? 'inline-flex' : 'none';
+    }
+
+    // All Cases tab active filters
+    const aType = document.getElementById('allCasesTypeSelect')?.value || '';
+    const aStatus = document.getElementById('allCasesStatusSelect')?.value || '';
+    const aCourt = document.getElementById('allCasesCourtSelect')?.value || '';
+    let aCount = 0;
+    if (aType) aCount++;
+    if (aStatus) aCount++;
+    if (aCourt) aCount++;
+
+    const aBadge = document.getElementById('allCasesFilterCountBadge');
+    if (aBadge) {
+      aBadge.textContent = String(aCount);
+      aBadge.style.display = aCount > 0 ? 'inline-flex' : 'none';
+    }
+  } catch (e) {}
+}
+
+function toggleMobileFilterDrawer(drawerId) {
+  const drawer = document.getElementById(drawerId);
+  if (!drawer) return;
+  const isOpen = drawer.classList.toggle('open');
+  const card = drawer.closest('.my-cases-filter-card, .all-cases-filter-card');
+  const triggerBtn = card ? card.querySelector('.mobile-filter-trigger-btn') : null;
+  if (triggerBtn) triggerBtn.classList.toggle('active', isOpen);
+}
+
+function openMobileFilterDrawer(drawerId) {
+  const drawer = document.getElementById(drawerId);
+  if (!drawer) return;
+  drawer.classList.add('open');
+  const card = drawer.closest('.my-cases-filter-card, .all-cases-filter-card');
+  const triggerBtn = card ? card.querySelector('.mobile-filter-trigger-btn') : null;
+  if (triggerBtn) triggerBtn.classList.add('active');
+}
+
+function closeMobileFilterDrawer() {
+  document.querySelectorAll('.mobile-filter-drawer').forEach(d => {
+    d.classList.remove('open');
+    const card = d.closest('.my-cases-filter-card, .all-cases-filter-card');
+    const triggerBtn = card ? card.querySelector('.mobile-filter-trigger-btn') : null;
+    if (triggerBtn) triggerBtn.classList.remove('active');
+  });
+}
+
+function applyMobileFilters(tab) {
+  closeMobileFilterDrawer();
+  updateMobileFilterBadges();
+  if (tab === 'search') {
+    filterCaseTables();
+  } else if (tab === 'all') {
+    renderAllCasesTableWithFilters();
+  }
+}
+
+function resetMobileFilters(tab) {
+  if (tab === 'search') {
+    const sType = document.getElementById('searchTypeFilter');
+    const sCourt = document.getElementById('searchCourtFilter');
+    const sStatus = document.getElementById('searchStatusFilter');
+    const sDate = document.getElementById('searchDateFilter');
+    const sSearch = document.getElementById('globalSearch');
+    if (sType) sType.value = '';
+    if (sCourt) sCourt.value = '';
+    if (sStatus) sStatus.value = '';
+    if (sDate) sDate.value = '';
+    if (sSearch) sSearch.value = '';
+    document.querySelectorAll('.quick-filter-chip').forEach(c => c.classList.remove('active'));
+    filterCaseTables();
+  } else if (tab === 'all') {
+    resetAllCasesFilters();
+  }
+  updateMobileFilterBadges();
+  closeMobileFilterDrawer();
+}
+
+window.toggleMobileFilterDrawer = toggleMobileFilterDrawer;
+window.updateMobileFilterBadges = updateMobileFilterBadges;
+window.openMobileFilterDrawer = openMobileFilterDrawer;
+window.closeMobileFilterDrawer = closeMobileFilterDrawer;
+window.applyMobileFilters = applyMobileFilters;
+window.resetMobileFilters = resetMobileFilters;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeApp);

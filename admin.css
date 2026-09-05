@@ -17479,6 +17479,506 @@ table.all-cases-fixed-table tbody tr:last-child td:last-child,
   max-width: 520px;
 }
 
+/* ==============================================================================
+   MOBILE-FIRST ROBUST RESPONSIVE SYSTEM (5-POINT ARCHITECTURE)
+   ============================================================================== */
 
+/* --- 1. Data Table Transformation (Touch Table + Pinned Actions & Clean Columns) --- */
+.table-responsive,
+.all-cases-table-wrapper,
+.history-table-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  border-radius: 12px !important;
+  margin-bottom: 16px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  border: 1px solid #e2e8f0 !important;
+}
 
+/* On screens < 768px (Mobile & Small Tablets) */
+@media (max-width: 767.98px) {
+  .table-responsive table,
+  .all-cases-fixed-table,
+  table.search-results-table,
+  table.case-table,
+  table.causelist-table,
+  table.court-table,
+  table.helpers-table,
+  table.db-raw-table {
+    min-width: 680px !important;
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+  }
+
+  /* Keep table headers clear, compact, and legible */
+  .table-responsive thead th,
+  .all-cases-table-wrapper thead th,
+  table thead th {
+    padding: 10px 12px !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    white-space: nowrap !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2 !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+  }
+
+  /* Table Body Cells */
+  .table-responsive tbody td,
+  .all-cases-table-wrapper tbody td,
+  table.case-table tbody td {
+    padding: 11px 12px !important;
+    font-size: 13px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+  }
+
+  /* Sticky Actions Column pinned cleanly on the right edge */
+  .table-responsive th.table-actions-th,
+  .table-responsive td.table-actions-td,
+  .table-responsive th:last-child,
+  .table-responsive td:last-child,
+  .all-cases-fixed-table th:last-child,
+  .all-cases-fixed-table td:last-child,
+  table.search-results-table th:last-child,
+  table.search-results-table td:last-child,
+  table.causelist-table th:last-child,
+  table.causelist-table td:last-child {
+    position: sticky !important;
+    right: 0 !important;
+    background: #ffffff !important;
+    z-index: 3 !important;
+    box-shadow: -4px 0 8px -2px rgba(0, 0, 0, 0.08) !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+
+  .table-responsive thead th:last-child,
+  .all-cases-fixed-table thead th:last-child {
+    background: #f8fafc !important;
+    z-index: 4 !important;
+  }
+
+  .table-responsive tr:hover td:last-child,
+  .table-responsive tr.selected-row td:last-child {
+    background: #f1f5f9 !important;
+  }
+
+  /* Touch-friendly Action Buttons */
+  .all-cases-actions-cell button,
+  .table-actions-td button,
+  td:last-child button {
+    min-height: 36px !important;
+    min-width: 36px !important;
+    font-size: 13px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* Desktop Data Grid (>= 768px) */
+@media (min-width: 768px) {
+  .table-responsive table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+  }
+  .table-responsive th.table-actions-th,
+  .table-responsive td:last-child {
+    position: sticky;
+    right: 0;
+    background: #ffffff;
+    z-index: 2;
+    box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  .table-responsive tr:hover td:last-child {
+    background: #f8fafc;
+  }
+}
+
+/* --- 2. Filters & Search Optimization (Inline Collapsible Mobile Drawer) --- */
+.mobile-filter-trigger-btn {
+  display: none;
+}
+
+.mobile-filter-drawer-header,
+.mobile-filter-drawer-actions {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-filter-drawer {
+    display: block !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  /* Search top bar with inline Filter trigger button */
+  .filter-main-row,
+  .all-cases-search-row {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin-bottom: 10px !important;
+  }
+
+  .filter-search-box,
+  .all-cases-search-box {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .mobile-filter-trigger-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    height: 44px !important;
+    padding: 0 14px !important;
+    background: #ffffff !important;
+    border: 1.5px solid #00695c !important;
+    color: #00695c !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .mobile-filter-trigger-btn:active {
+    background: #e0f2f1 !important;
+    transform: scale(0.96) !important;
+  }
+
+  .mobile-filter-trigger-btn.active {
+    background: #00695c !important;
+    color: #ffffff !important;
+  }
+
+  .filter-count-badge {
+    display: none;
+    background: #00695c;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    border-radius: 9999px;
+    padding: 2px 7px;
+    min-width: 18px;
+    height: 18px;
+    line-height: 14px;
+    text-align: center;
+  }
+
+  .mobile-filter-trigger-btn.active .filter-count-badge {
+    background: #ffffff !important;
+    color: #00695c !important;
+  }
+
+  /* Collapsible Filter Panel on Mobile */
+  .mobile-filter-drawer {
+    display: none;
+    background: #f8fafc !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    padding: 16px 14px !important;
+    margin: 10px 0 14px 0 !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .mobile-filter-drawer.open {
+    display: block !important;
+  }
+
+  .mobile-filter-drawer-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    margin-bottom: 12px !important;
+  }
+
+  .mobile-filter-drawer-header h4 {
+    margin: 0 !important;
+    font-size: 1rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .mobile-filter-drawer-close {
+    background: #e2e8f0 !important;
+    border: none !important;
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.1rem !important;
+    color: #475569 !important;
+    cursor: pointer !important;
+  }
+
+  .filter-controls-grid,
+  .all-cases-filter-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .filter-actions-item {
+    display: none !important;
+  }
+
+  .mobile-filter-drawer-actions {
+    display: flex !important;
+    gap: 10px !important;
+    margin-top: 14px !important;
+    padding-top: 12px !important;
+    border-top: 1px solid #e2e8f0 !important;
+  }
+
+  .mobile-filter-drawer-actions button {
+    flex: 1 !important;
+    height: 42px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .mobile-filter-drawer-actions .primary-btn {
+    background: #00695c !important;
+    color: #ffffff !important;
+    border: none !important;
+  }
+
+  .mobile-filter-drawer-actions .secondary-btn {
+    background: #e2e8f0 !important;
+    color: #334155 !important;
+    border: none !important;
+  }
+}
+
+/* --- 3. Action Buttons & CTA Hierarchy + Mobile FAB --- */
+@media (max-width: 767.98px) {
+  .my-cases-header-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+    align-items: center !important;
+  }
+
+  /* Primary Filled Button */
+  .my-cases-header-actions .primary-btn.my-cases-action-btn,
+  .hero-quick-actions button.hero-btn-primary {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 44px !important;
+    padding: 0 16px !important;
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+  }
+
+  /* Secondary Outlined Button */
+  .my-cases-header-actions .secondary-btn.my-cases-action-btn {
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 44px !important;
+    padding: 0 14px !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    background: transparent !important;
+    border: 1.5px solid #00695c !important;
+    color: #00695c !important;
+    border-radius: 10px !important;
+  }
+}
+
+/* Floating Action Button (FAB) for Mobile */
+.mobile-fab-btn {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .mobile-fab-btn {
+    display: flex !important;
+    position: fixed !important;
+    right: 18px !important;
+    bottom: calc(76px + env(safe-area-inset-bottom)) !important;
+    width: 54px !important;
+    height: 54px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #00695c 0%, #004d40 100%) !important;
+    color: #ffffff !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.4rem !important;
+    box-shadow: 0 6px 20px rgba(0, 105, 92, 0.42) !important;
+    border: none !important;
+    cursor: pointer !important;
+    z-index: 995 !important;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+  }
+
+  .mobile-fab-btn:active {
+    transform: scale(0.9) !important;
+    box-shadow: 0 2px 8px rgba(0, 105, 92, 0.5) !important;
+  }
+}
+
+/* --- 4. Category Filter Chips (Single-Row Horizontal Scroll) --- */
+@media (max-width: 767.98px) {
+  .all-cases-type-pills-bar,
+  .filter-quick-chips,
+  .quick-filter-chips {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    gap: 8px !important;
+    padding: 6px 2px 10px 2px !important;
+    margin-bottom: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .all-cases-type-pills-bar::-webkit-scrollbar,
+  .filter-quick-chips::-webkit-scrollbar,
+  .quick-filter-chips::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  .all-cases-type-pills-bar .type-pill-btn,
+  .quick-filter-chip {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    font-size: 12.5px !important;
+    padding: 6px 14px !important;
+    border-radius: 20px !important;
+  }
+}
+
+/* --- 5. Viewport Layout, Safe Areas & Bottom Navigation --- */
+@media (max-width: 479.98px) {
+  .form-container,
+  .login-card,
+  .my-cases-filter-card,
+  .all-cases-filter-card,
+  .case-form-panel {
+    padding: 14px 14px !important;
+    border-radius: 14px !important;
+  }
+
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    padding: 10px 12px !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+  }
+
+  .form-group {
+    margin-bottom: 12px !important;
+  }
+
+  .form-grid-2col,
+  .form-grid-3col {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+}
+
+/* Fixed Bottom Navigation Bar Unified to CaseBook Emerald Theme */
+.fixed-bottom-nav {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  box-sizing: border-box !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+  background: #00695c !important;
+  box-shadow: 0 -2px 14px rgba(0, 77, 64, 0.25) !important;
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+  height: calc(58px + env(safe-area-inset-bottom)) !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn {
+  color: #ffffff !important;
+  opacity: 0.85 !important;
+  background: transparent !important;
+  border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 6px 12px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn:hover,
+.fixed-bottom-nav .bottom-nav-btn:active,
+.fixed-bottom-nav .bottom-nav-btn.active {
+  opacity: 1 !important;
+  color: #80cbc4 !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn i {
+  font-size: 17px !important;
+  margin-bottom: 2px !important;
+}
+
+/* Content Reserved Bottom Spacing to Prevent Cut-off Behind Nav Bar */
+.content,
+.page-shell {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+  box-sizing: border-box !important;
+}
 

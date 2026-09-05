@@ -778,48 +778,61 @@
                             <span class="filter-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                             <input type="text" id="globalSearch" placeholder="Search by Case No, Parties, Client, Sections, Police Station, Remarks..." aria-label="Search cases">
                         </div>
+                        <button type="button" class="mobile-filter-trigger-btn" onclick="toggleMobileFilterDrawer('searchFilterDrawer')" aria-label="Open Filter Options" title="Filter Cases">
+                            <i class="fa-solid fa-sliders"></i> <span>Filters</span> <span class="filter-count-badge" id="searchFilterCountBadge">0</span>
+                        </button>
                     </div>
 
-                    <div class="filter-controls-grid">
-                        <div class="filter-item">
-                            <label for="searchTypeFilter" class="filter-label">⚖️ Case Type</label>
-                            <select id="searchTypeFilter" class="filter-select">
-                                <option value="">All Case Types</option>
-                                <option value="civil">⚖️ Civil Cases</option>
-                                <option value="state">🚨 State Cases (Criminal)</option>
-                                <option value="family">👨‍👩‍👧 Family Cases</option>
-                                <option value="revenue">🌾 Revenue Cases</option>
-                                <option value="misc_civil">📑 Misc Civil (Appeals / Revisions)</option>
-                                <option value="misc_criminal">⚖️ Misc Criminal (Bails / Appeals)</option>
-                                <option value="complaint">📢 Complaint Cases (Sec 138 / 200 CrPC)</option>
-                            </select>
+                    <div id="searchFilterDrawer" class="mobile-filter-drawer">
+                        <div class="mobile-filter-drawer-header">
+                            <h4><i class="fa-solid fa-sliders"></i> Filter Cases</h4>
+                            <button type="button" class="mobile-filter-drawer-close" onclick="closeMobileFilterDrawer()" aria-label="Close Filters">&times;</button>
                         </div>
-                        <div class="filter-item">
-                            <label for="searchCourtFilter" class="filter-label">🏛️ Court Complex</label>
-                            <select id="searchCourtFilter" class="filter-select">
-                                <option value="">All Courts</option>
-                            </select>
+                        <div class="filter-controls-grid">
+                            <div class="filter-item">
+                                <label for="searchTypeFilter" class="filter-label">⚖️ Case Type</label>
+                                <select id="searchTypeFilter" class="filter-select">
+                                    <option value="">All Case Types</option>
+                                    <option value="civil">⚖️ Civil Cases</option>
+                                    <option value="state">🚨 State Cases (Criminal)</option>
+                                    <option value="family">👨‍👩‍👧 Family Cases</option>
+                                    <option value="revenue">🌾 Revenue Cases</option>
+                                    <option value="misc_civil">📑 Misc Civil (Appeals / Revisions)</option>
+                                    <option value="misc_criminal">⚖️ Misc Criminal (Bails / Appeals)</option>
+                                    <option value="complaint">📢 Complaint Cases (Sec 138 / 200 CrPC)</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label for="searchCourtFilter" class="filter-label">🏛️ Court Complex</label>
+                                <select id="searchCourtFilter" class="filter-select">
+                                    <option value="">All Courts</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label for="searchStatusFilter" class="filter-label">🚦 Case Status</label>
+                                <select id="searchStatusFilter" class="filter-select">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">⏳ Pending Cases</option>
+                                    <option value="disposed">✅ Disposed Cases</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label for="searchDateFilter" class="filter-label">📅 Hearing Schedule</label>
+                                <select id="searchDateFilter" class="filter-select">
+                                    <option value="">All Hearing Dates</option>
+                                    <option value="today">📌 Today's Hearings</option>
+                                    <option value="upcoming">⚡ Next 7 Days</option>
+                                    <option value="undated">❓ Undated (No hearing date)</option>
+                                    <option value="scheduled">🗓️ All Scheduled</option>
+                                </select>
+                            </div>
+                            <div class="filter-actions-item">
+                                <button type="button" id="clearSearchBtn" class="filter-reset-btn" title="Reset all filters">✕ Reset Filters</button>
+                            </div>
                         </div>
-                        <div class="filter-item">
-                            <label for="searchStatusFilter" class="filter-label">🚦 Case Status</label>
-                            <select id="searchStatusFilter" class="filter-select">
-                                <option value="">All Statuses</option>
-                                <option value="pending">⏳ Pending Cases</option>
-                                <option value="disposed">✅ Disposed Cases</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label for="searchDateFilter" class="filter-label">📅 Hearing Schedule</label>
-                            <select id="searchDateFilter" class="filter-select">
-                                <option value="">All Hearing Dates</option>
-                                <option value="today">📌 Today's Hearings</option>
-                                <option value="upcoming">⚡ Next 7 Days</option>
-                                <option value="undated">❓ Undated (No hearing date)</option>
-                                <option value="scheduled">🗓️ All Scheduled</option>
-                            </select>
-                        </div>
-                        <div class="filter-actions-item">
-                            <button type="button" id="clearSearchBtn" class="filter-reset-btn" title="Reset all filters">✕ Reset Filters</button>
+                        <div class="mobile-filter-drawer-actions">
+                            <button type="button" class="primary-btn" onclick="applyMobileFilters('search')">Apply Filters</button>
+                            <button type="button" class="secondary-btn" onclick="resetMobileFilters('search')">Reset</button>
                         </div>
                     </div>
 
@@ -3922,50 +3935,66 @@
 
                     <!-- Multi-Filter Controls Bar -->
                     <div class="all-cases-filter-card">
-                        <div class="all-cases-search-box">
-                            <span class="filter-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                            <input type="text" id="allCasesSearchInput" placeholder="Search by Case No, Parties, Client, Court, Police Station, Crime No, Remarks..." aria-label="Search all cases" oninput="renderAllCasesTableWithFilters()">
+                        <div class="all-cases-search-row">
+                            <div class="all-cases-search-box">
+                                <span class="filter-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" id="allCasesSearchInput" placeholder="Search by Case No, Parties, Client, Court, Police Station, Crime No, Remarks..." aria-label="Search all cases" oninput="renderAllCasesTableWithFilters()">
+                            </div>
+                            <button type="button" class="mobile-filter-trigger-btn" onclick="toggleMobileFilterDrawer('allCasesFilterDrawer')" aria-label="Open Filter Options" title="Filter All Cases">
+                                <i class="fa-solid fa-sliders"></i> <span>Filters</span> <span class="filter-count-badge" id="allCasesFilterCountBadge">0</span>
+                            </button>
                         </div>
 
-                        <div class="all-cases-filter-grid">
-                            <div class="filter-item">
-                                <label for="allCasesTypeSelect" class="filter-label">⚖️ Case Type</label>
-                                <select id="allCasesTypeSelect" class="filter-select" onchange="handleAllCasesTypeSelectChange()">
-                                    <option value="">All Case Types</option>
-                                    <option value="civil">⚖️ Civil Cases</option>
-                                    <option value="state">🚨 State Cases (Criminal)</option>
-                                    <option value="family">👨‍👩‍👧 Family Cases</option>
-                                    <option value="revenue">🌾 Revenue Cases</option>
-                                    <option value="misc_civil">📑 Misc Civil Cases</option>
-                                    <option value="misc_criminal">⚖️ Misc Criminal Cases</option>
-                                    <option value="complaint">📢 Complaint Cases</option>
-                                </select>
+                        <div id="allCasesFilterDrawer" class="mobile-filter-drawer">
+                            <div class="mobile-filter-drawer-header">
+                                <h4><i class="fa-solid fa-sliders"></i> Filter All Cases</h4>
+                                <button type="button" class="mobile-filter-drawer-close" onclick="closeMobileFilterDrawer()" aria-label="Close Filters">&times;</button>
                             </div>
 
-                            <div class="filter-item">
-                                <label for="allCasesStatusSelect" class="filter-label">📌 Case Status</label>
-                                <select id="allCasesStatusSelect" class="filter-select" onchange="renderAllCasesTableWithFilters()">
-                                    <option value="">All Statuses</option>
-                                    <option value="pending">⏳ Pending Cases</option>
-                                    <option value="disposed">✅ Disposed Cases</option>
-                                    <option value="undated">❓ Undated Cases</option>
-                                </select>
+                            <div class="all-cases-filter-grid">
+                                <div class="filter-item">
+                                    <label for="allCasesTypeSelect" class="filter-label">⚖️ Case Type</label>
+                                    <select id="allCasesTypeSelect" class="filter-select" onchange="handleAllCasesTypeSelectChange()">
+                                        <option value="">All Case Types</option>
+                                        <option value="civil">⚖️ Civil Cases</option>
+                                        <option value="state">🚨 State Cases (Criminal)</option>
+                                        <option value="family">👨‍👩‍👧 Family Cases</option>
+                                        <option value="revenue">🌾 Revenue Cases</option>
+                                        <option value="misc_civil">📑 Misc Civil Cases</option>
+                                        <option value="misc_criminal">⚖️ Misc Criminal Cases</option>
+                                        <option value="complaint">📢 Complaint Cases</option>
+                                    </select>
+                                </div>
+
+                                <div class="filter-item">
+                                    <label for="allCasesStatusSelect" class="filter-label">📌 Case Status</label>
+                                    <select id="allCasesStatusSelect" class="filter-select" onchange="renderAllCasesTableWithFilters()">
+                                        <option value="">All Statuses</option>
+                                        <option value="pending">⏳ Pending Cases</option>
+                                        <option value="disposed">✅ Disposed Cases</option>
+                                        <option value="undated">❓ Undated Cases</option>
+                                    </select>
+                                </div>
+
+                                <div class="filter-item">
+                                    <label for="allCasesCourtSelect" class="filter-label">🏛️ Court / Forum</label>
+                                    <select id="allCasesCourtSelect" class="filter-select" onchange="renderAllCasesTableWithFilters()">
+                                        <option value="">All Courts</option>
+                                    </select>
+                                </div>
+
+                                <div class="filter-actions-item">
+                                    <button type="button" id="allCasesResetBtn" class="clear-filters-btn" onclick="resetAllCasesFilters()" title="Reset all filters">
+                                        <i class="fa-solid fa-rotate-left"></i> Reset Filters
+                                    </button>
+                                </div>
                             </div>
 
-                            <div class="filter-item">
-                                <label for="allCasesCourtSelect" class="filter-label">🏛️ Court / Forum</label>
-                                <select id="allCasesCourtSelect" class="filter-select" onchange="renderAllCasesTableWithFilters()">
-                                    <option value="">All Courts</option>
-                                </select>
-                            </div>
-
-                            <div class="filter-actions-item">
-                                <button type="button" id="allCasesResetBtn" class="clear-filters-btn" onclick="resetAllCasesFilters()" title="Reset all filters">
-                                    <i class="fa-solid fa-rotate-left"></i> Reset Filters
-                                </button>
+                            <div class="mobile-filter-drawer-actions">
+                                <button type="button" class="primary-btn" onclick="applyMobileFilters('all')">Apply Filters</button>
+                                <button type="button" class="secondary-btn" onclick="resetMobileFilters('all')">Reset</button>
                             </div>
                         </div>
-
                     </div>
 
                     <!-- Table Toolbar: Rows-Per-Page Selector + Filter Summary (horizontal scroll = false) -->
@@ -4891,6 +4920,14 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile Filter Backdrop (for sliding drawer) -->
+    <div id="mobileFilterBackdrop" class="mobile-filter-backdrop" onclick="closeMobileFilterDrawer()"></div>
+
+    <!-- Mobile Floating Action Button (FAB) for + Add Case -->
+    <button type="button" class="mobile-fab-btn" onclick="showTab('add')" title="Add New Case" aria-label="Add New Case">
+        <i class="fa-solid fa-plus"></i>
+    </button>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="components/chambers-footer.js" defer></script>
