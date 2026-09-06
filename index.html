@@ -1538,6 +1538,58 @@
                                 </div>
                             </div>
 
+                            <!-- Task Workflow Type Selector -->
+                            <div class="form-group">
+                                <div class="todo-label-row">
+                                    <label for="todoWorkflowType">Task Workflow Type</label>
+                                    <span class="todo-field-hint">Standard or Multi-Step</span>
+                                </div>
+                                <select id="todoWorkflowType" class="form-select todo-custom-select" onchange="onTodoWorkflowTypeChange(this.value)">
+                                    <option value="standard">Standard Single Action</option>
+                                    <option value="certified_copy">📜 Certified Copy (4-Step Workflow)</option>
+                                    <option value="custom">⚙️ Custom Multi-Step Workflow</option>
+                                </select>
+                            </div>
+
+                            <!-- Multi-step workflow preview banner -->
+                            <div id="todoWorkflowStepsPreview" class="todo-workflow-preview hidden">
+                                <div class="workflow-preview-header">
+                                    <i class="fa-solid fa-layer-group"></i> <strong>Certified Copy (4 Steps):</strong>
+                                </div>
+                                <div class="workflow-preview-steps">
+                                    <span class="preview-step-tag">1. Apply</span>
+                                    <span class="preview-step-tag">2. Copy from office</span>
+                                    <span class="preview-step-tag">3. Preparation in copy office</span>
+                                    <span class="preview-step-tag">4. Receive</span>
+                                </div>
+
+                                <div class="todo-copy-number-group" style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #86efac;">
+                                    <div class="todo-label-row">
+                                        <label for="todoCopyNumber" style="color: #166534; font-weight: 600; font-size: 12px;">Certified Copy / Application No.</label>
+                                        <span class="todo-field-hint" style="color: #15803d;">e.g. 12344/12</span>
+                                    </div>
+                                    <div class="todo-input-icon-wrap" style="margin-top: 4px;">
+                                        <span class="todo-input-inner-icon" style="color: #166534;"><i class="fa-solid fa-stamp"></i></span>
+                                        <input type="text" id="todoCopyNumber" class="todo-custom-input with-icon" placeholder="e.g. 12344/12 or Folio No." oninput="onTodoCopyNumberInput(this.value)">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Custom Multi-Step Definition Input -->
+                            <div id="todoCustomStepsContainer" class="todo-custom-steps-wrap hidden">
+                                <div class="todo-label-row">
+                                    <label for="todoCustomStepsInput">Define Sub-Steps <span class="required-star">*</span></label>
+                                    <span class="todo-field-hint">Comma-separated steps</span>
+                                </div>
+                                <div class="todo-input-icon-wrap">
+                                    <span class="todo-input-inner-icon"><i class="fa-solid fa-list-ol"></i></span>
+                                    <input type="text" id="todoCustomStepsInput" class="todo-custom-input with-icon" placeholder="e.g. Drafting, Verification, Filing, Notice Served">
+                                </div>
+                                <div class="custom-step-tips-row">
+                                    <span>💡 Type steps separated by commas. Each will become a clickable check-step.</span>
+                                </div>
+                            </div>
+
                             <div class="form-group">
                                 <div class="todo-label-row">
                                     <label for="todoTitle">Task / Action Item <span class="required-star">*</span></label>

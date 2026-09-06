@@ -55,6 +55,20 @@ class TaskService {
     }
   }
 
+  toggleTaskSubStep(id, stepId) {
+    const task = this.tasks.find(t => t.id === id);
+    if (!task || !Array.isArray(task.steps)) return;
+    const step = task.steps.find(s => s.id === stepId);
+    if (step) {
+      step.completed = !step.completed;
+      step.date = step.completed ? new Date().toISOString().split('T')[0] : null;
+    }
+    const allDone = task.steps.length > 0 && task.steps.every(s => s.completed);
+    task.status = allDone ? 'done' : 'pending';
+    this.saveTasks();
+    this.renderCaseTasks();
+  }
+
   getPendingTasks() {
     return this.tasks.filter(t => (t.status || '').toLowerCase() !== 'done');
   }
@@ -180,6 +194,34 @@ class TaskService {
         hearingBadgeHtml = '<span class="todo-deadline-badge normal"><i class="fa-solid fa-triangle-exclamation"></i> Undated Case</span>';
       }
 
+      let stepperHtml = '';
+      if (t.steps && Array.isArray(t.steps) && t.steps.length > 0) {
+        const completedCount = t.steps.filter(s => s.completed).length;
+        const pct = Math.round((completedCount / t.steps.length) * 100);
+        stepperHtml = `
+          <div class="task-stepper-container">
+            <div class="task-stepper-header">
+              <span>Sub-steps (${completedCount}/${t.steps.length})</span>
+              <span class="task-stepper-pct">${pct}%</span>
+            </div>
+            <div class="task-stepper-bar-bg">
+              <div class="task-stepper-bar-fill" style="width: ${pct}%;"></div>
+            </div>
+            <div class="task-steps-list">
+              ${t.steps.map(step => `
+                <button type="button" 
+                        class="step-chip ${step.completed ? 'completed' : ''}" 
+                        onclick="window.taskServiceInstance ? window.taskServiceInstance.toggleTaskSubStep('${t.id}', ${step.id}) : toggleTaskSubStep('${t.id}', ${step.id})" 
+                        title="Toggle ${escapeHtml(step.name)}">
+                  <i class="fa-solid ${step.completed ? 'fa-circle-check' : 'fa-circle-dot'}"></i>
+                  <span>${escapeHtml(step.name)}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
       html += `
         <div class="todo-item-card ${priorityClass}" style="border-left: 3px solid ${isCompleted ? '#10b981' : (t.priority === 'high' ? '#ef4444' : '#cbd5e1')};">
           <div class="todo-item-content">
@@ -189,9 +231,11 @@ class TaskService {
             </div>
             <div class="todo-item-meta">
               ${taskCase ? `<span class="todo-case-ref"><i class="fa-solid fa-folder"></i> Case: <strong>${escapeHtml(taskCase)}</strong></span>` : ''}
+              ${t.copyNumber ? `<span class="todo-copy-badge"><i class="fa-solid fa-stamp"></i> Copy No: <strong>${escapeHtml(t.copyNumber)}</strong></span>` : ''}
               ${hearingBadgeHtml}
             </div>
             ${t.description ? `<div class="todo-description">${escapeHtml(t.description)}</div>` : ''}
+            ${stepperHtml}
           </div>
           <div class="todo-actions">
             <button type="button" class="table-view-btn" onclick="toggleTodoStatus('${t.id}')" title="${isCompleted ? 'Mark as incomplete' : 'Mark as complete'}">

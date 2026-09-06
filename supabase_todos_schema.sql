@@ -24,6 +24,10 @@ CREATE TABLE IF NOT EXISTS public.case_todos (
     priority VARCHAR(20) DEFAULT 'medium', -- 'high', 'medium', 'normal'
     status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'completed'
     
+    -- Multi-Step Workflow & Certified Copy Details
+    steps JSONB DEFAULT '[]'::jsonb, -- Array of step objects: [{"id": 1, "name": "Apply", "completed": true, "date": "2026-09-06"}]
+    copy_number VARCHAR(100), -- Certified Copy / Application No. e.g. '12344/12'
+    
     -- Timestamps
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -37,6 +41,7 @@ CREATE INDEX IF NOT EXISTS idx_case_todos_case_number ON public.case_todos (case
 CREATE INDEX IF NOT EXISTS idx_case_todos_deadline_date ON public.case_todos (deadline_date);
 CREATE INDEX IF NOT EXISTS idx_case_todos_status ON public.case_todos (status);
 CREATE INDEX IF NOT EXISTS idx_case_todos_priority ON public.case_todos (priority);
+CREATE INDEX IF NOT EXISTS idx_case_todos_copy_number ON public.case_todos (copy_number);
 
 -- ==============================================================================
 -- 4. Auto-update Trigger for "updated_at" Field
@@ -63,17 +68,22 @@ EXECUTE FUNCTION public.handle_case_todos_updated_at();
 
 ALTER TABLE public.case_todos ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow public read access to case_todos" ON public.case_todos;
 CREATE POLICY "Allow public read access to case_todos"
 ON public.case_todos FOR SELECT TO anon, authenticated USING (true);
 
+DROP POLICY IF EXISTS "Allow authenticated full access to case_todos" ON public.case_todos;
 CREATE POLICY "Allow authenticated full access to case_todos"
 ON public.case_todos FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow anon insert to case_todos" ON public.case_todos;
 CREATE POLICY "Allow anon insert to case_todos"
 ON public.case_todos FOR INSERT TO anon WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow anon update to case_todos" ON public.case_todos;
 CREATE POLICY "Allow anon update to case_todos"
 ON public.case_todos FOR UPDATE TO anon USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow anon delete to case_todos" ON public.case_todos;
 CREATE POLICY "Allow anon delete to case_todos"
 ON public.case_todos FOR DELETE TO anon USING (true);

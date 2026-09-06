@@ -780,6 +780,12 @@ async function fetchAllDataFromSupabase() {
         const key = t.id ? `id_${t.id}` : `${(t.case_number || '').toLowerCase()}_${(t.task_title || '').toLowerCase()}_${t.deadline_date}`;
         if (!seenTaskKeys.has(key)) {
           seenTaskKeys.add(key);
+          let parsedSteps = [];
+          if (Array.isArray(t.steps)) {
+            parsedSteps = t.steps;
+          } else if (typeof t.steps === 'string') {
+            try { parsedSteps = JSON.parse(t.steps); } catch (e) { parsedSteps = []; }
+          }
           uniqueTasks.push({
             id: t.id,
             caseNo: t.case_number,
@@ -789,6 +795,8 @@ async function fetchAllDataFromSupabase() {
             deadlineDate: t.deadline_date,
             priority: t.priority || 'medium',
             status: t.status || 'pending',
+            steps: parsedSteps,
+            copyNumber: t.copy_number || '',
             createdAt: t.created_at
           });
         }
@@ -6683,6 +6691,35 @@ async function handleAddTodoSubmit(e) {
       }
     }
 
+    // Check workflow type for multi-step task templates
+    const workflowTypeEl = document.getElementById('todoWorkflowType');
+    const workflowType = workflowTypeEl ? workflowTypeEl.value : 'standard';
+    const customStepsInput = document.getElementById('todoCustomStepsInput');
+    let taskSteps = [];
+
+    if (workflowType === 'certified_copy') {
+      taskSteps = [
+        { id: 1, name: 'Apply', completed: false, date: null },
+        { id: 2, name: 'Copy from office', completed: false, date: null },
+        { id: 3, name: 'Preparation in copy office', completed: false, date: null },
+        { id: 4, name: 'Receive', completed: false, date: null }
+      ];
+    } else if (workflowType === 'custom') {
+      const rawSteps = customStepsInput ? customStepsInput.value.trim() : '';
+      if (rawSteps) {
+        const stepNames = rawSteps.split(',').map(s => s.trim()).filter(Boolean);
+        taskSteps = stepNames.map((name, idx) => ({
+          id: idx + 1,
+          name,
+          completed: false,
+          date: null
+        }));
+      }
+    }
+
+    const copyNumberInput = document.getElementById('todoCopyNumber');
+    const copyNumber = copyNumberInput ? copyNumberInput.value.trim() : '';
+
     const newTask = {
       id: 'task_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       caseNo,
@@ -6692,6 +6729,8 @@ async function handleAddTodoSubmit(e) {
       deadlineDate: deadline,
       priority,
       status: 'pending',
+      steps: taskSteps,
+      copyNumber: copyNumber,
       createdAt: new Date().toISOString()
     };
 
@@ -6700,6 +6739,14 @@ async function handleAddTodoSubmit(e) {
     renderCaseTasks(currentTodoFilter);
 
     if (titleInput) titleInput.value = '';
+    if (customStepsInput) customStepsInput.value = '';
+    if (copyNumberInput) copyNumberInput.value = '';
+    if (workflowTypeEl) workflowTypeEl.value = 'standard';
+    const previewEl = document.getElementById('todoWorkflowStepsPreview');
+    if (previewEl) previewEl.classList.add('hidden');
+    const customContainerEl = document.getElementById('todoCustomStepsContainer');
+    if (customContainerEl) customContainerEl.classList.add('hidden');
+
     showToastNotification(`📝 Task scheduled for ${caseNo}!`);
 
     // Live Supabase Sync (if configured)
@@ -6712,7 +6759,9 @@ async function handleAddTodoSubmit(e) {
           hearing_date: newTask.hearingDate && newTask.hearingDate !== '—' ? newTask.hearingDate : null,
           deadline_date: newTask.deadlineDate,
           priority: newTask.priority,
-          status: newTask.status
+          status: newTask.status,
+          steps: newTask.steps || [],
+          copy_number: newTask.copyNumber || null
         }]).select();
 
         if (!error && data && data.length > 0) {
@@ -6732,6 +6781,46 @@ async function handleAddTodoSubmit(e) {
   return false;
 }
 window.handleAddTodoSubmit = handleAddTodoSubmit;
+
+function onTodoCopyNumberInput(val) {
+  const titleInput = document.getElementById('todoTitle');
+  if (!titleInput) return;
+  const trimmed = (val || '').trim();
+  if (trimmed) {
+    titleInput.value = 'Certified Copy (App No. ' + trimmed + ')';
+  } else {
+    titleInput.value = 'Certified Copy Application';
+  }
+}
+window.onTodoCopyNumberInput = onTodoCopyNumberInput;
+
+function onTodoWorkflowTypeChange(val) {
+  const preview = document.getElementById('todoWorkflowStepsPreview');
+  const customContainer = document.getElementById('todoCustomStepsContainer');
+  const customInput = document.getElementById('todoCustomStepsInput');
+  const copyNumberInput = document.getElementById('todoCopyNumber');
+  const titleInput = document.getElementById('todoTitle');
+
+  if (val === 'certified_copy') {
+    if (preview) preview.classList.remove('hidden');
+    if (customContainer) customContainer.classList.add('hidden');
+    const existingNum = copyNumberInput ? copyNumberInput.value.trim() : '';
+    if (titleInput && (!titleInput.value.trim() || titleInput.value.startsWith('Certified Copy'))) {
+      titleInput.value = existingNum ? ('Certified Copy (App No. ' + existingNum + ')') : 'Certified Copy Application';
+    }
+    if (copyNumberInput) copyNumberInput.focus();
+  } else if (val === 'custom') {
+    if (preview) preview.classList.add('hidden');
+    if (customContainer) customContainer.classList.remove('hidden');
+    if (customInput) customInput.focus();
+    if (copyNumberInput) copyNumberInput.value = '';
+  } else {
+    if (preview) preview.classList.add('hidden');
+    if (customContainer) customContainer.classList.add('hidden');
+    if (copyNumberInput) copyNumberInput.value = '';
+  }
+}
+window.onTodoWorkflowTypeChange = onTodoWorkflowTypeChange;
 
 function filterTodoTasks(filterType, btnEl = null) {
   currentTodoFilter = filterType;
@@ -6753,18 +6842,62 @@ async function toggleTaskStatus(taskId) {
   const task = caseTasks.find(t => t.id === taskId);
   if (!task) return;
   task.status = task.status === 'completed' ? 'pending' : 'completed';
+  if (task.steps && Array.isArray(task.steps) && task.steps.length > 0) {
+    const isCompleted = task.status === 'completed';
+    task.steps.forEach(s => {
+      s.completed = isCompleted;
+      s.date = isCompleted ? (s.date || new Date().toISOString().split('T')[0]) : null;
+    });
+  }
   saveCaseTasksLocally();
   renderCaseTasks(currentTodoFilter);
 
   if (supabaseClient) {
     try {
-      await supabaseClient.from('case_todos').update({ status: task.status }).eq('id', taskId);
+      await supabaseClient.from('case_todos').update({ 
+        status: task.status,
+        steps: task.steps || []
+      }).eq('id', taskId);
     } catch (e) {
       console.warn('Supabase task toggle fallback to local:', e);
     }
   }
 }
 window.toggleTaskStatus = toggleTaskStatus;
+
+async function toggleTaskSubStep(taskId, stepId) {
+  const task = caseTasks.find(t => t.id === taskId);
+  if (!task || !Array.isArray(task.steps)) return;
+
+  const step = task.steps.find(s => s.id === stepId);
+  if (step) {
+    step.completed = !step.completed;
+    step.date = step.completed ? new Date().toISOString().split('T')[0] : null;
+  }
+
+  // If all steps are completed, automatically mark the whole task completed
+  const allCompleted = task.steps.length > 0 && task.steps.every(s => s.completed);
+  task.status = allCompleted ? 'completed' : 'pending';
+
+  saveCaseTasksLocally();
+  renderCaseTasks(currentTodoFilter);
+
+  if (step && step.completed) {
+    showToastNotification(`✓ Step completed: ${step.name}`);
+  }
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient.from('case_todos').update({ 
+        steps: task.steps,
+        status: task.status
+      }).eq('id', taskId);
+    } catch (e) {
+      console.warn('Supabase task step toggle fallback to local:', e);
+    }
+  }
+}
+window.toggleTaskSubStep = toggleTaskSubStep;
 
 async function deleteCaseTask(taskId) {
   if (typeof confirm === 'function' && !confirm('Are you sure you want to remove this task?')) return;
@@ -6826,7 +6959,8 @@ function renderCaseTasks(filter = currentTodoFilter) {
       const title = (t.taskTitle || '').toLowerCase();
       const num = (t.caseNo || '').toLowerCase();
       const name = (t.caseName || '').toLowerCase();
-      return title.includes(todoSearchQuery) || num.includes(todoSearchQuery) || name.includes(todoSearchQuery);
+      const copy = (t.copyNumber || '').toLowerCase();
+      return title.includes(todoSearchQuery) || num.includes(todoSearchQuery) || name.includes(todoSearchQuery) || copy.includes(todoSearchQuery);
     });
   }
 
@@ -6881,6 +7015,35 @@ function renderCaseTasks(filter = currentTodoFilter) {
     const priorityClass = t.priority || 'medium';
     const hearingFormatted = t.hearingDate && t.hearingDate !== '—' ? formatDateDMY(t.hearingDate) : 'Undated';
 
+    let stepperHtml = '';
+    if (t.steps && Array.isArray(t.steps) && t.steps.length > 0) {
+      const completedCount = t.steps.filter(s => s.completed).length;
+      const pct = Math.round((completedCount / t.steps.length) * 100);
+      stepperHtml = `
+        <div class="task-stepper-container">
+          <div class="task-stepper-header">
+            <span><i class="fa-solid fa-list-check"></i> Sub-steps (${completedCount}/${t.steps.length})</span>
+            <span class="task-stepper-pct">${pct}% Completed</span>
+          </div>
+          <div class="task-stepper-bar-bg">
+            <div class="task-stepper-bar-fill" style="width: ${pct}%;"></div>
+          </div>
+          <div class="task-steps-list">
+            ${t.steps.map(step => `
+              <button type="button" 
+                      class="step-chip ${step.completed ? 'completed' : ''}" 
+                      onclick="toggleTaskSubStep('${t.id}', ${step.id})" 
+                      title="Click to toggle: ${step.name}">
+                <i class="fa-solid ${step.completed ? 'fa-circle-check' : 'fa-circle-dot'}"></i>
+                <span>${step.name}</span>
+                ${step.date ? `<small style="opacity:0.75; font-size:10px;">(${step.date})</small>` : ''}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="todo-item priority-${priorityClass} ${isDone ? 'status-completed' : ''}" id="${t.id}">
         <div class="todo-checkbox-wrapper">
@@ -6890,6 +7053,7 @@ function renderCaseTasks(filter = currentTodoFilter) {
           <div class="todo-item-top">
             <span class="todo-item-title">${t.taskTitle}</span>
             <div class="todo-badges-row">
+              ${t.copyNumber ? `<span class="todo-copy-badge" title="Certified Copy Application No."><i class="fa-solid fa-stamp"></i> Copy No: <strong>${t.copyNumber}</strong></span>` : ''}
               ${deadlineBadgeHtml}
               <span class="todo-priority-pill ${priorityClass}">${priorityLabel}</span>
             </div>
@@ -6899,6 +7063,7 @@ function renderCaseTasks(filter = currentTodoFilter) {
             <span>📅 Deadline: <strong>${formatDateDMY(t.deadlineDate)}</strong></span>
             <span>⚖️ Court Hearing: <strong>${hearingFormatted}</strong></span>
           </div>
+          ${stepperHtml}
         </div>
         <div class="todo-item-actions">
           <button type="button" class="todo-delete-btn" onclick="deleteCaseTask('${t.id}')" title="Delete Task">🗑️</button>
@@ -12629,6 +12794,7 @@ async function fetchAndRenderDbTable(tableName = currentDbTable) {
         deadline_date: t.deadlineDate,
         priority: t.priority || 'medium',
         status: t.status || 'pending',
+        steps: t.steps || [],
         created_at: t.createdAt || new Date().toISOString(),
         updated_at: new Date().toISOString()
       }));
