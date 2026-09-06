@@ -5986,14 +5986,17 @@ html.auth-guest #guestScreen {
 .todo-combobox-toggle-btn {
   position: absolute;
   right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   background: transparent;
   border: none;
-  font-size: 14px;
+  font-size: 15px;
   color: #4A6572;
   cursor: pointer;
   padding: 4px 6px;
   border-radius: 6px;
   transition: color 0.15s ease;
+  z-index: 5;
 }
 
 .todo-combobox-toggle-btn:hover {
@@ -6008,6 +6011,7 @@ html.auth-guest #guestScreen {
   right: 0;
   max-height: 290px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: #ffffff;
   border: 1.5px solid #DDE3E6;
   border-radius: 12px;
@@ -6016,7 +6020,8 @@ html.auth-guest #guestScreen {
   padding: 6px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  box-sizing: border-box;
 }
 
 .todo-combobox-results.hidden {
@@ -6024,29 +6029,36 @@ html.auth-guest #guestScreen {
 }
 
 .todo-combobox-item {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+  box-sizing: border-box !important;
   padding: 10px 12px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
-  border: 1px solid transparent;
+  border: 1px solid #E2E8F0;
+  background-color: #ffffff;
 }
 
 .todo-combobox-item:hover {
-  background-color: #FAFBFC;
-  border-color: #DDE3E6;
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
   transform: translateX(2px);
 }
 
 .todo-combobox-item.selected {
-  background-color: #ECEFF1;
-  border-color: #c7d2fe;
+  background-color: #EFF6FF;
+  border-color: #93C5FD;
 }
 
 .combobox-item-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 3px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .combobox-case-num {
@@ -6054,25 +6066,43 @@ html.auth-guest #guestScreen {
   font-size: 13px;
   font-weight: 800;
   color: #192226;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.combobox-item-top .case-badge {
+  flex-shrink: 0;
 }
 
 .combobox-item-name {
   font-size: 13px;
   font-weight: 600;
   color: #2E3B41;
-  margin-bottom: 4px;
-  line-height: 1.3;
+  margin-bottom: 5px;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
 .combobox-item-meta {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 8px;
   font-size: 11.5px;
   color: #4A6572;
+  line-height: 1.35;
+}
+
+.combobox-item-meta > span:first-child {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .combobox-hearing-badge {
+  flex-shrink: 0;
+  white-space: nowrap;
   background: #ecfdf5;
   color: #065f46;
   padding: 2px 6px;
@@ -7306,7 +7336,7 @@ html.auth-guest #guestScreen {
   }
 
   .todo-combobox-results {
-    max-height: 220px;
+    max-height: min(280px, 50vh);
   }
 
   /* Tables on tiny screens - allow full horizontal scroll */
@@ -7399,7 +7429,9 @@ html.auth-guest #guestScreen {
   }
 
   .todo-combobox-item {
-    min-height: 48px;
+    min-height: 52px;
+    height: auto !important;
+    flex-shrink: 0 !important;
     padding: 10px 14px;
   }
 
@@ -18242,10 +18274,16 @@ table.all-cases-fixed-table tbody tr:last-child td:last-child,
   .filter-search-box input[type="text"],
   .all-cases-search-box input[type="text"],
   .helper-search-box input[type="text"],
-  .todo-combobox-input-wrap input[type="text"],
   .todo-input-icon-wrap input[type="text"],
   .todo-custom-input.with-icon {
     padding: 10px 14px 10px 44px !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+  }
+
+  .todo-combobox-input-wrap input[type="text"],
+  .todo-combobox-input {
+    padding: 10px 58px 10px 44px !important;
     font-size: 14px !important;
     border-radius: 8px !important;
   }
@@ -18636,11 +18674,17 @@ input[type="text"]#editCourtInput,
 .filter-search-box input[type="text"],
 .all-cases-search-box input[type="text"],
 .helper-search-box input[type="text"],
-.todo-combobox-input-wrap input[type="text"],
 .todo-input-icon-wrap input[type="text"],
 .todo-custom-input.with-icon {
   padding-left: 44px !important;
   padding-right: 14px !important;
+  box-sizing: border-box !important;
+}
+
+.todo-combobox-input-wrap input[type="text"],
+.todo-combobox-input {
+  padding-left: 44px !important;
+  padding-right: 58px !important;
   box-sizing: border-box !important;
 }
 
