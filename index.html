@@ -30,7 +30,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=6.5">
+    <link rel="stylesheet" href="admin.css?v=6.8">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#502D55">
     <meta name="mobile-web-app-capable" content="yes">
@@ -108,7 +108,7 @@
         <div class="guest-content">
             <div class="search-panel">
                 <h2>Track Case Hearing</h2>
-                <input type="text" id="guestSearch" placeholder="Enter your Case Number or Mobile Number..." aria-label="Search your case">
+                <input type="text" id="guestSearch" placeholder="Enter your Case Number or Mobile Number..." aria-label="Search your case" enterkeyhint="search" autocomplete="off">
             </div>
 
             <div class="search-results-panel">
@@ -776,7 +776,7 @@
                     <div class="filter-main-row">
                         <div class="filter-search-box">
                             <span class="filter-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                            <input type="text" id="globalSearch" placeholder="Search by Case No, Parties, Client, Sections, Police Station, Remarks..." aria-label="Search cases">
+                            <input type="text" id="globalSearch" placeholder="Search by Case No, Parties, Client, Sections, Police Station, Remarks..." aria-label="Search cases" enterkeyhint="search" autocomplete="off">
                         </div>
                         <button type="button" class="mobile-filter-trigger-btn" onclick="toggleMobileFilterDrawer('searchFilterDrawer')" aria-label="Open Filter Options" title="Filter Cases">
                             <i class="fa-solid fa-sliders"></i> <span>Filters</span> <span class="filter-count-badge" id="searchFilterCountBadge">0</span>
@@ -1467,7 +1467,7 @@
                             <div class="todo-list-header-top">
                                 <div class="todo-search-box">
                                     <span class="todo-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                                    <input type="text" id="todoSearchInput" class="todo-search-input" placeholder="Search tasks by title, case number, party..." oninput="onTodoSearchInput(this.value)">
+                                    <input type="text" id="todoSearchInput" class="todo-search-input" placeholder="Search tasks by title, case number, party..." oninput="onTodoSearchInput(this.value)" enterkeyhint="search" autocomplete="off">
                                 </div>
                             </div>
 
@@ -2307,7 +2307,7 @@
                     <div class="court-table-toolbar">
                         <div class="search-field-box court-search-box">
                             <span class="search-field-prefix-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                            <input type="text" id="courtSearchInput" placeholder="Search configured courts by name..." oninput="filterCourtsTable(this.value)">
+                            <input type="text" id="courtSearchInput" placeholder="Search configured courts by name..." oninput="filterCourtsTable(this.value)" enterkeyhint="search" autocomplete="off">
                         </div>
                         <button type="button" class="secondary-btn court-refresh-btn" onclick="syncAllCourtsFromDatabase()">
                             <i class="fa-solid fa-arrows-rotate"></i> <span>Sync All Courts</span>
@@ -2409,7 +2409,7 @@
                     <div class="court-table-toolbar helper-table-toolbar">
                         <div class="search-field-box helper-search-box">
                             <span class="search-field-prefix-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                            <input type="text" id="helperSearchInput" placeholder="Search by name, court, position, or mobile..." oninput="filterHelpersTable(this.value)">
+                            <input type="text" id="helperSearchInput" placeholder="Search by name, court, position, or mobile..." oninput="filterHelpersTable(this.value)" enterkeyhint="search" autocomplete="off">
                         </div>
                         <div class="helper-toolbar-right">
                             <div class="helper-filter-court-box">
@@ -3957,7 +3957,7 @@
                         <div class="all-cases-search-row">
                             <div class="all-cases-search-box">
                                 <span class="filter-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                                <input type="text" id="allCasesSearchInput" placeholder="Search by Case No, Parties, Client, Court, Police Station, Crime No, Remarks..." aria-label="Search all cases" oninput="renderAllCasesTableWithFilters()">
+                                <input type="text" id="allCasesSearchInput" placeholder="Search by Case No, Parties, Client, Court, Police Station, Crime No, Remarks..." aria-label="Search all cases" oninput="renderAllCasesTableWithFilters()" enterkeyhint="search" autocomplete="off">
                             </div>
                             <button type="button" class="mobile-filter-trigger-btn" onclick="toggleMobileFilterDrawer('allCasesFilterDrawer')" aria-label="Open Filter Options" title="Filter All Cases">
                                 <i class="fa-solid fa-sliders"></i> <span>Filters</span> <span class="filter-count-badge" id="allCasesFilterCountBadge">0</span>

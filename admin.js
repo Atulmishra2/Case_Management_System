@@ -2527,9 +2527,9 @@ function showTab(tabId, event, navType = 'navigate') {
   if (mobileFab) {
     const fabAllowedTabs = ['home', 'search', 'all', 'causelist', 'upcoming'];
     if (fabAllowedTabs.includes(tabId)) {
-      mobileFab.style.display = '';
+      mobileFab.style.removeProperty('display');
     } else {
-      mobileFab.style.display = 'none';
+      mobileFab.style.setProperty('display', 'none', 'important');
     }
   }
 
@@ -2541,6 +2541,10 @@ function showTab(tabId, event, navType = 'navigate') {
   }
 
   if (tabId === 'search') {
+    setTimeout(() => {
+      const gs = document.getElementById('globalSearch');
+      if (gs) gs.focus();
+    }, 250);
     filterCaseTables();
   }
 
@@ -13347,3 +13351,63 @@ if (document.readyState === 'loading') {
 }
 
 
+
+
+// Initialize 1-Tap Search Clear Buttons across all mobile and desktop search boxes
+function initSearchFieldClearButtons() {
+  const searchInputs = [
+    'courtSearchInput',
+    'helperSearchInput',
+    'allCasesSearchInput',
+    'globalSearch',
+    'guestSearch',
+    'todoSearchInput',
+    'transferSearchInput',
+    'deleteSearchInput',
+    'updateSearchInput',
+    'dbManagerSearchInput',
+    'dbModCaseSearchInput'
+  ];
+
+  searchInputs.forEach(id => {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    const parent = input.closest('.search-field-box') || input.closest('.court-search-box') || input.parentElement;
+    if (!parent) return;
+
+    let clearBtn = parent.querySelector('.search-field-clear-btn');
+    if (!clearBtn) {
+      clearBtn = document.createElement('button');
+      clearBtn.type = 'button';
+      clearBtn.className = 'search-field-clear-btn';
+      clearBtn.setAttribute('aria-label', 'Clear search');
+      clearBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+      parent.appendChild(clearBtn);
+
+      clearBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        input.value = '';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        input.focus();
+        updateClearBtnVisibility();
+      });
+    }
+
+    const updateClearBtnVisibility = () => {
+      if ((input.value || '').trim().length > 0) {
+        clearBtn.style.setProperty('display', 'inline-flex', 'important');
+      } else {
+        clearBtn.style.setProperty('display', 'none', 'important');
+      }
+    };
+
+    input.addEventListener('input', updateClearBtnVisibility);
+    input.addEventListener('focus', updateClearBtnVisibility);
+    input.addEventListener('change', updateClearBtnVisibility);
+    updateClearBtnVisibility();
+  });
+}
+window.initSearchFieldClearButtons = initSearchFieldClearButtons;
