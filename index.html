@@ -1773,7 +1773,7 @@
                             <div class="form-grid-2col">
                                 <div class="form-group">
                                     <label for="caseNo">Case Number</label>
-                                    <input id="caseNo" type="text" placeholder="e.g. CIV-2026-010" required>
+                                    <input id="caseNo" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. CIV-2026-010" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="caseYear">Year</label>
@@ -1841,7 +1841,7 @@
                             <div class="form-grid-2col">
                                 <div class="form-group">
                                     <label for="stateCaseNumber">Case Number / ST No.</label>
-                                    <input id="stateCaseNumber" type="text" placeholder="e.g. ST-2026-001 or Sess. Case 104/2026">
+                                    <input id="stateCaseNumber" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. ST-2026-001 or Sess. Case 104/2026">
                                 </div>
                                 <div class="form-group">
                                     <label for="stateCrimeYear">Crime / Case Year</label>
@@ -1849,7 +1849,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="stateCrimeNumber">Crime / FIR Number</label>
-                                    <input id="stateCrimeNumber" type="text" placeholder="e.g. Crime No. 142/2026">
+                                    <input id="stateCrimeNumber" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. Crime No. 142/2026">
                                 </div>
                                 <div class="form-group">
                                     <label for="statePoliceStation">Police Station / Thana</label>
@@ -1948,7 +1948,7 @@
                             <div class="form-grid-2col">
                                 <div class="form-group">
                                     <label for="familyCaseNumber">Case Number</label>
-                                    <input id="familyCaseNumber" type="text" placeholder="e.g. FC-2026-015 or Matrimonial Case 45/2026">
+                                    <input id="familyCaseNumber" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. FC-2026-015 or Matrimonial Case 45/2026">
                                 </div>
                                 <div class="form-group">
                                     <label for="familyCaseYear">Year</label>
@@ -2036,7 +2036,7 @@
                             <div class="form-grid-2col">
                                 <div class="form-group">
                                     <label for="revenueCaseNumber">Case Number / Computerized Case No.</label>
-                                    <input id="revenueCaseNumber" type="text" placeholder="e.g. REV-2026-020 or Case No. T2026...">
+                                    <input id="revenueCaseNumber" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. REV-2026-020 or Case No. T2026...">
                                 </div>
                                 <div class="form-group">
                                     <label for="revenueCaseYear">Year</label>
@@ -2129,7 +2129,7 @@
                             <div class="form-grid-2col">
                                 <div class="form-group">
                                     <label for="miscCivilCaseNumber">Misc / Application Case Number *</label>
-                                    <input id="miscCivilCaseNumber" type="text" placeholder="e.g. MCA-2026-101 or Misc App No.">
+                                    <input id="miscCivilCaseNumber" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. MCA-2026-101 or Misc App No.">
                                 </div>
                                 <div class="form-group">
                                     <label for="miscCivilCaseYear">Year</label>
@@ -2137,7 +2137,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="miscCivilOriginalCase">Original / Main Suit Number</label>
-                                    <input id="miscCivilOriginalCase" type="text" placeholder="e.g. OS No. 45/2024">
+                                    <input id="miscCivilOriginalCase" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. OS No. 45/2024">
                                 </div>
                                 <div class="form-group">
                                     <label for="miscCivilProceedingType">Proceeding / Application Type</label>
@@ -2213,7 +2213,7 @@
                             <div class="form-grid-2col">
                                 <div class="form-group">
                                     <label for="miscCriminalCaseNumber">Misc Criminal / Bail Application No. *</label>
-                                    <input id="miscCriminalCaseNumber" type="text" placeholder="e.g. BA-2026-050 or Cr. Misc No.">
+                                    <input id="miscCriminalCaseNumber" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. BA-2026-050 or Cr. Misc No.">
                                 </div>
                                 <div class="form-group">
                                     <label for="miscCriminalCaseYear">Year</label>
@@ -2221,7 +2221,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="miscCriminalOriginalCase">Original ST / Crime / FIR Number</label>
-                                    <input id="miscCriminalOriginalCase" type="text" placeholder="e.g. Crime No. 210/2026">
+                                    <input id="miscCriminalOriginalCase" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. Crime No. 210/2026">
                                 </div>
                                 <div class="form-group">
                                     <label for="miscCriminalProceedingType">Application / Proceeding Type</label>
@@ -2331,7 +2331,7 @@
                             <div class="form-grid-2col">
                                 <div class="form-group">
                                     <label for="complaintCaseNumber">Complaint / CC Number *</label>
-                                    <input id="complaintCaseNumber" type="text" placeholder="e.g. CC-2026-105 or Case No.">
+                                    <input id="complaintCaseNumber" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. CC-2026-105 or Case No.">
                                 </div>
                                 <div class="form-group">
                                     <label for="complaintCaseYear">Year</label>
@@ -3159,7 +3159,7 @@
                                         <label for="updateCaseNo" style="margin-bottom:0;">Case Number 🔒</label>
                                         <button type="button" class="unlock-case-btn" data-targets="updateCaseNo,updateCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
                                     </div>
-                                    <input id="updateCaseNo" type="text" placeholder="Case Number" readonly required class="locked-input" title="Click Unlock to edit Case Number if needed.">
+                                    <input id="updateCaseNo" type="text" placeholder="Case Number" readonly required class="locked-input case-number-input" data-uppercase="true" title="Click Unlock to edit Case Number if needed.">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateCaseYear">Year 🔒</label>
@@ -3248,7 +3248,7 @@
                                         <label for="updateStateCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
                                         <button type="button" class="unlock-case-btn" data-targets="updateStateCaseNumber,updateStateCrimeYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
                                     </div>
-                                    <input id="updateStateCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
+                                    <input id="updateStateCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input case-number-input" data-uppercase="true">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateStateCrimeYear">Crime / Case Year 🔒</label>
@@ -3354,7 +3354,7 @@
                                         <label for="updateFamilyCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
                                         <button type="button" class="unlock-case-btn" data-targets="updateFamilyCaseNumber,updateFamilyCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
                                     </div>
-                                    <input id="updateFamilyCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
+                                    <input id="updateFamilyCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input case-number-input" data-uppercase="true">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateFamilyCaseYear">Year 🔒</label>
@@ -3442,7 +3442,7 @@
                                         <label for="updateRevenueCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
                                         <button type="button" class="unlock-case-btn" data-targets="updateRevenueCaseNumber,updateRevenueCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
                                     </div>
-                                    <input id="updateRevenueCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
+                                    <input id="updateRevenueCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input case-number-input" data-uppercase="true">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateRevenueCaseYear">Year 🔒</label>
@@ -3535,7 +3535,7 @@
                                         <label for="updateMiscCivilCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
                                         <button type="button" class="unlock-case-btn" data-targets="updateMiscCivilCaseNumber,updateMiscCivilCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
                                     </div>
-                                    <input id="updateMiscCivilCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
+                                    <input id="updateMiscCivilCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input case-number-input" data-uppercase="true">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateMiscCivilCaseYear">Year 🔒</label>
@@ -3547,7 +3547,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="updateMiscCivilOriginalCase">Original / Main Suit Number</label>
-                                    <input id="updateMiscCivilOriginalCase" type="text" placeholder="e.g. OS No. 45/2024">
+                                    <input id="updateMiscCivilOriginalCase" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. OS No. 45/2024">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateMiscCivilProceedingType">Proceeding / Application Type</label>
@@ -3620,7 +3620,7 @@
                                         <label for="updateMiscCriminalCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
                                         <button type="button" class="unlock-case-btn" data-targets="updateMiscCriminalCaseNumber,updateMiscCriminalCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
                                     </div>
-                                    <input id="updateMiscCriminalCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
+                                    <input id="updateMiscCriminalCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input case-number-input" data-uppercase="true">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateMiscCriminalCaseYear">Year 🔒</label>
@@ -3632,7 +3632,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="updateMiscCriminalOriginalCase">Original ST / Crime / FIR Number</label>
-                                    <input id="updateMiscCriminalOriginalCase" type="text" placeholder="e.g. Crime No. 210/2026">
+                                    <input id="updateMiscCriminalOriginalCase" type="text" class="case-number-input" data-uppercase="true" placeholder="e.g. Crime No. 210/2026">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateMiscCriminalProceedingType">Application / Proceeding Type</label>
@@ -3739,7 +3739,7 @@
                                         <label for="updateComplaintCaseNumber" style="margin-bottom:0;">Case Number 🔒</label>
                                         <button type="button" class="unlock-case-btn" data-targets="updateComplaintCaseNumber,updateComplaintCaseYear" onclick="toggleCaseNumberUnlock(this)" title="Click to unlock and correct Case Number or Year"><i class="fa-solid fa-lock"></i> <span>Unlock</span></button>
                                     </div>
-                                    <input id="updateComplaintCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input">
+                                    <input id="updateComplaintCaseNumber" type="text" placeholder="Case Number" readonly class="locked-input case-number-input" data-uppercase="true">
                                 </div>
                                 <div class="form-group">
                                     <label for="updateComplaintCaseYear">Year 🔒</label>
@@ -3884,7 +3884,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="hearingCaseNo">Or Type / Search Case Number</label>
-                                    <input type="text" id="hearingCaseNo" placeholder="e.g. CIV-2026-001 or CR-2026-003" required>
+                                    <input type="text" id="hearingCaseNo" class="case-number-input" data-uppercase="true" placeholder="e.g. CIV-2026-001 or CR-2026-003" required>
                                     <small id="hearingCaseHelp" style="display: block; margin-top: 4px; color: #64748b;">Type case number to instantly load case details.</small>
                                 </div>
                             </div>
@@ -4390,7 +4390,7 @@
 
                             <div class="modifier-form-group">
                                 <label for="dbModNewCaseNo" class="db-toolbar-label">3. New Case Number:</label>
-                                <input type="text" id="dbModNewCaseNo" class="db-search-input" placeholder="e.g. OS/45/2024 or CR-2024-102">
+                                <input type="text" id="dbModNewCaseNo" class="db-search-input case-number-input" data-uppercase="true" placeholder="e.g. OS/45/2024 or CR-2024-102">
                             </div>
 
                             <div class="modifier-form-group">

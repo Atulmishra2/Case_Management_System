@@ -82,6 +82,10 @@ class CaseService {
   }
 
   async addCase(newCase) {
+    if (newCase.caseNo) newCase.caseNo = String(newCase.caseNo).trim().toUpperCase();
+    if (newCase.criminalCaseNumber) newCase.criminalCaseNumber = String(newCase.criminalCaseNumber).trim().toUpperCase();
+    if (newCase.originalCaseNumber) newCase.originalCaseNumber = String(newCase.originalCaseNumber).trim().toUpperCase();
+
     // Check for duplicates
     const existing = this.getCaseByNumber(newCase.caseNo || newCase.criminalCaseNumber);
     if (existing) {
@@ -100,10 +104,10 @@ class CaseService {
   }
 
   async updateCase(caseObj, updates) {
-    const originalNo = caseObj.caseNo || caseObj.criminalCaseNumber || caseObj.case_number;
+    const originalNo = String(caseObj.caseNo || caseObj.criminalCaseNumber || caseObj.case_number || '').trim().toUpperCase();
     const tableName = caseObj.caseType === 'civil' ? 'civilcases' : 'criminalcases';
     
-    const newCaseNumber = updates.caseNo || originalNo;
+    const newCaseNumber = String(updates.caseNo || originalNo).trim().toUpperCase();
     const caseYear = updates.caseYear || caseObj.caseYear;
     const filingDate = updates.filingDate || caseObj.filingDate;
 

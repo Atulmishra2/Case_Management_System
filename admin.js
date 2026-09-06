@@ -295,7 +295,8 @@ window.formatDateHindi = formatDateHindi;
 // Normalizes raw data from Supabase tables or local state into consistent case structure
 function normalizeCaseRecord(raw, defaultType = 'civil') {
   const caseType = String(raw.case_type || raw.caseType || defaultType).toLowerCase();
-  const caseNo = raw.case_number || raw.caseNo || raw.criminalCaseNumber || raw.case_no || '';
+  const rawCaseNo = raw.case_number || raw.caseNo || raw.criminalCaseNumber || raw.case_no || '';
+  const caseNo = String(rawCaseNo).trim().toUpperCase();
   const caseYear = String(raw.case_year || raw.crime_year || raw.caseYear || raw.year || '2026');
   const filingDate = raw.filing_date || raw.crime_filing_date || raw.filingDate || '';
   const nextHearing = raw.next_hearing || raw.nextHearing || '—';
@@ -314,7 +315,7 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
     const accusedName = raw.accused_name || raw.accusedName || raw.party_name || 'Accused';
     const policeStation = raw.police_station || raw.policeStation || 'Police Station';
     const crimeSection = raw.crime_section || raw.crimeSection || 'IPC';
-    const crimeNumber = raw.crime_number || raw.crimeNumber || caseNo;
+    const crimeNumber = String(raw.crime_number || raw.crimeNumber || caseNo).trim().toUpperCase();
     const caseName = raw.case_name || `${firstParty} vs ${accusedName}`;
 
     return {
@@ -426,7 +427,7 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
   if (caseType === 'misc_civil') {
     const applicant = raw.applicant || raw.appellant || raw.plaintiff || 'Applicant';
     const oppositeParty = raw.opposite_party || raw.respondent || raw.defendant || 'Opposite Party';
-    const originalCaseNumber = raw.original_case_number || raw.originalCase || '';
+    const originalCaseNumber = String(raw.original_case_number || raw.originalCase || '').trim().toUpperCase();
     const proceedingType = raw.proceeding_type || raw.proceedingType || 'Misc Application';
     const caseName = raw.case_name || `${applicant} vs ${oppositeParty}`;
 
@@ -460,7 +461,7 @@ function normalizeCaseRecord(raw, defaultType = 'civil') {
   if (caseType === 'misc_criminal') {
     const applicant = raw.applicant || raw.accused_name || raw.appellant || 'Applicant';
     const oppositeParty = raw.opposite_party || raw.first_party || 'State of U.P.';
-    const originalCaseNumber = raw.original_case_number || raw.crime_number || '';
+    const originalCaseNumber = String(raw.original_case_number || raw.crime_number || '').trim().toUpperCase();
     const proceedingType = raw.proceeding_type || raw.proceedingType || 'Bail Application (Sec 439 CrPC)';
     const policeStation = raw.police_station || raw.policeStation || '';
     const crimeSection = raw.crime_section || raw.crimeSection || '';
@@ -889,6 +890,161 @@ async function fetchAllDataFromSupabase() {
 }
 
 // ==============================================================================
+// Centralized Post-CRUD Auto-Refresh Pipeline
+// Automatically re-syncs database and refreshes all views after any CRUD action
+// ==============================================================================
+
+async function performPostCrudRefresh(options = {}) {
+  try {
+    // 1. Fetch fresh data from Supabase (or local fallback)
+    if (typeof fetchAllDataFromSupabase === 'function') {
+      await fetchAllDataFromSupabase();
+    }
+
+    // 2. Refresh all case tables, registers, dashboards, and schedules
+    if (typeof refreshAllCaseTables === 'function') {
+      refreshAllCaseTables();
+    }
+
+    // 3. If a specific case was currently open in Dossier, keep it updated
+    if (currentSelectedCase && typeof renderSelectedCaseDetails === 'function') {
+      const targetNo = (options.caseNumber || currentSelectedCase.caseNo || currentSelectedCase.criminalCaseNumber || '').trim().toLowerCase();
+      if (targetNo) {
+        const refreshedCase = allCaseRecords.find(c =>
+          (c.caseNo || '').trim().toLowerCase() === targetNo ||
+          (c.criminalCaseNumber || '').trim().toLowerCase() === targetNo
+        );
+        if (refreshedCase) {
+          currentSelectedCase = refreshedCase;
+          renderSelectedCaseDetails(refreshedCase);
+        }
+      }
+    }
+
+    // 4. If in Tasks/Todo tab, ensure tasks list is re-rendered
+    if (typeof renderCaseTasks === 'function') {
+      const activeFilter = typeof currentTodoFilter !== 'undefined' ? currentTodoFilter : 'all';
+      renderCaseTasks(activeFilter);
+    }
+
+    // 5. If in Courts tab, ensure courts table is re-rendered
+    if (typeof renderCourtsTable === 'function') {
+      renderCourtsTable();
+    }
+
+    // 6. If in Court Helpers tab, ensure helpers table is re-rendered
+    if (typeof renderHelpersTable === 'function') {
+      renderHelpersTable();
+    }
+
+    // 7. If in Transfers tab, ensure recent transfers table is re-rendered
+    if (typeof renderRecentTransfersTable === 'function') {
+      renderRecentTransfersTable();
+    }
+
+    // 8. Optional toast notification
+    if (options.toast) {
+      if (typeof showToastNotification === 'function') {
+        showToastNotification(options.toast);
+      } else if (typeof showToast === 'function') {
+        showToast(options.toast, 'success');
+      }
+    }
+  } catch (err) {
+    console.warn('Post-CRUD auto-refresh notice:', err);
+    if (typeof refreshAllCaseTables === 'function') {
+      refreshAllCaseTables();
+    }
+  }
+}
+window.performPostCrudRefresh = performPostCrudRefresh;
+
+// ==============================================================================
+// Automatic Uppercase Conversion for Case Number Inputs
+// ==============================================================================
+
+const CASE_NUMBER_INPUT_IDS = new Set([
+  'caseno',
+  'statecasenumber',
+  'criminalcasenumber',
+  'familycasenumber',
+  'revenuecasenumber',
+  'misccivilcasenumber',
+  'miscciviloriginalcase',
+  'misccriminalcasenumber',
+  'misccriminaloriginalcase',
+  'complaintcasenumber',
+  'updatecaseno',
+  'updatestatecasenumber',
+  'updatecriminalcasenumber',
+  'updatefamilycasenumber',
+  'updaterevenuecasenumber',
+  'updatemisccivilcasenumber',
+  'updatemiscciviloriginalcase',
+  'updatemisccriminalcasenumber',
+  'updatemisccriminaloriginalcase',
+  'updatecomplaintcasenumber',
+  'hearingcaseno',
+  'dbmodnewcaseno',
+  'statecrimenumber',
+  'updatestatecrimenumber'
+]);
+
+function isCaseNumberInputElement(el) {
+  if (!el || el.tagName !== 'INPUT') return false;
+  const type = (el.type || 'text').toLowerCase();
+  if (type !== 'text' && type !== 'search') return false;
+
+  const idLower = (el.id || '').trim().toLowerCase();
+  if (CASE_NUMBER_INPUT_IDS.has(idLower)) return true;
+
+  if (el.classList && (el.classList.contains('case-number-input') || el.classList.contains('uppercase-input'))) {
+    return true;
+  }
+
+  if (el.getAttribute('data-uppercase') === 'true') {
+    return true;
+  }
+
+  // Check name or placeholder pattern, excluding generic search inputs
+  if (!idLower.includes('search') && !idLower.includes('filter')) {
+    if (idLower.includes('caseno') || idLower.includes('casenumber') || idLower.includes('case_number') || idLower.includes('crimenumber') || idLower.includes('originalcase')) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function convertInputToUppercase(inputEl) {
+  if (!inputEl || !isCaseNumberInputElement(inputEl)) return;
+  const val = inputEl.value;
+  if (!val) return;
+  const upper = val.toUpperCase();
+  if (val !== upper) {
+    const start = inputEl.selectionStart;
+    const end = inputEl.selectionEnd;
+    inputEl.value = upper;
+    if (start !== null && end !== null && typeof inputEl.setSelectionRange === 'function') {
+      try {
+        inputEl.setSelectionRange(start, end);
+      } catch (e) {}
+    }
+  }
+}
+
+// Global delegated event listeners for real-time uppercase conversion
+document.addEventListener('input', (e) => convertInputToUppercase(e.target), true);
+document.addEventListener('change', (e) => convertInputToUppercase(e.target), true);
+document.addEventListener('blur', (e) => convertInputToUppercase(e.target), true);
+document.addEventListener('paste', (e) => {
+  setTimeout(() => convertInputToUppercase(e.target), 0);
+}, true);
+
+window.isCaseNumberInputElement = isCaseNumberInputElement;
+window.convertInputToUppercase = convertInputToUppercase;
+
+// ==============================================================================
 // Centralized Database Duplicate Prevention Suite
 // ==============================================================================
 
@@ -1035,9 +1191,12 @@ async function addCaseToSupabase(newCase) {
   let dbInsertFailed = false;
 
   // Clean and normalize case number
-  const cleanCaseNo = (newCase.caseNo || '').trim().replace(/\s+/g, ' ');
+  const cleanCaseNo = (newCase.caseNo || '').trim().replace(/\s+/g, ' ').toUpperCase();
   newCase.caseNo = cleanCaseNo;
   if (newCase.criminalCaseNumber) newCase.criminalCaseNumber = cleanCaseNo;
+  if (newCase.originalCaseNumber) newCase.originalCaseNumber = (newCase.originalCaseNumber || '').trim().toUpperCase();
+  if (newCase.originalCase) newCase.originalCase = (newCase.originalCase || '').trim().toUpperCase();
+  if (newCase.crimeNumber) newCase.crimeNumber = (newCase.crimeNumber || '').trim().toUpperCase();
 
   // Pre-check database for duplicate before attempting insert
   if (cleanCaseNo) {
@@ -1409,7 +1568,7 @@ async function addCaseToSupabase(newCase) {
     if (!alreadyLocal) {
       allCaseRecords.unshift(newCase);
     }
-    refreshAllCaseTables();
+    await performPostCrudRefresh({ caseNumber: cleanCaseNo });
     return { success: true };
   }
   return { success: false, error: 'Database insert failed' };
@@ -1430,6 +1589,14 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
     caseType = newCaseNumberOrType;
     targetCase = caseTypeOrTarget;
     newCaseNumber = targetCase?.caseNo || targetCase?.criminalCaseNumber || originalCaseNumber;
+  }
+
+  newCaseNumber = String(newCaseNumber || '').trim().toUpperCase();
+  if (targetCase) {
+    targetCase.caseNo = newCaseNumber;
+    if (targetCase.criminalCaseNumber) targetCase.criminalCaseNumber = newCaseNumber;
+    if (targetCase.originalCaseNumber) targetCase.originalCaseNumber = String(targetCase.originalCaseNumber || '').trim().toUpperCase();
+    if (targetCase.originalCase) targetCase.originalCase = String(targetCase.originalCase || '').trim().toUpperCase();
   }
 
   if (supabaseClient) {
@@ -1714,7 +1881,7 @@ async function updateCaseInSupabase(originalCaseNumber, newCaseNumberOrType, cas
     }
   }
 
-  refreshAllCaseTables();
+  await performPostCrudRefresh({ caseNumber: newCaseNumber });
 }
 
 // Delete Case in Supabase (or local fallback)
@@ -1779,7 +1946,7 @@ async function deleteCaseFromSupabase(caseNumber) {
     if (typeof updateTransfersCountBadge === 'function') updateTransfersCountBadge();
   }
 
-  refreshAllCaseTables();
+  await performPostCrudRefresh();
   if (typeof populateTodoCaseDropdown === 'function') populateTodoCaseDropdown();
   if (typeof renderCalendarView === 'function' && typeof currentCalendarMonth !== 'undefined') {
     renderCalendarView(currentCalendarMonth, currentCalendarYear);
@@ -1799,7 +1966,7 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
   });
 
   const caseType = matchedCase?.caseType || 'civil';
-  const resolvedCaseNumber = matchedCase ? (matchedCase.caseNo || matchedCase.criminalCaseNumber || caseNumber) : caseNumber;
+  const resolvedCaseNumber = String(matchedCase ? (matchedCase.caseNo || matchedCase.criminalCaseNumber || caseNumber) : caseNumber).trim().toUpperCase();
   const resolvedAction = actionTaken && actionTaken.trim() ? actionTaken.trim() : ('Scheduled stage: ' + process);
 
   const hearingPayload = {
@@ -1927,7 +2094,7 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
     matchedCase.hearingProcess = process;
   }
 
-  refreshAllCaseTables();
+  await performPostCrudRefresh({ caseNumber: resolvedCaseNumber });
 }
 
 // ==============================================================================
@@ -2202,6 +2369,7 @@ async function addCourtToSupabase(courtName) {
   renderCriminalCourtOptions();
   renderSearchCourtFilterOptions();
   renderCourtsTable();
+  await performPostCrudRefresh();
   return true;
 }
 
@@ -6773,6 +6941,7 @@ async function handleAddTodoSubmit(e) {
         console.warn('Supabase task insert fallback to local:', supaErr);
       }
     }
+    await performPostCrudRefresh();
   } finally {
     isSubmittingTodo = false;
     if (submitBtn) submitBtn.disabled = false;
@@ -6862,6 +7031,7 @@ async function toggleTaskStatus(taskId) {
       console.warn('Supabase task toggle fallback to local:', e);
     }
   }
+  await performPostCrudRefresh();
 }
 window.toggleTaskStatus = toggleTaskStatus;
 
@@ -6896,6 +7066,7 @@ async function toggleTaskSubStep(taskId, stepId) {
       console.warn('Supabase task step toggle fallback to local:', e);
     }
   }
+  await performPostCrudRefresh();
 }
 window.toggleTaskSubStep = toggleTaskSubStep;
 
@@ -6913,6 +7084,7 @@ async function deleteCaseTask(taskId) {
       console.warn('Supabase task delete fallback to local:', e);
     }
   }
+  await performPostCrudRefresh();
 }
 window.deleteCaseTask = deleteCaseTask;
 
@@ -8207,6 +8379,8 @@ async function handleUpdateCaseSubmit(e) {
     newCaseYear = document.getElementById('updateCaseYear')?.value?.trim();
   }
 
+  newCaseNumber = String(newCaseNumber || '').trim().toUpperCase();
+
   if (!newCaseNumber) {
     alert('Please enter a valid Case Number.');
     if (statusEl) {
@@ -8450,10 +8624,12 @@ async function handleUpdateCaseSubmit(e) {
     statusEl.className = 'update-status-msg success';
   }
 
+  await performPostCrudRefresh({ caseNumber: newCaseNumber });
+
   if (typeof showToast === 'function') {
     showToast(`Case ${newCaseNumber} details updated successfully!`, 'success');
   } else {
-    alert(`Case ${newCaseNumber} details updated successfully!`);
+    alert(`Case ${newCaseNumber} details updated and all tables refreshed successfully!`);
   }
   } catch (updateErr) {
     console.error('Error updating case:', updateErr);
@@ -8768,7 +8944,7 @@ async function handleTransferCaseSubmit(e) {
     }
 
     // 6. Refresh views & tables
-    refreshAllCaseTables();
+    await performPostCrudRefresh({ caseNumber: caseNo });
     renderRecentTransfersTable();
     updateTransfersCountBadge();
 
@@ -9145,7 +9321,7 @@ async function handleBulkTransferSubmit(e) {
     } catch (e) {}
 
     // Refresh views
-    refreshAllCaseTables();
+    await performPostCrudRefresh();
     renderRecentTransfersTable();
     updateTransfersCountBadge();
 
@@ -9667,6 +9843,7 @@ async function confirmSaveEditedCourt() {
 
     const updatedCount = await cascadeUpdateCourtName(oldName, newName);
     closeEditCourtModal();
+    await performPostCrudRefresh();
     alert(`✅ Court renamed to "${newName}".\nUpdated ${updatedCount || 0} associated case(s) across the database.`);
   } catch (err) {
     console.error('Error renaming court:', err);
@@ -9744,6 +9921,7 @@ async function executeDeleteCourtConfirm() {
   try {
     await deleteCourtFromSupabase(courtName);
     closeDeleteCourtModal();
+    await performPostCrudRefresh();
     if (typeof showToastNotification === 'function') {
       showToastNotification(`✅ Court "${courtName}" deleted successfully.`, 2500);
     } else if (typeof M !== 'undefined' && M.toast) {
@@ -10196,6 +10374,8 @@ async function handleSaveHelper(e) {
     }
   }
 
+  await performPostCrudRefresh();
+
   if (typeof showToastNotification === 'function') {
     showToastNotification(`✅ Staff member "${name}" (${position}) saved successfully!`, 3000);
   } else if (typeof M !== 'undefined' && M.toast) {
@@ -10321,6 +10501,8 @@ async function confirmSaveEditedHelper() {
     }
   }
 
+  await performPostCrudRefresh();
+
   if (typeof showToastNotification === 'function') {
     showToastNotification(`✅ Staff details for "${name}" updated successfully!`, 2500);
   }
@@ -10386,6 +10568,8 @@ async function executeDeleteHelperConfirm() {
       console.warn('Notice: Delete from Supabase court_helpers:', err);
     }
   }
+
+  await performPostCrudRefresh();
 
   if (typeof showToastNotification === 'function') {
     showToastNotification(`✅ Staff member "${target ? target.name : 'Helper'}" removed from directory.`, 2500);
@@ -11047,7 +11231,8 @@ function initializeApp() {
         if (typeof clearCaseNumberValidationBadges === 'function') {
           clearCaseNumberValidationBadges();
         }
-        alert(`🎉 Case ${newCase.caseNo} added successfully!`);
+        await performPostCrudRefresh({ caseNumber: newCase.caseNo, toast: `🎉 Case ${newCase.caseNo} added successfully!` });
+        alert(`🎉 Case ${newCase.caseNo} added and all tables refreshed successfully!`);
       }
     } catch (err) {
       console.error('Error submitting case:', err);
@@ -11391,7 +11576,9 @@ function initializeApp() {
       });
 
       if (matchedOfficialCase) {
-        caseNumber = matchedOfficialCase.caseNo || matchedOfficialCase.criminalCaseNumber || rawCaseNumber;
+        caseNumber = (matchedOfficialCase.caseNo || matchedOfficialCase.criminalCaseNumber || rawCaseNumber).trim().toUpperCase();
+      } else {
+        caseNumber = (caseNumber || '').trim().toUpperCase();
       }
 
       await updateHearingInSupabase(caseNumber, hearingDate, process, actionTaken);
@@ -11420,6 +11607,8 @@ function initializeApp() {
       if (hearingCaseSelect) hearingCaseSelect.value = '';
       renderHearingCaseInfo('');
       updateHearingLivePreview();
+
+      await performPostCrudRefresh({ caseNumber: caseNumber });
 
       if (statusEl) {
         statusEl.textContent = `📅 Hearing for "${caseNumber}" forwarded to ${formatDateDMY(hearingDate)} (${process}) successfully!`;
@@ -12370,7 +12559,7 @@ async function executeDbCaseNumberYearUpdate() {
     return;
   }
 
-  const newCaseNo = (caseNoInput?.value || '').trim();
+  const newCaseNo = (caseNoInput?.value || '').trim().toUpperCase();
   const newYearVal = parseInt(yearInput?.value, 10);
   const newFilingDate = (filingDateInput?.value || '').trim();
 
@@ -12439,7 +12628,7 @@ async function executeDbCaseNumberYearUpdate() {
     }
 
     // Refresh application database records in memory
-    await fetchAllDataFromSupabase();
+    await performPostCrudRefresh({ caseNumber: newCaseNo });
     await fetchAndRenderDbTable(tableName);
     populateDbModifierCaseSelect();
 
@@ -13139,6 +13328,12 @@ async function handleDbRecordFormSubmit(event) {
     isSubmittingDbRecord = true;
     if (modalSaveBtn) modalSaveBtn.disabled = true;
 
+    if (payload.case_number) payload.case_number = String(payload.case_number).trim().toUpperCase();
+    if (payload.case_no) payload.case_no = String(payload.case_no).trim().toUpperCase();
+    if (payload.criminal_case_number) payload.criminal_case_number = String(payload.criminal_case_number).trim().toUpperCase();
+    if (payload.original_case_number) payload.original_case_number = String(payload.original_case_number).trim().toUpperCase();
+    if (payload.crime_number) payload.crime_number = String(payload.crime_number).trim().toUpperCase();
+
     if (action === 'create') {
       // Insert operation
       if (supabaseClient) {
@@ -13163,7 +13358,7 @@ async function handleDbRecordFormSubmit(event) {
       }
 
       // Refresh application state
-      await fetchAllDataFromSupabase();
+      await performPostCrudRefresh();
       await fetchAndRenderDbTable(currentDbTable);
       closeDbModal();
       alert(`✅ Record created in "${currentDbTable}" successfully!`);
@@ -13218,7 +13413,7 @@ async function handleDbRecordFormSubmit(event) {
       }
 
       // Refresh application state
-      await fetchAllDataFromSupabase();
+      await performPostCrudRefresh();
       await fetchAndRenderDbTable(currentDbTable);
       closeDbModal();
       alert(`✅ Record updated in "${currentDbTable}" successfully! Related data synchronized.`);
@@ -13290,7 +13485,7 @@ async function handleDbDeleteRow(rowId, identifier, rowIndex, specificTable = nu
   }
 
   // Resync application state
-  await fetchAllDataFromSupabase();
+  await performPostCrudRefresh();
   await fetchAndRenderDbTable(currentDbTable);
   alert(`🗑️ Record deleted from "${currentDbTable}" successfully!`);
 }

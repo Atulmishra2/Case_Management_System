@@ -18851,3 +18851,36 @@ input[type="text"]#editCourtInput,
     gap: 6px !important;
   }
 }
+
+/* ==========================================================================
+   CASE NUMBER AUTO-UPPERCASE TEXT STYLING
+   ========================================================================== */
+.case-number-input,
+.uppercase-input,
+[data-uppercase="true"],
+#caseNo,
+#stateCaseNumber,
+#criminalCaseNumber,
+#familyCaseNumber,
+#revenueCaseNumber,
+#miscCivilCaseNumber,
+#miscCivilOriginalCase,
+#miscCriminalCaseNumber,
+#miscCriminalOriginalCase,
+#complaintCaseNumber,
+#updateCaseNo,
+#updateStateCaseNumber,
+#updateCriminalCaseNumber,
+#updateFamilyCaseNumber,
+#updateRevenueCaseNumber,
+#updateMiscCivilCaseNumber,
+#updateMiscCivilOriginalCase,
+#updateMiscCriminalCaseNumber,
+#updateMiscCriminalOriginalCase,
+#updateComplaintCaseNumber,
+#hearingCaseNo,
+#dbModNewCaseNo,
+#stateCrimeNumber,
+#updateStateCrimeNumber {
+  text-transform: uppercase !important;
+}
