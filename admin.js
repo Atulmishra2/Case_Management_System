@@ -6977,7 +6977,6 @@ function onTodoWorkflowTypeChange(val) {
     if (titleInput && (!titleInput.value.trim() || titleInput.value.startsWith('Certified Copy'))) {
       titleInput.value = existingNum ? ('Certified Copy (App No. ' + existingNum + ')') : 'Certified Copy Application';
     }
-    if (copyNumberInput) copyNumberInput.focus();
   } else if (val === 'custom') {
     if (preview) preview.classList.add('hidden');
     if (customContainer) customContainer.classList.remove('hidden');
@@ -7043,6 +7042,16 @@ async function toggleTaskSubStep(taskId, stepId) {
   if (step) {
     step.completed = !step.completed;
     step.date = step.completed ? new Date().toISOString().split('T')[0] : null;
+
+    if (step.completed && step.name.toLowerCase().includes('apply') && !task.copyNumber) {
+      const entered = prompt('Step "Apply" completed! Enter Certified Copy / Application No. (or cancel to add later):');
+      if (entered && entered.trim()) {
+        task.copyNumber = entered.trim();
+        if (task.taskTitle && task.taskTitle.startsWith('Certified Copy')) {
+          task.taskTitle = 'Certified Copy (App No. ' + task.copyNumber + ')';
+        }
+      }
+    }
   }
 
   // If all steps are completed, automatically mark the whole task completed
@@ -7060,7 +7069,9 @@ async function toggleTaskSubStep(taskId, stepId) {
     try {
       await supabaseClient.from('case_todos').update({ 
         steps: task.steps,
-        status: task.status
+        status: task.status,
+        copy_number: task.copyNumber || null,
+        task_title: task.taskTitle
       }).eq('id', taskId);
     } catch (e) {
       console.warn('Supabase task step toggle fallback to local:', e);
@@ -7069,6 +7080,29 @@ async function toggleTaskSubStep(taskId, stepId) {
   await performPostCrudRefresh();
 }
 window.toggleTaskSubStep = toggleTaskSubStep;
+
+function editTaskCopyNumber(taskId) {
+  const task = caseTasks.find(t => t.id === taskId);
+  if (!task) return;
+  const current = task.copyNumber || '';
+  const entered = prompt('Enter Certified Copy / Application No.:', current);
+  if (entered !== null) {
+    task.copyNumber = entered.trim();
+    if (task.copyNumber && task.taskTitle && task.taskTitle.startsWith('Certified Copy')) {
+      task.taskTitle = 'Certified Copy (App No. ' + task.copyNumber + ')';
+    }
+    saveCaseTasksLocally();
+    renderCaseTasks(currentTodoFilter);
+    if (supabaseClient) {
+      supabaseClient.from('case_todos').update({
+        copy_number: task.copyNumber || null,
+        task_title: task.taskTitle
+      }).eq('id', taskId).then(() => {}).catch(e => console.warn(e));
+    }
+    showToastNotification('Application No. updated!');
+  }
+}
+window.editTaskCopyNumber = editTaskCopyNumber;
 
 async function deleteCaseTask(taskId) {
   if (typeof confirm === 'function' && !confirm('Are you sure you want to remove this task?')) return;
@@ -7225,7 +7259,7 @@ function renderCaseTasks(filter = currentTodoFilter) {
           <div class="todo-item-top">
             <span class="todo-item-title">${t.taskTitle}</span>
             <div class="todo-badges-row">
-              ${t.copyNumber ? `<span class="todo-copy-badge" title="Certified Copy Application No."><i class="fa-solid fa-stamp"></i> Copy No: <strong>${t.copyNumber}</strong></span>` : ''}
+              ${t.copyNumber ? `<span class="todo-copy-badge" onclick="editTaskCopyNumber('${t.id}')" title="Click to edit Copy / Application No."><i class="fa-solid fa-stamp"></i> Copy No: <strong>${t.copyNumber}</strong> <i class="fa-solid fa-pen" style="font-size: 8.5px; margin-left: 2px; opacity: 0.7;"></i></span>` : (t.steps && t.steps.some(s => s.name.toLowerCase().includes('apply')) ? `<button type="button" class="todo-add-copy-btn" onclick="editTaskCopyNumber('${t.id}')" title="Add Application No. when applied"><i class="fa-solid fa-stamp"></i> + Add App No.</button>` : '')}
               ${deadlineBadgeHtml}
               <span class="todo-priority-pill ${priorityClass}">${priorityLabel}</span>
             </div>
