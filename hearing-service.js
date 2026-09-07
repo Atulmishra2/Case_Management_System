@@ -4,6 +4,26 @@
 
 import { formatDateDMY, escapeHtml } from './case-service.js';
 
+// Normalizes any date-ish value to 'YYYY-MM-DD' or null; used for date equality checks
+function toISODate(dateInput) {
+  if (dateInput === null || dateInput === undefined) return null;
+  const str = String(dateInput).trim();
+  if (!str || str === '—' || str === 'null' || str === 'undefined') return null;
+  const ymdMatch = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (ymdMatch) {
+    return `${ymdMatch[1]}-${ymdMatch[2].padStart(2, '0')}-${ymdMatch[3].padStart(2, '0')}`;
+  }
+  const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (dmyMatch) {
+    return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}`;
+  }
+  const d = new Date(str);
+  if (!isNaN(d.getTime())) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  return null;
+}
+
 class HearingService {
   constructor(dbService, caseService) {
     this.db = dbService;
@@ -49,9 +69,10 @@ class HearingService {
     }
 
     // Update local hearings record
+    const newDateISO = toISODate(hearingDate);
     const existingLocalIdx = this.cases.hearings.findIndex(h =>
       (h.case_number || '').toLowerCase() === caseNumber.toLowerCase() &&
-      h.hearing_date === hearingDate
+      toISODate(h.hearing_date) === newDateISO
     );
 
     if (existingLocalIdx !== -1) {
@@ -69,7 +90,7 @@ class HearingService {
 
     // Update in-memory case record
     if (matchedCase) {
-      if (matchedCase.nextHearing && matchedCase.nextHearing !== '—' && matchedCase.nextHearing !== hearingDate) {
+      if (matchedCase.nextHearing && matchedCase.nextHearing !== '—' && toISODate(matchedCase.nextHearing) !== newDateISO) {
         matchedCase.previousHearing = matchedCase.nextHearing;
         matchedCase.previousProcess = matchedCase.hearingProcess || '—';
       }
@@ -276,19 +297,23 @@ class HearingService {
     const clientNumber = found.clientNumber || found.criminalClientNumber || '';
 
     const caseHistory = this.getCaseHearingHistory(found.caseNo || found.criminalCaseNumber || '');
-    const currentNext = (found.nextHearing && found.nextHearing !== '—') ? found.nextHearing : null;
+    const currentNextISO = toISODate(found.nextHearing);
+    const todayISO = toISODate(new Date());
 
     const prevHearings = caseHistory.filter(h => {
-      if (currentNext && h.hearing_date === currentNext) return false;
+      const hISO = toISODate(h.hearing_date);
+      if (currentNextISO && hISO === currentNextISO) return false;
+      // A future hearing is an upcoming date, never a "previous" hearing
+      if (hISO && hISO > todayISO) return false;
       return true;
     });
     const latestPrev = prevHearings[0];
     const prevDateRaw = latestPrev 
       ? latestPrev.hearing_date 
       : (found.previousHearing && found.previousHearing !== '—' ? found.previousHearing : null);
-    const prevDate = prevDateRaw 
-      ? formatDateDMY(prevDateRaw) 
-      : (currentNext ? `${formatDateDMY(currentNext)} (Current)` : '— (First Hearing)');
+    const prevDate = prevDateRaw
+      ? formatDateDMY(prevDateRaw)
+      : (currentNextISO ? `${formatDateDMY(currentNextISO)} (Current)` : '— (First Hearing)');
     const prevProcess = latestPrev 
       ? (latestPrev.process || '—') 
       : (found.previousProcess || found.hearingProcess || '—');
@@ -299,9 +324,9 @@ class HearingService {
     setDisplayVal('hearingInfoPrevProcess', prevProcess);
 
     if (prevDateDisp) {
-      prevDateDisp.textContent = prevDateRaw 
-        ? formatDateDMY(prevDateRaw) 
-        : (currentNext ? formatDateDMY(currentNext) : 'First Hearing');
+      prevDateDisp.textContent = prevDateRaw
+        ? formatDateDMY(prevDateRaw)
+        : (currentNextISO ? formatDateDMY(currentNextISO) : 'First Hearing');
     }
 
     if (clientTag) {

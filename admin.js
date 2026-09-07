@@ -176,6 +176,8 @@ try {
   }
 } catch (e) {}
 let allCaseRecords = [];
+let caseCardsFilteredList = [];
+let caseCardsExpandedIndex = -1;
 let guestCases = [];
 const defaultFallbackHearings = [];
 let allHearingRecords = [];
@@ -244,6 +246,32 @@ function parseDateString(dateInput) {
 
 window.parseDateString = parseDateString;
 
+// Normalizes any date-ish value (YYYY-MM-DD, ISO timestamp, DD/MM/YYYY) to a plain 'YYYY-MM-DD'
+// string, or null if unparseable. Use for all date equality comparisons.
+function toISODate(dateInput) {
+  if (dateInput === null || dateInput === undefined) return null;
+  const str = String(dateInput).trim();
+  if (!str || str === '—' || str === 'null' || str === 'undefined') return null;
+  const ymdMatch = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (ymdMatch) {
+    return `${ymdMatch[1]}-${ymdMatch[2].padStart(2, '0')}-${ymdMatch[3].padStart(2, '0')}`;
+  }
+  const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (dmyMatch) {
+    return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}`;
+  }
+  const d = new Date(str);
+  if (!isNaN(d.getTime())) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  return null;
+}
+
+window.toISODate = toISODate;
+
 function formatDateHindi(dateInput) {
   if (!dateInput || dateInput === '—' || dateInput === 'null' || dateInput === 'undefined') {
     return 'तय नहीं';
@@ -294,6 +322,15 @@ window.formatDateHindi = formatDateHindi;
 
 // Normalizes raw data from Supabase tables or local state into consistent case structure
 function normalizeCaseRecord(raw, defaultType = 'civil') {
+  const rec = normalizeCaseRecordRaw(raw, defaultType);
+  // Preserve the stored previous hearing (written by updateHearingInSupabase) so it
+  // survives reloads instead of being re-derived from history every time.
+  rec.previousHearing = raw.previous_hearing || raw.previousHearing || rec.previousHearing || '—';
+  rec.previousProcess = raw.previous_process || raw.previousProcess || rec.previousProcess || '—';
+  return rec;
+}
+
+function normalizeCaseRecordRaw(raw, defaultType = 'civil') {
   const caseType = String(raw.case_type || raw.caseType || defaultType).toLowerCase();
   const rawCaseNo = raw.case_number || raw.caseNo || raw.criminalCaseNumber || raw.case_no || '';
   const caseNo = String(rawCaseNo).trim().toUpperCase();
@@ -759,10 +796,22 @@ async function fetchAllDataFromSupabase() {
         });
 
         if (matchingCase) {
-          const hDate = h.next_hearing_date || h.hearing_date;
-          if (hDate && (!matchingCase.nextHearing || matchingCase.nextHearing === '—')) {
-            matchingCase.nextHearing = hDate;
-            matchingCase.hearingProcess = h.process || matchingCase.hearingProcess;
+          const hDate = toISODate(h.next_hearing_date || h.hearing_date);
+          if (hDate) {
+            const currentISO = toISODate(matchingCase.nextHearing);
+            const todayISO = toISODate(new Date());
+            const isMissing = !currentISO;
+            // Case row's next_hearing is in the past — a newer hearing record should take over
+            const isStale = !!currentISO && currentISO < todayISO;
+
+            if (isMissing || (isStale && hDate >= todayISO)) {
+              if (currentISO && currentISO !== hDate) {
+                matchingCase.previousHearing = currentISO;
+                matchingCase.previousProcess = matchingCase.hearingProcess || '—';
+              }
+              matchingCase.nextHearing = hDate;
+              matchingCase.hearingProcess = h.process || matchingCase.hearingProcess;
+            }
           }
         }
       });
@@ -2036,28 +2085,42 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
         const targetTable = tableMap[caseType];
         const updatePayload = { next_hearing: hearingDate, hearing_process: process };
 
-        if (matchedCase && matchedCase.nextHearing && matchedCase.nextHearing !== '—' && matchedCase.nextHearing !== hearingDate) {
+        if (matchedCase && matchedCase.nextHearing && matchedCase.nextHearing !== '—' && toISODate(matchedCase.nextHearing) !== toISODate(hearingDate)) {
           updatePayload.previous_hearing = matchedCase.nextHearing;
           updatePayload.previous_process = matchedCase.hearingProcess || '—';
         }
 
-        const updatePromises = [];
-        if (targetTable) {
-          updatePromises.push(
-            supabaseClient.from(targetTable).update(updatePayload).ilike('case_number', resolvedCaseNumber)
-          );
-        }
+        // Update the case row in every table it might live in; .select() makes each
+        // update return its affected rows so failures and 0-row matches are visible.
+        const updateResults = await Promise.allSettled(
+          allCaseTables.map(tbl =>
+            supabaseClient.from(tbl).update(updatePayload).ilike('case_number', resolvedCaseNumber).select('id')
+          )
+        );
 
-        // Also update any other tables where this case number might reside
-        allCaseTables.forEach(tbl => {
-          if (tbl !== targetTable) {
-            updatePromises.push(
-              supabaseClient.from(tbl).update(updatePayload).ilike('case_number', resolvedCaseNumber)
-            );
+        let anyError = false;
+        let anyRowUpdated = false;
+        updateResults.forEach((res, idx) => {
+          const tbl = allCaseTables[idx];
+          if (res.status === 'rejected') {
+            anyError = true;
+            console.error(`Hearing case-table update failed on "${tbl}":`, res.reason);
+          } else if (res.value && res.value.error) {
+            anyError = true;
+            console.error(`Hearing case-table update failed on "${tbl}":`, res.value.error);
+          } else if (Array.isArray(res.value && res.value.data) && res.value.data.length > 0) {
+            anyRowUpdated = true;
           }
         });
 
-        await Promise.allSettled(updatePromises);
+        if (anyError || !anyRowUpdated) {
+          const detail = anyError
+            ? 'One or more case tables rejected the update (see console for details).'
+            : `No case row matched case number "${resolvedCaseNumber}" in any table.`;
+          console.error('Hearing case-table update problem:', detail);
+          alert('⚠️ Hearing saved, but the case record was NOT updated in the database: ' + detail +
+                '\n\nThe next hearing date may show incorrectly after reload. Please check the case number and try again.');
+        }
       }
     } catch (e) {
       console.error('Supabase hearing update error:', e);
@@ -2066,9 +2129,10 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
   }
 
   // --- Local in-memory: prevent duplicate entries ---
+  const newDateISO = toISODate(hearingDate);
   const existingLocalIdx = allHearingRecords.findIndex(h =>
     (h.case_number || '').toLowerCase() === resolvedCaseNumber.toLowerCase() &&
-    h.hearing_date === hearingDate
+    toISODate(h.hearing_date) === newDateISO
   );
   if (existingLocalIdx !== -1) {
     // Update existing local entry
@@ -2086,7 +2150,7 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
 
   // Update in-memory case record
   if (matchedCase) {
-    if (matchedCase.nextHearing && matchedCase.nextHearing !== '—' && matchedCase.nextHearing !== hearingDate) {
+    if (matchedCase.nextHearing && matchedCase.nextHearing !== '—' && toISODate(matchedCase.nextHearing) !== newDateISO) {
       matchedCase.previousHearing = matchedCase.nextHearing;
       matchedCase.previousProcess = matchedCase.hearingProcess || '—';
     }
@@ -2701,7 +2765,7 @@ function showTab(tabId, event, navType = 'navigate') {
   // Update mobile Floating Action Button (FAB) visibility: show on listing/dashboard tabs, hide on form/management tabs
   const mobileFab = document.querySelector('.mobile-fab-btn');
   if (mobileFab) {
-    const fabAllowedTabs = ['home', 'search', 'all', 'causelist', 'upcoming'];
+    const fabAllowedTabs = ['home', 'search', 'all', 'cards', 'causelist', 'upcoming'];
     if (fabAllowedTabs.includes(tabId)) {
       mobileFab.style.removeProperty('display');
     } else {
@@ -2731,6 +2795,10 @@ function showTab(tabId, event, navType = 'navigate') {
     } else {
       renderAllCasesTableWithFilters();
     }
+  }
+
+  if (tabId === 'cards') {
+    renderCaseCards();
   }
 
   if (tabId === 'add') {
@@ -3237,9 +3305,14 @@ function renderSelectedCaseDetails(caseObj) {
   // Determine previous hearing
   const caseHistory = getCaseHearingHistory(caseNumber);
   const currentNext = (caseObj.nextHearing && caseObj.nextHearing !== '—') ? caseObj.nextHearing : null;
+  const currentNextISO = toISODate(caseObj.nextHearing);
+  const todayISO = toISODate(new Date());
 
   const prevHearings = caseHistory.filter(h => {
-    if (currentNext && h.hearing_date === currentNext) return false;
+    const hISO = toISODate(h.hearing_date);
+    if (currentNextISO && hISO === currentNextISO) return false;
+    // A future hearing is an upcoming date, never a "previous" hearing
+    if (hISO && hISO > todayISO) return false;
     return true;
   });
   const latestPrev = prevHearings[0];
@@ -3566,7 +3639,7 @@ function renderSelectedCaseDetails(caseObj) {
 
   // Recorded hearings from history
   history.forEach(h => {
-    const isNext = Boolean(currentNext && (h.hearing_date === currentNext || h.hearing_date === caseObj.nextHearing));
+    const isNext = Boolean(currentNextISO && toISODate(h.hearing_date) === currentNextISO);
     events.push({
       date: h.hearing_date,
       process: h.process || 'Court Hearing',
@@ -3576,7 +3649,7 @@ function renderSelectedCaseDetails(caseObj) {
   });
 
   // Add next hearing milestone if scheduled
-  if (currentNext && !events.some(e => e.date === currentNext)) {
+  if (currentNext && !events.some(e => toISODate(e.date) === currentNextISO)) {
     events.push({
       date: currentNext,
       process: caseObj.hearingProcess || 'Scheduled Hearing',
@@ -3753,8 +3826,9 @@ function openCaseHistoryModal(caseObj) {
   const events = [];
 
   // Add recorded hearings
+  const currentNextISO = toISODate(currentNext);
   history.forEach(h => {
-    const isNext = Boolean(currentNext && (h.hearing_date === currentNext || h.hearing_date === caseObj.nextHearing));
+    const isNext = Boolean(currentNextISO && toISODate(h.hearing_date) === currentNextISO);
     events.push({
       date: h.hearing_date,
       process: h.process || '—',
@@ -3764,7 +3838,7 @@ function openCaseHistoryModal(caseObj) {
   });
 
   // If case has next hearing not already present in events
-  if (currentNext && !events.some(e => e.date === currentNext)) {
+  if (currentNext && !events.some(e => toISODate(e.date) === currentNextISO)) {
     events.push({
       date: currentNext,
       process: caseObj.hearingProcess || 'Scheduled Hearing',
@@ -3866,6 +3940,117 @@ window.openCaseHistoryModal = openCaseHistoryModal;
 window.openCaseHistoryModalByNo = openCaseHistoryModalByNo;
 window.closeCaseHistoryModal = closeCaseHistoryModal;
 window.getCaseHearingHistory = getCaseHearingHistory;
+
+/* ==============================================================================
+   Expandable Nav Case Search (top header search icon)
+   ============================================================================== */
+let navCaseSearchOpen = false;
+
+function toggleNavCaseSearch(open) {
+  const wrap = document.getElementById('navCaseSearch');
+  const input = document.getElementById('navCaseSearchInput');
+  if (!wrap || !input) return;
+
+  navCaseSearchOpen = Boolean(open);
+  wrap.classList.toggle('open', navCaseSearchOpen);
+
+  if (navCaseSearchOpen) {
+    input.value = '';
+    renderNavCaseSearchResults('');
+    setTimeout(() => input.focus(), 60);
+  } else {
+    const results = document.getElementById('navCaseSearchResults');
+    if (results) results.classList.remove('has-results');
+  }
+}
+
+function renderNavCaseSearchResults(query) {
+  const resultsEl = document.getElementById('navCaseSearchResults');
+  if (!resultsEl) return;
+
+  const q = (query || '').trim().toLowerCase();
+
+  if (!q) {
+    resultsEl.classList.remove('has-results');
+    resultsEl.innerHTML = '';
+    return;
+  }
+
+  const matches = (allCaseRecords || []).filter(c => {
+    const caseNo = (c.caseNo || c.criminalCaseNumber || '').toLowerCase();
+    const caseName = (c.caseName || '').toLowerCase();
+    const party1 = (c.plaintiff || c.petitioner || c.applicant || c.victimName || c.accusedName || '').toLowerCase();
+    const party2 = (c.defendant || c.respondent || c.oppositeParty || c.accusedName || '').toLowerCase();
+    const client = (c.clientName || c.criminalClientName || c.client || '').toLowerCase();
+    const court = (c.courtName || c.criminalCourtName || '').toLowerCase();
+    return caseNo.includes(q) || caseName.includes(q) || party1.includes(q) ||
+      party2.includes(q) || client.includes(q) || court.includes(q);
+  }).slice(0, 12);
+
+  resultsEl.classList.add('has-results');
+
+  if (matches.length === 0) {
+    resultsEl.innerHTML = `<div class="nav-case-search-empty">🔍 No cases match "${escapeHtml(q)}"</div>`;
+    return;
+  }
+
+  resultsEl.innerHTML = matches.map(c => {
+    const { caseNumber, caseName, courtName, isDisposed, isUndated } = getCaseCardDisplayData(c);
+    const dateLabel = isDisposed ? 'Disposed' : (isUndated ? 'Undated' : `📅 ${formatDateDMY(c.nextHearing)}`);
+    const dateClass = isDisposed ? 'nav-case-search-result-date is-disposed' : (isUndated ? 'nav-case-search-result-date is-undated' : 'nav-case-search-result-date');
+    const icon = ['criminal', 'state', 'complaint', 'misc_criminal', 'misccriminal'].includes((c.caseType || 'civil').toLowerCase())
+      ? 'fa-gavel' : 'fa-scale-balanced';
+    return `
+      <div class="nav-case-search-result" role="option" onclick="selectNavCaseSearchResult('${escapeHtml(caseNumber)}')" title="${escapeHtml(caseName)} — ${escapeHtml(caseNumber)}">
+        <span class="nav-case-search-result-icon"><i class="fa-solid ${icon}"></i></span>
+        <span class="nav-case-search-result-info">
+          <span class="nav-case-search-result-caseno">${escapeHtml(caseNumber)}</span>
+          <span class="nav-case-search-result-name">${escapeHtml(caseName)}</span>
+          <span class="nav-case-search-result-sub">${escapeHtml(courtName)}</span>
+        </span>
+        <span class="${dateClass}">${dateLabel}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectNavCaseSearchResult(caseNumber) {
+  toggleNavCaseSearch(false);
+  openCaseHistoryModalByNo(caseNumber);
+}
+
+function onNavCaseSearchInput(value) {
+  renderNavCaseSearchResults(value);
+}
+
+// Live input binding + close on outside click / Escape
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('navCaseSearchInput');
+  if (input) {
+    input.addEventListener('input', e => onNavCaseSearchInput(e.target.value));
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        toggleNavCaseSearch(false);
+      } else if (e.key === 'Enter') {
+        // Open the top match if present
+        const first = document.querySelector('#navCaseSearchResults .nav-case-search-result');
+        if (first) first.click();
+      }
+    });
+  }
+
+  document.addEventListener('click', e => {
+    const wrap = document.getElementById('navCaseSearch');
+    if (navCaseSearchOpen && wrap && !wrap.contains(e.target)) {
+      toggleNavCaseSearch(false);
+    }
+  });
+});
+
+window.toggleNavCaseSearch = toggleNavCaseSearch;
+window.onNavCaseSearchInput = onNavCaseSearchInput;
+window.selectNavCaseSearchResult = selectNavCaseSearchResult;
 
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'allCaseRecords', {
@@ -4017,7 +4202,7 @@ function populateHearingCaseDropdown(selectedCaseNoToInclude = '') {
 
   const currentVal = selectedCaseNoToInclude || select.value || '';
 
-  // Separate into undated and active dated cases
+  // Undated pending cases only (disposed excluded, dated excluded)
   const undatedCases = [];
   const datedCases = [];
 
@@ -4032,7 +4217,7 @@ function populateHearingCaseDropdown(selectedCaseNoToInclude = '') {
     }
   });
 
-  // Sort both groups by case number
+  // Sort by case number
   const sortFn = (a, b) => {
     const numA = (a.caseNo || a.criminalCaseNumber || '').toUpperCase();
     const numB = (b.caseNo || b.criminalCaseNumber || '').toUpperCase();
@@ -4041,7 +4226,8 @@ function populateHearingCaseDropdown(selectedCaseNoToInclude = '') {
   undatedCases.sort(sortFn);
   datedCases.sort(sortFn);
 
-  let html = `<option value="">-- Choose Case from List (${allCaseRecords.length} Total) --</option>`;
+  // Dropdown shows ONLY undated cases (awaiting first schedule)
+  let html = `<option value="">-- Choose Undated Case from List (${undatedCases.length} Undated) --</option>`;
 
   if (undatedCases.length > 0) {
     html += `<optgroup label="❓ Undated Cases (${undatedCases.length} Awaiting First Schedule)">`;
@@ -4050,18 +4236,6 @@ function populateHearingCaseDropdown(selectedCaseNoToInclude = '') {
       const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : ''));
       const caseType = (c.caseType || 'civil').toUpperCase();
       html += `<option value="${escapeHtml(caseNum)}">❓ ${escapeHtml(caseNum)} — ${escapeHtml(caseName)} [${caseType}] (Undated)</option>`;
-    });
-    html += `</optgroup>`;
-  }
-
-  if (datedCases.length > 0) {
-    html += `<optgroup label="📅 Active Cases to Forward Next Date (${datedCases.length} Listed)">`;
-    datedCases.forEach(c => {
-      const caseNum = c.caseNo || c.criminalCaseNumber || '';
-      const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : ''));
-      const caseType = (c.caseType || 'civil').toUpperCase();
-      const curDateStr = formatDateDMY(c.nextHearing);
-      html += `<option value="${escapeHtml(caseNum)}">📅 ${escapeHtml(caseNum)} — ${escapeHtml(caseName)} [${caseType}] (Current: ${curDateStr})</option>`;
     });
     html += `</optgroup>`;
   }
@@ -4120,6 +4294,8 @@ function renderHearingCaseInfo(caseNo) {
     if (prevDateDisp) prevDateDisp.textContent = '—';
     if (clientTag) clientTag.textContent = 'Client: —';
     if (elBadge) elBadge.style.display = 'none';
+    // No case selected → back to the common stage pill set
+    renderHearingStagePills('');
     updateHearingLivePreview();
     return;
   }
@@ -4138,6 +4314,7 @@ function renderHearingCaseInfo(caseNo) {
     if (prevDateDisp) prevDateDisp.textContent = 'Case Not Found';
     if (clientTag) clientTag.textContent = 'Client: —';
     if (elBadge) elBadge.style.display = 'none';
+    renderHearingStagePills('');
     updateHearingLivePreview();
     return;
   }
@@ -4150,15 +4327,19 @@ function renderHearingCaseInfo(caseNo) {
 
   // Find previous hearing date and process from history
   const caseHistory = getCaseHearingHistory(found.caseNo || found.criminalCaseNumber || '');
-  const currentNext = (found.nextHearing && found.nextHearing !== '—') ? found.nextHearing : null;
+  const currentNextISO = toISODate(found.nextHearing);
+  const todayISO = toISODate(new Date());
 
   const prevHearings = caseHistory.filter(h => {
-    if (currentNext && h.hearing_date === currentNext) return false;
+    const hISO = toISODate(h.hearing_date);
+    if (currentNextISO && hISO === currentNextISO) return false;
+    // A future hearing is an upcoming date, never a "previous" hearing
+    if (hISO && hISO > todayISO) return false;
     return true;
   });
   const latestPrev = prevHearings[0];
   const prevDateRaw = latestPrev ? latestPrev.hearing_date : (found.previousHearing && found.previousHearing !== '—' ? found.previousHearing : null);
-  const prevDate = prevDateRaw ? formatDateDMY(prevDateRaw) : (currentNext ? `${formatDateDMY(currentNext)} (Current Fixed Date)` : '— (First Hearing)');
+  const prevDate = prevDateRaw ? formatDateDMY(prevDateRaw) : (currentNextISO ? `${formatDateDMY(currentNextISO)} (Current Fixed Date)` : '— (First Hearing)');
   const prevProcess = latestPrev ? (latestPrev.process || '—') : (found.previousProcess || found.hearingProcess || '—');
 
   // Populate preview elements
@@ -4168,7 +4349,7 @@ function renderHearingCaseInfo(caseNo) {
   setDisplayVal('hearingInfoPrevProcess', prevProcess);
 
   if (prevDateDisp) {
-    prevDateDisp.textContent = prevDateRaw ? formatDateDMY(prevDateRaw) : (currentNext ? formatDateDMY(currentNext) : 'First Hearing');
+    prevDateDisp.textContent = prevDateRaw ? formatDateDMY(prevDateRaw) : (currentNextISO ? formatDateDMY(currentNextISO) : 'First Hearing');
   }
 
   if (clientTag) {
@@ -4235,6 +4416,114 @@ function setHearingStagePreset(stageText) {
 }
 
 window.setHearingStagePreset = setHearingStagePreset;
+
+// ── Case-type-aware Court Stage Presets ────────────────────────────────────
+// Common core shared by every type + per-type specialist stages.
+const HEARING_STAGE_PRESETS = {
+  common: [
+    { emoji: '📋', label: 'Arguments (बहस)', value: 'Arguments / अंतिम बहस' },
+    { emoji: '📑', label: 'Evidence (साक्ष्य)', value: 'Evidence / साक्ष्य-गवाही' },
+    { emoji: '✉️', label: 'Notice (समन)', value: 'Notice / Summons (नोटिस-समन)' },
+    { emoji: '⚖️', label: 'Framing of Issues (तनकीहात)', value: 'Framing of Issues / तनकीहात' },
+    { emoji: '🔍', label: 'Cross Examination (जिरह)', value: 'Cross Examination / जिरह' },
+    { emoji: '🏁', label: 'Final Order (फैसला)', value: 'Final Order / फैसला' },
+    { emoji: '✅', label: 'Compliance (अनुपालन)', value: 'Compliance / अनुपालन' },
+    { emoji: '⏳', label: 'Adjourned (स्थगित)', value: 'Adjourned / स्थगित' },
+    { emoji: '📌', label: 'Order Reserved (आदेश आरक्षित)', value: 'Order Reserved / आदेश आरक्षित' }
+  ],
+  civil: [
+    { emoji: '📝', label: 'Written Statement (W.S.)', value: 'Written Statement / जवाबदावा' },
+    { emoji: '📄', label: 'Replication (जवाब)', value: 'Replication / जवाबी लिखित बयान' },
+    { emoji: '📋', label: 'Rejoinder', value: 'Rejoinder / प्रत्युत्तर' },
+    { emoji: '📋', label: 'List of Documents', value: 'List of Documents / दस्तावेज़ सूची' },
+    { emoji: '💰', label: 'Interim Application', value: 'Interim Application / अंतरिम प्रार्थना-पत्र' },
+    { emoji: '🧾', label: 'Evidence Affidavits', value: 'Evidence by Affidavits / शपथ-पत्र द्वारा साक्ष्य' },
+    { emoji: '📜', label: 'Final Arguments', value: 'Final Arguments / अंतिम बहस' },
+    { emoji: '📅', label: 'Judgment (निर्णय)', value: 'Judgment / निर्णय' },
+    { emoji: '⚡', label: 'Execution (विधिवत् निष्पादन)', value: 'Execution / विधिवत् निष्पादन' },
+    { emoji: '🔁', label: 'Review / Appeal Period', value: 'Review-Appeal Period / पुनर्विलोकन-अपील अवधि' }
+  ],
+  criminal: [
+    { emoji: '⚖️', label: 'Bail Hearing (ज़मानत)', value: 'Bail Hearing / ज़मानत सुनवाई' },
+    { emoji: '📝', label: 'Charge Sheet ( challan)', value: 'Charge Sheet / चार्जशीट (चालान)' },
+    { emoji: '⚖️', label: 'Charging (आरोप तय)', value: 'Charging / आरोप तलब करना' },
+    { emoji: '🔍', label: 'PI Status', value: 'Application pending for PI / PI स्थिति' },
+    { emoji: '📄', label: 'Statement u/s 313 CrPC', value: 'Statement u/s 313 CrPC / धारा 313 कथन' },
+    { emoji: '🔬', label: 'Forensic / Medical Report', value: 'Forensic-Medical Report / फोरेंसिक रिपोर्ट' },
+    { emoji: '🏃', label: 'NBW / Process (तलबी)', value: 'NBW-Process Issued / तलबी-वारंट जारी' },
+    { emoji: '🧑‍⚖️', label: 'Plea of Guilt (स्वीकारोक्ति)', value: 'Plea of Guilt / स्वीकारोक्ति' },
+    { emoji: '📜', label: 'Judgment (सजा/बरी)', value: 'Judgment / निर्णय (सजा-बरी)' }
+  ],
+  state: [
+    { emoji: '⚖️', label: 'Bail Hearing (ज़मानत)', value: 'Bail Hearing / ज़मानत सुनवाई' },
+    { emoji: '📝', label: 'Charge Sheet (चालान)', value: 'Charge Sheet / चार्जशीट (चालान)' },
+    { emoji: '🔍', label: 'PI Status', value: 'Application pending for PI / PI स्थिति' },
+    { emoji: '📄', label: 'Statement u/s 313 CrPC', value: 'Statement u/s 313 CrPC / धारा 313 कथन' },
+    { emoji: '🏁', label: 'Final Order (फैसला)', value: 'Final Order / फैसला' }
+  ],
+  complaint: [
+    { emoji: '✉️', label: 'Pre-summoning Evidence', value: 'Pre-summoning Evidence / समन पूर्व साक्ष्य' },
+    { emoji: '⚖️', label: 'Summoning Order (समन आदेश)', value: 'Summoning Order / समनीकरण आदेश' },
+    { emoji: '⚖️', label: 'Bail Hearing (ज़मानत)', value: 'Bail Hearing / ज़मानत सुनवाई' },
+    { emoji: '📝', label: 'Plea in Absence', value: 'Plea in Absence / अनुपस्थिति में पैरवी' },
+    { emoji: '🏁', label: 'Final Order (फैसला)', value: 'Final Order / फैसला' }
+  ],
+  family: [
+    { emoji: '🧾', label: 'Maintenance Application', value: 'Maintenance Application / भरण-पोषण प्रार्थना' },
+    { emoji: '💞', label: 'Mediation (सुलह)', value: 'Mediation / मेडिएशन-सुलह' },
+    { emoji: '🔬', label: 'Counselling Session', value: 'Counselling / परामर्श सत्र' },
+    { emoji: '💰', label: 'Interim Maintenance', value: 'Interim Maintenance / अंतरिम भरण-पोषण' },
+    { emoji: '📜', label: 'Evidence (साक्ष्य)', value: 'Evidence / साक्ष्य-गवाही' },
+    { emoji: '🏁', label: 'Final Order (फैसला)', value: 'Final Order / फैसला' }
+  ],
+  revenue: [
+    { emoji: '📜', label: 'Khasra / Record Correction', value: 'Khasra-Gata Record Correction / खसरा-गाटा शुद्धि' },
+    { emoji: '🗺️', label: ' demarcation (भू-निर्धारण)', value: 'Demarcation / भू-निर्धारण' },
+    { emoji: '🧾', label: 'Mutation (दाखिल-खारिज)', value: 'Mutation Entry / दाखिल-खारिज' },
+    { emoji: '💰', label: 'Compensation Award', value: 'Compensation Award / प्रतिकर निर्णय' },
+    { emoji: '📑', label: 'Partition Suit Evidence', value: 'Partition Evidence / बंटवारा साक्ष्य' },
+    { emoji: '🏁', label: 'Final Order (फैसला)', value: 'Final Order / फैसला' }
+  ],
+  misc: [
+    { emoji: '🏛️', label: 'Court Fee Defect', value: 'Court Fee Defect / न्याय शुल्क आपत्ति' },
+    { emoji: '📄', label: 'Vakalatnama Verification', value: 'Vakalatnama Verification / वकालतनामा जाँच' },
+    { emoji: '📋', label: 'Office Report (विभागीय)', value: 'Office Report / विभागीय रिपोर्ट' },
+    { emoji: '📦', label: 'Case Transfer', value: 'Case Transfer / मुकदमा स्थानांतरण' }
+  ]
+};
+
+// Render pills for a given case type into #hearingStagePillsWrap
+function renderHearingStagePills(caseType) {
+  const wrap = document.getElementById('hearingStagePillsWrap');
+  if (!wrap) return;
+
+  const rawType = (caseType || '').trim().toLowerCase();
+  let key = 'common';
+  if (rawType.includes('civil')) key = 'civil';
+  else if (rawType.includes('criminal')) key = 'criminal';
+  else if (rawType.includes('state')) key = 'state';
+  else if (rawType.includes('complaint')) key = 'complaint';
+  else if (rawType.includes('family')) key = 'family';
+  else if (rawType.includes('revenue')) key = 'revenue';
+  else if (rawType.includes('misc')) key = 'misc';
+
+  const common = HEARING_STAGE_PRESETS.common;
+  const specific = (key !== 'common' && HEARING_STAGE_PRESETS[key]) || [];
+
+  let html = '';
+  if (specific.length > 0) {
+    html += specific.map(p =>
+      `<button type="button" class="stage-pill stage-pill-specific" onclick="setHearingStagePreset('${escapeHtml(p.value).replace(/'/g, "\\'")}')">${p.emoji} ${escapeHtml(p.label)}</button>`
+    ).join('');
+  }
+  html += common.map(p =>
+    `<button type="button" class="stage-pill" onclick="setHearingStagePreset('${escapeHtml(p.value).replace(/'/g, "\\'")}')">${p.emoji} ${escapeHtml(p.label)}</button>`
+  ).join('');
+
+  wrap.innerHTML = html;
+}
+
+window.renderHearingStagePills = renderHearingStagePills;
 
 // ── Live Hearing Progression Preview Updater ─────────────────────────────────
 function updateHearingLivePreview() {
@@ -4690,14 +4979,20 @@ function initCauseListTab() {
     dateInput.value = currentCauseListDate;
   }
 
-  // Populate court options for cause list filter
+  // Populate court options for cause list filter (excludes deleted courts)
   if (courtSelect) {
     const prevVal = courtSelect.value || '';
+    const deletedCourts = getDeletedCourtsSet();
+    const seenCourts = new Set();
     courtSelect.innerHTML = '<option value="">🏛️ All Courts</option>';
     courts.forEach(court => {
+      const t = (court || '').trim();
+      const key = t.toLowerCase();
+      if (!t || deletedCourts.has(key) || seenCourts.has(key)) return;
+      seenCourts.add(key);
       const opt = document.createElement('option');
-      opt.value = court;
-      opt.textContent = court;
+      opt.value = t;
+      opt.textContent = t;
       courtSelect.appendChild(opt);
     });
     if (prevVal) courtSelect.value = prevVal;
@@ -4906,11 +5201,10 @@ function renderHomeDashboard() {
   const shortcutCriminal = document.getElementById('shortcutCriminalCount');
   const shortcutRevenue = document.getElementById('shortcutRevenueCount');
 
-  const todayTbody = document.getElementById('homeTodayTableBody');
+  const todayListWrapper = document.getElementById('homeTodayListWrapper');
   const todayBoardDate = document.getElementById('homeTodayBoardDate');
   const tasksContainer = document.getElementById('homeTasksListContainer');
   const todayEmptyState = document.getElementById('homeTodayEmptyState');
-  const todayTableWrapper = document.getElementById('homeTodayTableWrapper');
 
   // 1. Dynamic Greeting
   const now = new Date();
@@ -5054,69 +5348,57 @@ function renderHomeDashboard() {
   // 5. Populate Today's Court Appearance Board Table
   if (todayCases.length === 0) {
     if (todayEmptyState) todayEmptyState.style.display = 'flex';
-    if (todayTableWrapper) todayTableWrapper.style.display = 'none';
-    if (todayTbody) {
-      todayTbody.innerHTML = `
-        <tr>
-          <td colspan="7" class="no-results" style="padding: 24px;">
-            🎉 No court hearings are listed for today (${dayName.split(' ')[0]}).
-            <br><small style="color: #64748b; margin-top: 6px; display: inline-block;">
-              <a href="javascript:void(0);" onclick="showTab('upcoming')" style="color: #2563eb; font-weight: 600;">View upcoming week appearances ➔</a>
-            </small>
-          </td>
-        </tr>
-      `;
-    }
+    if (todayListWrapper) todayListWrapper.style.display = 'none';
   } else {
     if (todayEmptyState) todayEmptyState.style.display = 'none';
-    if (todayTableWrapper) todayTableWrapper.style.display = 'block';
-    if (todayTbody) {
-      // Sort by court name and then case number
-      todayCases.sort((a, b) => {
-        const courtA = (a.courtName || a.criminalCourtName || '').toUpperCase();
-        const courtB = (b.courtName || b.criminalCourtName || '').toUpperCase();
-        if (courtA !== courtB) return courtA.localeCompare(courtB);
-        const numA = (a.caseNo || a.criminalCaseNumber || '').toUpperCase();
-        const numB = (b.caseNo || b.criminalCaseNumber || '').toUpperCase();
-        return numA.localeCompare(numB);
-      });
+    if (todayListWrapper) todayListWrapper.style.display = 'flex';
+    // Sort by court name and then case number
+    todayCases.sort((a, b) => {
+      const courtA = (a.courtName || a.criminalCourtName || '').toUpperCase();
+      const courtB = (b.courtName || b.criminalCourtName || '').toUpperCase();
+      if (courtA !== courtB) return courtA.localeCompare(courtB);
+      const numA = (a.caseNo || a.criminalCaseNumber || '').toUpperCase();
+      const numB = (b.caseNo || b.criminalCaseNumber || '').toUpperCase();
+      return numA.localeCompare(numB);
+    });
 
-      let html = '';
-      todayCases.forEach((c, idx) => {
-        const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
-        const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
-        const courtName = c.courtName || c.criminalCourtName || 'District Court';
-        const caseType = (c.caseType || 'civil').toLowerCase();
-        const stage = c.hearingProcess || c.process || 'Listed Hearing';
-        const clientName = c.clientName || c.criminalClientName || '—';
-        const clientPhone = c.clientNumber || c.criminalClientNumber || '';
+    let html = '';
+    todayCases.forEach((c, idx) => {
+      const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+      const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
+      const courtName = c.courtName || c.criminalCourtName || 'District Court';
+      const caseType = (c.caseType || 'civil').toLowerCase();
+      const stage = c.hearingProcess || c.process || 'Listed Hearing';
+      const clientName = c.clientName || c.criminalClientName || '—';
+      const clientPhone = c.clientNumber || c.criminalClientNumber || '';
 
-        html += `
-          <tr>
-            <td style="text-align: center;"><span class="court-index-badge">#${idx + 1}</span></td>
-            <td class="copyable-case-no" title="Double-click to copy Case Number">
-              <strong style="color: #0f172a; font-size: 13.5px;">${escapeHtml(caseNumber)}</strong>
-              <div style="margin-top: 3px;"><span class="case-badge ${caseType}" style="font-size: 9.5px; padding: 2px 7px; text-transform: uppercase; border-radius: 4px; font-weight: 700;">${caseType}</span></div>
-            </td>
-            <td><strong style="color: #0f172a; font-size: 13.5px; display: block;">${escapeHtml(caseName)}</strong></td>
-            <td><span style="font-weight: 600; color: #334155;">🏛️ ${escapeHtml(courtName)}</span></td>
-            <td><span class="hearing-stage-pill" style="color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; font-weight: 700; padding: 3px 8px; border-radius: 6px; font-size: 11.5px; display: inline-block;">${escapeHtml(stage)}</span></td>
-            <td>
-              <div style="font-weight: 600; color: #1e293b;">${escapeHtml(clientName)}</div>
-              ${clientPhone ? `<small style="margin-top: 3px; display: inline-block;"><a href="tel:${escapeHtml(clientPhone)}" style="color: #0284c7; text-decoration: none; font-weight: 600;" title="Call Client">📞 ${escapeHtml(clientPhone)}</a></small>` : ''}
-            </td>
-            <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
-              <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View proceedings details"><i class="fa-solid fa-scroll"></i><span class="btn-text"> Details</span></button>
-              <button type="button" class="table-view-btn edit-case-btn" onclick="editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case Details"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
-              <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date"><i class="fa-solid fa-calendar-plus"></i><span class="btn-text"> Forward</span></button>
-              ${clientPhone ? `<a href="tel:${escapeHtml(clientPhone)}" class="table-view-btn call-btn" title="Call Client directly: ${escapeHtml(clientPhone)}" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;"><i class="fa-solid fa-phone"></i></a>` : ''}
-              <button type="button" class="table-view-btn whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="WhatsApp notice to client"><i class="fa-brands fa-whatsapp"></i></button>
-            </td>
-          </tr>
-        `;
-      });
-      todayTbody.innerHTML = html;
-    }
+      html += `
+        <div class="home-today-card">
+          <div class="home-today-card-main">
+            <span class="home-today-index">#${idx + 1}</span>
+            <div class="home-today-card-info">
+              <div class="home-today-card-title-row">
+                <span class="home-today-caseno">${escapeHtml(caseNumber)}</span>
+                <span class="case-badge ${caseType}" style="font-size: 9.5px; padding: 2px 7px; text-transform: uppercase; border-radius: 4px; font-weight: 700;">${caseType}</span>
+                <span class="home-today-case-name" title="${escapeHtml(caseName)}">${escapeHtml(caseName)}</span>
+              </div>
+              <div class="home-today-card-meta">
+                <span><i class="fa-solid fa-landmark"></i> ${escapeHtml(courtName)}</span>
+                <span class="home-today-stage-pill">${escapeHtml(stage)}</span>
+                <span><i class="fa-solid fa-user"></i> ${escapeHtml(clientName)}${clientPhone ? ` • <a href="tel:${escapeHtml(clientPhone)}" style="color: #047857; text-decoration: none; font-weight: 600;" title="Call Client">${escapeHtml(clientPhone)}</a>` : ''}</span>
+              </div>
+            </div>
+          </div>
+          <div class="home-today-card-actions">
+            <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View proceedings details"><i class="fa-solid fa-scroll"></i><span class="btn-text"> Details</span></button>
+            <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date"><i class="fa-solid fa-calendar-plus"></i><span class="btn-text"> Forward</span></button>
+            ${clientPhone ? `<a href="tel:${escapeHtml(clientPhone)}" class="table-view-btn call-btn" title="Call Client directly: ${escapeHtml(clientPhone)}" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;"><i class="fa-solid fa-phone"></i></a>` : ''}
+            <button type="button" class="table-view-btn whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="WhatsApp notice to client"><i class="fa-brands fa-whatsapp"></i></button>
+          </div>
+        </div>
+      `;
+    });
+    if (todayListWrapper) todayListWrapper.innerHTML = html;
   }
 
   // 6. Populate Priority Tasks Widget
@@ -5591,6 +5873,7 @@ function refreshAllCaseTables() {
   // 6. All Cases Combined Table with Live Filters
   updateAllCasesTypePillCounts();
   renderAllCasesTableWithFilters();
+  renderCaseCards();
 
   // 7. Render Upcoming Hearings (Next 7 Days)
   renderUpcomingWeekHearings();
@@ -5766,6 +6049,10 @@ function updateAllCasesTypePillCounts() {
   // Synchronize sidebar nav counter
   const navBadge = document.getElementById('allCasesNavCount');
   if (navBadge) navBadge.textContent = String(counts.all);
+
+  // Synchronize Case Cards sidebar nav counter
+  const cardsNavBadge = document.getElementById('caseCardsNavCount');
+  if (cardsNavBadge) cardsNavBadge.textContent = String((allCaseRecords || []).length);
 }
 
 function filterAllCasesByType(type) {
@@ -6021,6 +6308,339 @@ function renderAllCasesTableWithFilters(resetPage = true) {
   }).join('');
 }
 
+/* ==============================================================
+   Case Cards Board — 3-line expandable cards for all cases
+   ============================================================== */
+function getCaseCardDisplayData(c) {
+  const caseType = (c.caseType || 'civil').toLowerCase();
+  const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+  const courtName = c.courtName || c.criminalCourtName || 'District Court';
+
+  // Sanitize case name and avoid bare 'vs'
+  let caseName = (c.caseName || '').trim();
+  if (!caseName || caseName.toLowerCase() === 'vs' || caseName.toLowerCase() === 'vs.') {
+    if (c.plaintiff && c.defendant) caseName = `${c.plaintiff} vs ${c.defendant}`;
+    else if (c.petitioner && c.respondent) caseName = `${c.petitioner} vs ${c.respondent}`;
+    else if (c.applicant && c.respondent) caseName = `${c.applicant} vs ${c.respondent}`;
+    else if (c.plaintiff) caseName = `${c.plaintiff} vs Opposite`;
+    else if (c.accusedName) caseName = `State vs ${c.accusedName}`;
+    else if (c.victimName) caseName = `${c.victimName} vs Accused`;
+    else caseName = 'Untitled Matter';
+  }
+
+  const isDisposed = (c.caseStatus || '').toLowerCase().includes('dispose') || Boolean(c.disposalComment || c.disposal_comment);
+  const isUndated = !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !String(c.nextHearing).trim() || String(c.nextHearing).toLowerCase() === 'undated';
+
+  return { caseType, caseNumber, courtName, caseName, isDisposed, isUndated };
+}
+
+function buildCaseCardSections(c) {
+  const { caseType, caseNumber, courtName, isDisposed, isUndated } = getCaseCardDisplayData(c);
+  const isCriminalSide = ['criminal', 'state', 'complaint', 'misc_criminal', 'misccriminal'].includes(caseType);
+
+  // ----- 1. Courts & Case Info -----
+  const info = [];
+  info.push(['Case Number', caseNumber]);
+  info.push(['Case Type', caseType.replace('_', ' ').toUpperCase()]);
+  if (c.caseYear || c.crimeYear) info.push(['Registration Year', c.caseYear || c.crimeYear]);
+  info.push(['Court / Forum', courtName]);
+  if (c.filingDate || c.crimeFilingDate) info.push(['Filing Date', formatDateDMY(c.filingDate || c.crimeFilingDate)]);
+  if (c.hearingProcess) info.push(['Next Stage', c.hearingProcess]);
+
+  // ----- 2. Parties & Matter -----
+  const parties = [];
+  if (isCriminalSide) {
+    if (c.victimName || c.firstParty) parties.push(['Complainant / Victim', c.victimName || c.firstParty]);
+    if (c.accusedName || c.oppositeParty) parties.push(['Accused / Opposite', c.accusedName || c.oppositeParty]);
+    if (c.policeStation) parties.push(['Police Station', c.policeStation]);
+    if (c.crimeNumber) parties.push(['FIR / Crime No.', `${c.crimeNumber}${c.crimeYear ? ` / ${c.crimeYear}` : ''}`]);
+    if (c.crimeSection) parties.push(['Sections (IPC/BNS)', c.crimeSection]);
+    if (c.custodyStatus) parties.push(['Custody / Bail Status', c.custodyStatus]);
+  } else if (caseType === 'family') {
+    if (c.petitioner || c.plaintiff) parties.push(['Petitioner / Applicant', c.petitioner || c.plaintiff]);
+    if (c.respondent || c.defendant) parties.push(['Respondent / Opposite', c.respondent || c.defendant]);
+    if (c.familyMatterType || c.matterType) parties.push(['Dispute Nature', c.familyMatterType || c.matterType]);
+    if (c.marriageDate) parties.push(['Marriage Date', formatDateDMY(c.marriageDate)]);
+    if (c.maintenance) parties.push(['Maintenance Details', c.maintenance]);
+  } else if (caseType === 'revenue') {
+    if (c.applicant || c.plaintiff) parties.push(['Applicant / Petitioner', c.applicant || c.plaintiff]);
+    if (c.respondent || c.defendant) parties.push(['Opposite Party', c.respondent || c.defendant]);
+    if (c.revenueMatterType) parties.push(['Revenue Matter Nature', c.revenueMatterType]);
+    if (c.village) parties.push(['Village / Mauza', c.village]);
+    if (c.khataNo || c.gataNo) parties.push(['Khata / Gata No.', [c.khataNo ? `Khata: ${c.khataNo}` : '', c.gataNo ? `Gata: ${c.gataNo}` : ''].filter(Boolean).join(' | ')]);
+  } else {
+    if (c.plaintiff || c.firstParty) parties.push(['Plaintiff / Petitioner', c.plaintiff || c.firstParty]);
+    if (c.defendant || c.oppositeParty) parties.push(['Defendant / Respondent', c.defendant || c.oppositeParty]);
+    if (c.matterType) parties.push(['Matter / Suit Nature', c.matterType]);
+  }
+
+  // ----- 3. Hearings -----
+  let statusText = 'Pending';
+  if (isDisposed) statusText = 'Disposed Off';
+  else if (isUndated) statusText = 'Undated / Unscheduled';
+
+  const hearings = [['Status', statusText]];
+  if (!isUndated) hearings.push(['Next Hearing', formatDateDMY(c.nextHearing)]);
+  if (c.previousHearing) hearings.push(['Previous Hearing', formatDateDMY(c.previousHearing)]);
+  if (c.previousProcess) hearings.push(['Previous Process', c.previousProcess]);
+
+  // Full previous-hearing history (dated, process, action taken)
+  const hearingHistory = getCaseHearingHistory(caseNumber)
+    .filter(h => h.hearing_date && h.hearing_date !== c.nextHearing)
+    .map(h => ({ date: h.hearing_date, process: h.process || '—', action: h.action_taken || '—' }));
+
+  // ----- 4. Client & Remarks -----
+  const client = [];
+  const clientName = c.clientName || c.criminalClientName || c.client || '';
+  if (clientName) client.push(['Client', clientName]);
+  const clientPhone = c.clientNumber || c.criminalClientNumber || '';
+  if (clientPhone) client.push(['Client Phone', clientPhone]);
+  const remark = c.remark || c.remarks || '';
+  if (remark.trim()) client.push(['Remarks', remark.trim()]);
+  const disposal = c.disposalComment || c.disposal_comment || '';
+  if (disposal.trim()) client.push(['Disposal Order', disposal.trim()]);
+
+  return [
+    { num: 1, icon: 'fa-landmark',          title: 'Courts & Case Info', rows: info },
+    { num: 2, icon: 'fa-user-group',        title: 'Parties & Matter',   rows: parties },
+    { num: 3, icon: 'fa-calendar-days',     title: `Hearings${hearingHistory.length ? ` (${hearingHistory.length} previous)` : ''}`, rows: hearings, history: hearingHistory },
+    { num: 4, icon: 'fa-address-card',      title: 'Client & Remarks',   rows: client }
+  ].filter(s => s.rows.length > 0);
+}
+
+function toggleCaseCardSection(headerEl) {
+  const section = headerEl.closest('.case-card-section');
+  if (!section) return;
+  section.classList.toggle('open');
+  const chevron = headerEl.querySelector('.case-card-section-chevron');
+  if (chevron) chevron.style.transform = section.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+function caseCardSortValue(c) {
+  const { isDisposed, isUndated } = getCaseCardDisplayData(c);
+  if (isDisposed) return 3;   // disposed last
+  if (isUndated) return 2;    // undated after dated
+  return 1;                   // dated first (chronological, see comparator)
+}
+
+/* ── Case Cards quick filter pills ── */
+let caseCardsActivePill = 'all';
+
+function setCaseCardsPill(filter, btn) {
+  caseCardsActivePill = filter;
+  document.querySelectorAll('#caseCardsPillRow .case-cards-pill').forEach(p => {
+    p.classList.toggle('active', p === btn);
+  });
+  renderCaseCards();
+}
+
+function caseCardMatchesPill(c, pill) {
+  if (pill === 'all') return true;
+  const { caseType, isDisposed, isUndated } = getCaseCardDisplayData(c);
+  if (pill === 'disposed') return isDisposed;
+  if (pill === 'undated') return isUndated && !isDisposed;
+  if (pill === 'dated') return !isUndated && !isDisposed;
+  if (pill === 'criminal') return ['criminal', 'state', 'complaint', 'misc_criminal', 'misccriminal'].includes(caseType);
+  return caseType === pill; // civil | family | revenue
+}
+
+function updateCaseCardsPillCounts() {
+  const counts = { all: (allCaseRecords || []).length, civil: 0, criminal: 0, family: 0, revenue: 0, dated: 0, undated: 0, disposed: 0 };
+  (allCaseRecords || []).forEach(c => {
+    const { caseType, isDisposed, isUndated } = getCaseCardDisplayData(c);
+    if (isDisposed) counts.disposed++;
+    else if (isUndated) counts.undated++;
+    else counts.dated++;
+    if (['criminal', 'state', 'complaint', 'misc_criminal', 'misccriminal'].includes(caseType)) counts.criminal++;
+    else if (caseType === 'family') counts.family++;
+    else if (caseType === 'revenue') counts.revenue++;
+    else counts.civil++;
+  });
+  document.querySelectorAll('#caseCardsPillRow .case-cards-pill-count').forEach(el => {
+    const key = el.getAttribute('data-count');
+    if (key in counts) el.textContent = counts[key];
+  });
+}
+
+function renderCaseCards() {
+  const grid = document.getElementById('caseCardsGrid');
+  if (!grid) return;
+
+  const searchInput = document.getElementById('caseCardsSearchInput');
+  const countBadge = document.getElementById('caseCardsCountBadge');
+  const query = (searchInput?.value || '').trim().toLowerCase();
+
+  let filtered = (allCaseRecords || []).slice();
+
+  updateCaseCardsPillCounts();
+
+  if (caseCardsActivePill !== 'all') {
+    filtered = filtered.filter(c => caseCardMatchesPill(c, caseCardsActivePill));
+  }
+
+  if (query) {
+    filtered = filtered.filter(c => {
+      const caseNo = (c.caseNo || c.criminalCaseNumber || '').toLowerCase();
+      const caseName = (c.caseName || '').toLowerCase();
+      const plaintiff = (c.plaintiff || c.petitioner || c.applicant || '').toLowerCase();
+      const defendant = (c.defendant || c.respondent || c.oppositeParty || '').toLowerCase();
+      const accused = (c.accusedName || '').toLowerCase();
+      const victim = (c.victimName || '').toLowerCase();
+      const client = (c.clientName || c.criminalClientName || '').toLowerCase();
+      const phone = (c.clientNumber || c.criminalClientNumber || '').toLowerCase();
+      const court = (c.courtName || c.criminalCourtName || '').toLowerCase();
+      const remark = (c.remark || c.remarks || '').toLowerCase();
+      const police = (c.policeStation || '').toLowerCase();
+      const crimeNo = (c.crimeNumber || c.firNumber || '').toLowerCase();
+      return caseNo.includes(query) || caseName.includes(query) || plaintiff.includes(query) ||
+        defendant.includes(query) || accused.includes(query) || victim.includes(query) ||
+        client.includes(query) || phone.includes(query) || court.includes(query) ||
+        remark.includes(query) || police.includes(query) || crimeNo.includes(query);
+    });
+  }
+
+  // Sort: dated (nearest first) → undated → disposed
+  filtered.sort((a, b) => {
+    const rankA = caseCardSortValue(a);
+    const rankB = caseCardSortValue(b);
+    if (rankA !== rankB) return rankA - rankB;
+    if (rankA === 1) return new Date(a.nextHearing) - new Date(b.nextHearing);
+    return 0;
+  });
+
+  caseCardsFilteredList = filtered;
+  if (caseCardsExpandedIndex >= filtered.length) caseCardsExpandedIndex = -1;
+
+  if (countBadge) {
+    countBadge.textContent = `Showing ${filtered.length} of ${(allCaseRecords || []).length} cases`;
+  }
+
+  const navBadge = document.getElementById('caseCardsNavCount');
+  if (navBadge) navBadge.textContent = String((allCaseRecords || []).length);
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="case-cards-empty">
+        🔍 No case cards match your search.
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((c, idx) => {
+    const { caseNumber, courtName, caseName, caseType, isDisposed, isUndated } = getCaseCardDisplayData(c);
+
+    let nextDateHtml;
+    if (isDisposed) {
+      nextDateHtml = '<span class="case-card-nextdate is-disposed">✔ Disposed</span>';
+    } else if (isUndated) {
+      nextDateHtml = '<span class="case-card-nextdate is-undated">Undated</span>';
+    } else {
+      nextDateHtml = `<span class="case-card-nextdate">📅 ${formatDateDMY(c.nextHearing)}</span>`;
+    }
+
+    // Parties + Client compact line (4th line)
+    const party1 = c.plaintiff || c.petitioner || c.applicant || c.firstParty || c.victimName || '';
+    const party2 = c.defendant || c.respondent || c.oppositeParty || c.accusedName || '';
+    const partiesText = (party1 && party2) ? `${party1} vs ${party2}` : (party1 || party2 || '—');
+    const clientName = c.clientName || c.criminalClientName || c.client || '—';
+
+    const detailSections = buildCaseCardSections(c)
+      .map(sec => `
+        <div class="case-card-section">
+          <button type="button" class="case-card-section-header" onclick="toggleCaseCardSection(this)">
+            <span class="case-card-section-title"><span class="case-card-section-num">${sec.num}</span> <i class="fa-solid ${sec.icon}"></i> ${sec.title}</span>
+            <i class="fa-solid fa-chevron-down case-card-section-chevron"></i>
+          </button>
+          <div class="case-card-section-body">
+            <div class="case-card-detail-grid">
+              ${sec.rows.map(([k, v]) => `
+                <div class="case-card-detail-row">
+                  <span class="case-card-detail-label">${escapeHtml(k)}:</span>
+                  <span class="case-card-detail-value">${escapeHtml(v)}</span>
+                </div>
+              `).join('')}
+            </div>
+            ${(sec.history && sec.history.length) ? `
+              <div class="case-card-hearing-history">
+                ${sec.history.map(h => `
+                  <div class="case-card-hearing-item">
+                    <span class="case-card-hearing-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDateDMY(h.date))}</span>
+                    <span class="case-card-hearing-field"><strong>Process:</strong> ${escapeHtml(h.process)}</span>
+                    <span class="case-card-hearing-field"><strong>Action Taken:</strong> ${escapeHtml(h.action)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+
+    return `
+      <div class="case-card case-card-type-${caseType.replace(/[^a-z0-9]+/g, '-')}${isDisposed ? ' case-card-disposed' : ''}${idx === caseCardsExpandedIndex ? ' expanded' : ''}" data-card-index="${idx}">
+        <div class="case-card-summary" onclick="toggleCaseCard(${idx})">
+          <span class="case-card-expand-hint">${idx === caseCardsExpandedIndex ? '▲ Hide details' : '▼ Tap to expand'}</span>
+          <div class="case-card-name" title="${escapeHtml(caseName)}">${escapeHtml(caseName)}</div>
+          <div class="case-card-line2">
+            <span class="case-card-caseno" title="${escapeHtml(caseNumber)}">${escapeHtml(caseNumber)}</span>
+            ${nextDateHtml}
+          </div>
+          <div class="case-card-court" title="${escapeHtml(courtName)}"><i class="fa-solid fa-landmark"></i> ${escapeHtml(courtName)}</div>
+          <div class="case-card-line4" title="Parties: ${escapeHtml(partiesText)} | Client: ${escapeHtml(clientName)}">
+            <span class="case-card-parties"><i class="fa-solid fa-user-group"></i> ${escapeHtml(partiesText)}</span>
+            <span class="case-card-client"><i class="fa-solid fa-user"></i> ${escapeHtml(clientName)}</span>
+          </div>
+        </div>
+        <div class="case-card-details">
+          ${detailSections}
+        </div>
+        <div class="case-card-detail-actions case-card-actions-bar">
+          <button type="button" class="case-card-action-btn" onclick="event.stopPropagation(); openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View Case Proceedings & Dossier"><i class="fa-solid fa-eye"></i> History</button>
+          <button type="button" class="case-card-action-btn" onclick="event.stopPropagation(); editCaseFromTable('${escapeHtml(caseNumber)}')" title="Edit / Update Case Details"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+          <button type="button" class="case-card-action-btn" onclick="event.stopPropagation(); printCurrentCaseDossier(caseCardsFilteredList[${idx}])" title="Print Case Dossier"><i class="fa-solid fa-print"></i> Dossier</button>
+          <button type="button" class="case-card-action-btn case-card-delete-btn" onclick="event.stopPropagation(); deleteCaseCard(${idx})" title="Delete Case Permanently"><i class="fa-solid fa-trash-can"></i> Delete</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function deleteCaseCard(idx) {
+  const c = (caseCardsFilteredList || [])[idx];
+  if (!c) return;
+  const caseNumber = c.caseNo || c.criminalCaseNumber || '';
+  if (!caseNumber) return;
+
+  const { caseName } = getCaseCardDisplayData(c);
+  const confirmed = confirm(`Are you sure you want to permanently delete case "${caseNumber}" (${caseName})? This action cannot be undone.`);
+  if (!confirmed) return;
+
+  await deleteCaseFromSupabase(caseNumber);
+}
+
+function toggleCaseCard(idx) {
+  caseCardsExpandedIndex = (caseCardsExpandedIndex === idx) ? -1 : idx;
+
+  // Toggle classes in place (avoids full re-render losing scroll position)
+  document.querySelectorAll('#caseCardsGrid .case-card').forEach(card => {
+    const cardIdx = parseInt(card.getAttribute('data-card-index'), 10);
+    const summary = card.querySelector('.case-card-summary');
+    if (cardIdx === caseCardsExpandedIndex) {
+      card.classList.add('expanded');
+      if (summary) {
+        const hint = summary.querySelector('.case-card-expand-hint');
+        if (hint) hint.textContent = '▲ Hide details';
+      }
+    } else {
+      card.classList.remove('expanded');
+      if (summary) {
+        const hint = summary.querySelector('.case-card-expand-hint');
+        if (hint) hint.textContent = '▼ Tap to expand';
+      }
+    }
+  });
+}
+
 function renderAllCasesPaginationControls(totalItems, pageSize, totalPages, currentPage, isAll) {
   const infoEl = document.getElementById('allCasesPaginationInfo');
   const controlsEl = document.getElementById('allCasesPaginationControls');
@@ -6186,6 +6806,11 @@ window.renderAllCasesTableWithFilters = renderAllCasesTableWithFilters;
 window.handleAllCasesPageSizeChange = handleAllCasesPageSizeChange;
 window.changeAllCasesPage = changeAllCasesPage;
 window.renderAllCasesPaginationControls = renderAllCasesPaginationControls;
+window.renderCaseCards = renderCaseCards;
+window.setCaseCardsPill = setCaseCardsPill;
+window.toggleCaseCard = toggleCaseCard;
+window.deleteCaseCard = deleteCaseCard;
+window.toggleCaseCardSection = toggleCaseCardSection;
 window.editCaseFromTable = editCaseFromTable;
 window.exportAllCasesCsv = exportAllCasesCsv;
 
@@ -9645,12 +10270,13 @@ function renderSearchCourtFilterOptions() {
   filterSelect.innerHTML = '<option value="">🏛️ All Courts</option>';
 
   const uniqueCourts = new Set();
+  const deletedCourts = getDeletedCourtsSet();
   courts.forEach(c => {
-    if (c && c.trim()) uniqueCourts.add(c.trim());
+    if (c && c.trim() && !deletedCourts.has(c.trim().toLowerCase())) uniqueCourts.add(c.trim());
   });
   allCaseRecords.forEach(item => {
     const cName = item.courtName || item.criminalCourtName;
-    if (cName && cName.trim()) uniqueCourts.add(cName.trim());
+    if (cName && cName.trim() && !deletedCourts.has(cName.trim().toLowerCase())) uniqueCourts.add(cName.trim());
   });
 
   Array.from(uniqueCourts).sort().forEach(court => {
@@ -9703,7 +10329,6 @@ function renderSearchCourtFilterOptions() {
 }
 
 function renderCourtsTable(filterQuery = '') {
-  const tbody = document.querySelector('#courtsTable tbody');
   const countBadge = document.getElementById('courtsTotalCountBadge');
   const searchInput = document.getElementById('courtSearchInput');
   const query = (filterQuery !== undefined && filterQuery !== null && filterQuery !== '' ? filterQuery : (searchInput ? searchInput.value : '') || '').trim().toLowerCase();
@@ -9734,46 +10359,45 @@ function renderCourtsTable(filterQuery = '') {
     }
   }
 
-  if (!tbody) return;
+  const grid = document.getElementById('courtsCardsGrid');
+
+  if (!grid) return;
 
   if (filteredCourts.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="3" class="no-results">${query ? `No courts matching "${escapeHtml(query)}".` : 'No courts configured yet. Add a court using the form above.'}</td></tr>`;
+    grid.innerHTML = `<div class="courts-cards-empty">${query ? `No courts matching "${escapeHtml(query)}".` : 'No courts configured yet. Add a court using the form above.'}</div>`;
     return;
   }
 
-  tbody.innerHTML = '';
+  grid.innerHTML = '';
 
   filteredCourts.forEach((court, index) => {
-    const row = document.createElement('tr');
-    const casesInCourt = (allCaseRecords || []).filter(c => 
-      (c.courtName || '').trim().toLowerCase() === court.trim().toLowerCase() || 
+    const card = document.createElement('div');
+    card.className = 'court-directory-card';
+    const casesInCourt = (allCaseRecords || []).filter(c =>
+      (c.courtName || '').trim().toLowerCase() === court.trim().toLowerCase() ||
       (c.criminalCourtName || '').trim().toLowerCase() === court.trim().toLowerCase()
     );
     const count = casesInCourt.length;
 
-    row.innerHTML = `
-      <td style="text-align: center;"><span class="court-index-badge">#${index + 1}</span></td>
-      <td>
-        <div class="court-name-cell">
-          <span style="font-size: 18px;">🏛️</span>
-          <div class="court-name-meta">
-            <span class="court-name-title">${escapeHtml(court)}</span>
-            <span class="court-cases-count-badge ${count > 0 ? 'has-cases' : 'zero-cases'}">
-              <i class="fa-solid fa-briefcase"></i> ${count} Case${count === 1 ? '' : 's'} Assigned
-            </span>
-          </div>
-        </div>
-      </td>
-      <td class="table-actions-td">
-        <div class="court-actions-cell">
-          <button type="button" class="court-btn-edit edit-court" title="Edit Court"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
-          <button type="button" class="court-btn-delete delete-court" title="Delete Court"><i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span></button>
-        </div>
-      </td>
+    card.innerHTML = `
+      <div class="court-card-head">
+        <span class="court-card-index">#${index + 1}</span>
+        <span class="court-card-icon"><i class="fa-solid fa-landmark"></i></span>
+        <span class="court-card-name">${escapeHtml(court)}</span>
+      </div>
+      <div class="court-card-body">
+        <span class="court-card-count ${count > 0 ? 'has-cases' : 'zero-cases'}">
+          <i class="fa-solid fa-briefcase"></i> ${count} Case${count === 1 ? '' : 's'} Assigned
+        </span>
+      </div>
+      <div class="court-card-actions">
+        <button type="button" class="court-btn-edit edit-court" title="Edit Court"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
+        <button type="button" class="court-btn-delete delete-court" title="Delete Court"><i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span></button>
+      </div>
     `;
 
-    const editBtn = row.querySelector('.edit-court');
-    const deleteBtn = row.querySelector('.delete-court');
+    const editBtn = card.querySelector('.edit-court');
+    const deleteBtn = card.querySelector('.delete-court');
 
     editBtn.addEventListener('click', () => {
       openEditCourtModal(court, count);
@@ -9783,7 +10407,7 @@ function renderCourtsTable(filterQuery = '') {
       openDeleteCourtModal(court, count);
     });
 
-    tbody.appendChild(row);
+    grid.appendChild(card);
   });
 }
 
@@ -11535,6 +12159,8 @@ function initializeApp() {
           if (hearingProcessInput && found.hearingProcess && !hearingProcessInput.value) {
             hearingProcessInput.value = found.hearingProcess;
           }
+          // Re-render stage pills to match the selected case's type
+          renderHearingStagePills(found.caseType || found.case_type || '');
           const dateInput = document.getElementById('hearingDate');
           if (dateInput) dateInput.focus();
         }
@@ -11555,12 +12181,24 @@ function initializeApp() {
           hearingCaseSelect.value = '';
         }
       }
+
+      // Keep stage pills in sync with the typed case's type
+      const typedFound = allCaseRecords.find(c => {
+        const num1 = (c.caseNo || '').toLowerCase();
+        const num2 = (c.criminalCaseNumber || '').toLowerCase();
+        return num1 === typed.toLowerCase() || num2 === typed.toLowerCase();
+      });
+      if (typedFound) {
+        renderHearingStagePills(typedFound.caseType || typedFound.case_type || '');
+      }
     });
   }
 
   // Live preview events for Hearing Date & Process inputs
   const hearingDateInput = document.getElementById('hearingDate');
   const hearingProcessInput = document.getElementById('hearingProcess');
+  // Initial render of the common stage pill set
+  renderHearingStagePills('');
   if (hearingDateInput) {
     hearingDateInput.addEventListener('input', updateHearingLivePreview);
     hearingDateInput.addEventListener('change', updateHearingLivePreview);
@@ -11640,6 +12278,7 @@ function initializeApp() {
       updateHearingForm.reset();
       if (hearingCaseSelect) hearingCaseSelect.value = '';
       renderHearingCaseInfo('');
+      renderHearingStagePills('');
       updateHearingLivePreview();
 
       await performPostCrudRefresh({ caseNumber: caseNumber });
@@ -12270,6 +12909,7 @@ const DB_SCHEMAS = {
     columns: [
       { name: 'id', label: 'ID (UUID)', type: 'uuid', readonly: true },
       { name: 'case_number', label: 'Case Number', type: 'text', required: true, placeholder: 'Linked case number' },
+      { name: 'case_name', label: 'Case Name (from case tables)', type: 'text', virtual: true },
       { name: 'case_type', label: 'Case Type', type: 'select', options: ['civil', 'criminal', 'revenue', 'complaint'], default: 'civil' },
       { name: 'hearing_date', label: 'Hearing Date', type: 'date', required: true, default: () => new Date().toISOString().split('T')[0] },
       { name: 'process', label: 'Hearing Process / Stage', type: 'text', required: true, placeholder: 'e.g. Arguments, Evidence, Notice' },
@@ -13041,6 +13681,28 @@ async function fetchAndRenderDbTable(tableName = currentDbTable) {
     }
   }
 
+  // Hearings view: join the case name from the in-memory case records (loaded from
+  // all case tables) so each hearing row shows which matter it belongs to.
+  // Display-only — nothing is written back to the hearings table.
+  if (tableName === 'hearings' && Array.isArray(allCaseRecords)) {
+    const byCaseNo = new Map();
+    allCaseRecords.forEach(c => {
+      const num = (c.caseNo || c.criminalCaseNumber || '').trim().toLowerCase();
+      if (num && !byCaseNo.has(num)) byCaseNo.set(num, c);
+    });
+    rows.forEach(r => {
+      const hNum = (r.case_number || '').trim().toLowerCase();
+      const clean = hNum.replace(/[^a-z0-9]/g, '');
+      let matched = byCaseNo.get(hNum);
+      if (!matched && clean) {
+        for (const [key, c] of byCaseNo) {
+          if (key.replace(/[^a-z0-9]/g, '') === clean) { matched = c; break; }
+        }
+      }
+      r.case_name = matched ? (matched.caseName || '—') : '— (case not found)';
+    });
+  }
+
   currentDbTableData = rows;
   if (rowCountBadge) {
     rowCountBadge.textContent = `${rows.length} row${rows.length === 1 ? '' : 's'} in table`;
@@ -13243,6 +13905,8 @@ function renderDynamicFormFields(schema, existingData = null) {
   schema.columns.forEach(col => {
     // Skip readonly timestamp & auto ID fields in insert form unless editing
     if (col.readonly && !existingData) return;
+    // Virtual columns are display-only joins (e.g. case name in hearings) — never editable
+    if (col.virtual) return;
 
     let val = '';
     if (existingData && existingData[col.name] !== undefined && existingData[col.name] !== null) {
@@ -13308,6 +13972,7 @@ async function handleDbRecordFormSubmit(event) {
   schema.columns.forEach(col => {
     if (col.readonly && col.name === 'id' && action === 'create') return;
     if (col.name === 'created_at' || col.name === 'updated_at') return;
+    if (col.virtual) return; // display-only join — never sent to the database
 
     const el = document.getElementById(`db_field_${col.name}`);
     if (el) {

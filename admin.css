@@ -8179,6 +8179,36 @@ html.auth-guest #guestScreen {
   transform: translateY(-1px);
 }
 
+/* CaseBook Mint — stage pills */
+.stage-pill {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+  border-radius: 9999px !important;
+  font-weight: 700 !important;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
+}
+
+.stage-pill:hover {
+  background: #d1fae5 !important;
+  color: #064e3b !important;
+  border-color: #6ee7b7 !important;
+}
+
+/* Type-specific stages (civil/criminal/family/...) — emerald fill */
+.stage-pill.stage-pill-specific {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25) !important;
+}
+
+.stage-pill.stage-pill-specific:hover {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  color: #ffffff !important;
+  border-color: #047857 !important;
+}
+
 .hearing-big-submit {
   width: 100%;
   padding: 14px 20px;
@@ -8997,124 +9027,124 @@ html.auth-guest #guestScreen {
    RECREATED RELATIVE COLOR PALETTES (EXACT REPLICA OF IMAGE 2)
    ========================================================================== */
 
-/* 1. Total Case Records (Blue Theme) */
+/* 1. Total Case Records (Deep Emerald Theme) */
 .kpi-theme-total {
-  border-color: #bfdbfe !important;
-  background: radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 60%),
-              radial-gradient(circle at 0% 100%, rgba(37, 99, 235, 0.05) 0%, #ffffff 70%) !important;
+  border-color: #a7f3d0 !important;
+  background: radial-gradient(circle at 100% 0%, rgba(5, 150, 105, 0.10) 0%, transparent 60%),
+              radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.06) 0%, #ffffff 70%) !important;
 }
 .kpi-theme-total .card-accent-top,
 .kpi-theme-total .card-accent-bottom {
-  background: #2563eb !important;
+  background: #047857 !important;
 }
 .kpi-theme-total .kpi-visual-icon {
-  background: #eff6ff !important;
-  color: #2563eb !important;
-  border: 1.5px solid #bfdbfe !important;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12) !important;
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1.5px solid #a7f3d0 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.14) !important;
 }
 .kpi-theme-total .kpi-metric-value {
-  color: #1d4ed8 !important;
+  color: #047857 !important;
 }
 
-/* 2. Today's Court Cases (Orange Theme) */
+/* 2. Today's Court Cases (Mint Theme) */
 .kpi-theme-today {
-  border-color: #fed7aa !important;
-  background: radial-gradient(circle at 100% 0%, rgba(234, 88, 12, 0.08) 0%, transparent 60%),
-              radial-gradient(circle at 0% 100%, rgba(234, 88, 12, 0.05) 0%, #ffffff 70%) !important;
+  border-color: #6ee7b7 !important;
+  background: radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.10) 0%, transparent 60%),
+              radial-gradient(circle at 0% 100%, rgba(52, 211, 153, 0.06) 0%, #ffffff 70%) !important;
 }
 .kpi-theme-today .card-accent-top,
 .kpi-theme-today .card-accent-bottom {
-  background: #ea580c !important;
+  background: #059669 !important;
 }
 .kpi-theme-today .kpi-visual-icon {
-  background: #fff7ed !important;
-  color: #ea580c !important;
-  border: 1.5px solid #fed7aa !important;
-  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.12) !important;
+  background: #d1fae5 !important;
+  color: #059669 !important;
+  border: 1.5px solid #6ee7b7 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.14) !important;
 }
 .kpi-theme-today .kpi-metric-value {
-  color: #ea580c !important;
+  color: #059669 !important;
 }
 
-/* 3. Upcoming 7 Days (Teal Theme) */
+/* 3. Upcoming 7 Days (Emerald Theme) */
 .kpi-theme-upcoming {
-  border-color: #99f6e4 !important;
-  background: radial-gradient(circle at 100% 0%, rgba(13, 148, 136, 0.08) 0%, transparent 60%),
-              radial-gradient(circle at 0% 100%, rgba(13, 148, 136, 0.05) 0%, #ffffff 70%) !important;
+  border-color: #a7f3d0 !important;
+  background: radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.09) 0%, transparent 60%),
+              radial-gradient(circle at 0% 100%, rgba(5, 150, 105, 0.06) 0%, #ffffff 70%) !important;
 }
 .kpi-theme-upcoming .card-accent-top,
 .kpi-theme-upcoming .card-accent-bottom {
-  background: #0d9488 !important;
+  background: #10b981 !important;
 }
 .kpi-theme-upcoming .kpi-visual-icon {
-  background: #f0fdfa !important;
-  color: #0d9488 !important;
-  border: 1.5px solid #99f6e4 !important;
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.12) !important;
+  background: #ecfdf5 !important;
+  color: #10b981 !important;
+  border: 1.5px solid #a7f3d0 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.14) !important;
 }
 .kpi-theme-upcoming .kpi-metric-value {
-  color: #0d9488 !important;
+  color: #059669 !important;
 }
 
-/* 4. Active Pending Cases (Amber Theme) */
+/* 4. Active Pending Cases (Soft Emerald Theme) */
 .kpi-theme-pending {
-  border-color: #fde68a !important;
-  background: radial-gradient(circle at 100% 0%, rgba(217, 119, 6, 0.08) 0%, transparent 60%),
-              radial-gradient(circle at 0% 100%, rgba(217, 119, 6, 0.05) 0%, #ffffff 70%) !important;
+  border-color: #6ee7b7 !important;
+  background: radial-gradient(circle at 100% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 60%),
+              radial-gradient(circle at 0% 100%, rgba(110, 231, 183, 0.06) 0%, #ffffff 70%) !important;
 }
 .kpi-theme-pending .card-accent-top,
 .kpi-theme-pending .card-accent-bottom {
-  background: #d97706 !important;
+  background: #34d399 !important;
 }
 .kpi-theme-pending .kpi-visual-icon {
-  background: #fffbeb !important;
-  color: #d97706 !important;
-  border: 1.5px solid #fde68a !important;
-  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.12) !important;
+  background: #d1fae5 !important;
+  color: #0a8f6c !important;
+  border: 1.5px solid #6ee7b7 !important;
+  box-shadow: 0 4px 12px rgba(52, 211, 153, 0.16) !important;
 }
 .kpi-theme-pending .kpi-metric-value {
-  color: #d97706 !important;
+  color: #059669 !important;
 }
 
-/* 5. Undated Cases (Purple Theme) */
+/* 5. Undated Cases (Pale Mint Theme) */
 .kpi-theme-undated {
-  border-color: #ddd6fe !important;
-  background: radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.08) 0%, transparent 60%),
-              radial-gradient(circle at 0% 100%, rgba(124, 58, 237, 0.05) 0%, #ffffff 70%) !important;
+  border-color: #a7f3d0 !important;
+  background: radial-gradient(circle at 100% 0%, rgba(110, 231, 183, 0.12) 0%, transparent 60%),
+              radial-gradient(circle at 0% 100%, rgba(167, 243, 208, 0.07) 0%, #ffffff 70%) !important;
 }
 .kpi-theme-undated .card-accent-top,
 .kpi-theme-undated .card-accent-bottom {
-  background: #7c3aed !important;
+  background: #6ee7b7 !important;
 }
 .kpi-theme-undated .kpi-visual-icon {
-  background: #f5f3ff !important;
-  color: #7c3aed !important;
-  border: 1.5px solid #ddd6fe !important;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.12) !important;
+  background: #f0fdf9 !important;
+  color: #0a8f6c !important;
+  border: 1.5px solid #a7f3d0 !important;
+  box-shadow: 0 4px 12px rgba(110, 231, 183, 0.16) !important;
 }
 .kpi-theme-undated .kpi-metric-value {
-  color: #7c3aed !important;
+  color: #0a8f6c !important;
 }
 
-/* 6. Disposed / Resolved (Green Theme) */
+/* 6. Disposed / Resolved (Jade Emerald Theme) */
 .kpi-theme-disposed {
-  border-color: #bbf7d0 !important;
-  background: radial-gradient(circle at 100% 0%, rgba(22, 163, 74, 0.08) 0%, transparent 60%),
-              radial-gradient(circle at 0% 100%, rgba(22, 163, 74, 0.05) 0%, #ffffff 70%) !important;
+  border-color: #6ee7b7 !important;
+  background: radial-gradient(circle at 100% 0%, rgba(5, 150, 105, 0.11) 0%, transparent 60%),
+              radial-gradient(circle at 0% 100%, rgba(52, 211, 153, 0.06) 0%, #ffffff 70%) !important;
 }
 .kpi-theme-disposed .card-accent-top,
 .kpi-theme-disposed .card-accent-bottom {
-  background: #16a34a !important;
+  background: #059669 !important;
 }
 .kpi-theme-disposed .kpi-visual-icon {
-  background: #f0fdf4 !important;
-  color: #16a34a !important;
-  border: 1.5px solid #bbf7d0 !important;
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.12) !important;
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+  border: 1.5px solid #6ee7b7 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.16) !important;
 }
 .kpi-theme-disposed .kpi-metric-value {
-  color: #16a34a !important;
+  color: #065f46 !important;
 }
 
 /* ==========================================================================
@@ -10143,6 +10173,135 @@ html.auth-guest #guestScreen {
   font-size: 22px;
   display: block;
   margin-bottom: 4px;
+}
+
+/* ── Today's Court Appearance Board — list cards (matches Priority Tasks) ── */
+.home-today-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 340px;
+  min-height: 80px;
+  overflow-y: auto;
+}
+
+.home-today-loading {
+  text-align: center;
+  padding: 24px 12px;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.home-today-card {
+  background: #f7fdfb;
+  border: 1px solid #d1fae5;
+  border-radius: 10px;
+  padding: 9px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.15s ease;
+}
+
+.home-today-card:hover {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.home-today-card-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.home-today-index {
+  font-size: 11px;
+  font-weight: 800;
+  color: #047857;
+  background: #d1fae5;
+  border-radius: 9999px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.home-today-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.home-today-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.home-today-caseno {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #065f46;
+  white-space: nowrap;
+}
+
+.home-today-case-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.home-today-card-meta {
+  font-size: 11px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-today-card-meta i { color: #10b981; font-size: 10px; }
+
+.home-today-stage-pill {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.home-today-card-actions {
+  display: flex;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+
+.home-today-card-actions .table-view-btn {
+  padding: 5px 9px;
+  font-size: 11.5px;
+}
+
+@media (max-width: 640px) {
+  .home-today-card { flex-direction: column; align-items: stretch; }
+  .home-today-card-actions { justify-content: flex-end; }
+  .home-today-list { max-height: none; }
 }
 
 .shortcuts-grid {
@@ -16409,6 +16568,217 @@ input[readonly] {
   transform: none !important;
 }
 
+/* ==============================================================================
+   Expandable Nav Case Search (search icon in top header → slides open)
+   ============================================================================== */
+.nav-case-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Collapsed: flush full-height search icon button matching nav action buttons */
+.nav-case-search-toggle {
+  height: 100%;
+  min-height: 64px;
+  width: 58px;
+  min-width: 58px;
+  border-radius: 0;
+  border: none;
+  border-left: 1px solid rgba(246, 219, 192, 0.16);
+  background: rgba(0, 0, 0, 0.15);
+  color: #F8F4E9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nav-case-search-toggle:hover {
+  background: rgba(0, 0, 0, 0.28);
+  color: #ffffff;
+}
+
+.nav-case-search-toggle i { font-size: 17px; color: #F8F4E9; }
+
+/* Expanded search box: hidden until .open */
+.nav-case-search-box {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: min(420px, calc(100vw - 24px));
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+  overflow: visible;
+  z-index: 1200;
+}
+
+.nav-case-search.open .nav-case-search-box { display: block; }
+.nav-case-search.open .nav-case-search-toggle {
+  background: #ffffff;
+  color: #007b6a;
+  border-left-color: #e2e8f0;
+}
+.nav-case-search.open .nav-case-search-toggle i { color: #007b6a; }
+
+/* Input row inside the box */
+.nav-case-search-input-row,
+.nav-case-search-box > input {
+  position: relative;
+}
+
+.nav-case-search-box input {
+  width: 100%;
+  height: 52px;
+  padding: 0 44px 0 46px;
+  font-size: 14.5px;
+  font-weight: 500;
+  font-family: inherit;
+  color: #0f172a;
+  background: #ffffff;
+  border: none;
+  border-radius: 0 0 14px 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.nav-case-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 26px;
+  transform: translateY(-50%);
+  font-size: 15px;
+  color: #64748b;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.nav-case-search-close {
+  position: absolute;
+  right: 8px;
+  top: 26px;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.nav-case-search-close:hover { background: #f1f5f9; color: #0f172a; }
+
+/* Results dropdown (scrollable, under the input) */
+.nav-case-search-results {
+  max-height: 340px;
+  overflow-y: auto;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  border-radius: 0 0 14px 14px;
+  display: none;
+}
+
+.nav-case-search-results.has-results { display: block; }
+.nav-case-search.open .nav-case-search-box:has(.nav-case-search-results.has-results) input { border-radius: 0; }
+
+.nav-case-search-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.12s ease;
+}
+
+.nav-case-search-result:last-child { border-bottom: none; }
+.nav-case-search-result:hover { background: #f0fdfa; }
+
+.nav-case-search-result-icon {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #eef2f7;
+  color: #007b6a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.nav-case-search-result-info {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-case-search-result-caseno {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #007b6a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-case-search-result-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-case-search-result-sub {
+  font-size: 0.72rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-case-search-result-date {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #d97706;
+  white-space: nowrap;
+}
+
+.nav-case-search-empty {
+  padding: 18px 14px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+/* Compact screens */
+@media (max-width: 768px) {
+  .nav-case-search-toggle { min-height: 56px; width: 48px; min-width: 48px; }
+  .nav-case-search-box { width: min(340px, calc(100vw - 16px)); }
+  .nav-case-search-box input { height: 48px; font-size: 14px; }
+  .nav-case-search-icon, .nav-case-search-close { top: 24px; }
+  .nav-case-search-results { max-height: 260px; }
+}
+
 /* Responsive Top Nav on Compact Screens */
 @media (max-width: 768px) {
   .top-header,
@@ -18725,6 +19095,13 @@ input[type="text"]#editCourtInput,
 
 /* 3. Mobile Spacing & Bottom Nav Clearance */
 @media (max-width: 767.98px) {
+  /* Hide sidebar nav links not needed on mobile (My Cases / All Cases)
+     — those registers are reachable via Home KPI cards and Case Cards tab */
+  .sidenav a.nav-hide-mobile,
+  nav a.nav-hide-mobile {
+    display: none !important;
+  }
+
   .main-content,
   .page-shell,
   .tab {
@@ -18962,4 +19339,2026 @@ input[type="text"]#editCourtInput,
 #stateCrimeNumber,
 #updateStateCrimeNumber {
   text-transform: uppercase !important;
+}
+
+/* ==============================================================================
+   ★ CASEBOOK MINT — Design System ★
+   The app-wide visual language (applied Sept 2026): an emerald-mint family
+   built on Tailwind's emerald scale, paired with amber for criminal accents.
+
+   CORE TOKENS
+     Deep emerald (text/headers) ..... #064e3b #065f46 #047857
+     Emerald (accents/values) ........ #10b981 #059669
+     Mint (borders/strips) ........... #34d399 #6ee7b7 #a7f3d0
+     Mint tints (backgrounds) ........ #ecfdf5 #d1fae5 #f0fdf9 #f7fdfb
+     Amber exception (criminal) ...... #f59e0b #d97706
+     Slate neutrals .................. #1e293b #475569 #64748b #94a3b8
+
+   COMPONENTS USING IT: Case Cards Board (cards + pills), Home KPI cards
+   (all 6 themes), Today's Court Appearance Board (list cards), filter pills,
+   hearing chips, action buttons.
+   Keep new UI in this palette — see .case-card block for the reference
+   implementation of borders (#d1fae5), gradients, and chip styling.
+   ============================================================================== */
+
+/* ==============================================================================
+   Case Cards Board — 3-line expandable cards (Case Name / Case No + Next Date / Court)
+   ============================================================================== */
+.case-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* single column on mobile AND desktop */
+  gap: 8px;
+  margin-top: 14px;
+  align-items: start; /* cards keep natural height when a sibling expands */
+}
+
+.case-card {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #f7fdfb 100%);
+  border: 1.5px solid #d1fae5;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(6, 95, 70, 0.06);
+  overflow: hidden;
+  transition: box-shadow 0.22s ease, border-color 0.22s ease, transform 0.18s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Colored left accent strip by case type (emerald variants) */
+.case-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #10b981, #059669);
+  transition: width 0.18s ease;
+}
+
+.case-card-type-criminal::before,
+.case-card-type-state::before,
+.case-card-type-complaint::before,
+.case-card-type-misc-criminal::before,
+.case-card-type-misccriminal::before {
+  background: linear-gradient(180deg, #f59e0b, #d97706);
+}
+
+.case-card-type-family::before {
+  background: linear-gradient(180deg, #34d399, #059669);
+}
+
+.case-card-type-revenue::before {
+  background: linear-gradient(180deg, #6ee7b7, #10b981);
+}
+
+.case-card:hover {
+  border-color: #a7f3d0;
+  box-shadow: 0 10px 24px rgba(5, 150, 105, 0.14);
+  transform: translateY(-1px);
+}
+
+.case-card:hover::before { width: 6px; }
+
+.case-card.expanded {
+  border-color: #6ee7b7;
+  box-shadow: 0 12px 28px rgba(5, 150, 105, 0.18);
+}
+
+.case-card.case-card-disposed {
+  background: #f6fdf9;
+  border-color: #d1fae5;
+  opacity: 0.85;
+}
+
+.case-card.case-card-disposed::before {
+  background: linear-gradient(180deg, #10b981, #a7f3d0);
+}
+
+.case-card.case-card-disposed .case-card-name,
+.case-card.case-card-disposed .case-card-line2,
+.case-card.case-card-court {
+  color: #94a3b8;
+}
+
+.case-card-summary {
+  padding: 15px 18px 13px 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Line 1 — Case Name */
+.case-card-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #064e3b;
+  line-height: 1.38;
+  letter-spacing: -0.005em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* Line 2 — Case Number chip + Next Hearing Date chip */
+.case-card-line2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.case-card-caseno {
+  font-weight: 700;
+  font-family: inherit;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #047857;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  border-radius: 9999px;
+  padding: 2px 10px;
+}
+
+.case-card-nextdate {
+  font-weight: 700;
+  font-size: 0.76rem;
+  white-space: nowrap;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+}
+
+.case-card-nextdate.is-undated {
+  color: #b45309;
+  background: #fefce8;
+  border-color: #fde68a;
+}
+
+.case-card-nextdate.is-disposed {
+  color: #065f46;
+  background: #d1fae5;
+  border-color: #6ee7b7;
+}
+
+/* Line 3 — Court */
+.case-card-court {
+  margin-top: 7px;
+  font-size: 0.82rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.case-card-court i { color: #10b981; margin-right: 4px; }
+
+/* Expanded detail region */
+.case-card-details {
+  display: none;
+  border-top: 1px solid #d1fae5;
+  background: linear-gradient(180deg, #f0fdf9 0%, #ffffff 100%);
+  padding: 6px 18px 14px 20px;
+}
+
+.case-card.expanded .case-card-details {
+  display: block;
+  animation: caseCardExpand 0.22s ease;
+}
+
+@keyframes caseCardExpand {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Sub-card details: two-column grid — all titles in the 1st column, all contents in the 2nd */
+.case-card-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(150px, max-content) 1fr;
+  column-gap: 18px;
+  row-gap: 6px;
+  align-items: baseline;
+  text-align: left;
+}
+
+/* Each detail row places label + value into the shared two columns */
+.case-card-detail-row {
+  display: contents;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.case-card-detail-label {
+  font-weight: 600;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.case-card-detail-value {
+  color: #1e293b;
+  word-break: break-word;
+  font-weight: 500;
+  text-align: left;
+}
+
+/* ----- Previous hearing history inside the Hearings card section -----
+   Clean timeline look: left accent rule, no boxes */
+.case-card-hearing-history {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #d1fae5;
+}
+
+.case-card-hearing-item {
+  border-left: 3px solid #6ee7b7;
+  padding: 1px 0 1px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.case-card-hearing-date {
+  font-weight: 700;
+  color: #064e3b;
+}
+
+.case-card-hearing-date i { color: #059669; margin-right: 4px; }
+
+.case-card-hearing-field {
+  color: #475569;
+  word-break: break-word;
+}
+
+.case-card-hearing-field strong {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+@media (max-width: 639px) {
+  .case-card-hearing-item { font-size: 0.76rem; padding-left: 10px; }
+  .case-card-hearing-history { gap: 8px; margin-top: 8px; padding-top: 8px; }
+}
+
+/* ── Case Cards filter pills (quick filters under search bar) ── */
+.case-cards-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.case-cards-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1.5px solid #a7f3d0;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.case-cards-pill i {
+  font-size: 0.75rem;
+  color: #059669;
+  transition: color 0.15s ease;
+}
+
+.case-cards-pill:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+}
+
+.case-cards-pill.active {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+.case-cards-pill.active i { color: #ffffff; }
+
+.case-cards-pill-count {
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 9999px;
+  padding: 1px 7px;
+  min-width: 20px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.case-cards-pill.active .case-cards-pill-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+@media (max-width: 639px) {
+  .case-cards-pill-row { gap: 6px; }
+  .case-cards-pill { padding: 6px 11px; font-size: 0.74rem; }
+  .case-cards-pill i { font-size: 0.68rem; }
+}
+
+.case-card-detail-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.case-card-action-btn {
+  border: 1px solid #a7f3d0;
+  background: #ffffff;
+  color: #065f46;
+  border-radius: 9px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+
+.case-card-action-btn i { color: #059669; }
+
+.case-card-delete-btn i { color: #b91c1c; }
+
+.case-card-action-btn:hover {
+  background: #d1fae5;
+  border-color: #34d399;
+  color: #064e3b;
+  transform: translateY(-1px);
+}
+
+.case-card-delete-btn {
+  border-color: #fecaca;
+  color: #b91c1c;
+  background: #ffffff;
+}
+
+.case-card-delete-btn:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+  color: #991b1b;
+}
+
+.case-card-expand-hint {
+  float: right;
+  font-size: 0.7rem;
+  color: #047857;
+  font-weight: 600;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 9999px;
+  padding: 2px 9px;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.case-card:hover .case-card-expand-hint {
+  color: #065f46;
+  background: #d1fae5;
+  border-color: #6ee7b7;
+}
+
+.case-card.expanded .case-card-expand-hint {
+  color: #ffffff;
+  background: #059669;
+  border-color: #059669;
+}
+
+.case-cards-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1.5px dashed #6ee7b7;
+  border-radius: 16px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .case-cards-grid {
+    gap: 6px;
+  }
+
+  /* Mobile: narrower title column */
+  .case-card-detail-grid {
+    grid-template-columns: minmax(110px, max-content) 1fr;
+    column-gap: 12px;
+  }
+}
+
+/* Case Cards — collapsible detail sections inside expanded card (flat, borderless) */
+.case-card-section {
+  border-top: 1px dashed #d1fae5;
+  border-radius: 0;
+  background: transparent;
+  margin-bottom: 0;
+  overflow: hidden;
+}
+
+.case-card-section:first-child {
+  border-top: none;
+  margin-top: 4px;
+}
+
+.case-card-section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 4px 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #065f46;
+  text-align: left;
+  transition: color 0.15s ease;
+}
+
+.case-card-section-header:hover {
+  color: #047857;
+}
+
+.case-card-section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.case-card-section-title i {
+  color: #059669;
+  font-size: 0.82rem;
+}
+
+/* Numbered circles dropped for a cleaner look */
+.case-card-section-num {
+  display: none;
+}
+
+.case-card-section-chevron {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* Type-tinted section icons */
+.case-card-type-criminal .case-card-section-title i,
+.case-card-type-state .case-card-section-title i,
+.case-card-type-complaint .case-card-section-title i,
+.case-card-type-misc-criminal .case-card-section-title i,
+.case-card-type-misccriminal .case-card-section-title i { color: #d97706; }
+
+.case-card-type-family .case-card-section-title i { color: #34d399; }
+
+.case-card-type-revenue .case-card-section-title i { color: #10b981; }
+
+.case-card-section-body {
+  display: none;
+  padding: 2px 4px 8px;
+}
+
+.case-card-section.open .case-card-section-body {
+  display: block;
+  animation: caseCardExpand 0.2s ease;
+}
+
+/* Case Cards — Parties/Client line + always-visible actions bar */
+.case-card-line4 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #d1fae5;
+  font-size: 0.77rem;
+  color: #64748b;
+}
+
+.case-card-parties,
+.case-card-client {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.case-card-parties i,
+.case-card-client i {
+  color: #10b981;
+  margin-right: 3px;
+  font-size: 0.7rem;
+}
+
+.case-card-parties { flex: 1 1 55%; }
+.case-card-client  { flex: 0 1 auto; color: #475569; font-weight: 600; }
+
+.case-card-actions-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 11px 18px 13px 20px;
+  border-top: 1px solid #d1fae5;
+  background: #f0fdf9;
+  margin-top: auto;
+}
+
+.case-card-actions-bar .case-card-action-btn {
+  flex: 1 1 auto;
+  justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 10px;
+  font-size: 0.76rem;
+  border-radius: 9px;
+}
+
+.case-card-delete-btn {
+  border-color: #fecaca;
+  color: #b91c1c;
+  background: #fff;
+}
+
+.case-card-delete-btn:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+
+@media (max-width: 640px) {
+  .case-card-actions-bar .case-card-action-btn {
+    flex: 1 1 40%;
+  }
+}
+
+/* ==============================================================================
+   CASEBOOK MINT — Manage Courts Directory Table
+   (scoped to #courtsTable so other tables keep their existing look)
+   ============================================================================== */
+
+/* Header row: deep emerald on mint tint */
+#courtsTable thead {
+  background-color: #ecfdf5 !important;
+}
+
+#courtsTable thead th {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+  border-bottom: 1.5px solid #d1fae5 !important;
+  letter-spacing: 0.03em;
+}
+
+/* Row dividers: mint hairlines */
+#courtsTable tbody td {
+  border-bottom: 1px solid #d1fae5 !important;
+  color: #1e293b !important;
+}
+
+/* Row hover: mint wash */
+#courtsTable tbody tr:hover {
+  background-color: #ecfdf5 !important;
+}
+
+#courtsTable tbody tr:hover td.table-actions-td,
+#courtsTable tbody tr:hover td:last-child {
+  background-color: #ecfdf5 !important;
+}
+
+/* Sr. No. index badge: mint pill */
+#courtsTable .court-index-badge {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  border-radius: 9999px;
+}
+
+/* Court name + icon */
+#courtsTable .court-name-cell {
+  color: #064e3b;
+}
+
+#courtsTable .court-name-title {
+  color: #064e3b;
+}
+
+/* Caseload badge: mint chip (has cases) / neutral (zero) */
+#courtsTable .court-cases-count-badge.has-cases {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+#courtsTable .court-cases-count-badge.has-cases i {
+  color: #059669;
+}
+
+#courtsTable .court-cases-count-badge.zero-cases {
+  background: #f8fafc;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+}
+
+/* Action buttons: mint edit, red delete (destructive exception) */
+#courtsTable .court-btn-edit {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+#courtsTable .court-btn-edit:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  color: #064e3b;
+}
+
+#courtsTable .court-btn-delete {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+#courtsTable .court-btn-delete:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+/* Empty-state row */
+#courtsTable .no-results {
+  color: #047857;
+}
+
+/* Outer wrapper ring: mint instead of slate */
+#courts .table-responsive {
+  border-color: #d1fae5 !important;
+  box-shadow: 0 2px 6px rgba(6, 95, 70, 0.06) !important;
+}
+
+/* ==========================================================================
+   CASEBOOK MINT — #courts directory CARDS GRID
+   Converts the old courts table into CaseBook Mint cards
+   ========================================================================== */
+.courts-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.court-directory-card {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff, #f7fdfb);
+  border: 1.5px solid #d1fae5;
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 6px rgba(6, 95, 70, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  overflow: hidden;
+}
+
+.court-directory-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #10b981, #059669);
+  transition: width 0.2s ease;
+}
+
+.court-directory-card:hover {
+  border-color: #a7f3d0;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.14);
+  transform: translateY(-1px);
+}
+
+.court-directory-card:hover::before {
+  width: 6px;
+}
+
+.court-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.court-card-index {
+  flex-shrink: 0;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+}
+
+.court-card-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  color: #059669;
+  font-size: 15px;
+}
+
+.court-card-name {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #064e3b;
+  line-height: 1.3;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.court-card-body {
+  display: flex;
+  align-items: center;
+  padding-left: 46px;
+}
+
+.court-card-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 12px;
+}
+
+.court-card-count.has-cases {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+}
+
+.court-card-count.zero-cases {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+}
+
+.court-card-actions {
+  display: flex;
+  gap: 8px;
+  padding-left: 46px;
+  flex: 1 1 auto;
+  margin-top: auto; /* pin to card bottom */
+}
+
+/* Buttons stretch evenly across the full remaining width */
+.court-card-actions .court-btn-edit,
+.court-card-actions .court-btn-delete {
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+.court-card-actions .court-btn-edit {
+  background: #ffffff;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.court-card-actions .court-btn-edit:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  color: #064e3b;
+}
+
+.court-card-actions .court-btn-delete {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.court-card-actions .court-btn-delete:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.courts-cards-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px 16px;
+  border: 1.5px dashed #6ee7b7;
+  border-radius: 12px;
+  background: #ecfdf5;
+  color: #047857;
+  font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+  .courts-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .court-card-body,
+  .court-card-actions {
+    padding-left: 0;
+  }
+}
+
+/* ==========================================================================
+   CASEBOOK MINT — SIDENAV / SIDEBAR
+   Re-tints the left navigation to match the emerald-mint project theme
+   (overrides the older #00695c teal + slate treatment)
+   ========================================================================== */
+.sidebar,
+.sidenav {
+  background: linear-gradient(180deg, #ffffff, #f7fdfb) !important;
+  border-right: 1px solid #d1fae5 !important;
+  box-shadow: 1px 0 3px rgba(6, 95, 70, 0.06) !important;
+}
+
+/* Author profile card */
+.sidebar .sidebar-author-card,
+.sidenav .user-view {
+  background: #ecfdf5 !important;
+  border-bottom: 1px solid #d1fae5 !important;
+}
+
+.author-avatar,
+.sidenav .user-view .circle {
+  background: #d1fae5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0;
+}
+
+.author-name,
+.sidenav .user-view .name {
+  color: #064e3b !important;
+}
+
+.author-title,
+.sidenav .user-view .email {
+  color: #047857 !important;
+}
+
+.author-jurisdiction,
+.sidenav .author-jurisdiction {
+  color: #64748b !important;
+}
+
+/* Nav links */
+.sidebar a,
+.sidenav a {
+  color: #475569 !important;
+}
+
+.sidebar a:hover,
+.sidenav a:hover {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+}
+
+.sidebar a.active,
+.sidenav a.active {
+  background-color: #d1fae5 !important;
+  color: #047857 !important;
+  box-shadow: inset 3.5px 0 0 #059669 !important;
+}
+
+/* Nav icons */
+.sidebar a .nav-icon,
+.sidenav a .nav-icon,
+.sidebar a i,
+.sidenav a i {
+  color: #64748b !important;
+}
+
+.sidebar a:hover .nav-icon,
+.sidenav a:hover .nav-icon,
+.sidebar a:hover i,
+.sidenav a:hover i {
+  color: #059669 !important;
+}
+
+.sidebar a.active .nav-icon,
+.sidenav a.active .nav-icon,
+.sidebar a.active i,
+.sidenav a.active i {
+  color: #059669 !important;
+}
+
+/* Subheaders & dividers */
+.sidebar .subheader,
+.sidenav .subheader,
+.sidebar h2 {
+  color: #94a3b8 !important;
+}
+
+.sidebar .divider,
+.sidenav .divider {
+  background-color: #d1fae5 !important;
+}
+
+/* Badges → mint chips */
+.sidebar a .badge,
+.sidenav a .badge {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+  border-radius: 9999px !important;
+  font-weight: 700 !important;
+}
+
+.sidebar a.active .badge,
+.sidenav a.active .badge {
+  background-color: #ffffff !important;
+  color: #047857 !important;
+}
+
+/* Scrollbar */
+.sidebar::-webkit-scrollbar-thumb,
+.sidenav::-webkit-scrollbar-thumb {
+  background: #a7f3d0 !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.sidenav::-webkit-scrollbar-thumb:hover {
+  background: #059669 !important;
+}
+
+/* Mobile overlay backdrop tint */
+.sidebar-overlay,
+.sidebar-overlay.active {
+  background: rgba(6, 78, 59, 0.35) !important;
+}
+
+/* ==========================================================================
+   CASEBOOK MINT — TOP NAV / HEADER BAR
+   Re-tints the fixed top header from purple gradient to deep emerald-mint
+   (overrides the #502D55→#935073 purple treatment)
+   ========================================================================== */
+.top-header,
+.materialize-nav,
+.guest-header-bar {
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 55%, #047857 100%) !important;
+  color: #ffffff !important;
+  border-bottom: 1.5px solid #a7f3d0 !important;
+  box-shadow: 0 4px 20px rgba(6, 78, 59, 0.28) !important;
+}
+
+/* Brand */
+.materialize-nav .casebook-brand .brand-fa-icon {
+  color: #6ee7b7 !important;
+  filter: drop-shadow(0 2px 6px rgba(6, 78, 59, 0.35)) !important;
+}
+
+.materialize-nav .casebook-brand .brand-name {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(6, 78, 59, 0.4) !important;
+}
+
+.materialize-nav .casebook-brand .guest-tag {
+  background: rgba(167, 243, 208, 0.18) !important;
+  color: #a7f3d0 !important;
+  border: 1px solid rgba(167, 243, 208, 0.35) !important;
+}
+
+/* Flush full-height action buttons (menu / install / logout / search) */
+.mobile-menu-btn,
+#sidebarToggleBtn {
+  border-right: 1px solid rgba(167, 243, 208, 0.22) !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  color: #ecfdf5 !important;
+}
+
+.mobile-menu-btn:hover,
+#sidebarToggleBtn:hover {
+  background: rgba(0, 0, 0, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.mobile-menu-btn i,
+#sidebarToggleBtn i {
+  color: #ecfdf5 !important;
+}
+
+.materialize-nav .nav-icon-action-btn,
+.nav-install-btn,
+#desktopInstallBtn,
+#guestDesktopInstallBtn,
+.materialize-nav .logout-btn,
+.materialize-nav .nav-logout-btn,
+#adminLogoutBtn,
+#guestLogoutBtn {
+  border-left: 1px solid rgba(167, 243, 208, 0.22) !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  color: #ecfdf5 !important;
+}
+
+.nav-install-btn:hover,
+#desktopInstallBtn:hover,
+#guestDesktopInstallBtn:hover {
+  background: rgba(0, 0, 0, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.materialize-nav .logout-btn:hover,
+.materialize-nav .nav-logout-btn:hover,
+#adminLogoutBtn:hover,
+#guestLogoutBtn:hover {
+  background: rgba(185, 28, 28, 0.55) !important;
+  color: #ffffff !important;
+}
+
+.nav-install-btn i,
+#desktopInstallBtn i,
+#guestDesktopInstallBtn i,
+.materialize-nav .logout-btn i,
+.materialize-nav .nav-logout-btn i,
+#adminLogoutBtn i,
+#guestLogoutBtn i {
+  color: #ecfdf5 !important;
+}
+
+/* Expandable nav case search toggle */
+.nav-case-search-toggle {
+  border-left: 1px solid rgba(167, 243, 208, 0.22);
+  background: rgba(0, 0, 0, 0.15);
+  color: #ecfdf5;
+}
+
+.nav-case-search-toggle:hover {
+  background: rgba(0, 0, 0, 0.28);
+  color: #ffffff;
+}
+
+.nav-case-search-toggle i { color: #ecfdf5; }
+
+.nav-case-search.open .nav-case-search-toggle {
+  background: #ffffff;
+  color: #059669;
+  border-left-color: #e2e8f0;
+}
+
+.nav-case-search.open .nav-case-search-toggle i { color: #059669; }
+
+/* Expanded dropdown panel: mint border + emerald shadow */
+.nav-case-search-box {
+  border: 1px solid #d1fae5;
+  border-top: none;
+  box-shadow: 0 12px 28px rgba(5, 150, 105, 0.18);
+}
+
+/* ==========================================================================
+   CASEBOOK MINT — COURT HEARING CALENDAR & SCHEDULER
+   Re-tints the #calendar tab from purple #502D55/#935073 to emerald-mint
+   (top bar, stats chips, grid container, day cells, hearing pills,
+   day-schedule card, schedule case cards, print/cause list actions)
+   ========================================================================== */
+
+/* --- Top bar --- */
+#calendar .calendar-top-bar,
+.calendar-top-bar {
+  border-bottom: 1.5px solid #d1fae5 !important;
+}
+
+#calendar .calendar-header-titles h2,
+.calendar-header-titles h2 {
+  color: #064e3b !important;
+}
+
+/* Month nav / Today buttons */
+.cal-nav-btn {
+  border: 1.5px solid #a7f3d0 !important;
+  background: #ffffff !important;
+  color: #047857 !important;
+}
+
+.cal-nav-btn:hover {
+  background: #ecfdf5 !important;
+  border-color: #6ee7b7 !important;
+}
+
+.cal-today-btn {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  border: none !important;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25) !important;
+}
+
+.cal-today-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.35) !important;
+}
+
+/* --- Stats chips row --- */
+.cal-stat-chip {
+  background: #f7fdfb !important;
+  border: 1.5px solid #d1fae5 !important;
+  box-shadow: 0 2px 6px rgba(6, 95, 70, 0.05) !important;
+}
+
+.cal-stat-chip.civil-chip {
+  border-left: 4px solid #059669 !important;
+}
+
+.cal-stat-chip.criminal-chip {
+  border-left: 4px solid #f59e0b !important;
+}
+
+.cal-stat-chip.revenue-chip {
+  border-left: 4px solid #34d399 !important;
+}
+
+.cal-stat-num {
+  color: #064e3b !important;
+}
+
+.cal-stat-label {
+  color: #64748b !important;
+}
+
+/* --- Month grid container --- */
+.calendar-grid-container {
+  background: #f0fdf9 !important;
+  border: 1.5px solid #d1fae5 !important;
+  box-shadow: 0 2px 8px rgba(6, 95, 70, 0.06) !important;
+}
+
+.calendar-weekdays {
+  color: #047857 !important;
+}
+
+/* --- Day cells --- */
+.cal-day-cell {
+  background: #ffffff !important;
+  border: 1.5px solid #d1fae5 !important;
+  box-shadow: 0 1px 3px rgba(6, 95, 70, 0.03) !important;
+}
+
+.cal-day-cell .day-number {
+  color: #065f46 !important;
+}
+
+.cal-day-cell:hover {
+  border-color: #a7f3d0 !important;
+  background: #f7fdfb !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.1) !important;
+}
+
+.cal-day-cell.empty-day {
+  background: rgba(240, 253, 249, 0.5) !important;
+}
+
+.cal-day-cell.today-cell {
+  border: 2px solid #059669 !important;
+  background: #ecfdf5 !important;
+}
+
+.cal-day-cell.today-cell .day-number {
+  color: #064e3b !important;
+}
+
+.cal-day-cell.selected-day {
+  border-color: #059669 !important;
+  background: #d1fae5 !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2) !important;
+}
+
+/* --- Hearing count badge --- */
+.day-count-badge {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  color: #ecfdf5 !important;
+}
+
+/* --- Hearing type pills (CaseBook Mint type language) --- */
+.day-hearing-pill {
+  background: rgba(16, 185, 129, 0.14) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+.day-hearing-pill.civil,
+.day-hearing-pill.misc_civil {
+  background: rgba(16, 185, 129, 0.14) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+/* criminal/state → amber (the one amber exception in the system) */
+.day-hearing-pill.criminal,
+.day-hearing-pill.state {
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+}
+
+.day-hearing-pill.complaint {
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+}
+
+/* revenue → soft emerald */
+.day-hearing-pill.revenue {
+  background: rgba(52, 211, 153, 0.18) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(52, 211, 153, 0.45) !important;
+}
+
+/* family → mint */
+.day-hearing-pill.family {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+  border: 1px solid #a7f3d0 !important;
+}
+
+.day-hearing-pill.misc_criminal {
+  background: #ffedd5 !important;
+  color: #9a3412 !important;
+  border: 1px solid #fed7aa !important;
+}
+
+/* --- Day schedule (agenda) card --- */
+.day-schedule-card {
+  background: #f7fdfb !important;
+  border: 1.5px solid #d1fae5 !important;
+  box-shadow: 0 4px 16px rgba(6, 95, 70, 0.06) !important;
+}
+
+.day-schedule-header {
+  border-bottom: 1.5px solid #d1fae5 !important;
+}
+
+.day-schedule-header h3 {
+  color: #064e3b !important;
+}
+
+#selectedDateCountBadge {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+}
+
+.cause-list-court-select {
+  border: 1.5px solid #a7f3d0 !important;
+  color: #065f46 !important;
+}
+
+/* Print Cause List button → emerald gradient */
+.print-cause-btn {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  border: 1.5px solid #059669 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25) !important;
+}
+
+.print-cause-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35) !important;
+}
+
+/* --- Schedule case cards --- */
+.schedule-case-card {
+  background: linear-gradient(135deg, #ffffff, #f7fdfb) !important;
+  border: 1.5px solid #d1fae5 !important;
+  box-shadow: 0 2px 6px rgba(6, 95, 70, 0.04) !important;
+}
+
+.schedule-case-card:hover {
+  border-color: #a7f3d0 !important;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.12) !important;
+}
+
+.schedule-case-no {
+  color: #064e3b !important;
+}
+
+.schedule-case-name {
+  color: #1e293b !important;
+}
+
+.schedule-case-meta {
+  color: #64748b !important;
+}
+
+.schedule-case-meta strong {
+  color: #047857 !important;
+}
+
+.schedule-case-actions .table-view-btn {
+  border: 1.5px solid #a7f3d0 !important;
+  color: #047857 !important;
+}
+
+.schedule-case-actions .table-view-btn:hover {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+}
+
+.schedule-case-actions .table-view-btn.whatsapp-btn {
+  border-color: #34d399 !important;
+  color: #047857 !important;
+}
+
+.schedule-case-actions .table-view-btn.whatsapp-btn:hover {
+  background: #047857 !important;
+}
+
+.schedule-case-actions .table-view-btn.update-hearing-btn {
+  border-color: #34d399 !important;
+  color: #059669 !important;
+}
+
+.schedule-case-actions .table-view-btn.update-hearing-btn:hover {
+  background: #059669 !important;
+}
+
+.empty-schedule-msg {
+  color: #64748b !important;
+}
+
+/* ==========================================================================
+   CASEBOOK MINT — FIXED BOTTOM NAV
+   Re-tints the bottom quick-nav bar from purple/teal to deep emerald-mint
+   and re-asserts full-width fixed placement ON TOP of the sidenav
+   (wins over the older z-index: 1000 / #00695c overrides)
+   ========================================================================== */
+.fixed-bottom-nav {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: calc(56px + env(safe-area-inset-bottom)) !important;
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 55%, #047857 100%) !important;
+  border-top: 1.5px solid #a7f3d0 !important;
+  box-shadow: 0 -4px 18px rgba(6, 78, 59, 0.3) !important;
+  z-index: 2000 !important; /* sits above sidenav + overlay */
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: stretch !important;
+  padding: 0 !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+  box-sizing: border-box !important;
+}
+
+/* Buttons: flush rectangles like the top nav */
+.fixed-bottom-nav .bottom-nav-btn {
+  background: rgba(0, 0, 0, 0.15) !important;
+  color: #ecfdf5 !important;
+  border: none !important;
+  border-right: 1px solid rgba(167, 243, 208, 0.22) !important;
+  border-radius: 0 !important;
+  flex: 1 1 0 !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 6px 12px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px !important;
+  opacity: 1 !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn:last-child {
+  border-right: none !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn .bottom-nav-icon,
+.fixed-bottom-nav .bottom-nav-btn i {
+  color: #a7f3d0 !important;
+  font-size: 15px !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn .bottom-nav-label {
+  color: #ecfdf5 !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.28) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn:hover:not(:disabled) i,
+.fixed-bottom-nav .bottom-nav-btn:hover:not(:disabled) .bottom-nav-icon,
+.fixed-bottom-nav .bottom-nav-btn:hover:not(:disabled) .bottom-nav-label {
+  color: #ffffff !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn:active:not(:disabled) {
+  background: rgba(0, 0, 0, 0.42) !important;
+  transform: none !important;
+}
+
+/* Center Home tab — mint highlight */
+.fixed-bottom-nav .bottom-nav-btn.home-nav-btn {
+  background: rgba(167, 243, 208, 0.16) !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn.home-nav-btn i,
+.fixed-bottom-nav .bottom-nav-btn.home-nav-btn .bottom-nav-icon {
+  color: #6ee7b7 !important;
+  font-size: 16px !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn.home-nav-btn .bottom-nav-label {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn.home-nav-btn:hover {
+  background: rgba(167, 243, 208, 0.28) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Disabled state */
+.fixed-bottom-nav .bottom-nav-btn.disabled,
+.fixed-bottom-nav .bottom-nav-btn:disabled {
+  background: rgba(0, 0, 0, 0.08) !important;
+  opacity: 0.38 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.fixed-bottom-nav .bottom-nav-btn.disabled i,
+.fixed-bottom-nav .bottom-nav-btn:disabled i,
+.fixed-bottom-nav .bottom-nav-btn.disabled .bottom-nav-label,
+.fixed-bottom-nav .bottom-nav-btn:disabled .bottom-nav-label {
+  color: rgba(236, 253, 245, 0.4) !important;
+}
+
+/* Small screens */
+@media (max-width: 480px) {
+  .fixed-bottom-nav {
+    height: calc(52px + env(safe-area-inset-bottom)) !important;
+  }
+  .fixed-bottom-nav .bottom-nav-btn {
+    height: 52px !important;
+    min-height: 52px !important;
+    padding: 0 4px !important;
+    gap: 3px !important;
+  }
+  .fixed-bottom-nav .bottom-nav-btn .bottom-nav-label {
+    font-size: 11.5px !important;
+  }
+  .fixed-bottom-nav .bottom-nav-btn i {
+    font-size: 13px !important;
+  }
+}
+
+/* ==========================================================================
+   CASEBOOK MINT — DATA TABLE HEADERS (unified, incl. sticky Quick Actions)
+   Fixes the mismatched "Quick Actions" column header: every header cell —
+   regular or sticky-pinned — now shares ONE mint treatment.
+   ========================================================================== */
+table.case-table thead th,
+table.causelist-table thead th,
+table.search-results-table thead th,
+table.court-table thead th,
+table.db-raw-table thead th,
+table.all-cases-fixed-table thead th,
+#causeListMainTable thead th,
+#allCasesTable thead th,
+#undatedCasesTable thead th,
+#disposedCasesTable thead th,
+#homeTodayTable thead th,
+#dbManagerTable thead th,
+#guestCasesTable thead th {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+  box-shadow: inset 0 -2px 0 #d1fae5, 0 2px 6px rgba(6, 95, 70, 0.06) !important;
+}
+
+/* Sticky Quick Actions header cell: SAME mint fill as its row neighbours */
+.table-actions-th,
+.case-table thead th.table-actions-th,
+.court-table thead th.table-actions-th,
+.causelist-table thead th.table-actions-th,
+.search-results-table thead th.table-actions-th,
+.db-raw-table thead th.table-actions-th,
+.db-raw-table thead th.actions-col,
+.causelist-table thead th:last-child,
+.search-results-table thead th:last-child,
+#causeListMainTable thead th:last-child,
+#guestCasesTable thead th:last-child,
+#undatedCasesTable thead th:last-child,
+#allCasesTable thead th:last-child,
+#disposedCasesTable thead th:last-child,
+#dbManagerTable thead th:last-child,
+.table-responsive th.table-actions-th,
+.table-responsive thead th:last-child,
+.all-cases-fixed-table thead th:last-child {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+  box-shadow: -4px 0 8px -2px rgba(6, 95, 70, 0.15), inset 0 -2px 0 #d1fae5 !important;
+}
+
+/* Sticky body action cells stay white (rows), matching row hover */
+.table-responsive td.table-actions-td,
+.table-responsive td:last-child,
+.all-cases-fixed-table td:last-child,
+table.causelist-table td:last-child,
+table.search-results-table td:last-child {
+  background: #ffffff !important;
+}
+
+/* ==========================================================================
+   CASEBOOK MINT — CUSTOM DATE PICKER (mint-datepicker.js)
+   ========================================================================== */
+.mint-date-picker {
+  position: fixed;
+  width: 280px;
+  display: none;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1.5px solid #d1fae5;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(5, 150, 105, 0.22);
+  padding: 12px;
+  z-index: 3000; /* above bottom nav (2000) and modals' headers */
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  animation: mdp-pop 0.16s ease;
+}
+
+.mint-date-picker.mdp-open {
+  display: flex;
+}
+
+@keyframes mdp-pop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Header: deep emerald like the top nav */
+.mdp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #064e3b, #047857);
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+.mdp-title {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.mdp-nav {
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(167, 243, 208, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ecfdf5;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s ease;
+}
+
+.mdp-nav:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.mdp-subtitle {
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  margin: 2px 0 8px;
+}
+
+/* Weekday row */
+.mdp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.mdp-wd {
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #047857;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 0;
+}
+
+/* Day grid */
+.mdp-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.mdp-day {
+  height: 32px;
+  border: 1px solid transparent;
+  background: #ffffff;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e293b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.mdp-day:hover {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.mdp-day.mdp-blank {
+  background: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+
+.mdp-day.mdp-today {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  color: #064e3b;
+  font-weight: 800;
+}
+
+.mdp-day.mdp-selected {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-color: #059669;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+}
+
+.mdp-day.mdp-selected.mdp-today {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* Footer */
+.mdp-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #d1fae5;
+}
+
+.mdp-btn {
+  flex: 1;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.mdp-today-btn {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+}
+
+.mdp-today-btn:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  color: #064e3b;
+}
+
+.mdp-clear-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+}
+
+.mdp-clear-btn:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Date inputs get a mint focus ring + calendar cursor hint */
+input[type="date"][data-mint-datepicker] {
+  cursor: pointer;
+}
+
+/* Suppress the native picker UI on every date field (esp. mobile):
+   - the calendar indicator becomes a non-interactive mint glyph
+   - the inner edit segment is pointer-transparent so taps hit the
+     wrapper and route to the mint picker, never the OS picker */
+input[type="date"][data-mint-datepicker]::-webkit-calendar-picker-indicator {
+  pointer-events: none !important;
+  opacity: 0.55;
+  filter: invert(38%) sepia(58%) saturate(1224%) hue-rotate(115deg) brightness(94%) contrast(89%);
+  cursor: pointer !important;
+}
+
+input[type="date"][data-mint-datepicker]::-webkit-datetime-edit {
+  pointer-events: none !important;
+  color: #065f46;
+}
+
+input[type="date"][data-mint-datepicker]::-webkit-datetime-edit-fields-wrapper {
+  pointer-events: none !important;
+}
+
+/* Firefox: hide native indicator entirely */
+input[type="date"][data-mint-datepicker]::-moz-calendar-picker-indicator {
+  display: none !important;
+}
+
+/* Mobile: picker fits narrow screens */
+@media (max-width: 480px) {
+  .mint-date-picker {
+    width: min(280px, calc(100vw - 24px));
+  }
+  .mdp-day {
+    height: 30px;
+  }
+}
+
+/* ==========================================================================
+   CASEBOOK MINT — CAUSE LIST TOOLBAR (inline desktop layout)
+   Desktop: 1. Appearance Date  2. Filter by Court  3. Quick Date — all
+   inline (label beside control) in one row; stacked on mobile as before.
+   ========================================================================== */
+@media (min-width: 901px) {
+  .causelist-toolbar-row {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px !important;
+  }
+
+  .causelist-toolbar-row > div {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    margin: 0 !important;
+  }
+
+  /* Date selector & court filter: side-by-side, 50/50 split of the row */
+  .causelist-date-selector,
+  .causelist-court-filter-wrap {
+    flex: 1 1 0 !important;
+    min-width: 0;
+  }
+
+  /* Quick Date drops to its own second line, pills left-to-right */
+  .causelist-presets-wrap {
+    flex: 1 1 100% !important;
+    min-width: 0;
+  }
+
+  .causelist-toolbar-row .causelist-toolbar-label {
+    display: inline-flex !important;
+    align-items: center;
+    margin: 0 !important;
+    white-space: nowrap;
+    color: #047857;
+  }
+
+  .causelist-date-input-wrap {
+    display: inline-flex !important;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .causelist-date-input {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .causelist-court-filter-wrap select.causelist-select {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .causelist-preset-buttons {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+}
+
+/* Mint the toolbar card itself (matches other CaseBook Mint panels) */
+.causelist-toolbar-card {
+  background: linear-gradient(135deg, #ffffff, #f7fdfb) !important;
+  border: 1.5px solid #d1fae5 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 6px rgba(6, 95, 70, 0.06) !important;
+}
+
+.causelist-toolbar-label {
+  color: #047857 !important;
+  font-size: 12px !important;
+}
+
+.causelist-date-input,
+.causelist-select {
+  background: #ffffff !important;
+  border: 1.5px solid #a7f3d0 !important;
+  color: #065f46 !important;
+  border-radius: 10px !important;
+}
+
+.causelist-date-input:focus,
+.causelist-select:focus {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12) !important;
+  outline: none !important;
+}
+
+.preset-pill {
+  background: #ecfdf5 !important;
+  border: 1px solid #a7f3d0 !important;
+  color: #047857 !important;
+  border-radius: 9999px !important;
+  font-weight: 700 !important;
+  transition: background 0.15s ease, border-color 0.15s ease !important;
+}
+
+.preset-pill:hover {
+  background: #d1fae5 !important;
+  border-color: #6ee7b7 !important;
+  color: #064e3b !important;
+}
+
+/* ==========================================================================
+   CASEBOOK MINT — #courts .court-add-card
+   Restyles "Add New Court to Directory" to match the Today's Court
+   Appearance Board panel card (.home-panel-card / .home-panel-header)
+   ========================================================================== */
+#courts .court-add-card {
+  background: linear-gradient(135deg, #ffffff, #f7fdfb) !important;
+  border: 1.5px solid #d1fae5 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 6px rgba(6, 95, 70, 0.06) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#courts .court-add-card:hover {
+  border-color: #a7f3d0 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.12) !important;
+}
+
+/* Header: divider like .home-panel-header */
+#courts .court-add-card .search-card-header {
+  border-bottom: 1px solid #d1fae5;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+/* Badge icon → mint tile like .panel-icon.court-icon */
+#courts .court-add-card .search-card-badge-icon {
+  background: #e6f4f1 !important;
+  border: 1px solid #b2dfdb !important;
+  color: #00695c !important;
+}
+
+#courts .court-add-card .search-card-heading {
+  color: #064e3b !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+
+#courts .court-add-card .search-card-subheading {
+  color: #64748b !important;
+}
+
+/* Input field box: mint ring focus */
+#courts .court-add-card .search-field-box {
+  border: 1.5px solid #d1fae5 !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#courts .court-add-card .search-field-box:focus-within {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12) !important;
+}
+
+#courts .court-add-card .search-field-prefix-icon {
+  color: #059669 !important;
+}
+
+#courts .court-add-card .search-field-box input {
+  color: #1e293b !important;
+}
+
+#courts .court-add-card .search-field-box input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Submit button → emerald, matching Today's board action button */
+#courts .court-add-card .court-submit-btn {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25) !important;
+  font-weight: 700 !important;
+}
+
+#courts .court-add-card .court-submit-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.35) !important;
+}
+
+/* Mobile: stack input + button */
+@media (max-width: 767.98px) {
+  #courts .court-add-card .court-input-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #courts .court-add-card .court-submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }

@@ -42,7 +42,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=7.2">
+    <link rel="stylesheet" href="admin.css?v=7.34">
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#502D55">
     <meta name="mobile-web-app-capable" content="yes">
@@ -329,6 +329,18 @@
                 </div>
                 
                 <div class="header-right-section nav-right-actions">
+                    <!-- Expandable Case Search -->
+                    <div class="nav-case-search" id="navCaseSearch">
+                        <button type="button" class="nav-case-search-toggle" id="navCaseSearchToggle" onclick="toggleNavCaseSearch(true)" title="Search cases" aria-label="Search cases">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                        <div class="nav-case-search-box">
+                            <span class="nav-case-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" id="navCaseSearchInput" placeholder="Search case no, name, parties, client..." aria-label="Search cases from navigation" autocomplete="off" enterkeyhint="search">
+                            <button type="button" class="nav-case-search-close" onclick="toggleNavCaseSearch(false)" title="Close search" aria-label="Close search"><i class="fa-solid fa-xmark"></i></button>
+                            <div class="nav-case-search-results" id="navCaseSearchResults" role="listbox" aria-label="Case search results"></div>
+                        </div>
+                    </div>
                     <button type="button" id="desktopInstallBtn" class="nav-install-btn nav-icon-action-btn" onclick="triggerPwaInstall()" title="Install CaseBook Desktop App" aria-label="Install CaseBook Desktop App">
                         <i class="fa-solid fa-download"></i>
                     </button>
@@ -353,7 +365,7 @@
 
             <div class="subheader">Overview & Schedule</div>
             <a href="#" onclick="showTab('home', event)" class="active"><i class="fa-solid fa-house nav-icon"></i> Home Dashboard</a>
-            <a href="#" onclick="showTab('search', event)"><i class="fa-solid fa-folder-open nav-icon"></i> My Cases</a>
+            <a href="#" onclick="showTab('search', event)" class="nav-hide-mobile"><i class="fa-solid fa-folder-open nav-icon"></i> My Cases</a>
             <a href="#" onclick="showTab('causelist', event)">
                 <i class="fa-solid fa-scroll nav-icon"></i> My Cause List <span class="badge badge-upcoming" id="causeListNavCount">0</span>
             </a>
@@ -377,7 +389,8 @@
 
             <div class="divider"></div>
             <div class="subheader">Case Registers</div>
-            <a href="#" onclick="showTab('all', event)"><i class="fa-solid fa-list-check nav-icon"></i> All Cases <span class="badge" id="allCasesNavCount">0</span></a>
+            <a href="#" onclick="showTab('all', event)" class="nav-hide-mobile"><i class="fa-solid fa-list-check nav-icon"></i> All Cases <span class="badge" id="allCasesNavCount">0</span></a>
+            <a href="#" onclick="showTab('cards', event)"><i class="fa-solid fa-table-cells-large nav-icon"></i> Case Cards <span class="badge" id="caseCardsNavCount">0</span></a>
             <a href="#" onclick="showTab('undated', event)">
                 <i class="fa-solid fa-circle-question nav-icon"></i> Undated Cases <span class="badge badge-undated" id="undatedCount">0</span>
             </a>
@@ -682,26 +695,9 @@
                             <button type="button" class="today-empty-btn" onclick="showTab('upcoming')">View Upcoming Appearances ➔</button>
                         </div>
 
-                        <!-- Active Appearances Table (Shown when hearings exist) -->
-                        <div id="homeTodayTableWrapper" class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                            <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 search-results-table case-table">
-                                <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                                    <tr>
-                                        <th style="width: 50px; text-align: center;">Sr. No.</th>
-                                        <th>Case Number</th>
-                                        <th>Case Title / Parties</th>
-                                        <th>Court</th>
-                                        <th>Stage / Purpose</th>
-                                        <th>Client</th>
-                                        <th class="table-actions-th" style="text-align: center; width: 140px;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="homeTodayTableBody">
-                                    <tr>
-                                        <td colspan="7" class="no-results">Loading today's court matters...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <!-- Active Appearances List (Shown when hearings exist) -->
+                        <div id="homeTodayListWrapper" class="home-today-list">
+                            <div class="home-today-loading">Loading today's court matters...</div>
                         </div>
                     </div>
 
@@ -1282,6 +1278,12 @@
                                     <input type="date" id="causeListDateInput" class="causelist-date-input">
                                 </div>
                             </div>
+                            <div class="causelist-court-filter-wrap">
+                                <label for="causeListCourtFilterSelect" class="causelist-toolbar-label">Filter by Court:</label>
+                                <select id="causeListCourtFilterSelect" class="form-select causelist-select">
+                                    <option value="">🏛️ All Courts</option>
+                                </select>
+                            </div>
                             <div class="causelist-presets-wrap">
                                 <label class="causelist-toolbar-label">Quick Date:</label>
                                 <div class="causelist-preset-buttons">
@@ -1290,12 +1292,6 @@
                                     <button type="button" class="preset-pill" onclick="setCauseListDateOffset(2)">🗓️ In 2 Days</button>
                                     <button type="button" class="preset-pill" onclick="setCauseListDateOffset(7)">📅 Next Week</button>
                                 </div>
-                            </div>
-                            <div class="causelist-court-filter-wrap">
-                                <label for="causeListCourtFilterSelect" class="causelist-toolbar-label">Filter by Court:</label>
-                                <select id="causeListCourtFilterSelect" class="form-select causelist-select">
-                                    <option value="">🏛️ All Courts</option>
-                                </select>
                             </div>
                         </div>
                     </div>
@@ -2492,17 +2488,8 @@
                         </button>
                     </div>
 
-                    <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                        <table id="courtsTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 court-table">
-                            <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                                <tr>
-                                    <th style="width: 80px; text-align: center;">Sr. No.</th>
-                                    <th>Court Name &amp; Active Caseload</th>
-                                    <th class="table-actions-th" style="width: 190px; text-align: right;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                    <div id="courtsCardsGrid" class="courts-cards-grid">
+                        <div class="courts-cards-empty">No courts configured yet. Add a court using the form above.</div>
                     </div>
                 </div>
             </div>
@@ -3872,12 +3859,12 @@
                                 <span class="hearing-step-num">1</span>
                                 <div>
                                     <h4 class="hearing-step-title">Select Case for Hearing Update</h4>
-                                    <p class="hearing-step-desc">Choose an undated case or any active case to forward to its next court date.</p>
+                                    <p class="hearing-step-desc">Choose an undated case awaiting its first schedule to assign the next court date. Dated and disposed cases are excluded from this list.</p>
                                 </div>
                             </div>
                             <div class="form-grid-2col">
                                 <div class="form-group">
-                                    <label for="hearingCaseSelect">Select from Active Cases List</label>
+                                    <label for="hearingCaseSelect">Select from Undated Cases List</label>
                                     <select id="hearingCaseSelect" class="form-select">
                                         <option value="">-- Choose Case from List --</option>
                                     </select>
@@ -3997,10 +3984,10 @@
                                 </div>
                             </div>
 
-                            <!-- Common Indian Court Stage Pills -->
+                            <!-- Case-type-aware Court Stage Pills (rendered by admin.js) -->
                             <div class="hearing-stage-presets-bar">
-                                <span class="presets-label">⚖️ Common Court Stages (Click to fill):</span>
-                                <div class="stage-pills-wrap">
+                                <span class="presets-label">⚖️ Court Stages (Click to fill):</span>
+                                <div class="stage-pills-wrap" id="hearingStagePillsWrap">
                                     <button type="button" class="stage-pill" onclick="setHearingStagePreset('Arguments / अंतिम बहस')">📋 Arguments (बहस)</button>
                                     <button type="button" class="stage-pill" onclick="setHearingStagePreset('Evidence / साक्ष्य-गवाही')">📑 Evidence (साक्ष्य)</button>
                                     <button type="button" class="stage-pill" onclick="setHearingStagePreset('Notice / Summons (नोटिस-समन)')">✉️ Notice (समन)</button>
@@ -4082,6 +4069,50 @@
             </div>
 
             <!-- All Cases Master Register Tab: Unified table with real-time filters -->
+            <!-- Case Cards Board: 3-line expandable cards for all cases -->
+            <div id="cards" class="tab">
+                <div class="all-cases-container">
+                    <div class="section-header-row">
+                        <div class="section-title-box">
+                            <div class="section-icon-badge"><i class="fa-solid fa-table-cells-large"></i></div>
+                            <div>
+                                <h3>Case Cards Board</h3>
+                                <p class="section-subtitle">All matters at a glance — tap any card to expand its full particulars.</p>
+                            </div>
+                        </div>
+                        <div class="my-cases-header-actions">
+                            <button type="button" class="primary-btn my-cases-action-btn" onclick="showTab('add')" title="Register a new case">
+                                ➕ Add Case
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card Board Toolbar: Live Search + Count -->
+                    <div class="all-cases-filter-card">
+                        <div class="all-cases-search-row">
+                            <div class="all-cases-search-box">
+                                <span class="filter-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" id="caseCardsSearchInput" placeholder="Search cards by Case No, Name, Parties, Client, Court, Police Station, Crime No, Remarks..." aria-label="Search case cards" oninput="renderCaseCards(false)" enterkeyhint="search" autocomplete="off">
+                            </div>
+                            <span id="caseCardsCountBadge" class="filter-count-badge">Showing 0 cases</span>
+                        </div>
+                        <div class="case-cards-pill-row" id="caseCardsPillRow" role="group" aria-label="Quick case filters">
+                            <button type="button" class="case-cards-pill active" data-filter="all" onclick="setCaseCardsPill('all', this)"><i class="fa-solid fa-layer-group"></i> All <span class="case-cards-pill-count" data-count="all"></span></button>
+                            <button type="button" class="case-cards-pill" data-filter="civil" onclick="setCaseCardsPill('civil', this)"><i class="fa-solid fa-scale-balanced"></i> Civil <span class="case-cards-pill-count" data-count="civil"></span></button>
+                            <button type="button" class="case-cards-pill" data-filter="criminal" onclick="setCaseCardsPill('criminal', this)"><i class="fa-solid fa-gavel"></i> Criminal <span class="case-cards-pill-count" data-count="criminal"></span></button>
+                            <button type="button" class="case-cards-pill" data-filter="family" onclick="setCaseCardsPill('family', this)"><i class="fa-solid fa-people-roof"></i> Family <span class="case-cards-pill-count" data-count="family"></span></button>
+                            <button type="button" class="case-cards-pill" data-filter="revenue" onclick="setCaseCardsPill('revenue', this)"><i class="fa-solid fa-map-location-dot"></i> Revenue <span class="case-cards-pill-count" data-count="revenue"></span></button>
+                            <button type="button" class="case-cards-pill" data-filter="dated" onclick="setCaseCardsPill('dated', this)"><i class="fa-solid fa-calendar-check"></i> Dated <span class="case-cards-pill-count" data-count="dated"></span></button>
+                            <button type="button" class="case-cards-pill" data-filter="undated" onclick="setCaseCardsPill('undated', this)"><i class="fa-regular fa-calendar-xmark"></i> Undated <span class="case-cards-pill-count" data-count="undated"></span></button>
+                            <button type="button" class="case-cards-pill" data-filter="disposed" onclick="setCaseCardsPill('disposed', this)"><i class="fa-solid fa-circle-check"></i> Disposed <span class="case-cards-pill-count" data-count="disposed"></span></button>
+                        </div>
+                    </div>
+
+                    <!-- Cards Grid -->
+                    <div id="caseCardsGrid" class="case-cards-grid"></div>
+                </div>
+            </div>
+
             <div id="all" class="tab">
                 <div class="all-cases-container">
                     <div class="section-header-row">
@@ -5156,6 +5187,7 @@
          ========================================================================== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="components/chambers-footer.js" defer></script>
+    <script src="mint-datepicker.js" defer></script>
     <script src="admin.js" defer></script>
 </body>
 

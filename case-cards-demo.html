@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Cards — Responsive View</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+    padding: 24px 16px;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    color: #0f172a;
+  }
+
+  /* ----- Filter input above cards ----- */
+  .filter-bar {
+    margin-bottom: 20px;
+  }
+
+  .filter-bar input {
+    width: 100%;
+    max-width: 480px;
+    padding: 12px 16px 12px 42px;
+    font-size: 0.95rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") 14px center no-repeat;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .filter-bar input:focus {
+    border-color: #007b6a;
+    box-shadow: 0 0 0 3px rgba(0, 123, 106, 0.15);
+  }
+
+  .result-count {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 8px;
+    display: block;
+  }
+
+  /* ----- Cards grid: 1 col mobile → 2 tablet → 3 desktop ----- */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  @media (min-width: 640px)  { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .cards-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  /* Simpler layout on small devices */
+  @media (max-width: 639px) {
+    body { padding: 16px 10px; }
+    .cards-grid { gap: 12px; }
+    .case-card { padding: 14px; border-radius: 12px; gap: 8px; }
+    .case-card:hover { transform: none; }
+    .card-case-no { font-size: 0.95rem; }
+    .card-row { font-size: 0.84rem; }
+    .card-label { min-width: 56px; }
+    .card-actions { flex-wrap: wrap; gap: 6px; padding-top: 10px; }
+    .btn { flex: 1 1 30%; font-size: 0.78rem; padding: 9px 6px; }
+  }
+
+  .case-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+  }
+
+  .case-card:hover {
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14);
+    transform: translateY(-2px);
+  }
+
+  .case-card.hidden { display: none; }
+
+  .card-case-no {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #007b6a;
+    letter-spacing: 0.02em;
+  }
+
+  .card-row {
+    display: flex;
+    gap: 8px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .card-label {
+    min-width: 62px;
+    font-weight: 600;
+    color: #64748b;
+    flex-shrink: 0;
+  }
+
+  .card-value { color: #1e293b; word-break: break-word; }
+
+  /* ----- Hearing history (collapsible) ----- */
+  .hearing-section {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    overflow: hidden;
+  }
+
+  .hearing-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0f172a;
+    background: #f1f5f9;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .hearing-toggle:hover { background: #e8eef4; }
+
+  .hearing-toggle .chevron { transition: transform 0.15s ease; color: #64748b; }
+
+  .hearing-section.open .hearing-toggle .chevron { transform: rotate(90deg); }
+
+  .hearing-next {
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    color: #007b6a;
+    font-weight: 600;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .hearing-list {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .hearing-section.open .hearing-list { display: flex; }
+
+  .hearing-item {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: 3px solid #007b6a;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  .hearing-item .h-date {
+    font-weight: 700;
+    color: #0f172a;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .hearing-item .h-field { color: #475569; }
+  .hearing-item .h-field strong { color: #64748b; font-weight: 600; }
+
+  .hearing-empty {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-style: italic;
+  }
+
+  @media (max-width: 639px) {
+    .hearing-toggle { font-size: 0.8rem; padding: 9px 10px; }
+    .hearing-item { font-size: 0.76rem; padding: 7px 8px; }
+    .hearing-list { padding: 8px 10px; gap: 6px; }
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px dashed #e2e8f0;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #334155;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn:hover { background: #e2e8f0; border-color: #94a3b8; }
+
+  .btn.primary {
+    background: #007b6a;
+    border-color: #007b6a;
+    color: #ffffff;
+  }
+
+  .btn.primary:hover { background: #005d4f; }
+
+  .no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    display: none;
+  }
+
+  .no-results.visible { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📁 Case Registry — Card View</h1>
+
+  <div class="filter-bar">
+    <input type="text" id="caseFilterInput" placeholder="Search by Case No, Parties, or Client..." autocomplete="off" aria-label="Search cases">
+    <span class="result-count" id="resultCount"></span>
+  </div>
+
+  <div class="cards-grid" id="cardsGrid"></div>
+
+  <div class="no-results" id="noResults">🔍 No cases match your search.</div>
+</div>
+
+<script>
+  // ----- Sample data rows (replace with your real data / fetch call) -----
+  const sampleCases = [
+    {
+      caseNo: 'CIV/123/2026', parties: 'Ramesh Kumar vs Suresh Yadav', client: 'Ramesh Kumar', court: 'Civil Judge (SD), Court Room 4',
+      nextHearing: '2026-09-12',
+      hearings: [
+        { date: '2026-07-15', process: 'Framing of Issues', action: 'Issues framed; plaintiff evidence directed' },
+        { date: '2026-08-10', process: 'Plaintiff Evidence', action: 'PW-1 examined and cross-examined; matter adjourned' }
+      ]
+    },
+    {
+      caseNo: 'CIV/124/2026', parties: 'Anita Devi vs Mahesh Prasad', client: 'Anita Devi', court: 'Civil Judge (JD), Court Room 2',
+      nextHearing: '2026-09-18',
+      hearings: [
+        { date: '2026-08-05', process: 'Summoning of Defendants', action: 'Defendants served; RS return filed' }
+      ]
+    },
+    {
+      caseNo: 'STA/89/2026', parties: 'State vs Raju Mishra', client: 'Raju Mishra', court: 'Additional Sessions Judge, Court 1',
+      nextHearing: '2026-09-10',
+      hearings: [
+        { date: '2026-06-20', process: 'Statement u/s 313 CrPC', action: 'Statement recorded; defence evidence listed' },
+        { date: '2026-07-25', process: 'Defence Evidence', action: 'DW-1 examined; arguments fixed' },
+        { date: '2026-08-28', process: 'Arguments', action: 'Part heard; judgment reserved on remaining arguments' }
+      ]
+    },
+    {
+      caseNo: 'FAM/45/2026', parties: 'Sunita Sharma vs Arun Sharma', client: 'Sunita Sharma', court: 'Principal Judge, Family Court',
+      nextHearing: '2026-09-15',
+      hearings: [
+        { date: '2026-08-12', process: 'Conciliation', action: 'Conciliation failed; mediation report called' }
+      ]
+    },
+    {
+      caseNo: 'REV/12/2026', parties: 'Ram Lal vs State of U.P.', client: 'Ram Lal', court: 'Additional Collector, Revenue Court',
+      nextHearing: '2026-09-22',
+      hearings: [
+        { date: '2026-07-30', process: 'Notice', action: 'Notice issued to opposite party; reply called' }
+      ]
+    },
+    {
+      caseNo: 'MIS/07/2026', parties: 'Mohd. Irfan vs Nawab Ali', client: 'Mohd. Irfan', court: 'Civil Judge (SD), Misc Court',
+      nextHearing: '',
+      hearings: []
+    },
+    {
+      caseNo: 'STA/102/2026', parties: 'State vs Sunil @ Sonu', client: 'Sunil', court: 'Chief Judicial Magistrate',
+      nextHearing: '2026-09-09',
+      hearings: [
+        { date: '2026-08-18', process: 'Bail Application', action: 'Bail granted; personal bond furnished' }
+      ]
+    },
+    {
+      caseNo: 'CIV/130/2026', parties: 'Shyam Sundar Traders vs Kuber Corp.', client: 'Kuber Corp.', court: 'Commercial Court, Court Room 1',
+      nextHearing: '2026-09-25',
+      hearings: [
+        { date: '2026-08-01', process: 'First Hearing', action: 'Written statement time granted to defendant' },
+        { date: '2026-08-22', process: 'Written Statement', action: 'WS filed; replication called' }
+      ]
+    },
+    {
+      caseNo: 'FAM/51/2026', parties: 'Pooja Verma vs Deepak Verma', client: 'Pooja Verma', court: 'Principal Judge, Family Court',
+      nextHearing: '2026-09-14',
+      hearings: [
+        { date: '2026-08-20', process: 'Maintenance Application', action: 'Interim maintenance granted @ ₹8,000/month' }
+      ]
+    }
+  ];
+
+  // ----- Hearing section markup: next hearing + previous dated hearings with process & action -----
+  function hearingSectionHTML(c) {
+    const history = (c.hearings || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1)); // latest first
+    const items = history.length
+      ? history.map(h => `
+        <div class="hearing-item">
+          <span class="h-date">📅 ${esc(fmtDate(h.date))}</span>
+          <div class="h-field"><strong>Process:</strong> ${esc(h.process || '—')}</div>
+          <div class="h-field"><strong>Action Taken:</strong> ${esc(h.action || '—')}</div>
+        </div>
+      `).join('')
+      : '<div class="hearing-empty">No previous hearings recorded.</div>';
+
+    const next = c.nextHearing
+      ? `<div class="hearing-next">▶ Next Hearing: ${esc(fmtDate(c.nextHearing))}</div>`
+      : '';
+
+    return `
+      <div class="hearing-section">
+        <button type="button" class="hearing-toggle" onclick="this.closest('.hearing-section').classList.toggle('open')">
+          <span>⚖️ Hearing (${history.length} previous)</span>
+          <span class="chevron">▶</span>
+        </button>
+        ${next}
+        <div class="hearing-list">${items}</div>
+      </div>
+    `;
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    const dt = new Date(d + 'T00:00:00');
+    return isNaN(dt) ? d : dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  // ----- Render cards from data -----
+  function renderCards() {
+    const grid = document.getElementById('cardsGrid');
+    grid.innerHTML = sampleCases.map(c => `
+      <div class="case-card"
+           data-search="${esc(c.caseNo)} ${esc(c.parties)} ${esc(c.client)}">
+        <div class="card-case-no">${esc(c.caseNo)}</div>
+        <div class="card-row"><span class="card-label">Parties</span><span class="card-value">${esc(c.parties)}</span></div>
+        <div class="card-row"><span class="card-label">Client</span><span class="card-value">${esc(c.client)}</span></div>
+        <div class="card-row"><span class="card-label">Court</span><span class="card-value">${esc(c.court)}</span></div>
+        ${hearingSectionHTML(c)}
+        <div class="card-actions">
+          <button type="button" class="btn primary" onclick="alert('View: ${esc(c.caseNo)}')">View</button>
+          <button type="button" class="btn" onclick="alert('Edit: ${esc(c.caseNo)}')">Edit</button>
+          <button type="button" class="btn" onclick="alert('Delete: ${esc(c.caseNo)}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function esc(s) {
+    return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // ----- Responsive filter: hide non-matching cards dynamically -----
+  function applyFilter() {
+    const query = document.getElementById('caseFilterInput').value.trim().toLowerCase();
+    const cards = document.querySelectorAll('#cardsGrid .case-card');
+    let visible = 0;
+
+    cards.forEach(card => {
+      const haystack = (card.getAttribute('data-search') || '').toLowerCase();
+      const match = !query || haystack.includes(query);
+      card.classList.toggle('hidden', !match);
+      if (match) visible++;
+    });
+
+    document.getElementById('noResults').classList.toggle('visible', visible === 0);
+    document.getElementById('resultCount').textContent =
+      `Showing ${visible} of ${cards.length} cases`;
+  }
+
+  document.getElementById('caseFilterInput').addEventListener('input', applyFilter);
+
+  renderCards();
+  applyFilter();
+</script>
+</body>
+</html>

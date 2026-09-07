@@ -115,11 +115,50 @@ class SupabaseService {
         if (error) return false;
       }
 
-      // Update case tables
-      await Promise.all([
-        client.from('civilcases').update({ next_hearing: hearingDate, hearing_process: process }).eq('case_number', caseNumber),
-        client.from('criminalcases').update({ next_hearing: hearingDate, hearing_process: process }).eq('case_number', caseNumber)
-      ]);
+      // Update the case row in every table it might live in; .select() makes each
+      // update return its affected rows so failures and 0-row matches are visible.
+      const allCaseTables = [
+        'civilcases',
+        'statecases',
+        'criminalcases',
+        'familycases',
+        'revenuecases',
+        'misccivilcases',
+        'misccriminalcases',
+        'complaintcases'
+      ];
+
+      const updateResults = await Promise.allSettled(
+        allCaseTables.map(tbl =>
+          client.from(tbl)
+            .update({ next_hearing: hearingDate, hearing_process: process })
+            .ilike('case_number', caseNumber)
+            .select('id')
+        )
+      );
+
+      let anyError = false;
+      let anyRowUpdated = false;
+      updateResults.forEach((res, idx) => {
+        const tbl = allCaseTables[idx];
+        if (res.status === 'rejected') {
+          anyError = true;
+          console.error(`Hearing case-table update failed on "${tbl}":`, res.reason);
+        } else if (res.value && res.value.error) {
+          anyError = true;
+          console.error(`Hearing case-table update failed on "${tbl}":`, res.value.error);
+        } else if (Array.isArray(res.value && res.value.data) && res.value.data.length > 0) {
+          anyRowUpdated = true;
+        }
+      });
+
+      if (anyError || !anyRowUpdated) {
+        const detail = anyError
+          ? 'One or more case tables rejected the update (see console for details).'
+          : `No case row matched case number "${caseNumber}" in any table.`;
+        console.error('Hearing case-table update problem:', detail);
+        return false;
+      }
       return true;
     } catch (e) {
       console.error('Supabase hearing update error:', e);

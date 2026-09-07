@@ -202,29 +202,27 @@ class CaseService {
   }
 
   renderCourtsTable() {
-    // This method renders courts management table
-    const tbody = document.querySelector('#courtsTable tbody') || document.querySelector('#courtsManagementTable tbody');
-    if (!tbody) return;
+    // This method renders courts management cards (delegates to admin.js renderer when present)
+    const grid = document.getElementById('courtsCardsGrid');
+    if (!grid) return;
+    if (typeof window.renderCourtsTable === 'function' && window.renderCourtsTable !== this.renderCourtsTable) {
+      window.renderCourtsTable();
+      return;
+    }
 
     const courts = this.getCourtOptions();
-    tbody.innerHTML = courts.map((court, idx) => `
-      <tr>
-        <td style="text-align: center;"><span class="court-index-badge">#${idx + 1}</span></td>
-        <td>
-          <div class="court-name-cell">
-            <span style="font-size: 18px;">🏛️</span>
-            <div class="court-name-meta">
-              <span class="court-name-title">${escapeHtml(court)}</span>
-            </div>
-          </div>
-        </td>
-        <td class="table-actions-td">
-          <div class="court-actions-cell">
-            <button type="button" class="court-btn-edit" onclick="window.openEditCourtModal ? window.openEditCourtModal('${escapeHtml(court)}') : window.editCourtPrompt('${escapeHtml(court)}')"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
-            <button type="button" class="court-btn-delete" onclick="window.deleteCourtFromList ? window.deleteCourtFromList('${escapeHtml(court)}') : window.deleteCourtFromSupabase('${escapeHtml(court)}')"><i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span></button>
-          </div>
-        </td>
-      </tr>
+    grid.innerHTML = courts.map((court, idx) => `
+      <div class="court-directory-card">
+        <div class="court-card-head">
+          <span class="court-card-index">#${idx + 1}</span>
+          <span class="court-card-icon"><i class="fa-solid fa-landmark"></i></span>
+          <span class="court-card-name">${escapeHtml(court)}</span>
+        </div>
+        <div class="court-card-actions">
+          <button type="button" class="court-btn-edit" onclick="window.openEditCourtModal ? window.openEditCourtModal('${escapeHtml(court)}') : window.editCourtPrompt('${escapeHtml(court)}')"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
+          <button type="button" class="court-btn-delete" onclick="window.deleteCourtFromList ? window.deleteCourtFromList('${escapeHtml(court)}') : window.deleteCourtFromSupabase('${escapeHtml(court)}')"><i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span></button>
+        </div>
+      </div>
     `).join('');
   }
 

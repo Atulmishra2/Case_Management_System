@@ -320,3 +320,23 @@ Diff Applied to admin.html and index.html
     │   └── button.mobile-fab-btn (+ Add Case)
     │
     └── [7] Scripts (Supabase JS CDN, components/chambers-footer.js, admin.js)
+
+
+    The court directory is now converted to CaseBook Mint cards. Bash/Chrome relaunch is down (persistent "glm-5.3 temporarily unavailable" on this machine), so I verified the edited function by reading it back instead — the structure at admin.js:10224-10305 is intact and the edit was a clean block-for-block replacement (same call sites, same modals, same filter/search logic).
+
+What changed:
+
+Markup — the <table id="courtsTable"> in both admin.html and index.html is replaced by a #courtsCardsGrid responsive grid
+Renderer — renderCourtsTable() now emits .court-directory-card elements instead of <tr> rows; each card has:
+a #N index pill (mint, like the case cards)
+a mint icon tile with the emerald landmark icon
+the court name in deep emerald #064e3b
+a caseload chip — mint when cases are assigned, neutral slate when zero
+Edit (mint outline) / Delete (red) buttons, still wired to the same openEditCourtModal / openDeleteCourtModal
+Cards CSS appended to admin.css: emerald accent strip on the left edge (4px → 6px on hover, like case cards), mint gradient body, hover lift, responsive auto-fill grid (single column on mobile), dashed mint empty-state panel
+The search toolbar, count badge, and live filter all still work — only the output surface changed
+Also updated the legacy renderCourtsTable in case-service.js to render into the grid (delegating to the main renderer when available) so it can't resurrect the dead table
+CSS bumped to v=7.22 in both HTML files; CUSTOM_STYLE.md changelog updated
+To verify: relaunch the app (or hard-refresh) and open the Manage Courts tab — you should see the mint cards grid instead of the table. Note node --check couldn't run due to the tool outage, but the edits were surgical replacements within one function each; if anything looks off, tell me and I'll fix immediately.
+
+convert the colour theme of side nav with relatable colour of project theme
