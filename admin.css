@@ -22175,3 +22175,79 @@ html.theme-judicial .nav-case-search-close,
 html.theme-judicial .pwd-toggle-btn,
 html.theme-judicial .nav-case-search-close *,
 html.theme-judicial .pwd-toggle-btn * { color: #111827 !important; }
+
+/* ============================================================
+   v7.50 — NAVS ABOVE SCROLLBARS + UNIVERSAL CONTRAST RULE
+   1) Top nav & bottom nav sit above every scrollable content
+      layer (but still below modals/toasts which use 9999+).
+   2) Every theme follows one contrast law:
+      light background → dark text/icons; dark background →
+      light text/icons.
+   ============================================================ */
+
+/* --- 1. Navs above scrollbars --- */
+.materialize-nav, .top-header, .guest-header-bar {
+  z-index: 1300 !important;
+  position: fixed !important;
+  top: 0 !important;
+}
+.fixed-bottom-nav {
+  z-index: 1300 !important;
+}
+/* Anything scrollable must not create a stacking context that
+   climbs over the navs */
+.table-responsive, .all-cases-table-wrapper, .home-today-list,
+.courts-cards-grid, .nav-case-search-results, .calendar-grid-wrapper,
+.todo-combobox-results, .dossier-body, .modal-body,
+.dossier-section-body, .history-list, [class*="-scroll"], .tab {
+  isolation: isolate;
+}
+.mint-date-picker { z-index: 1400; }
+
+/* --- 2. Universal contrast law per theme --- */
+/* Azure (light surfaces) */
+html[data-theme="azure"] .form-container,
+html[data-theme="azure"] .case-card, html[data-theme="azure"] .about-card,
+html[data-theme="azure"] .theme-option-card {
+  color: #0B132B;
+}
+html[data-theme="azure"] .about-hero,
+html[data-theme="azure"] .materialize-nav, html[data-theme="azure"] .fixed-bottom-nav,
+html[data-theme="azure"] .sidebar, html[data-theme="azure"] .sidenav {
+  color: #ffffff;
+}
+/* Classic Legal (light body, navy+gold chrome) */
+html.theme-classic body, html.theme-classic .content { color: #1E293B !important; }
+html.theme-classic .materialize-nav, html.theme-classic .fixed-bottom-nav,
+html.theme-classic .sidebar, html.theme-classic .sidenav,
+html.theme-classic .about-hero { color: #ffffff !important; }
+html.theme-classic .sidenav a, html.theme-classic .subheader { color: #D6DEEC !important; }
+html.theme-classic .form-container, html.theme-classic .case-card,
+html.theme-classic .about-card, html.theme-classic .theme-option-card { color: #1E293B !important; }
+/* Modern Corporate */
+html.theme-corporate body, html.theme-corporate .content { color: #0F172A !important; }
+html.theme-corporate .materialize-nav, html.theme-corporate .fixed-bottom-nav,
+html.theme-corporate .sidebar, html.theme-corporate .sidenav,
+html.theme-corporate .about-hero { color: #ffffff !important; }
+html.theme-corporate .sidenav a { color: #CBD5E1 !important; }
+html.theme-corporate .form-container, html.theme-corporate .case-card,
+html.theme-corporate .about-card, html.theme-corporate .theme-option-card { color: #0F172A !important; }
+/* Minimalist Judicial */
+html.theme-judicial body, html.theme-judicial .content { color: #111827 !important; }
+html.theme-judicial .materialize-nav, html.theme-judicial .fixed-bottom-nav,
+html.theme-judicial .sidebar, html.theme-judicial .sidenav,
+html.theme-judicial .about-hero { color: #ffffff !important; }
+html.theme-judicial .sidenav a { color: #D1D5DB !important; }
+html.theme-judicial .form-container, html.theme-judicial .case-card,
+html.theme-judicial .about-card, html.theme-judicial .theme-option-card { color: #111827 !important; }
+/* Mint */
+html[data-theme="mint"] body, html[data-theme="mint"] .content { color: #1e293b !important; }
+html[data-theme="mint"] .materialize-nav, html[data-theme="mint"] .fixed-bottom-nav,
+html[data-theme="mint"] .sidebar, html[data-theme="mint"] .sidenav,
+html[data-theme="mint"] .about-hero { color: #ffffff !important; }
+html[data-theme="mint"] .form-container, html[data-theme="mint"] .case-card,
+html[data-theme="mint"] .about-card, html[data-theme="mint"] .theme-option-card { color: #1e293b !important; }
+
+/* Icons obey the same law */
+html.theme-classic .content i, html.theme-corporate .content i,
+html.theme-judicial .content i, html[data-theme="mint"] .content i { color: inherit; }
