@@ -50,8 +50,8 @@
   }
 
   /* Generate CSS for a user theme. Colors:
-     nav (chrome bg), accent (buttons/active), textOnDark,
-     bg (app background), surface (cards) */
+     nav (chrome bg), accent (buttons), textOnDark, bg, surface,
+     + optional user-picked: hover, active, navAccent (gradient end) */
   function customThemeCss(t) {
     var sel = 'html.theme-custom-' + t.id;
     var L = function (hex, amt) {
@@ -62,45 +62,74 @@
       var b = Math.min(255, Math.max(0, (n & 255) + amt));
       return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     };
-    var nav = t.colors.nav, accent = t.colors.accent, onDark = t.colors.textOnDark,
-        bg = t.colors.bg, surface = t.colors.surface;
-    var navDark = L(nav, -18), navLight = L(nav, 18);
+    var c = t.colors;
+    var nav = c.nav, accent = c.accent, onDark = c.textOnDark,
+        bg = c.bg, surface = c.surface;
+    // user picks with auto-derive fallbacks
+    var hover = c.hover || L(accent, 22);
+    var active = c.active || L(accent, -22);
+    var navAccent = c.navAccent || L(nav, -26);
+    var hoverOn = c.hoverText || onDark;
     return sel + ' body { background: ' + bg + ' !important; }' +
+      // --- NAV GRADIENTS: nav → navAccent (user picks the gradient end) ---
       sel + ' .materialize-nav, ' + sel + ' .top-header, ' + sel + ' .guest-header-bar {' +
-      '  background: linear-gradient(135deg, ' + nav + ', ' + navDark + ') !important;' +
+      '  background: linear-gradient(135deg, ' + nav + ' 0%, ' + navAccent + ' 100%) !important;' +
       '  color: ' + onDark + ' !important; }' +
+      sel + ' .materialize-nav:hover { background: linear-gradient(135deg, ' + L(nav, 10) + ' 0%, ' + L(navAccent, 10) + ' 100%) !important; }' +
       sel + ' .sidebar, ' + sel + ' .sidenav {' +
-      '  background: linear-gradient(180deg, ' + nav + ', ' + navDark + ') !important; }' +
+      '  background: linear-gradient(180deg, ' + nav + ' 0%, ' + navAccent + ' 100%) !important; }' +
+      sel + ' .fixed-bottom-nav { background: linear-gradient(135deg, ' + nav + ', ' + navAccent + ') !important; }' +
+      // --- SIDENAV LINKS: hover + active user-controlled ---
       sel + ' .sidenav a { color: ' + onDark + ' !important; }' +
-      sel + ' .sidenav a.active { background: ' + L(accent, -40) + ' !important; color: ' + onDark + ' !important;' +
+      sel + ' .sidenav a:hover { background: ' + hover + ' !important; color: ' + hoverOn + ' !important; }' +
+      sel + ' .sidenav a.active { background: ' + active + ' !important; color: ' + hoverOn + ' !important;' +
       '  box-shadow: inset 3.5px 0 0 ' + accent + ' !important; }' +
-      sel + ' .sidenav a:hover { background: rgba(255,255,255,0.12) !important; color: ' + onDark + ' !important; }' +
       sel + ' .subheader { color: ' + accent + ' !important; }' +
-      sel + ' .fixed-bottom-nav { background: linear-gradient(135deg, ' + nav + ', ' + navDark + ') !important; }' +
+      // --- SURFACES ---
       sel + ' .case-card, ' + sel + ' .home-today-card, ' + sel + ' .court-directory-card, ' + sel +
       ' .card, ' + sel + ' .panel, ' + sel + ' .form-container, ' + sel + ' .theme-option-card, ' + sel + ' .about-card {' +
       '  background: ' + surface + ' !important; }' +
+      sel + ' .case-card:hover, ' + sel + ' .court-directory-card:hover { background: ' + L(surface, -6) + ' !important; }' +
       sel + ' .content, ' + sel + ' .case-card-name, ' + sel + ' .court-card-name { color: ' + L(bg, -110) + ' !important; }' +
       sel + ' th, ' + sel + ' thead th { background: ' + L(bg, 12) + ' !important; color: ' + L(bg, -110) + ' !important; }' +
+      sel + ' tr:hover td { background: ' + L(surface, -8) + ' !important; }' +
       sel + ' .form-container, ' + sel + ' .case-card, ' + sel + ' .theme-option-card { border-color: ' + L(bg, -18) + ' !important; }' +
-      // Buttons: accent fill, chosen on-dark text
+      // --- BUTTONS: accent → active gradient base, hover swaps in hover color ---
       sel + ' button, ' + sel + ' .btn, ' + sel + ' .primary-btn, ' + sel + ' .secondary-btn, ' + sel +
       ' .action-btn, ' + sel + ' .dossier-action-btn, ' + sel + ' .mini-court-btn, ' + sel +
       ' .panel-action-btn, ' + sel + ' .type-pill-btn, ' + sel + ' .todo-filter-btn, ' + sel +
       ' .case-cards-pill, ' + sel + ' .stage-pill, ' + sel + ' .court-btn-edit, ' + sel + ' .detail-action-btn {' +
-      '  background: linear-gradient(135deg, ' + accent + ', ' + L(accent, -25) + ') !important;' +
-      '  color: ' + onDark + ' !important; border: 1px solid ' + L(accent, -25) + ' !important; }' +
-      sel + ' button:hover, ' + sel + ' .btn:hover, ' + sel + ' .case-cards-pill:hover, ' + sel +
-      ' .type-pill-btn.active, ' + sel + ' .todo-filter-btn.active, ' + sel + ' .case-cards-pill.active {' +
-      '  background: linear-gradient(135deg, ' + L(accent, 20) + ', ' + accent + ') !important;' +
-      '  color: ' + onDark + ' !important; }' +
-      // Active nav pills
-      sel + ' .bottom-nav-btn.active, ' + sel + ' .nav-link.active { background: ' + accent + ' !important; color: ' + onDark + ' !important; }' +
-      // Accent strips on cards follow the accent
+      '  background: linear-gradient(135deg, ' + accent + ', ' + active + ') !important;' +
+      '  color: ' + onDark + ' !important; border: 1px solid ' + active + ' !important; }' +
+      sel + ' button:hover, ' + sel + ' .btn:hover, ' + sel + ' .primary-btn:hover, ' + sel +
+      ' .secondary-btn:hover, ' + sel + ' .action-btn:hover, ' + sel + ' .dossier-action-btn:hover, ' + sel +
+      ' .mini-court-btn:hover, ' + sel + ' .panel-action-btn:hover, ' + sel + ' .todo-filter-btn:hover, ' + sel +
+      ' .case-cards-pill:hover, ' + sel + ' .stage-pill:hover, ' + sel + ' .court-btn-edit:hover, ' + sel + ' .detail-action-btn:hover {' +
+      '  background: linear-gradient(135deg, ' + hover + ', ' + accent + ') !important;' +
+      '  color: ' + hoverOn + ' !important; border-color: ' + hover + ' !important; }' +
+      // Active/selected pills use the picked ACTIVE color solid
+      sel + ' .type-pill-btn.active, ' + sel + ' .todo-filter-btn.active, ' + sel +
+      ' .case-cards-pill.active, ' + sel + ' .stage-pill-specific.active, ' + sel +
+      ' .bottom-nav-btn.active, ' + sel + ' .nav-link.active {' +
+      '  background: ' + active + ' !important; color: ' + hoverOn + ' !important; }' +
+      // Accent strips: accent → hover gradient
       sel + ' .case-card::before, ' + sel + ' .court-directory-card::before {' +
-      '  background: linear-gradient(180deg, ' + accent + ', ' + L(accent, 40) + ') !important; }' +
+      '  background: linear-gradient(180deg, ' + accent + ', ' + hover + ') !important; }' +
+      // Inputs focus ring uses accent
+      sel + ' input:focus, ' + sel + ' select:focus, ' + sel + ' textarea:focus {' +
+      '  border-color: ' + accent + ' !important; box-shadow: 0 0 0 3px ' + hexToRgba(accent, 0.25) + ' !important; outline: none !important; }' +
+      // Nav search toggle: hover = picked hover color bg
+      sel + ' .nav-case-search-toggle:hover, ' + sel + ' .nav-case-search-toggle:active {' +
+      '  background: ' + hover + ' !important; color: ' + hoverOn + ' !important; }' +
       // Sidenav theme toggle
-      sel + ' #themeToggleBtn { background: ' + accent + ' !important; color: ' + onDark + ' !important; border-color: ' + onDark + ' !important; }';
+      sel + ' #themeToggleBtn { background: linear-gradient(135deg, ' + accent + ', ' + active + ') !important;' +
+      '  color: ' + onDark + ' !important; border-color: ' + hover + ' !important; }' +
+      sel + ' #themeToggleBtn:hover { background: linear-gradient(135deg, ' + hover + ', ' + accent + ') !important; color: ' + hoverOn + ' !important; }';
+  }
+
+  function hexToRgba(hex, alpha) {
+    var n = parseInt(String(hex || '#000000').replace('#', ''), 16);
+    return 'rgba(' + (n >> 16) + ', ' + ((n >> 8) & 255) + ', ' + (n & 255) + ', ' + alpha + ')';
   }
 
   function injectCustomCss() {
@@ -210,8 +239,12 @@
       '</div>' +
       '<div class="theme-maker-grid">' +
       makerField('tmNav', 'Nav / Sidebar (dark bg)', '#1B2A47') +
+      makerField('tmNavAccent', 'Gradient end (nav dark)', '#0F172A') +
       makerField('tmAccent', 'Buttons / Accent', '#C5A880') +
+      makerField('tmHover', 'Hover color', '#A8895F') +
+      makerField('tmActive', 'Active / selected', '#1B2A47') +
       makerField('tmOnDark', 'Text on dark bg', '#FFFFFF') +
+      makerField('tmHoverText', 'Text on hover/active', '#FFFFFF') +
       makerField('tmBg', 'App background (light)', '#F8FAFC') +
       makerField('tmSurface', 'Cards / surfaces', '#FFFFFF') +
       '</div>' +
@@ -242,7 +275,12 @@
       var el = document.getElementById(id);
       return el ? el.value : null;
     };
-    return { nav: get('tmNav'), accent: get('tmAccent'), textOnDark: get('tmOnDark'), bg: get('tmBg'), surface: get('tmSurface') };
+    return {
+      nav: get('tmNav'), navAccent: get('tmNavAccent'), accent: get('tmAccent'),
+      hover: get('tmHover'), active: get('tmActive'),
+      textOnDark: get('tmOnDark'), hoverText: get('tmHoverText'),
+      bg: get('tmBg'), surface: get('tmSurface')
+    };
   }
 
   function makerTempTheme(colors, name) {
@@ -273,7 +311,7 @@
     var id = 'custom-' + Date.now().toString(36);
     var theme = {
       id: id, name: name, desc: 'Custom theme made with Theme Maker', icon: 'fa-palette',
-      palette: [colors.nav, colors.accent, colors.textOnDark, colors.bg, colors.surface],
+      palette: [colors.nav, colors.navAccent, colors.accent, colors.hover, colors.active, colors.hoverText, colors.bg, colors.surface],
       colors: colors
     };
     list.push(theme);
@@ -301,7 +339,7 @@
     var pv = document.getElementById('customPreviewStyle');
     if (pv) pv.textContent = '';
     applyTheme(getStoredTheme());
-    var defs = { tmNav: '#1B2A47', tmAccent: '#C5A880', tmOnDark: '#FFFFFF', tmBg: '#F8FAFC', tmSurface: '#FFFFFF' };
+    var defs = { tmNav: '#1B2A47', tmNavAccent: '#0F172A', tmAccent: '#C5A880', tmHover: '#A8895F', tmActive: '#1B2A47', tmOnDark: '#FFFFFF', tmHoverText: '#FFFFFF', tmBg: '#F8FAFC', tmSurface: '#FFFFFF' };
     Object.keys(defs).forEach(function (k) {
       var el = document.getElementById(k);
       if (el) el.value = defs[k];
