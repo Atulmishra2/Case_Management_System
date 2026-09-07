@@ -42,7 +42,8 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=7.34">
+    <link rel="stylesheet" href="admin.css?v=7.37">
+    <link rel="stylesheet" href="admin-mint.css?v=7.37" id="mintThemeCss" disabled>
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#502D55">
     <meta name="mobile-web-app-capable" content="yes">
@@ -405,6 +406,12 @@
             <div class="divider"></div>
             <div class="subheader">Settings</div>
             <a href="#" onclick="showTab('settings', event)"><i class="fa-solid fa-key nav-icon"></i> Change Password</a>
+            <div class="divider"></div>
+            <div class="sidenav-theme-row">
+                <button type="button" id="themeToggleBtn" onclick="toggleAppTheme(event)" title="Switch theme (Azure / Mint)" aria-label="Switch theme">
+                    <i class="fa-solid fa-circle-half-stroke"></i><span id="themeToggleLabel">Mint</span>
+                </button>
+            </div>
         </div>
 
         <!-- Main content area where each admin tab is displayed -->
@@ -5188,6 +5195,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="components/chambers-footer.js" defer></script>
     <script src="mint-datepicker.js" defer></script>
+    <script src="theme-toggle.js" defer></script>
     <script src="admin.js" defer></script>
 </body>
 
