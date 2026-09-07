@@ -1,19 +1,20 @@
 /* ============================================================
    CaseBook Theme Engine (theme-toggle.js)
    Manages the app theme: Azure (default), Mint, Classic Legal,
-   Modern Corporate, Minimalist Judicial.
+   Modern Corporate, Minimalist Judicial, plus USER-MADE THEMES
+   created in the Theme Maker (Themes tab).
 
-   - Each custom theme is a class on <html> (html.theme-classic etc.)
-     defined in admin.css; Mint uses the admin-mint.css alternate sheet.
-   - Choice persists in localStorage ("casebook-theme")
-   - Exposes window.toggleAppTheme (legacy sidenav quick toggle)
-     and window.setAppTheme(name) used by the Settings → Themes tab
-     and the About page.
+   - Built-in custom themes are classes on <html> defined in admin.css.
+   - Mint uses the admin-mint.css alternate sheet.
+   - User themes are stored in localStorage ("casebook-custom-themes")
+     and applied by injecting a <style id="customThemeStyle"> with
+     html.theme-custom-<id> rules generated from 5 chosen colors.
    ============================================================ */
 (function () {
   'use strict';
 
   var STORAGE_KEY = 'casebook-theme';
+  var CUSTOM_KEY = 'casebook-custom-themes';
 
   var THEMES = [
     { id: 'azure',   name: 'CaseBook Azure',           desc: 'Ambient blue — soft periwinkle, sky blue, deep navy (default)', icon: 'fa-circle-half-stroke',
@@ -28,12 +29,93 @@
       palette: ['#111827', '#000000', '#991B1B', '#FAFAFA', '#E5E7EB', '#6B7280'] }
   ];
 
-  function getStoredTheme() {
+  /* ---------- user-made themes ---------- */
+  function getCustomThemes() {
     try {
-      var t = localStorage.getItem(STORAGE_KEY);
-      return THEMES.some(function (x) { return x.id === t; }) ? t : 'azure';
-    } catch (e) { return 'azure'; }
+      var raw = localStorage.getItem(CUSTOM_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
   }
+
+  function saveCustomThemes(list) {
+    try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+
+  function findTheme(id) {
+    var t = null;
+    THEMES.forEach(function (x) { if (x.id === id) t = x; });
+    if (!t) getCustomThemes().forEach(function (x) { if (x.id === id) t = x; });
+    return t || { id: 'azure', name: 'CaseBook Azure', icon: 'fa-circle-half-stroke', palette: [] };
+  }
+
+  /* Generate CSS for a user theme. Colors:
+     nav (chrome bg), accent (buttons/active), textOnDark,
+     bg (app background), surface (cards) */
+  function customThemeCss(t) {
+    var sel = 'html.theme-custom-' + t.id;
+    var L = function (hex, amt) {
+      // lighten/darken hex by amt (-255..255)
+      var n = parseInt(hex.replace('#', ''), 16);
+      var r = Math.min(255, Math.max(0, (n >> 16) + amt));
+      var g = Math.min(255, Math.max(0, ((n >> 8) & 255) + amt));
+      var b = Math.min(255, Math.max(0, (n & 255) + amt));
+      return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    };
+    var nav = t.colors.nav, accent = t.colors.accent, onDark = t.colors.textOnDark,
+        bg = t.colors.bg, surface = t.colors.surface;
+    var navDark = L(nav, -18), navLight = L(nav, 18);
+    return sel + ' body { background: ' + bg + ' !important; }' +
+      sel + ' .materialize-nav, ' + sel + ' .top-header, ' + sel + ' .guest-header-bar {' +
+      '  background: linear-gradient(135deg, ' + nav + ', ' + navDark + ') !important;' +
+      '  color: ' + onDark + ' !important; }' +
+      sel + ' .sidebar, ' + sel + ' .sidenav {' +
+      '  background: linear-gradient(180deg, ' + nav + ', ' + navDark + ') !important; }' +
+      sel + ' .sidenav a { color: ' + onDark + ' !important; }' +
+      sel + ' .sidenav a.active { background: ' + L(accent, -40) + ' !important; color: ' + onDark + ' !important;' +
+      '  box-shadow: inset 3.5px 0 0 ' + accent + ' !important; }' +
+      sel + ' .sidenav a:hover { background: rgba(255,255,255,0.12) !important; color: ' + onDark + ' !important; }' +
+      sel + ' .subheader { color: ' + accent + ' !important; }' +
+      sel + ' .fixed-bottom-nav { background: linear-gradient(135deg, ' + nav + ', ' + navDark + ') !important; }' +
+      sel + ' .case-card, ' + sel + ' .home-today-card, ' + sel + ' .court-directory-card, ' + sel +
+      ' .card, ' + sel + ' .panel, ' + sel + ' .form-container, ' + sel + ' .theme-option-card, ' + sel + ' .about-card {' +
+      '  background: ' + surface + ' !important; }' +
+      sel + ' .content, ' + sel + ' .case-card-name, ' + sel + ' .court-card-name { color: ' + L(bg, -110) + ' !important; }' +
+      sel + ' th, ' + sel + ' thead th { background: ' + L(bg, 12) + ' !important; color: ' + L(bg, -110) + ' !important; }' +
+      sel + ' .form-container, ' + sel + ' .case-card, ' + sel + ' .theme-option-card { border-color: ' + L(bg, -18) + ' !important; }' +
+      // Buttons: accent fill, chosen on-dark text
+      sel + ' button, ' + sel + ' .btn, ' + sel + ' .primary-btn, ' + sel + ' .secondary-btn, ' + sel +
+      ' .action-btn, ' + sel + ' .dossier-action-btn, ' + sel + ' .mini-court-btn, ' + sel +
+      ' .panel-action-btn, ' + sel + ' .type-pill-btn, ' + sel + ' .todo-filter-btn, ' + sel +
+      ' .case-cards-pill, ' + sel + ' .stage-pill, ' + sel + ' .court-btn-edit, ' + sel + ' .detail-action-btn {' +
+      '  background: linear-gradient(135deg, ' + accent + ', ' + L(accent, -25) + ') !important;' +
+      '  color: ' + onDark + ' !important; border: 1px solid ' + L(accent, -25) + ' !important; }' +
+      sel + ' button:hover, ' + sel + ' .btn:hover, ' + sel + ' .case-cards-pill:hover, ' + sel +
+      ' .type-pill-btn.active, ' + sel + ' .todo-filter-btn.active, ' + sel + ' .case-cards-pill.active {' +
+      '  background: linear-gradient(135deg, ' + L(accent, 20) + ', ' + accent + ') !important;' +
+      '  color: ' + onDark + ' !important; }' +
+      // Active nav pills
+      sel + ' .bottom-nav-btn.active, ' + sel + ' .nav-link.active { background: ' + accent + ' !important; color: ' + onDark + ' !important; }' +
+      // Accent strips on cards follow the accent
+      sel + ' .case-card::before, ' + sel + ' .court-directory-card::before {' +
+      '  background: linear-gradient(180deg, ' + accent + ', ' + L(accent, 40) + ') !important; }' +
+      // Sidenav theme toggle
+      sel + ' #themeToggleBtn { background: ' + accent + ' !important; color: ' + onDark + ' !important; border-color: ' + onDark + ' !important; }';
+  }
+
+  function injectCustomCss() {
+    var el = document.getElementById('customThemeStyle');
+    if (!el) {
+      el = document.createElement('style');
+      el.id = 'customThemeStyle';
+      document.head.appendChild(el);
+    }
+    var css = getCustomThemes().map(customThemeCss).join('\n');
+    el.textContent = css;
+  }
+
+  /* ---------- activation ---------- */
+  function isCustom(id) { return /^custom-/.test(id); }
 
   function applyTheme(id) {
     var link = document.getElementById('mintThemeCss');
@@ -42,21 +124,39 @@
     THEMES.forEach(function (t) {
       if (t.id !== 'azure') root.classList.remove('theme-' + t.id);
     });
+    // remove any custom class
+    var keep = [];
+    for (var i = 0; i < root.classList.length; i++) {
+      if (!/^theme-custom-/.test(root.classList[i])) keep.push(root.classList[i]);
+    }
+    root.className = keep.join(' ');
     if (id !== 'azure' && id !== 'mint') root.classList.add('theme-' + id);
     root.setAttribute('data-theme', id);
     // Sidenav quick-toggle label shows the "other" of Azure/Mint
     var labels = document.querySelectorAll('#themeToggleLabel');
     var next = (id === 'mint') ? 'Azure' : 'Mint';
-    for (var i = 0; i < labels.length; i++) { labels[i].textContent = next; }
-    // Mark selected card in Settings → Themes (if rendered)
+    for (var j = 0; j < labels.length; j++) { labels[j].textContent = next; }
+    // Mark selected card in Themes tab (if rendered)
     var cards = document.querySelectorAll('.theme-option-card');
-    for (var j = 0; j < cards.length; j++) {
-      cards[j].classList.toggle('selected', cards[j].getAttribute('data-theme-id') === id);
+    for (var k = 0; k < cards.length; k++) {
+      cards[k].classList.toggle('selected', cards[k].getAttribute('data-theme-id') === id);
     }
   }
 
+  function themeExists(id) {
+    if (THEMES.some(function (t) { return t.id === id; })) return true;
+    return getCustomThemes().some(function (t) { return t.id === id; });
+  }
+
+  function getStoredTheme() {
+    try {
+      var t = localStorage.getItem(STORAGE_KEY);
+      return (t && themeExists(t)) ? t : 'azure';
+    } catch (e) { return 'azure'; }
+  }
+
   window.setAppTheme = function (id, persist) {
-    if (!THEMES.some(function (t) { return t.id === id; })) id = 'azure';
+    if (!themeExists(id)) id = 'azure';
     if (persist !== false) {
       try { localStorage.setItem(STORAGE_KEY, id); } catch (e) {}
     }
@@ -75,31 +175,150 @@
     if (overlay) overlay.classList.remove('active');
   };
 
-  /* Themes tab: build the theme picker cards with palette swatches */
+  /* ---------- Themes tab rendering ---------- */
   window.renderThemeSettings = function () {
     var wrap = document.getElementById('themeOptionsGrid');
     if (!wrap) return;
     var current = getStoredTheme();
-    wrap.innerHTML = THEMES.map(function (t) {
+    var customs = getCustomThemes();
+    var all = THEMES.concat(customs);
+    var html = all.map(function (t) {
       var swatches = t.palette.map(function (c) {
         return '<span class="theme-swatch" style="background:' + c + '" title="' + c + '"></span>';
       }).join('');
-      return '<button type="button" class="theme-option-card' + (t.id === current ? ' selected' : '') +
+      var del = isCustom(t.id)
+        ? '<span class="theme-option-delete" onclick="deleteCustomTheme(\'' + t.id + '\')" title="Delete this theme"><i class="fa-solid fa-trash-can"></i></span>'
+        : '';
+      return '<div class="theme-option-card' + (t.id === current ? ' selected' : '') +
         '" data-theme-id="' + t.id + '" onclick="setAppTheme(\'' + t.id + '\')">' +
-        '<span class="theme-option-icon"><i class="fa-solid ' + t.icon + '"></i></span>' +
+        '<span class="theme-option-icon"><i class="fa-solid ' + (t.icon || 'fa-palette') + '"></i></span>' +
         '<span class="theme-option-body">' +
-        '<strong>' + t.name + '</strong><em>' + t.desc + '</em>' +
+        '<strong>' + escapeAttr(t.name) + (isCustom(t.id) ? ' <em class="rmk-badge rmk-badge-major">Custom</em>' : '') + '</strong>' +
+        '<em>' + escapeAttr(t.desc || 'Your custom theme') + '</em>' +
         '<span class="theme-palette-row">' + swatches + '</span>' +
         '</span>' +
         '<span class="theme-option-check"><i class="fa-solid fa-circle-check"></i></span>' +
-        '</button>';
+        del +
+        '</div>';
     }).join('');
+    // Theme Maker builder card
+    html += '<div class="theme-maker-card" id="themeMakerCard">' +
+      '<div class="theme-maker-head">' +
+      '<span class="theme-option-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>' +
+      '<div><strong>Theme Maker — Create Your Own</strong>' +
+      '<em>Pick 5 colors; the app follows the light/dark contrast law automatically.</em></div>' +
+      '</div>' +
+      '<div class="theme-maker-grid">' +
+      makerField('tmNav', 'Nav / Sidebar (dark bg)', '#1B2A47') +
+      makerField('tmAccent', 'Buttons / Accent', '#C5A880') +
+      makerField('tmOnDark', 'Text on dark bg', '#FFFFFF') +
+      makerField('tmBg', 'App background (light)', '#F8FAFC') +
+      makerField('tmSurface', 'Cards / surfaces', '#FFFFFF') +
+      '</div>' +
+      '<div class="theme-maker-actions">' +
+      '<input type="text" id="tmName" placeholder="Theme name (e.g. My Chambers)" maxlength="24">' +
+      '<button type="button" class="primary-btn" onclick="previewCustomTheme()"><i class="fa-solid fa-eye"></i> Preview</button>' +
+      '<button type="button" class="primary-btn" onclick="saveCustomTheme()"><i class="fa-solid fa-floppy-disk"></i> Save Theme</button>' +
+      '<button type="button" class="secondary-btn" onclick="resetThemeMaker()">Reset</button>' +
+      '</div></div>';
+    wrap.innerHTML = html;
+  };
+
+  function makerField(id, label, def) {
+    return '<label class="theme-maker-field"><span>' + label + '</span>' +
+      '<span class="theme-maker-input"><input type="color" id="' + id + '" value="' + def + '">' +
+      '<input type="text" id="' + id + 'Hex" value="' + def + '" maxlength="7" readonly></span></label>';
+  }
+
+  function escapeAttr(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+
+  /* ---------- theme maker actions ---------- */
+  function readMakerColors() {
+    var get = function (id) {
+      var el = document.getElementById(id);
+      return el ? el.value : null;
+    };
+    return { nav: get('tmNav'), accent: get('tmAccent'), textOnDark: get('tmOnDark'), bg: get('tmBg'), surface: get('tmSurface') };
+  }
+
+  function makerTempTheme(colors, name) {
+    return { id: 'custom-preview', name: name || 'Preview', colors: colors };
+  }
+
+  window.previewCustomTheme = function () {
+    injectOneCustomCss(makerTempTheme(readMakerColors(), 'Preview'));
+    applyTheme('custom-preview');
+  };
+
+  function injectOneCustomCss(t) {
+    var el = document.getElementById('customPreviewStyle');
+    if (!el) {
+      el = document.createElement('style');
+      el.id = 'customPreviewStyle';
+      document.head.appendChild(el);
+    }
+    el.textContent = customThemeCss(t);
+  }
+
+  window.saveCustomTheme = function () {
+    var nameEl = document.getElementById('tmName');
+    var name = (nameEl && nameEl.value.trim()) || 'My Theme';
+    var colors = readMakerColors();
+    if (!colors.nav || !colors.accent || !colors.bg) { alert('Pick colors first.'); return; }
+    var list = getCustomThemes();
+    var id = 'custom-' + Date.now().toString(36);
+    var theme = {
+      id: id, name: name, desc: 'Custom theme made with Theme Maker', icon: 'fa-palette',
+      palette: [colors.nav, colors.accent, colors.textOnDark, colors.bg, colors.surface],
+      colors: colors
+    };
+    list.push(theme);
+    saveCustomThemes(list);
+    // clear preview style, inject full set, activate saved theme
+    var pv = document.getElementById('customPreviewStyle');
+    if (pv) pv.textContent = '';
+    injectCustomCss();
+    try { localStorage.setItem(STORAGE_KEY, id); } catch (e) {}
+    applyTheme(id);
+    window.renderThemeSettings();
+  };
+
+  window.deleteCustomTheme = function (id) {
+    if (!confirm('Delete this custom theme?')) return;
+    var list = getCustomThemes().filter(function (t) { return t.id !== id; });
+    saveCustomThemes(list);
+    injectCustomCss();
+    if (getStoredTheme() === id) window.setAppTheme('azure');
+    window.renderThemeSettings();
+  };
+
+  window.resetThemeMaker = function () {
+    // remove preview, back to stored theme
+    var pv = document.getElementById('customPreviewStyle');
+    if (pv) pv.textContent = '';
+    applyTheme(getStoredTheme());
+    var defs = { tmNav: '#1B2A47', tmAccent: '#C5A880', tmOnDark: '#FFFFFF', tmBg: '#F8FAFC', tmSurface: '#FFFFFF' };
+    Object.keys(defs).forEach(function (k) {
+      var el = document.getElementById(k);
+      if (el) el.value = defs[k];
+      var hx = document.getElementById(k + 'Hex');
+      if (hx) hx.value = defs[k];
+    });
+    var nm = document.getElementById('tmName');
+    if (nm) nm.value = '';
   };
 
   window.getThemeList = function () { return THEMES.slice(); };
 
+  /* ---------- boot ---------- */
+  injectCustomCss();
   applyTheme(getStoredTheme());
   document.addEventListener('DOMContentLoaded', function () {
+    injectCustomCss();
     applyTheme(getStoredTheme());
     window.renderThemeSettings();
   });
