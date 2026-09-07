@@ -21587,3 +21587,591 @@ button.danger, .btn.danger {
 .dispose-action-btn *, button.danger *, .btn.danger * {
   color: inherit !important;
 }
+
+/* ============================================================
+   v7.40 — CASE CARD ICONS → DARK
+   Bright aqua/azure icons on Case Cards Board are hard to read;
+   switch to deep navy (amber criminal exception kept).
+   ============================================================ */
+.case-card-court i,
+.case-card-parties i,
+.case-card-client i,
+.case-card-hearing-date i,
+.case-card-section-title i,
+.case-card-caseno i,
+.case-card-nextdate i,
+.case-card-type .fa-solid,
+.case-card .fa-regular,
+.case-card-section-chevron {
+  color: #0B132B !important;
+}
+
+/* Type-tinted section icons also go dark (was per-type tints) */
+.case-card-type-family .case-card-section-title i,
+.case-card-type-revenue .case-card-section-title i,
+.case-card-type-criminal .case-card-section-title i,
+.case-card-type-state .case-card-section-title i,
+.case-card-type-complaint .case-card-section-title i,
+.case-card-type-misc-criminal .case-card-section-title i,
+.case-card-type-misccriminal .case-card-section-title i {
+  color: #0B132B !important;
+}
+
+/* ============================================================
+   v7.41 — CASE CARDS FILTER PILLS: dark fill, white text
+   Match the dark button system for clear, legible labels.
+   ============================================================ */
+.case-cards-pill {
+  background: linear-gradient(135deg, #1C2541, #0B132B) !important;
+  color: #ffffff !important;
+  border: 1.5px solid #1C2541 !important;
+}
+.case-cards-pill i { color: #ffffff !important; }
+.case-cards-pill:hover {
+  background: linear-gradient(135deg, #3A506B, #1C2541) !important;
+  color: #ffffff !important;
+  border-color: #3A506B !important;
+}
+.case-cards-pill.active {
+  background: linear-gradient(135deg, #5BC0BE, #3A506B) !important;
+  color: #ffffff !important;
+  border-color: #5BC0BE !important;
+}
+.case-cards-pill.active i { color: #ffffff !important; }
+.case-cards-pill-count {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+}
+.case-cards-pill.active .case-cards-pill-count {
+  background: rgba(11, 19, 43, 0.30) !important;
+  color: #ffffff !important;
+}
+/* ============================================================
+   v7.43 — MULTI-THEME ENGINE
+   Classic Legal / Modern Corporate / Minimalist Judicial
+   Each theme is a class on <html> and overrides the core
+   surfaces, navs, buttons, pills and accents.
+   ============================================================ */
+
+/* Shared: theme option cards (Settings → Themes) */
+.theme-settings-section { margin-top: 22px; }
+#themeOptionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.theme-option-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 2px solid #E0E8F9;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.theme-option-card:hover { border-color: #A0C4FF; transform: translateY(-1px); }
+.theme-option-card.selected {
+  border-color: #5BC0BE;
+  box-shadow: 0 4px 14px rgba(91, 192, 190, 0.25);
+}
+.theme-option-icon {
+  width: 40px; height: 40px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 12px;
+  background: #EEF3FE; color: #1C2541; font-size: 16px;
+}
+.theme-option-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.theme-option-body strong { font-size: 14px; color: #1C2541; }
+.theme-option-body em { font-size: 12px; color: #3A506B; font-style: normal; margin-top: 2px; }
+.theme-option-check { color: #5BC0BE; font-size: 18px; visibility: hidden; }
+.theme-option-card.selected .theme-option-check { visibility: visible; }
+
+/* ---------- ABOUT PAGE ---------- */
+.about-page { padding: 6px 2px 20px; }
+.about-hero {
+  background: linear-gradient(135deg, #1C2541, #0B132B);
+  border-radius: 16px;
+  padding: 28px 24px;
+  color: #ffffff;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+.about-hero .about-logo {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: #6FFFE9;
+}
+.about-hero h2 { margin: 0; font-size: 22px; color: #fff; }
+.about-hero .about-tagline { margin: 4px 0 0; font-size: 13.5px; color: #A0C4FF; }
+.about-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px; margin-top: 16px;
+}
+.about-card {
+  background: #ffffff; border: 1.5px solid #E0E8F9; border-radius: 14px; padding: 16px 18px;
+}
+.about-card h4 { margin: 0 0 8px; font-size: 14.5px; color: #0B132B; display: flex; align-items: center; gap: 8px; }
+.about-card h4 i { color: #3A506B; font-size: 13px; }
+.about-card p, .about-card li { font-size: 13px; color: #3A506B; line-height: 1.6; margin: 0; }
+.about-card ul { margin: 0; padding-left: 18px; }
+.about-meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 13px; }
+.about-meta dt { color: #5A6B87; font-weight: 700; }
+.about-meta dd { margin: 0; color: #0B132B; }
+
+/* ============================================================
+   THEME: CLASSIC LEGAL (html.theme-classic)
+   Deep navy #1B2A47 + muted gold #C5A880, off-white bg
+   ============================================================ */
+html.theme-classic body { background: #F8FAFC !important; }
+html.theme-classic .materialize-nav {
+  background: linear-gradient(135deg, #1B2A47, #0F172A) !important;
+}
+html.theme-classic .sidebar, html.theme-classic .sidenav {
+  background: linear-gradient(180deg, #1B2A47 0%, #16223B 100%) !important;
+}
+html.theme-classic .sidenav a { color: #D6DEEC !important; }
+html.theme-classic .sidenav a.active {
+  background: rgba(197, 168, 128, 0.18) !important;
+  color: #C5A880 !important;
+}
+html.theme-classic .subheader { color: #C5A880 !important; }
+html.theme-classic .fixed-bottom-nav {
+  background: linear-gradient(135deg, #1B2A47, #0F172A) !important;
+}
+html.theme-classic button, html.theme-classic .btn, html.theme-classic .primary-btn,
+html.theme-classic .secondary-btn, html.theme-classic .action-btn,
+html.theme-classic .dossier-action-btn, html.theme-classic .mini-court-btn,
+html.theme-classic .panel-action-btn, html.theme-classic .type-pill-btn,
+html.theme-classic .todo-filter-btn, html.theme-classic .case-cards-pill,
+html.theme-classic .stage-pill, html.theme-classic .court-btn-edit,
+html.theme-classic .detail-action-btn {
+  background: linear-gradient(135deg, #1B2A47, #0F172A) !important;
+  color: #C5A880 !important;
+  border: 1px solid #C5A880 !important;
+}
+html.theme-classic button:hover, html.theme-classic .btn:hover,
+html.theme-classic .primary-btn:hover, html.theme-classic .case-cards-pill:hover,
+html.theme-classic .type-pill-btn.active, html.theme-classic .todo-filter-btn.active,
+html.theme-classic .case-cards-pill.active, html.theme-classic .stage-pill-specific.active {
+  background: linear-gradient(135deg, #C5A880, #A8895F) !important;
+  color: #1B2A47 !important;
+  border-color: #C5A880 !important;
+}
+html.theme-classic .case-card, html.theme-classic .home-today-card,
+html.theme-classic .court-directory-card, html.theme-classic .card,
+html.theme-classic .panel, html.theme-classic .form-container {
+  background: #ffffff !important;
+  border-color: #E2E8F0 !important;
+}
+html.theme-classic .case-card-name, html.theme-classic .court-card-name { color: #1E293B !important; }
+html.theme-classic th, html.theme-classic thead th {
+  background: #EEF2F7 !important; color: #1B2A47 !important;
+}
+html.theme-classic .form-container, html.theme-classic .section-header-row h3 { color: #1E293B !important; }
+html.theme-classic .kpi-card { background: #ffffff !important; border-color: #E2E8F0 !important; }
+html.theme-classic #themeToggleBtn {
+  background: linear-gradient(135deg, #C5A880, #A8895F) !important;
+  color: #1B2A47 !important; border: 1px solid #C5A880 !important;
+}
+
+/* ============================================================
+   THEME: MODERN CORPORATE (html.theme-corporate)
+   Dark charcoal #202124 + deep teal #0D9488, light slate bg
+   ============================================================ */
+html.theme-corporate body { background: #F1F5F9 !important; }
+html.theme-corporate .materialize-nav {
+  background: linear-gradient(135deg, #202124, #18181B) !important;
+}
+html.theme-corporate .sidebar, html.theme-corporate .sidenav {
+  background: linear-gradient(180deg, #202124 0%, #1C1C1F 100%) !important;
+}
+html.theme-corporate .sidenav a { color: #CBD5E1 !important; }
+html.theme-corporate .sidenav a.active {
+  background: rgba(13, 148, 136, 0.18) !important;
+  color: #5EEAD4 !important;
+}
+html.theme-corporate .subheader { color: #5EEAD4 !important; }
+html.theme-corporate .fixed-bottom-nav {
+  background: linear-gradient(135deg, #202124, #18181B) !important;
+}
+html.theme-corporate button, html.theme-corporate .btn, html.theme-corporate .primary-btn,
+html.theme-corporate .secondary-btn, html.theme-corporate .action-btn,
+html.theme-corporate .dossier-action-btn, html.theme-corporate .mini-court-btn,
+html.theme-corporate .panel-action-btn, html.theme-corporate .type-pill-btn,
+html.theme-corporate .todo-filter-btn, html.theme-corporate .case-cards-pill,
+html.theme-corporate .stage-pill, html.theme-corporate .court-btn-edit,
+html.theme-corporate .detail-action-btn {
+  background: linear-gradient(135deg, #0D9488, #0F766E) !important;
+  color: #ffffff !important;
+  border: 1px solid #0D9488 !important;
+}
+html.theme-corporate button:hover, html.theme-corporate .btn:hover,
+html.theme-corporate .primary-btn:hover, html.theme-corporate .case-cards-pill:hover,
+html.theme-corporate .type-pill-btn.active, html.theme-corporate .todo-filter-btn.active,
+html.theme-corporate .case-cards-pill.active, html.theme-corporate .stage-pill-specific.active {
+  background: linear-gradient(135deg, #0EA5E9, #0D9488) !important;
+  color: #ffffff !important;
+  border-color: #0EA5E9 !important;
+}
+html.theme-corporate .case-card, html.theme-corporate .home-today-card,
+html.theme-corporate .court-directory-card, html.theme-corporate .card,
+html.theme-corporate .panel, html.theme-corporate .form-container {
+  background: #ffffff !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+html.theme-corporate .case-card-name, html.theme-corporate .court-card-name { color: #0F172A !important; }
+html.theme-corporate th, html.theme-corporate thead th {
+  background: #F1F5F9 !important; color: #0F172A !important;
+}
+html.theme-corporate #themeToggleBtn {
+  background: linear-gradient(135deg, #0D9488, #202124) !important;
+  color: #ffffff !important; border: 1px solid #0D9488 !important;
+}
+
+/* ============================================================
+   THEME: MINIMALIST JUDICIAL (html.theme-judicial)
+   Paper white + black, judicial crimson #991B1B accents,
+   borders instead of shadows
+   ============================================================ */
+html.theme-judicial body { background: #FAFAFA !important; }
+html.theme-judicial .materialize-nav {
+  background: #121212 !important;
+  border-bottom: 1px solid #E5E7EB !important;
+}
+html.theme-judicial .sidebar, html.theme-judicial .sidenav {
+  background: #121212 !important;
+}
+html.theme-judicial .sidenav a { color: #D1D5DB !important; }
+html.theme-judicial .sidenav a.active {
+  background: #991B1B !important;
+  color: #ffffff !important;
+}
+html.theme-judicial .subheader { color: #9CA3AF !important; }
+html.theme-judicial .fixed-bottom-nav { background: #121212 !important; }
+html.theme-judicial .case-card, html.theme-judicial .home-today-card,
+html.theme-judicial .court-directory-card, html.theme-judicial .card,
+html.theme-judicial .panel, html.theme-judicial .form-container {
+  background: #ffffff !important;
+  border: 1px solid #E5E7EB !important;
+  box-shadow: none !important;
+  border-radius: 8px !important;
+}
+html.theme-judicial .case-card::before,
+html.theme-judicial .court-directory-card::before { display: none !important; }
+html.theme-judicial .case-card-name, html.theme-judicial .court-card-name { color: #111827 !important; }
+html.theme-judicial th, html.theme-judicial thead th {
+  background: #F3F4F6 !important; color: #111827 !important;
+}
+/* Accent: only key actions get judicial red */
+html.theme-judicial .primary-btn, html.theme-judicial .form-submit-btn,
+html.theme-judicial .search-action-btn, html.theme-judicial .type-pill-btn.active,
+html.theme-judicial .todo-filter-btn.active, html.theme-judicial .case-cards-pill.active,
+html.theme-judicial .stage-pill-specific.active {
+  background: #991B1B !important;
+  color: #ffffff !important;
+  border: 1px solid #991B1B !important;
+}
+/* Everything else: black outline buttons, paper feel */
+html.theme-judicial button, html.theme-judicial .btn, html.theme-judicial .secondary-btn,
+html.theme-judicial .action-btn, html.theme-judicial .dossier-action-btn,
+html.theme-judicial .mini-court-btn, html.theme-judicial .panel-action-btn,
+html.theme-judicial .type-pill-btn, html.theme-judicial .todo-filter-btn,
+html.theme-judicial .case-cards-pill, html.theme-judicial .stage-pill,
+html.theme-judicial .court-btn-edit, html.theme-judicial .detail-action-btn {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #111827 !important;
+  box-shadow: none !important;
+}
+html.theme-judicial button:hover, html.theme-judicial .btn:hover,
+html.theme-judicial .case-cards-pill:hover, html.theme-judicial .secondary-btn:hover {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+html.theme-judicial .theme-option-card.selected { border-color: #111827; }
+html.theme-judicial #themeToggleBtn {
+  background: #111827 !important; color: #ffffff !important;
+  border: 1px solid #111827 !important;
+}
+
+/* ============================================================
+   v7.44 — THEMES TAB + PALETTE SWATCHES
+   Dedicated #themes tab; each card shows its primary palette.
+   ============================================================ */
+#themes .form-container { margin-bottom: 20px; }
+#themes .theme-option-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 16px;
+}
+#themes .theme-option-icon { width: 46px; height: 46px; font-size: 19px; }
+#themes .theme-option-head { display: flex; align-items: center; gap: 12px; }
+#themes .theme-option-body { display: flex; flex-direction: column; gap: 4px; }
+#themes .theme-option-body strong { font-size: 15px; }
+#themes .theme-option-body em { font-size: 12.5px; }
+#themes .theme-option-check { align-self: flex-start; margin: 0; }
+
+.theme-palette-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.theme-swatch {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(11, 19, 43, 0.18), inset 0 0 0 1px rgba(11, 19, 43, 0.06);
+  display: inline-block;
+  cursor: pointer;
+}
+.theme-swatch:hover { transform: scale(1.12); transition: transform 0.12s ease; }
+
+/* ============================================================
+   v7.45 — NAV SEARCH TOGGLE blends into the navbar
+   Same gradient family as .materialize-nav so the search button
+   reads as part of the bar, not an overlay patch.
+   ============================================================ */
+.nav-case-search-toggle,
+.nav-case-search-toggle:hover {
+  background: transparent !important;
+  border-left: 1px solid rgba(184, 211, 254, 0.25) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+.nav-case-search-toggle i { color: #EEF3FE !important; }
+.nav-case-search-toggle:hover i { color: #6FFFE9 !important; }
+
+/* Per-theme blending (nav gradient colors per theme) */
+html.theme-classic .nav-case-search-toggle,
+html.theme-classic .nav-case-search-toggle:hover {
+  background: transparent !important;
+  border-left-color: rgba(197, 168, 128, 0.30) !important;
+  color: #D6DEEC !important;
+}
+html.theme-classic .nav-case-search-toggle i { color: #C5A880 !important; }
+html.theme-classic .nav-case-search-toggle:hover i { color: #E5CDA4 !important; }
+
+html.theme-corporate .nav-case-search-toggle,
+html.theme-corporate .nav-case-search-toggle:hover {
+  background: transparent !important;
+  border-left-color: rgba(13, 148, 136, 0.35) !important;
+  color: #CBD5E1 !important;
+}
+html.theme-corporate .nav-case-search-toggle i { color: #5EEAD4 !important; }
+html.theme-corporate .nav-case-search-toggle:hover i { color: #99F6E4 !important; }
+
+html.theme-judicial .nav-case-search-toggle,
+html.theme-judicial .nav-case-search-toggle:hover {
+  background: transparent !important;
+  border-left-color: #2A2A2A !important;
+  color: #D1D5DB !important;
+}
+html.theme-judicial .nav-case-search-toggle i { color: #D1D5DB !important; }
+html.theme-judicial .nav-case-search-toggle:hover i { color: #ffffff !important; }
+
+html[data-theme="mint"] .nav-case-search-toggle,
+html[data-theme="mint"] .nav-case-search-toggle:hover {
+  background: transparent !important;
+  border-left-color: rgba(110, 231, 183, 0.25) !important;
+  color: #d1fae5 !important;
+}
+
+/* ============================================================
+   v7.46 — NAV SEARCH TOGGLE refined
+   No left border divider; dark bg + light icon on hover/active.
+   ============================================================ */
+.nav-case-search-toggle,
+.nav-case-search-toggle:hover,
+.nav-case-search-toggle:active,
+.nav-case-search-toggle:focus {
+  border: none !important;
+  border-left: none !important;
+  outline: none !important;
+  background: transparent !important;
+  color: #EEF3FE !important;
+}
+.nav-case-search-toggle:hover,
+.nav-case-search-toggle:active {
+  background: rgba(11, 19, 43, 0.55) !important;
+  color: #6FFFE9 !important;
+}
+.nav-case-search-toggle i { color: inherit !important; }
+.nav-case-search-toggle:hover i,
+.nav-case-search-toggle:active i { color: #6FFFE9 !important; }
+
+/* Theme variants: dark hover bg + light icon per theme accent */
+html.theme-classic .nav-case-search-toggle,
+html.theme-classic .nav-case-search-toggle:hover,
+html.theme-classic .nav-case-search-toggle:active {
+  border: none !important;
+}
+html.theme-classic .nav-case-search-toggle { color: #D6DEEC !important; background: transparent !important; }
+html.theme-classic .nav-case-search-toggle:hover,
+html.theme-classic .nav-case-search-toggle:active {
+  background: #0F172A !important;
+  color: #E5CDA4 !important;
+}
+html.theme-classic .nav-case-search-toggle i { color: inherit !important; }
+html.theme-classic .nav-case-search-toggle:hover i { color: #E5CDA4 !important; }
+
+html.theme-corporate .nav-case-search-toggle,
+html.theme-corporate .nav-case-search-toggle:hover,
+html.theme-corporate .nav-case-search-toggle:active {
+  border: none !important;
+}
+html.theme-corporate .nav-case-search-toggle { color: #CBD5E1 !important; background: transparent !important; }
+html.theme-corporate .nav-case-search-toggle:hover,
+html.theme-corporate .nav-case-search-toggle:active {
+  background: #121214 !important;
+  color: #5EEAD4 !important;
+}
+html.theme-corporate .nav-case-search-toggle i { color: inherit !important; }
+html.theme-corporate .nav-case-search-toggle:hover i { color: #5EEAD4 !important; }
+
+html.theme-judicial .nav-case-search-toggle,
+html.theme-judicial .nav-case-search-toggle:hover,
+html.theme-judicial .nav-case-search-toggle:active {
+  border: none !important;
+}
+html.theme-judicial .nav-case-search-toggle { color: #D1D5DB !important; background: transparent !important; }
+html.theme-judicial .nav-case-search-toggle:hover,
+html.theme-judicial .nav-case-search-toggle:active {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+html.theme-judicial .nav-case-search-toggle i { color: inherit !important; }
+html.theme-judicial .nav-case-search-toggle:hover i { color: #ffffff !important; }
+
+html[data-theme="mint"] .nav-case-search-toggle,
+html[data-theme="mint"] .nav-case-search-toggle:hover,
+html[data-theme="mint"] .nav-case-search-toggle:active {
+  border: none !important;
+}
+html[data-theme="mint"] .nav-case-search-toggle { color: #d1fae5 !important; background: transparent !important; }
+html[data-theme="mint"] .nav-case-search-toggle:hover,
+html[data-theme="mint"] .nav-case-search-toggle:active {
+  background: rgba(6, 78, 59, 0.55) !important;
+  color: #6ee7b7 !important;
+}
+html[data-theme="mint"] .nav-case-search-toggle i { color: inherit !important; }
+html[data-theme="mint"] .nav-case-search-toggle:hover i { color: #6ee7b7 !important; }
+
+/* ============================================================
+   v7.47 — SIDENAV HOVER FIX
+   Hover was a light tint (#EEF3FE) — under themed sidenav rails
+   with light link text this became white-on-white. Now: subtle
+   translucent overlay per theme, text stays light & readable.
+   ============================================================ */
+html.theme-classic .sidebar a:hover,
+html.theme-classic .sidenav a:hover {
+  background-color: rgba(255, 255, 255, 0.10) !important;
+  color: #E5CDA4 !important;
+}
+html.theme-classic .sidenav a:hover .nav-icon,
+html.theme-classic .sidenav a:hover i { color: #C5A880 !important; }
+
+html.theme-corporate .sidebar a:hover,
+html.theme-corporate .sidenav a:hover {
+  background-color: rgba(94, 234, 212, 0.12) !important;
+  color: #5EEAD4 !important;
+}
+html.theme-corporate .sidenav a:hover .nav-icon,
+html.theme-corporate .sidenav a:hover i { color: #5EEAD4 !important; }
+
+html.theme-judicial .sidebar a:hover,
+html.theme-judicial .sidenav a:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+html.theme-judicial .sidenav a:hover .nav-icon,
+html.theme-judicial .sidenav a:hover i { color: #F3F4F6 !important; }
+
+html[data-theme="mint"] .sidebar a:hover,
+html[data-theme="mint"] .sidenav a:hover {
+  background-color: rgba(110, 231, 183, 0.15) !important;
+  color: #d1fae5 !important;
+}
+html[data-theme="mint"] .sidenav a:hover .nav-icon,
+html[data-theme="mint"] .sidenav a:hover i { color: #6ee7b7 !important; }
+
+/* Azure sidenav: LIGHT rail, dark text → hover = periwinkle tint, navy text */
+.sidebar a:hover,
+.sidenav a:hover {
+  background-color: rgba(160, 196, 255, 0.16) !important;
+  color: #EEF3FE !important;
+}
+.sidebar a:hover .nav-icon,
+.sidenav a:hover .nav-icon,
+.sidebar a:hover i,
+.sidenav a:hover i { color: #6FFFE9 !important; }
+
+/* v7.47b — Azure sidenav is a light rail; dark text on tint hover */
+html:not([class*="theme-"])[data-theme="azure"] .sidebar a:hover,
+html:not([class*="theme-"])[data-theme="azure"] .sidenav a:hover,
+html[data-theme="azure"] .sidebar a:hover,
+html[data-theme="azure"] .sidenav a:hover {
+  background-color: #E0E8F9 !important;
+  color: #0B132B !important;
+}
+html[data-theme="azure"] .sidenav a:hover .nav-icon,
+html[data-theme="azure"] .sidenav a:hover i { color: #1C2541 !important; }
+
+/* ============================================================
+   v7.49 — FIX: nav search ✕ button & password visibility buttons
+   Both are small in-field icon buttons, NOT action buttons —
+   the global dark-button pass (v7.36/7.39) restyled them into
+   opaque navy squares that cover the input and hide their glyphs.
+   Restore: transparent bg, no border, slate icon, red ✕ hover.
+   ============================================================ */
+.nav-case-search-close,
+.pwd-toggle-btn,
+.nav-case-search-close *,
+.pwd-toggle-btn * {
+  background: transparent !important;
+  color: #64748b !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: translateY(-50%) !important;
+  opacity: 0.75 !important;
+  transition: opacity 0.15s ease !important;
+}
+.nav-case-search-close:hover,
+.nav-case-search-close:active,
+.nav-case-search-close:focus {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+.pwd-toggle-btn:hover,
+.pwd-toggle-btn:active,
+.pwd-toggle-btn:focus {
+  background: #EEF3FE !important;
+  color: #1C2541 !important;
+  border-radius: 6px !important;
+  opacity: 1 !important;
+}
+
+/* Close button stays reachable above the input */
+.nav-case-search-close { z-index: 3 !important; }
+
+/* Themed variants keep their own field backgrounds */
+html.theme-classic .nav-case-search-close,
+html.theme-classic .pwd-toggle-btn,
+html.theme-classic .nav-case-search-close *,
+html.theme-classic .pwd-toggle-btn * { color: #1B2A47 !important; }
+html.theme-corporate .nav-case-search-close,
+html.theme-corporate .pwd-toggle-btn,
+html.theme-corporate .nav-case-search-close *,
+html.theme-corporate .pwd-toggle-btn * { color: #0F766E !important; }
+html.theme-judicial .nav-case-search-close,
+html.theme-judicial .pwd-toggle-btn,
+html.theme-judicial .nav-case-search-close *,
+html.theme-judicial .pwd-toggle-btn * { color: #111827 !important; }

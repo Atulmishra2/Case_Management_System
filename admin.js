@@ -2848,6 +2848,10 @@ function showTab(tabId, event, navType = 'navigate') {
     renderHelpersTable();
   }
 
+  if (tabId === 'themes') {
+    if (typeof window.renderThemeSettings === 'function') window.renderThemeSettings();
+  }
+
   if (tabId === 'settings') {
     const currentAdminEl = document.getElementById('currentAdminUsername');
     const newUsernameEl = document.getElementById('newUsername');
@@ -7206,9 +7210,9 @@ function toggleTodoCaseDropdown() {
 }
 window.toggleTodoCaseDropdown = toggleTodoCaseDropdown;
 
-function filterTodoCaseDropdown(query) {
+function filterTodoCaseDropdown(query, keepClosed = false) {
   const dropdown = document.getElementById('todoCaseDropdownList');
-  if (dropdown) dropdown.classList.remove('hidden');
+  if (dropdown && !keepClosed) dropdown.classList.remove('hidden');
 
   const clearBtn = document.getElementById('todoComboboxClearBtn');
   if (clearBtn) clearBtn.style.display = query ? 'flex' : 'none';
@@ -7305,8 +7309,8 @@ function populateTodoCaseDropdown(selectedCaseNo = '') {
     });
   }
 
-  // Populate combobox dropdown items
-  filterTodoCaseDropdown('');
+  // Populate combobox dropdown items (keep list closed until user interacts)
+  filterTodoCaseDropdown('', true);
 
   if (currentVal) {
     if (select) select.value = currentVal;
@@ -13068,7 +13072,9 @@ function initDbManagerTab() {
   }
   fetchAndRenderDbTable(currentDbTable);
   populateDbModifierCaseSelect();
-  toggleDbCaseModifierPanel(true);
+  // Start disabled (card is collapsed + controls locked) until the user
+  // flips the toggle — panel was previously force-enabled on every visit.
+  toggleDbCaseModifierPanel(false);
 }
 
 function populateDbModifierCaseSelect() {

@@ -42,8 +42,8 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=7.39">
-    <link rel="stylesheet" href="admin-mint.css?v=7.39" id="mintThemeCss" disabled>
+    <link rel="stylesheet" href="admin.css?v=7.49">
+    <link rel="stylesheet" href="admin-mint.css?v=7.41" id="mintThemeCss" disabled>
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#502D55">
     <meta name="mobile-web-app-capable" content="yes">
@@ -406,6 +406,8 @@
             <div class="divider"></div>
             <div class="subheader">Settings</div>
             <a href="#" onclick="showTab('settings', event)"><i class="fa-solid fa-key nav-icon"></i> Change Password</a>
+            <a href="#" onclick="showTab('themes', event)"><i class="fa-solid fa-palette nav-icon"></i> Themes</a>
+            <a href="#" onclick="showTab('about', event)"><i class="fa-solid fa-circle-info nav-icon"></i> About Project</a>
             <div class="divider"></div>
             <div class="sidenav-theme-row">
                 <button type="button" id="themeToggleBtn" onclick="toggleAppTheme(event)" title="Switch theme (Azure / Mint)" aria-label="Switch theme">
@@ -4389,7 +4391,7 @@
                             <div class="db-modifier-header-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                                 <span class="db-live-badge">⚡ Direct Supabase Sync</span>
                                 <label class="db-modifier-toggle-wrap" title="Toggle to enable or disable panel editing">
-                                    <input type="checkbox" id="dbModToggleCheckbox" onchange="toggleDbCaseModifierPanel(this.checked)" checked>
+                                    <input type="checkbox" id="dbModToggleCheckbox" onchange="toggleDbCaseModifierPanel(this.checked)">
                                     <span class="db-modifier-toggle-slider"></span>
                                     <span id="dbModToggleLabel" class="db-modifier-toggle-text"><i class="fa-solid fa-lock-open"></i> Enabled</span>
                                 </label>
@@ -4554,6 +4556,68 @@
                         <button type="submit" class="primary-btn form-submit-btn"><i class="fa-solid fa-paper-plane"></i> Submit Password Update</button>
                         <p id="settingsStatus" class="update-status-msg"></p>
                     </form>
+                </div>
+
+            </div>
+
+            <!-- Themes Tab (v7.44) -->
+            <div id="themes" class="tab">
+                <div class="form-container theme-settings-section">
+                <div class="form-container theme-settings-section">
+                    <div class="section-header-row">
+                        <div class="section-title-box">
+                            <div class="section-icon-badge">🎨</div>
+                            <div>
+                                <h3>App Theme</h3>
+                                <p class="section-subtitle">Switch the entire interface between the built-in design systems. Your choice is remembered on this device.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="themeOptionsGrid" aria-label="Available themes"></div>
+                </div>
+            </div>
+
+            <!-- About Page (v7.43) -->
+            <div id="about" class="tab">
+                <div class="about-page">
+                    <div class="about-hero">
+                        <div class="about-logo"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div>
+                            <h2>CaseBook — Case Management System</h2>
+                            <p class="about-tagline">A complete digital chambers for advocates: cases, hearings, cause lists &mdash; in one place.</p>
+                        </div>
+                    </div>
+                    <div class="about-grid">
+                        <div class="about-card">
+                            <h4><i class="fa-solid fa-circle-info"></i> About the Project</h4>
+                            <p>CaseBook is a Progressive Web App (PWA) built for legal professionals to manage their entire practice &mdash; case records, hearing schedules, daily cause lists, court directory, client dossiers and to-do deadlines &mdash; both online and offline.</p>
+                        </div>
+                        <div class="about-card">
+                            <h4><i class="fa-solid fa-boxes-stacked"></i> Key Modules</h4>
+                            <ul>
+                                <li>Home Dashboard &amp; KPI insights</li>
+                                <li>Case Cards Board &amp; full case registers</li>
+                                <li>Daily Cause List &amp; Appearance Board</li>
+                                <li>Court Hearing Calendar &amp; Scheduler</li>
+                                <li>Update / Transfer / Dispose workflows</li>
+                                <li>Courts &amp; Court Helpers Directory</li>
+                                <li>Supabase cloud sync (DB Manager)</li>
+                            </ul>
+                        </div>
+                        <div class="about-card">
+                            <h4><i class="fa-solid fa-code"></i> Technology</h4>
+                            <p>Vanilla HTML / CSS / JavaScript &mdash; no frameworks, no build step. Service Worker offline caching, localStorage-first data with optional Supabase cloud sync, and a custom in-app date picker. Installable as a desktop &amp; mobile app.</p>
+                        </div>
+                        <div class="about-card">
+                            <h4><i class="fa-solid fa-user-tie"></i> Developer &amp; License</h4>
+                            <dl class="about-meta">
+                                <dt>Developer</dt><dd>Atul Kumar Mishra &mdash; Advocate &amp; Developer</dd>
+                                <dt>Jurisdiction</dt><dd>District &amp; High Courts</dd>
+                                <dt>Version</dt><dd>7.43 (Sept 2026)</dd>
+                                <dt>License</dt><dd>Proprietary &mdash; All rights reserved</dd>
+                            </dl>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -5194,7 +5258,7 @@
          ========================================================================== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="components/chambers-footer.js" defer></script>
-    <script src="mint-datepicker.js" defer></script>
+    <script src="mint-datepicker.js?v=7.49" defer></script>
     <script src="theme-toggle.js" defer></script>
     <script src="admin.js" defer></script>
 </body>
