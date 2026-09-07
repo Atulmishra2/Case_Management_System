@@ -21512,3 +21512,78 @@ button.danger:hover, .btn.danger:hover {
   transform: translateY(-1px);
 }
 #themeToggleBtn:active { transform: translateY(1px); }
+
+/* ============================================================
+   v7.38 — REFINEMENTS
+   1) Delete/destructive buttons: soft outline treatment (cleaner
+      than saturated red fills) — pale red bg, deep red text,
+      red hairline border. Fill appears only on hover.
+   2) Global text darkened: meta/label/muted text in cards,
+      tables, and forms goes deep navy for contrast.
+   ============================================================ */
+
+/* --- 1. Clean destructive buttons (outline style) --- */
+.court-btn-delete, .btn-danger-action, .delete-action-btn,
+.search-action-btn.delete-action-btn, .dispose-action-btn,
+button.danger, .btn.danger {
+  background: #ffffff !important;
+  color: #b91c1c !important;
+  border: 1px solid #fca5a5 !important;
+  box-shadow: none !important;
+}
+.court-btn-delete:hover, .btn-danger-action:hover, .delete-action-btn:hover,
+.search-action-btn.delete-action-btn:hover, .dispose-action-btn:hover,
+button.danger:hover, .btn.danger:hover {
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+  border-color: #f87171 !important;
+  transform: translateY(-1px);
+}
+
+/* --- 2. Darker global text (navy, higher contrast) ---
+   Scoped: reading surfaces only (body copy, tables, labels, cards).
+   Buttons/chips/pills keep their white text — re-asserted below. --- */
+body, .content, .tab, table, th, td, label, p, li,
+.form-group label, .section-label, .field-label, .caseno, .meta,
+.case-card-name, .case-card-client, .case-card-meta, .home-today-card,
+.court-card-name, .detail-row, .info-row, .card, .panel {
+  color: #0B132B;
+}
+.muted, .text-muted, .text-secondary, .sub, .meta, .case-meta,
+.case-card-meta, .section-sub, .helper-text, .hint, small {
+  color: #3A506B;
+}
+th, thead th, .table-header, .column-header {
+  color: #1C2541 !important;
+}
+td, .cell, .table-cell { color: #1C2541; }
+input, select, textarea { color: #0B132B; }
+input::placeholder, textarea::placeholder { color: #5A6B87; }
+
+/* Re-assert WHITE text on all buttons and their children (icons, spans) */
+button, .btn, .primary-btn, .secondary-btn, .action-btn,
+.detail-action-btn, .dossier-action-btn, .mini-court-btn, .type-pill-btn,
+.todo-filter-btn, .cal-nav-btn, .remarks-chip-btn, .panel-action-btn,
+.my-cases-action-btn, .db-action-btn, .search-action-btn, .hero-btn-secondary,
+.nav-icon-action-btn, .logout-btn, .mobile-filter-trigger-btn, .whatsapp-send-btn,
+.upcoming-cal-btn, .court-btn-edit, .secondary, .secondary-action,
+.accent-action, .primary-action, .print-action, .transfer-action,
+.clear-filters-btn, .unlock-case-btn, .todo-priority-btn, .stage-pill,
+#themeToggleBtn {
+  color: #ffffff !important;
+}
+button *, .btn *, .primary-btn *, .secondary-btn *, .action-btn *,
+.dossier-action-btn *, .mini-court-btn *, .panel-action-btn *,
+.stage-pill *, .type-pill-btn *, .todo-filter-btn * {
+  color: inherit !important;
+}
+/* Destructive outline buttons: deep red text, white bg */
+.court-btn-delete, .btn-danger-action, .delete-action-btn,
+.search-action-btn.delete-action-btn, .dispose-action-btn,
+button.danger, .btn.danger {
+  color: #b91c1c !important;
+}
+.court-btn-delete *, .btn-danger-action *, .delete-action-btn *,
+.dispose-action-btn *, button.danger *, .btn.danger * {
+  color: inherit !important;
+}
