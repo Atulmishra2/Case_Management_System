@@ -3621,7 +3621,7 @@ function renderSelectedCaseDetails(caseObj) {
   if (remarkEl) {
     const remark = caseObj.remark || caseObj.remarks || '';
     if (remark && remark.trim()) {
-      remarkEl.innerHTML = `<span style="color:#1e293b; font-weight:500;">${escapeHtml(remark.trim())}</span>`;
+      remarkEl.innerHTML = renderStructuredRemarks(remark.trim());
     } else {
       remarkEl.innerHTML = '<span style="color:#94a3b8; font-style:italic;">No co-parties or remarks recorded for this case.</span>';
     }
@@ -14195,8 +14195,82 @@ async function handleDbDeleteRow(rowId, identifier, rowIndex, specificTable = nu
   alert(`🗑️ Record deleted from "${currentDbTable}" successfully!`);
 }
 
-function escapeHtml(text) {
-  if (!text) return '';
+/* ============================================================
+   STRUCTURED REMARKS / CO-PARTIES RENDERER
+   Turns raw remark text (e.g. "Co-Defendants: 1- Lallu Singh s/o
+   Bindra Singh (Deceased) 2- ... Proposed Defendants: 2/1-Vinay...")
+   into a legible list: section headings, numbered party rows,
+   status badges (Deceased / Minor / w/o relations kept inline).
+   Falls back to plain escaped text if nothing parses.
+   ============================================================ */
+function renderStructuredRemarks(raw) {
+  const text = String(raw || '');
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const htmlParts = [];
+  let plainFallback = [];
+
+  // Status badges for parenthetical flags
+  const badge = (label, cls) =>
+    `<span class="rmk-badge ${cls}">${escapeHtml(label)}</span>`;
+  const decorate = (str) => {
+    let out = escapeHtml(str);
+    const flags = [
+      { re: /\((?:Disceasd|Deceased|Expired)\s*\)/i, label: 'Deceased', cls: 'rmk-badge-deceased' },
+      { re: /\(\s*Minor\s*\)/i, label: 'Minor', cls: 'rmk-badge-minor' },
+      { re: /\(\s*(?:Major|Adult)\s*\)/i, label: 'Major', cls: 'rmk-badge-major' }
+    ];
+    flags.forEach(f => {
+      if (f.re.test(str)) {
+        out = out.replace(new RegExp(escapeHtml(str.match(f.re)[0]), 'i'), badge(f.label, f.cls));
+      }
+    });
+    return out;
+  };
+
+  // Section keywords → headings
+  const SECTION_RE = /^(co[- ]?defendants?|co[- ]?plaintiffs?|proposed\s+(?:defendants?|plaintiffs?)|defendants?|plaintiffs?|connected\s+suits?|injunction\s+status|limitation|note|notes|remark(?:s)?|other\s+parties)\s*[:\-–]?/i;
+
+  const NUM_RE = /^(?:\d+\s*[-./]\s*|\(\s*\d+\s*\)\s*|\d+\.\s*)?/;
+
+  lines.forEach((line) => {
+    const m = line.match(SECTION_RE);
+    if (m && line.length <= 400) {
+      // Split heading from the rest of the line
+      const rest = line.slice(m[0].length).trim();
+      htmlParts.push(`<div class="rmk-section">${escapeHtml(m[0].replace(/[:\-–]\s*$/, ''))}</div>`);
+      if (rest) {
+        // rest may itself contain numbered entries "1- X 2- Y"
+        const entries = rest.split(/\s+(?=\d+\s*[-/])/).map(s => s.trim()).filter(Boolean);
+        if (entries.length > 1) {
+          entries.forEach(e => htmlParts.push(`<div class="rmk-party">${decorate(e)}</div>`));
+        } else {
+          htmlParts.push(`<div class="rmk-party">${decorate(rest)}</div>`);
+        }
+      }
+    } else {
+      // Plain line: maybe numbered entry, maybe free text
+      const em = line.match(NUM_RE);
+      const body = line.slice(em[0].length).trim();
+      if (/^\d/.test(line) && body) {
+        htmlParts.push(`<div class="rmk-party"><span class="rmk-num">${escapeHtml(em[0].trim())}</span>${decorate(body)}</div>`);
+      } else if (line) {
+        plainFallback.push(line);
+        htmlParts.push(`<div class="rmk-line">${decorate(line)}</div>`);
+      }
+    }
+  });
+
+  // If we only got plain lines (no sections/party rows), fall back to the
+  // old single-block rendering so familiar layouts don't regress.
+  const structured = htmlParts.filter(h => /rmk-section|rmk-party/.test(h)).length;
+  if (structured === 0) {
+    return `<span style="color:#1e293b; font-weight:500;">${escapeHtml(text)}</span>`;
+  }
+  return `<div class="rmk-list">${htmlParts.join('')}</div>`;
+}
+window.renderStructuredRemarks = renderStructuredRemarks;
+
+function escapeHtml(text) {  if (!text) return '';
   return String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
