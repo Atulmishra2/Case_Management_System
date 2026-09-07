@@ -131,15 +131,25 @@
 
   function positionPicker(input) {
     var rect = input.getBoundingClientRect();
-    var popW = 280, popH = 360;
+    // measure the real picker size (falls back to estimates pre-layout)
+    var popW = pickerEl.offsetWidth || 280;
+    var popH = pickerEl.offsetHeight || 360;
     var left = rect.left;
     var top = rect.bottom + 6;
     if (left + popW > window.innerWidth - 8) left = window.innerWidth - popW - 8;
     if (left < 8) left = 8;
-    if (top + popH > window.innerHeight - 8) {
+    // Prefer BELOW the input (user preference). Only flip above when
+    // there is genuinely not enough room below AND the picker fits above.
+    var spaceBelow = window.innerHeight - rect.bottom - 8;
+    var spaceAbove = rect.top - 8;
+    if (popH > spaceBelow && spaceAbove > spaceBelow && spaceAbove >= popH) {
       top = rect.top - popH - 6; // flip above
-      if (top < 8) top = 8;
     }
+    // never let it overflow the viewport
+    if (top + popH > window.innerHeight - 8) {
+      top = Math.max(8, window.innerHeight - popH - 8);
+    }
+    if (top < 8) top = 8;
     pickerEl.style.left = left + 'px';
     pickerEl.style.top = top + 'px';
   }
