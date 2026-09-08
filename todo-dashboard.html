@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do & Deadlines — CaseBook</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  /* Only what Tailwind utilities can't do: native date/select icon tinting */
+  input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-700 antialiased">
+
+<div class="flex min-h-screen">
+
+  <!-- ============ 1. LEFT NAVIGATION SIDEBAR ============ -->
+  <aside class="w-64 shrink-0 bg-white border-r border-slate-200 flex flex-col">
+    <!-- Brand -->
+    <div class="px-5 py-5 border-b border-slate-200 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-indigo-800 flex items-center justify-center text-white">
+        <i class="fa-solid fa-scale-balanced"></i>
+      </div>
+      <div>
+        <h1 class="text-slate-900 font-bold text-sm leading-tight">CaseBook</h1>
+        <p class="text-[11px] text-slate-400">Legal Case Management</p>
+      </div>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+      <p class="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Main</p>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
+        <i class="fa-solid fa-house w-5 text-center text-slate-500"></i> Dashboard
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
+        <i class="fa-solid fa-folder-open w-5 text-center text-slate-500"></i> All Cases
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
+        <i class="fa-solid fa-bolt w-5 text-center text-slate-500"></i> Forward Dates
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
+        <i class="fa-solid fa-calendar-days w-5 text-center text-slate-500"></i> Calendar
+      </a>
+
+      <!-- ACTIVE TAB — solid Deep Indigo, rounded -->
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-indigo-800 text-white shadow-sm transition">
+        <i class="fa-solid fa-list-check w-5 text-center"></i> To-Do &amp; Deadlines
+        <span class="ml-auto text-[10px] font-bold bg-white/20 rounded-full px-2 py-0.5">8</span>
+      </a>
+
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
+        <i class="fa-solid fa-file-lines w-5 text-center text-slate-500"></i> Documents
+      </a>
+
+      <p class="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Administration</p>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
+        <i class="fa-solid fa-database w-5 text-center text-slate-500"></i> Live CRUD
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
+        <i class="fa-solid fa-gear w-5 text-center text-slate-500"></i> Settings
+      </a>
+    </nav>
+
+    <!-- User -->
+    <div class="border-t border-slate-200 p-4 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-800 flex items-center justify-center font-bold text-xs">AM</div>
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-slate-800 truncate">Atul Kumar Mishra</p>
+        <p class="text-[11px] text-slate-400 truncate">Advocate</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN AREA ============ -->
+  <div class="flex-1 flex flex-col min-w-0 bg-slate-100">
+
+    <!-- Topbar -->
+    <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-bold text-slate-900">To-Do &amp; Deadlines</h2>
+        <p class="text-xs text-slate-400">Link preparation tasks &amp; compliance deadlines to court hearings</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Cloud Synced
+        </span>
+        <button class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition flex items-center justify-center">
+          <i class="fa-solid fa-bell"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats strip -->
+    <div class="px-6 pt-5">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fa-solid fa-clipboard-list"></i></div>
+          <div><p class="text-lg font-bold text-slate-900 leading-none">8</p><p class="text-[11px] text-slate-400 mt-0.5">Total Tasks</p></div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-hourglass-half"></i></div>
+          <div><p class="text-lg font-bold text-slate-900 leading-none">5</p><p class="text-[11px] text-slate-400 mt-0.5">Pending</p></div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div><p class="text-lg font-bold text-slate-900 leading-none">2</p><p class="text-[11px] text-slate-400 mt-0.5">Due Soon / Overdue</p></div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></div>
+          <div><p class="text-lg font-bold text-slate-900 leading-none">3</p><p class="text-[11px] text-slate-400 mt-0.5">Completed</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Two-column workspace ===== -->
+    <div class="flex-1 p-6 flex flex-col lg:flex-row gap-5 items-start">
+
+      <!-- ============ 2. MIDDLE COLUMN — TASK CREATION (pale mint) ============ -->
+      <section class="w-full lg:w-[340px] shrink-0 bg-teal-50/60 border border-teal-100 rounded-2xl p-5">
+        <div class="flex items-center gap-2.5 mb-4">
+          <div class="w-8 h-8 rounded-lg bg-indigo-800 text-white flex items-center justify-center text-sm"><i class="fa-solid fa-plus"></i></div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Create a Task</h3>
+            <p class="text-[11px] text-slate-400">Schedule a deadline</p>
+          </div>
+        </div>
+
+        <form id="taskForm" class="space-y-4">
+          <!-- Case -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Link to Case</label>
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input list="caseList" id="caseInput" placeholder="Search case number or party…"
+                class="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition">
+              <datalist id="caseList">
+                <option value="ST.467/2022 — State vs Ram Kumar"></option>
+                <option value="FC-1014/2023 — Sandeep vs Poornima"></option>
+                <option value="Crl. Rev. 88/2024 — Mohan vs State"></option>
+                <option value="📌 General Task (no case)"></option>
+              </datalist>
+            </div>
+          </div>
+
+          <!-- Workflow -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Workflow Type</label>
+            <select class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition">
+              <option>Standard Single Action</option>
+              <option>📜 Certified Copy (4-Step)</option>
+              <option>⚙️ Custom Multi-Step</option>
+            </select>
+          </div>
+
+          <!-- Title -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Task / Action Item <span class="text-rose-500">*</span></label>
+            <div class="relative">
+              <i class="fa-solid fa-pen absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input id="titleInput" required placeholder="e.g. Draft Written Statement"
+                class="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition">
+            </div>
+          </div>
+
+          <!-- Deadline -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Deadline Date <span class="text-rose-500">*</span></label>
+            <div class="relative">
+              <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input id="deadlineInput" type="date" required
+                class="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition">
+            </div>
+            <div class="flex gap-1.5 mt-2">
+              <button type="button" class="text-[11px] font-medium text-slate-600 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 rounded-md px-2 py-1 transition">🎯 On Hearing</button>
+              <button type="button" class="text-[11px] font-medium text-slate-600 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 rounded-md px-2 py-1 transition">⚡ 1 Day Before</button>
+              <button type="button" class="text-[11px] font-medium text-slate-600 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 rounded-md px-2 py-1 transition">📋 3 Days Before</button>
+            </div>
+          </div>
+
+          <!-- Priority — pill segmented control -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Priority Level</label>
+            <div id="prioritySeg" class="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-full">
+              <button type="button" data-val="high"   class="priority-pill text-[11px] font-semibold py-1.5 rounded-full text-slate-600 transition">High</button>
+              <button type="button" data-val="medium" class="priority-pill text-[11px] font-semibold py-1.5 rounded-full bg-indigo-800 text-white transition">Medium</button>
+              <button type="button" data-val="normal" class="priority-pill text-[11px] font-semibold py-1.5 rounded-full text-slate-600 transition">Normal</button>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" class="w-full bg-indigo-800 hover:bg-indigo-900 text-white text-sm font-semibold rounded-lg py-2.5 flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-paper-plane text-xs"></i> Submit Task
+          </button>
+        </form>
+      </section>
+
+      <!-- ============ 3. RIGHT COLUMN — TASK LIST (wide) ============ -->
+      <section class="flex-1 min-w-0 w-full">
+
+        <!-- Search + filters -->
+        <div class="mb-4 space-y-3">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input id="searchInput" placeholder="Search tasks by title, case number, party name…"
+              class="w-full bg-slate-200/50 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
+          </div>
+          <div id="filterGroup" class="flex flex-wrap gap-2">
+            <button data-filter="all"       class="filter-pill text-xs font-semibold rounded-full px-4 py-1.5 bg-indigo-800 text-white transition">All <span class="opacity-70">(8)</span></button>
+            <button data-filter="pending"   class="filter-pill text-xs font-semibold rounded-full px-4 py-1.5 bg-white border border-slate-200 text-slate-600 hover:border-indigo-300 transition">⏳ Pending <span class="opacity-60">(5)</span></button>
+            <button data-filter="dueSoon"   class="filter-pill text-xs font-semibold rounded-full px-4 py-1.5 bg-white border border-slate-200 text-slate-600 hover:border-indigo-300 transition">⚠️ Due Soon <span class="opacity-60">(2)</span></button>
+            <button data-filter="completed" class="filter-pill text-xs font-semibold rounded-full px-4 py-1.5 bg-white border border-slate-200 text-slate-600 hover:border-indigo-300 transition">✅ Completed <span class="opacity-60">(3)</span></button>
+          </div>
+        </div>
+
+        <!-- Cards -->
+        <div id="taskList" class="space-y-3 pb-8"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ------------------------- demo data ------------------------- */
+const today = new Date();
+const d = n => { const x = new Date(today); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+
+const tasks = [
+  {
+    title: 'Draft Written Statement & file in court',
+    caseNo: 'ST.467/2022', caseName: 'State vs Ram Kumar',
+    deadline: d(2), hearing: d(5), priority: 'high', status: 'pending',
+    steps: [
+      { name: 'Collect instructions from client', done: true },
+      { name: 'Drafting of statement', done: true },
+      { name: 'Verification & affidavit', done: false },
+      { name: 'Filing in court', done: false }
+    ]
+  },
+  {
+    title: 'Apply for certified copy of judgment',
+    caseNo: 'FC-1014/2023', caseName: 'Sandeep Singh vs Poornima Singh',
+    deadline: d(-1), hearing: d(12), priority: 'high', status: 'pending',
+    steps: [
+      { name: 'Apply', done: true },
+      { name: 'Copy from office', done: false },
+      { name: 'Preparation in copy office', done: false },
+      { name: 'Receive', done: false }
+    ]
+  },
+  {
+    title: 'Prepare cross-examination questions for PW-2',
+    caseNo: 'Crl. Rev. 88/2024', caseName: 'Mohan Lal vs State of U.P.',
+    deadline: d(9), hearing: d(11), priority: 'medium', status: 'pending', steps: []
+  },
+  {
+    title: 'Renew chamber library subscription',
+    caseNo: '', caseName: '📌 General Task (no case)',
+    deadline: d(15), hearing: '', priority: 'normal', status: 'pending', steps: []
+  },
+  {
+    title: 'Serve legal notice to opposite party',
+    caseNo: 'CSA 210/2025', caseName: 'Kisan Singh vs Bharat Singh',
+    deadline: d(4), hearing: d(25), priority: 'medium', status: 'pending', steps: []
+  },
+  {
+    title: 'Collect certified copy from copying agency',
+    caseNo: 'MC 45/2024', caseName: 'Sunita Devi vs Rajesh Kumar',
+    deadline: d(-6), hearing: '', priority: 'normal', status: 'completed', steps: []
+  },
+  {
+    title: 'Prepare evidence index & exhibit list',
+    caseNo: 'ST.467/2022', caseName: 'State vs Ram Kumar',
+    deadline: d(-3), hearing: d(5), priority: 'medium', status: 'completed', steps: []
+  },
+  {
+    title: 'File vakalatnama for new client',
+    caseNo: 'FC 320/2026', caseName: 'Geeta Rani vs Arun Kumar',
+    deadline: d(-10), hearing: d(30), priority: 'high', status: 'completed', steps: []
+  }
+];
+
+/* ------------------------- helpers ------------------------- */
+const fmt = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+const daysLeft = iso => Math.round((new Date(iso + 'T00:00:00') - new Date(today.toDateString())) / 86400000);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function badge(t) {
+  if (t.status === 'completed') return '<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-0.5">✓ Completed</span>';
+  const dl = daysLeft(t.deadline);
+  if (dl < 0)  return `<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-full px-2.5 py-0.5">🔴 Overdue (${Math.abs(dl)}d late)</span>`;
+  if (dl === 0) return '<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-full px-2.5 py-0.5">⚠️ Due Today</span>';
+  if (dl === 1) return '<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">⏳ Due Tomorrow</span>';
+  if (dl <= 3) return `<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">⏳ Due in ${dl} days</span>`;
+  return `<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 rounded-full px-2.5 py-0.5">📅 Due in ${dl} days</span>`;
+}
+
+function priorityPill(p) {
+  if (p === 'high')   return '<span class="text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-full px-2.5 py-0.5">🔴 High (Urgent)</span>';
+  if (p === 'normal') return '<span class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-full px-2.5 py-0.5">🔵 Normal</span>';
+  return '<span class="text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">🟡 Medium</span>';
+}
+
+function subtasks(t) {
+  if (!t.steps.length) return '';
+  const done = t.steps.filter(s => s.done).length;
+  const pct = Math.round(done / t.steps.length * 100);
+  return `
+    <div class="mt-3 bg-slate-100 border border-slate-200 rounded-lg p-3">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-semibold text-slate-500"><i class="fa-solid fa-list-check mr-1"></i>Sub-steps (${done}/${t.steps.length})</span>
+        <span class="text-[11px] font-bold text-teal-600 bg-teal-50 border border-teal-200 rounded-full px-2 py-0.5">${pct}% Completed</span>
+      </div>
+      <div class="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-3">
+        <div class="h-full bg-gradient-to-r from-teal-500 to-cyan-400 rounded-full transition-all" style="width:${pct}%"></div>
+      </div>
+      <div class="space-y-1.5">
+        ${t.steps.map(s => `
+          <button type="button" onclick="toggleStep(this)" class="step flex items-center gap-2.5 w-full text-left group">
+            <span class="w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center text-[10px] font-bold transition
+              ${s.done ? 'bg-teal-500 border-teal-500 text-white' : 'bg-white border-slate-300 text-slate-500 group-hover:border-indigo-400'}">
+              ${s.done ? '<i class="fa-solid fa-check"></i>' : ''}
+            </span>
+            <span class="text-xs ${s.done ? 'text-slate-400 line-through decoration-teal-500' : 'text-slate-600 font-medium'}">${esc(s.name)}</span>
+          </button>`).join('')}
+      </div>
+    </div>`;
+}
+
+function card(t, i) {
+  const urgent = t.priority === 'high' && t.status !== 'completed';
+  return `
+  <article data-idx="${i}" data-filter="${t.status === 'completed' ? 'completed' : (t.priority === 'high' || daysLeft(t.deadline) <= 3 ? 'dueSoon' : 'pending')}"
+    class="task-card bg-white border ${urgent ? 'border-rose-200 bg-rose-50/40' : 'border-slate-200'} rounded-xl p-4 transition hover:border-slate-300">
+    <div class="flex items-start gap-3">
+      <input type="checkbox" ${t.status === 'completed' ? 'checked' : ''} onchange="toggleDone(this)"
+        class="mt-1 w-4 h-4 rounded accent-indigo-800 cursor-pointer shrink-0">
+      <div class="flex-1 min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <h4 class="text-sm font-bold ${t.status === 'completed' ? 'text-slate-400 line-through' : 'text-slate-800'}">${esc(t.title)}</h4>
+          ${badge(t)} ${priorityPill(t.priority)}
+        </div>
+        <div class="flex flex-wrap gap-x-5 gap-y-1 mt-1.5 text-xs text-slate-500">
+          ${t.caseNo
+            ? `<span><i class="fa-solid fa-scale-balanced mr-1 text-slate-400"></i><span class="font-semibold text-indigo-700 cursor-pointer hover:underline">${esc(t.caseNo)}</span> <span class="text-slate-400">(${esc(t.caseName)})</span></span>`
+            : `<span class="text-teal-700 bg-teal-50 border border-teal-200 rounded-md px-1.5 py-0.5 text-[11px] font-medium"><i class="fa-solid fa-thumbtack mr-1"></i>General Task — no case linked</span>`}
+          <span><i class="fa-regular fa-calendar mr-1 text-slate-400"></i>Deadline: <strong class="text-slate-700">${fmt(t.deadline)}</strong></span>
+          ${t.hearing ? `<span><i class="fa-solid fa-gavel mr-1 text-slate-400"></i>Hearing: <strong class="text-slate-700">${fmt(t.hearing)}</strong></span>` : ''}
+        </div>
+        ${subtasks(t)}
+      </div>
+      <div class="flex flex-col gap-1.5 shrink-0">
+        <button title="Reschedule" onclick="reschedule(this)" class="w-8 h-8 rounded-lg text-slate-400 hover:text-indigo-700 hover:bg-indigo-50 transition flex items-center justify-center"><i class="fa-solid fa-calendar-pen text-sm"></i></button>
+        <button title="Delete" onclick="removeCard(this)" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition flex items-center justify-center"><i class="fa-solid fa-trash-can text-sm"></i></button>
+      </div>
+    </div>
+  </article>`;
+}
+
+/* ------------------------- render + interactions ------------------------- */
+const list = document.getElementById('taskList');
+let currentFilter = 'all';
+
+function render() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  list.innerHTML = tasks.map(card).join('');
+  applyFilter();
+  if (!list.children.length) list.innerHTML = `
+    <div class="text-center py-16 text-slate-400">
+      <span class="text-4xl">📝</span>
+      <p class="mt-2 text-sm">No tasks match your search or filter.</p>
+    </div>`;
+  updateCounts();
+}
+
+function applyFilter() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let visible = 0;
+  document.querySelectorAll('.task-card').forEach(el => {
+    const t = tasks[+el.dataset.idx];
+    const matchQ = !q || (t.title + ' ' + t.caseNo + ' ' + t.caseName).toLowerCase().includes(q);
+    const matchF = currentFilter === 'all' || el.dataset.filter === currentFilter;
+    const show = matchQ && matchF;
+    el.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  const empty = document.querySelector('#taskList .text-center');
+  if (empty) empty.style.display = visible ? 'none' : '';
+}
+
+function updateCounts() {
+  const n = f => f === 'all' ? tasks.length : document.querySelectorAll(`.task-card[data-filter="${f}"]`).length;
+  document.querySelectorAll('.filter-pill').forEach(b => {
+    const f = b.dataset.filter;
+    b.innerHTML = b.innerHTML.replace(/\(\d+\)/, `(${n(f)})`);
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', applyFilter);
+document.getElementById('filterGroup').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-pill'); if (!btn) return;
+  currentFilter = btn.dataset.filter;
+  document.querySelectorAll('.filter-pill').forEach(b => {
+    const on = b === btn;
+    b.className = `filter-pill text-xs font-semibold rounded-full px-4 py-1.5 transition ${on ? 'bg-indigo-800 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-300'}`;
+  });
+  applyFilter();
+});
+
+/* priority segmented control */
+let priority = 'medium';
+document.getElementById('prioritySeg').addEventListener('click', e => {
+  const btn = e.target.closest('.priority-pill'); if (!btn) return;
+  priority = btn.dataset.val;
+  document.querySelectorAll('.priority-pill').forEach(b => {
+    const on = b === btn;
+    b.className = `priority-pill text-[11px] font-semibold py-1.5 rounded-full transition ${on ? 'bg-indigo-800 text-white' : 'text-slate-600'}`;
+  });
+});
+
+/* submit */
+document.getElementById('taskForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const caseInput = document.getElementById('caseInput').value.trim();
+  const title = document.getElementById('titleInput').value.trim();
+  const deadline = document.getElementById('deadlineInput').value;
+  if (!title || !deadline) { alert('Please fill in the task title and deadline.'); return; }
+  const parts = caseInput.split(' — ');
+  tasks.unshift({ title, caseNo: parts[0] && parts[0] !== '📌 General Task (no case)' ? parts[0] : '', caseName: parts[1] || parts[0] || 'General Task', deadline, hearing: '', priority, status: 'pending', steps: [] });
+  e.target.reset();
+  document.getElementById('searchInput').value = '';
+  currentFilter = 'all';
+  render();
+});
+
+/* card actions */
+function toggleDone(cb) {
+  const el = cb.closest('.task-card'), t = tasks[+el.dataset.idx];
+  t.status = cb.checked ? 'completed' : 'pending';
+  render();
+}
+function toggleStep(btn) {
+  const t = tasks[+btn.closest('.task-card').dataset.idx];
+  const idx = [...btn.closest('.bg-slate-100').querySelectorAll('.step')].indexOf(btn);
+  t.steps[idx].done = !t.steps[idx].done;
+  render();
+}
+function reschedule(btn) {
+  const t = tasks[+btn.closest('.task-card').dataset.idx];
+  const val = prompt(`Reschedule "${t.title}"\nEnter new deadline (YYYY-MM-DD):`, t.deadline);
+  if (!val) return;
+  if (isNaN(new Date(val))) { alert('Please enter a valid date (YYYY-MM-DD).'); return; }
+  t.deadline = val; render();
+}
+function removeCard(btn) {
+  const el = btn.closest('.task-card');
+  if (!confirm('Are you sure you want to remove this task?')) return;
+  tasks.splice(+el.dataset.idx, 1); render();
+}
+
+render();
+</script>
+</body>
+</html>
