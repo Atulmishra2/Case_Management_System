@@ -16773,7 +16773,15 @@ input[readonly] {
 /* Compact screens */
 @media (max-width: 768px) {
   .nav-case-search-toggle { min-height: 56px; width: 48px; min-width: 48px; touch-action: manipulation; }
-  .nav-case-search-box { width: calc(100vw - 16px); right: -8px; }
+  /* Anchor to the viewport, not the toggle button (which sits left of other
+     nav buttons) — otherwise a full-width box overflows off the left edge */
+  .nav-case-search-box {
+    position: fixed;
+    top: 64px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+  }
   /* 16px stops iOS Safari from auto-zooming the page when the search bar is focused */
   .nav-case-search-box input { height: 50px; font-size: 16px; }
   .nav-case-search-icon { top: 25px; }
