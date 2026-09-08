@@ -16772,14 +16772,11 @@ input[readonly] {
 
 /* Compact screens */
 @media (max-width: 768px) {
-  .nav-case-search-toggle { min-height: 56px; width: 48px; min-width: 48px; touch-action: manipulation; }
-  .nav-case-search-box { width: calc(100vw - 16px); right: -8px; }
-  /* 16px stops iOS Safari from auto-zooming the page when the search bar is focused */
-  .nav-case-search-box input { height: 50px; font-size: 16px; }
-  .nav-case-search-icon { top: 25px; }
-  .nav-case-search-close { top: 25px; width: 36px; height: 36px; }
-  .nav-case-search-results { max-height: 55vh; -webkit-overflow-scrolling: touch; }
-  .nav-case-search-result { touch-action: manipulation; }
+  .nav-case-search-toggle { min-height: 56px; width: 48px; min-width: 48px; }
+  .nav-case-search-box { width: min(340px, calc(100vw - 16px)); }
+  .nav-case-search-box input { height: 48px; font-size: 14px; }
+  .nav-case-search-icon, .nav-case-search-close { top: 24px; }
+  .nav-case-search-results { max-height: 260px; }
 }
 
 /* Responsive Top Nav on Compact Screens */

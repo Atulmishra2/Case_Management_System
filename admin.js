@@ -2004,6 +2004,23 @@ async function deleteCaseFromSupabase(caseNumber) {
 }
 
 // Update Hearing in Supabase (or local fallback)
+// Update a case row's hearing fields in one table, matched case-insensitively.
+// If the full payload (which may include previous_hearing/previous_process) is
+// rejected — e.g. a table without those columns — retry with the minimal
+// next_hearing/hearing_process payload so the forward date still lands.
+async function updateCaseTableHearing(tbl, variant, payload) {
+  let res = await supabaseClient.from(tbl).update(payload).ilike('case_number', variant).select('id');
+  if (res && res.error && (payload.previous_hearing || payload.previous_process)) {
+    const minimal = { next_hearing: payload.next_hearing, hearing_process: payload.hearing_process };
+    const retry = await supabaseClient.from(tbl).update(minimal).ilike('case_number', variant).select('id');
+    if (!retry || !retry.error) {
+      console.warn(`Hearing update on "${tbl}" needed the minimal payload (full payload rejected: ${res.error.message}).`);
+      return retry || { data: [], error: null };
+    }
+  }
+  return res;
+}
+
 async function updateHearingInSupabase(caseNumber, hearingDate, process, actionTaken = '') {
   // Determine case type from allCaseRecords for proper tagging
   const cleanKey = (caseNumber || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -2112,9 +2129,7 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
         let updateResults = [];
         for (const variant of matchVariants) {
           updateResults = await Promise.allSettled(
-            allCaseTables.map(tbl =>
-              supabaseClient.from(tbl).update(updatePayload).ilike('case_number', variant).select('id')
-            )
+            allCaseTables.map(tbl => updateCaseTableHearing(tbl, variant, updatePayload))
           );
           if (updateResults.some(res =>
             res.status === 'fulfilled' && res.value && !res.value.error &&
@@ -2137,13 +2152,17 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
           }
         });
 
-        if (anyError || !anyRowUpdated) {
+        // Only a genuine failure to update the case row anywhere is user-facing;
+        // errors on unrelated tables (which matched no row anyway) are just logged.
+        if (!anyRowUpdated) {
           const detail = anyError
             ? 'One or more case tables rejected the update (see console for details).'
             : `No case row matched case number "${resolvedCaseNumber}" in any table.`;
           console.error('Hearing case-table update problem:', detail);
           alert('⚠️ Hearing saved, but the case record was NOT updated in the database: ' + detail +
                 '\n\nThe next hearing date may show incorrectly after reload. Please check the case number and try again.');
+        } else if (anyError) {
+          console.warn('Hearing case-table update: case row updated, but some unrelated tables rejected the update (see console).');
         }
       }
     } catch (e) {

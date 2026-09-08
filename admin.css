@@ -10289,8 +10289,17 @@ html.auth-guest #guestScreen {
 
 .home-today-card-actions {
   display: flex;
+  flex-direction: column;
   gap: 5px;
+  align-items: stretch;
   flex: 0 0 auto;
+}
+
+.home-today-card-actions .table-view-btn,
+.home-today-card-actions .whatsapp-btn,
+.home-today-card-actions .call-btn {
+  width: 100%;
+  justify-content: center;
 }
 
 .home-today-card-actions .table-view-btn {
@@ -10300,7 +10309,15 @@ html.auth-guest #guestScreen {
 
 @media (max-width: 640px) {
   .home-today-card { flex-direction: column; align-items: stretch; }
-  .home-today-card-actions { justify-content: flex-end; }
+  .home-today-card-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #E0E8F9;
+  }
+  .home-today-card-actions .btn-text { display: none; }
+  .home-today-card-actions .table-view-btn { width: 100%; justify-content: center; min-height: 40px; }
   .home-today-list { max-height: none; }
 }
 
@@ -16772,11 +16789,14 @@ input[readonly] {
 
 /* Compact screens */
 @media (max-width: 768px) {
-  .nav-case-search-toggle { min-height: 56px; width: 48px; min-width: 48px; }
-  .nav-case-search-box { width: min(340px, calc(100vw - 16px)); }
-  .nav-case-search-box input { height: 48px; font-size: 14px; }
-  .nav-case-search-icon, .nav-case-search-close { top: 24px; }
-  .nav-case-search-results { max-height: 260px; }
+  .nav-case-search-toggle { min-height: 56px; width: 48px; min-width: 48px; touch-action: manipulation; }
+  .nav-case-search-box { width: calc(100vw - 16px); right: -8px; }
+  /* 16px stops iOS Safari from auto-zooming the page when the search bar is focused */
+  .nav-case-search-box input { height: 50px; font-size: 16px; }
+  .nav-case-search-icon { top: 25px; }
+  .nav-case-search-close { top: 25px; width: 36px; height: 36px; }
+  .nav-case-search-results { max-height: 55vh; -webkit-overflow-scrolling: touch; }
+  .nav-case-search-result { touch-action: manipulation; }
 }
 
 /* Responsive Top Nav on Compact Screens */
@@ -22591,9 +22611,14 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 .cl-card-actions {
   flex: 0 0 auto;
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
+  align-items: stretch;
+}
+.cl-card-actions .table-view-btn,
+.cl-card-actions .whatsapp-btn {
+  width: 100%;
+  justify-content: center;
 }
 
 .causelist-empty {
@@ -22614,8 +22639,23 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   font-size: 12.5px;
 }
 
-/* Narrow screens: stack actions under info */
+/* Narrow screens: compact card, equal 3-button action row */
 @media (max-width: 720px) {
-  .cl-card { gap: 10px; }
-  .cl-card-actions { width: 100%; justify-content: flex-start; }
+  .cl-card { gap: 10px; padding: 12px; border-radius: 14px; }
+  .cl-card-index { min-width: 34px; height: 34px; font-size: 12px; border-radius: 8px; align-self: flex-start; }
+  .cl-card-main { flex-basis: 100%; min-width: 100%; gap: 5px; }
+  .cl-card-caseno { font-size: 13.5px; }
+  .cl-card-title { font-size: 13px; }
+  .cl-card-meta { gap: 10px; font-size: 12px; }
+  .cl-card-actions {
+    width: 100%;
+    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid #E0E8F9;
+  }
+  .cl-card-actions .btn-text { display: none; }
+  .cl-card-actions .table-view-btn { width: 100%; justify-content: center; min-height: 40px; }
 }
