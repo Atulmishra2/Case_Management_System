@@ -23079,3 +23079,34 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 .fd-hero-text p {
   color: #9CE8DE;
 }
+
+/* Forward Dates: compact preset boxes — radio-style, minimal footprint */
+.fd-presets {
+  gap: 6px;
+}
+.fd-presets .preset-pill {
+  padding: 5px 9px !important;
+  font-size: 11px !important;
+  border-width: 1px !important;
+  box-shadow: none;
+  white-space: nowrap;
+}
+.fd-presets .preset-pill:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.fd-stage-pills {
+  gap: 6px;
+}
+.fd-stage-pills .stage-pill {
+  padding: 5px 9px !important;
+  font-size: 11px !important;
+  border-width: 1px !important;
+  box-shadow: none;
+  white-space: nowrap;
+}
+.fd-stage-pills .stage-pill:hover {
+  transform: none;
+  box-shadow: none;
+}
