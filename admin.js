@@ -2883,6 +2883,10 @@ function showTab(tabId, event, navType = 'navigate') {
     initDbManagerTab();
   }
 
+  if (tabId === 'livecrud') {
+    initLiveCrudTab();
+  }
+
   if (tabId === 'courts') {
     renderCourtsTable();
   }
@@ -14394,6 +14398,313 @@ window.openDbEditModal = openDbEditModal;
 window.handleDbRecordFormSubmit = handleDbRecordFormSubmit;
 window.handleDbDeleteRow = handleDbDeleteRow;
 window.closeDbModal = closeDbModal;
+
+
+// ==============================================================================
+// Live CRUD (Simple) — Supabase Database Manager Tab
+// Simple mobile/desktop interface: browse rows as cards, insert, edit, delete.
+// ==============================================================================
+
+let liveCrudCurrentTable = 'civilcases';
+let liveCrudRows = [];
+let liveCrudListenersWired = false;
+
+function initLiveCrudTab() {
+  wireLiveCrudListeners();
+
+  const select = document.getElementById('liveCrudTableSelect');
+  if (select && select.value) {
+    liveCrudCurrentTable = select.value;
+  }
+  fetchLiveCrudRows();
+}
+
+function wireLiveCrudListeners() {
+  if (liveCrudListenersWired) return;
+  liveCrudListenersWired = true;
+
+  const select = document.getElementById('liveCrudTableSelect');
+  if (select) {
+    select.addEventListener('change', () => {
+      liveCrudCurrentTable = select.value;
+      const searchInput = document.getElementById('liveCrudSearchInput');
+      if (searchInput) searchInput.value = '';
+      fetchLiveCrudRows();
+    });
+  }
+
+  const searchInput = document.getElementById('liveCrudSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => renderLiveCrudRows());
+  }
+
+  const clearBtn = document.getElementById('liveCrudSearchClearBtn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      renderLiveCrudRows();
+    });
+  }
+
+  const refreshBtn = document.getElementById('liveCrudRefreshBtn');
+  if (refreshBtn) refreshBtn.addEventListener('click', () => fetchLiveCrudRows());
+
+  const insertBtn = document.getElementById('liveCrudInsertBtn');
+  if (insertBtn) insertBtn.addEventListener('click', () => openLiveCrudModal('create', null));
+
+  const closeBtn = document.getElementById('lcModalCloseBtn');
+  if (closeBtn) closeBtn.addEventListener('click', closeLiveCrudModal);
+  const cancelBtn = document.getElementById('lcModalCancelBtn');
+  if (cancelBtn) cancelBtn.addEventListener('click', closeLiveCrudModal);
+
+  const overlay = document.getElementById('liveCrudFormModal');
+  if (overlay) {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) closeLiveCrudModal();
+    });
+  }
+}
+
+async function fetchLiveCrudRows() {
+  const container = document.getElementById('liveCrudRowsContainer');
+  const badge = document.getElementById('liveCrudTableBadge');
+  const countBadge = document.getElementById('liveCrudRowCountBadge');
+
+  if (badge) badge.textContent = 'Table: ' + liveCrudCurrentTable;
+  if (container) container.innerHTML = '<div class="lc-empty">⏳ Loading rows from Supabase…</div>';
+
+  if (!ensureSupabaseClient || !ensureSupabaseClient()) {
+    if (container) container.innerHTML = '<div class="lc-empty">⚠️ Supabase is not connected. Check your internet connection and refresh.</div>';
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from(liveCrudCurrentTable)
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(200);
+
+    if (error) throw error;
+    liveCrudRows = Array.isArray(data) ? data : [];
+    renderLiveCrudRows();
+  } catch (err) {
+    console.error('Live CRUD fetch error:', err);
+    if (container) container.innerHTML = `<div class="lc-empty">⚠️ Failed to load "${escapeHtml(liveCrudCurrentTable)}": ${escapeHtml(err.message || 'Unknown error')}</div>`;
+  }
+}
+
+// Pick the most human-meaningful fields to headline each row card
+function getLiveCrudHeadlineFields(row) {
+  const keys = Object.keys(row);
+  const preferred = ['case_number', 'court_name', 'task_title', 'case_name', 'hearing_date', 'transfer_date', 'helper_name', 'name', 'title'];
+  const headlineKey = preferred.find(p => keys.includes(p)) || keys.find(k => !['id', 'created_at'].includes(k)) || 'id';
+  const secondaryKeys = keys
+    .filter(k => k !== headlineKey && !['id', 'created_at'].includes(k))
+    .filter(k => {
+      const v = row[k];
+      return v !== null && v !== undefined && String(v).trim() !== '';
+    })
+    .slice(0, 3);
+  return { headlineKey, secondaryKeys };
+}
+
+function renderLiveCrudRows() {
+  const container = document.getElementById('liveCrudRowsContainer');
+  const countBadge = document.getElementById('liveCrudRowCountBadge');
+  if (!container) return;
+
+  const searchInput = document.getElementById('liveCrudSearchInput');
+  const q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+  let rows = liveCrudRows;
+  if (q) {
+    rows = rows.filter(r => Object.values(r).some(v =>
+      v !== null && v !== undefined && String(v).toLowerCase().includes(q)
+    ));
+  }
+
+  if (countBadge) countBadge.textContent = `${rows.length}${rows.length !== liveCrudRows.length ? ` of ${liveCrudRows.length}` : ''} rows`;
+
+  if (rows.length === 0) {
+    container.innerHTML = `<div class="lc-empty">${liveCrudRows.length === 0
+      ? `📭 No rows in "${escapeHtml(liveCrudCurrentTable)}" yet. Use ➕ Insert Row to add the first one.`
+      : `🔍 No rows match "${escapeHtml(q)}".`}</div>`;
+    return;
+  }
+
+  container.innerHTML = rows.map(row => {
+    const { headlineKey, secondaryKeys } = getLiveCrudHeadlineFields(row);
+    const headline = String(row[headlineKey] ?? '—');
+    const secondaryHtml = secondaryKeys.map(k =>
+      `<span class="lc-row-secondary"><strong>${escapeHtml(k)}:</strong> ${escapeHtml(String(row[k]).slice(0, 80))}</span>`
+    ).join('');
+    const rowId = String(row.id ?? '');
+
+    return `
+      <div class="lc-row-card">
+        <div class="lc-row-main">
+          <div class="lc-row-headline" title="${escapeHtml(headline)}">${escapeHtml(headline)}</div>
+          <div class="lc-row-secondary-group">${secondaryHtml}</div>
+        </div>
+        <div class="lc-row-actions">
+          <button type="button" class="table-view-btn" onclick="openLiveCrudModal('edit', ${escapeHtml(String(rowId)) ? `'${escapeHtml(rowId)}'` : 'null'})" title="Edit this row"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
+          <button type="button" class="table-view-btn lc-delete-btn" onclick="deleteLiveCrudRow('${escapeHtml(rowId)}', '${escapeHtml(headline.replace(/'/g, ''))}')" title="Delete this row"><i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span></button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Columns auto-generated from a real row; read-only/db-managed ones are skipped
+function getLiveCrudEditableColumns(sampleRow) {
+  if (!sampleRow) return [];
+  return Object.keys(sampleRow).filter(k => !['id', 'created_at'].includes(k));
+}
+
+function buildLiveCrudFieldHtml(key, value) {
+  const strVal = (value === null || value === undefined) ? '' : String(value);
+  const isDate = /(^|_)(date|_at)$/.test(key) || /^\d{4}-\d{2}-\d{2}/.test(strVal);
+  const isNumber = typeof value === 'number' || (/^\d+(\.\d+)?$/.test(strVal) && strVal !== '');
+  const inputType = isDate && /^\d{4}-\d{2}-\d{2}/.test(strVal) ? 'date'
+    : (isDate && /_date$/.test(key) ? 'date' : (isNumber ? 'number' : 'text'));
+
+  let valAttr = '';
+  if (inputType === 'date') {
+    const m = strVal.match(/^(\d{4}-\d{2}-\d{2})/);
+    valAttr = m ? ` value="${m[1]}"` : '';
+  } else if (inputType === 'number') {
+    valAttr = ` value="${escapeHtml(strVal)}"`;
+  } else {
+    valAttr = ` value="${escapeHtml(strVal)}"`;
+  }
+
+  return `
+    <div class="modifier-form-group">
+      <label for="lcField_${escapeHtml(key)}" class="db-toolbar-label">${escapeHtml(key)}:</label>
+      <input type="${inputType}" id="lcField_${escapeHtml(key)}" data-lc-column="${escapeHtml(key)}" class="db-search-input" ${valAttr} placeholder="— leave empty to skip —" autocomplete="off">
+    </div>
+  `;
+}
+
+function openLiveCrudModal(action, rowId) {
+  const overlay = document.getElementById('liveCrudFormModal');
+  const titleEl = document.getElementById('lcModalTitle');
+  const subtitleEl = document.getElementById('lcModalSubtitle');
+  const iconEl = document.getElementById('lcModalIcon');
+  const grid = document.getElementById('lcDynamicFieldsGrid');
+  const idInput = document.getElementById('lcRecordId');
+  const actionInput = document.getElementById('lcRecordAction');
+  const statusMsg = document.getElementById('lcModalStatusMsg');
+  if (!overlay || !grid) return;
+
+  const row = action === 'edit'
+    ? liveCrudRows.find(r => String(r.id) === String(rowId))
+    : liveCrudRows[0]; // sample row supplies the column list for Insert
+
+  if (action === 'insert' && !row) {
+    alert(`The "${liveCrudCurrentTable}" table is empty, so its column layout is unknown.\n\nAdd the first row via the full "Supabase DB Manager" tab, then Insert will work here too.`);
+    return;
+  }
+  if (action === 'edit' && !row) {
+    alert('Could not find that row. Please refresh and try again.');
+    return;
+  }
+
+  const columns = getLiveCrudEditableColumns(row);
+  grid.innerHTML = columns.map(k => buildLiveCrudFieldHtml(k, action === 'edit' ? row[k] : null)).join('');
+
+  if (titleEl) titleEl.textContent = action === 'edit' ? `Edit Row — ${liveCrudCurrentTable}` : `Insert Row — ${liveCrudCurrentTable}`;
+  if (subtitleEl) subtitleEl.textContent = action === 'edit'
+    ? 'Change field values and save. Empty fields are left unchanged.'
+    : 'Fill in values for the new row. Empty fields are skipped.';
+  if (iconEl) iconEl.textContent = action === 'edit' ? '✏️' : '➕';
+  if (idInput) idInput.value = action === 'edit' ? String(row.id) : '';
+  if (actionInput) actionInput.value = action;
+  if (statusMsg) { statusMsg.textContent = ''; statusMsg.className = 'update-status-msg'; }
+
+  overlay.classList.remove('hidden');
+}
+
+function closeLiveCrudModal() {
+  const overlay = document.getElementById('liveCrudFormModal');
+  if (overlay) overlay.classList.add('hidden');
+}
+
+async function handleLiveCrudFormSubmit(event) {
+  if (event && event.preventDefault) event.preventDefault();
+  const actionInput = document.getElementById('lcRecordAction');
+  const idInput = document.getElementById('lcRecordId');
+  const statusMsg = document.getElementById('lcModalStatusMsg');
+  const submitBtn = document.getElementById('lcModalSubmitBtn');
+  const action = actionInput ? actionInput.value : 'edit';
+  const rowId = idInput ? idInput.value : '';
+
+  // Collect filled fields only — empty means "leave unchanged" (edit) / "skip" (insert)
+  const payload = {};
+  document.querySelectorAll('#lcDynamicFieldsGrid input[data-lc-column]').forEach(input => {
+    const col = input.getAttribute('data-lc-column');
+    const raw = (input.value || '').trim();
+    if (raw === '') return;
+    payload[col] = input.type === 'number' ? (raw === '' ? null : Number(raw)) : raw;
+  });
+
+  if (Object.keys(payload).length === 0) {
+    if (statusMsg) {
+      statusMsg.textContent = '⚠️ Please fill at least one field before saving.';
+      statusMsg.className = 'update-status-msg error';
+    }
+    return false;
+  }
+
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Saving…'; }
+  if (statusMsg) { statusMsg.textContent = ''; statusMsg.className = 'update-status-msg'; }
+
+  try {
+    let error = null;
+    if (action === 'edit') {
+      ({ error } = await supabaseClient.from(liveCrudCurrentTable).update(payload).eq('id', rowId));
+    } else {
+      ({ error } = await supabaseClient.from(liveCrudCurrentTable).insert([payload]));
+    }
+    if (error) throw error;
+
+    closeLiveCrudModal();
+    await fetchLiveCrudRows();
+    await performPostCrudRefresh({ toast: `💾 ${action === 'edit' ? 'Row updated' : 'Row inserted'} in ${liveCrudCurrentTable}` });
+  } catch (err) {
+    console.error('Live CRUD save error:', err);
+    if (statusMsg) {
+      statusMsg.textContent = '⚠️ Save failed: ' + (err.message || 'Unknown error');
+      statusMsg.className = 'update-status-msg error';
+    }
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '💾 Save to Database'; }
+  }
+  return false;
+}
+
+async function deleteLiveCrudRow(rowId, headline) {
+  if (!rowId) return;
+  const ok = confirm(`🗑️ Delete this row permanently from "${liveCrudCurrentTable}"?\n\n${headline}\n\nThis cannot be undone.`);
+  if (!ok) return;
+
+  try {
+    const { error } = await supabaseClient.from(liveCrudCurrentTable).delete().eq('id', rowId);
+    if (error) throw error;
+    await fetchLiveCrudRows();
+    await performPostCrudRefresh({ toast: `🗑️ Row deleted from ${liveCrudCurrentTable}` });
+  } catch (err) {
+    console.error('Live CRUD delete error:', err);
+    alert('⚠️ Delete failed: ' + (err.message || 'Unknown error'));
+  }
+}
+
+window.initLiveCrudTab = initLiveCrudTab;
+window.openLiveCrudModal = openLiveCrudModal;
+window.closeLiveCrudModal = closeLiveCrudModal;
+window.handleLiveCrudFormSubmit = handleLiveCrudFormSubmit;
+window.deleteLiveCrudRow = deleteLiveCrudRow;
 
 
 window.renderSearchCourtFilterOptions = renderSearchCourtFilterOptions;

@@ -22659,3 +22659,110 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   .cl-card-actions .btn-text { display: none; }
   .cl-card-actions .table-view-btn { width: 100%; justify-content: center; min-height: 40px; }
 }
+
+/* ==============================================================================
+   Live CRUD (Simple) Tab — row cards, mobile-first
+   ============================================================================== */
+
+.lc-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.lc-rows-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.lc-row-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid #E0E8F9;
+  border-left: 4px solid #5BC0BE;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(11, 19, 43, 0.06);
+  transition: box-shadow 0.15s ease;
+}
+.lc-row-card:hover { box-shadow: 0 4px 14px rgba(11, 19, 43, 0.12); }
+
+.lc-row-main {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lc-row-headline {
+  font-weight: 800;
+  font-size: 14.5px;
+  color: #1C2541;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lc-row-secondary-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.lc-row-secondary {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+.lc-row-secondary strong { color: #3A506B; font-weight: 700; }
+
+.lc-row-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+.lc-row-actions .table-view-btn {
+  width: 100%;
+  justify-content: center;
+  min-height: 38px;
+}
+.lc-delete-btn { color: #b91c1c; }
+.lc-delete-btn:hover { background: #fee2e2; border-color: #fca5a5; }
+
+.lc-empty {
+  background: #ffffff;
+  border: 1px dashed #A0C4FF;
+  border-radius: 12px;
+  padding: 28px 20px;
+  text-align: center;
+  color: #3A506B;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+/* Mobile: stack card, equal 2-button action row */
+@media (max-width: 720px) {
+  .lc-row-card { padding: 12px; border-radius: 14px; }
+  .lc-row-main { flex-basis: 100%; min-width: 100%; }
+  .lc-row-headline { font-size: 13.5px; white-space: normal; }
+  .lc-row-secondary { max-width: 100%; }
+  .lc-row-actions {
+    width: 100%;
+    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid #E0E8F9;
+  }
+  .lc-row-actions .table-view-btn { min-height: 40px; }
+}
