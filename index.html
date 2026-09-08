@@ -108,7 +108,7 @@
          │   │   ├── [Tab: #undated] Undated Cases (Unlisted Matters Table, Direct Date Assignment)
          │   │   ├── [Tab: #disposed] Disposed Cases (Concluded Files Table, Disposal Order Archive)
          │   │   ├── [Tab: #civil..#complaint] Legacy mounts for backwards compatibility
-         │   │   ├── [Tab: #dbmanager] Supabase Cloud DB Manager (Table Selector, CRUD Form, Metadata Tool, Raw Grid)
+         │   │   ├── [Tab: #livecrud] Live CRUD — Simple Database Manager (Browse, Insert, Edit, Delete)
          │   │   ├── [Tab: #settings] Admin Security Settings (Change Password Form)
          │   │   └── footer.modern-chambers-footer (Pillars, Navigation Portals, Watermarks, Copyright)
          │   │
@@ -401,7 +401,7 @@
 
             <div class="divider"></div>
             <div class="subheader">Database & Cloud Sync</div>
-            <a href="#" onclick="showTab('dbmanager', event)"><i class="fa-solid fa-database nav-icon"></i> Supabase DB Manager</a>
+            
             <a href="#" onclick="showTab('livecrud', event)"><i class="fa-solid fa-bolt nav-icon"></i> Live CRUD (Simple)</a>
 
             <div class="divider"></div>
@@ -4303,194 +4303,6 @@
             </div>
 
             <!-- Supabase Database Manager Tab: Direct live data inspection & Full CRUD -->
-            <div id="dbmanager" class="tab">
-                <div class="dbmanager-container">
-                    <div class="section-header-row">
-                        <div class="section-title-box">
-                            <div class="section-icon-badge">🗄️</div>
-                            <div>
-                                <h3>Supabase Database Manager & Live CRUD</h3>
-                                <p class="section-subtitle">Live inspection & Create, Read, Update, Delete operations for all Supabase tables exactly as structured in cloud database.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- DB Controls Toolbar -->
-                    <div class="db-toolbar-card">
-                        <div class="db-toolbar-row">
-                            <div class="db-table-selector-box">
-                                <label for="dbManagerTableSelect" class="db-toolbar-label">Select Supabase Table:</label>
-                                <select id="dbManagerTableSelect" class="form-select db-select">
-                                    <option value="all_tables">🌐 (From All Tables) — Search Across Entire Database</option>
-                                    <option value="civilcases">⚖️ civilcases (Civil Suits &amp; Writs)</option>
-                                    <option value="statecases">🚨 statecases (State Cases, FIRs, Thana)</option>
-                                    <option value="criminalcases">🔒 criminalcases (Legacy Criminal Cases)</option>
-                                    <option value="familycases">👨‍👩‍👧 familycases (Matrimonial, Maintenance 125, DV)</option>
-                                    <option value="revenuecases">🌾 revenuecases (Land, Tehsil, UP Revenue Code)</option>
-                                    <option value="misccivilcases">📑 misccivilcases (Civil Applications, Appeals &amp; Revisions)</option>
-                                    <option value="misccriminalcases">⚖️ misccriminalcases (Bails, Criminal Appeals &amp; 156(3))</option>
-                                    <option value="complaintcases">📢 complaintcases (Cheque Bounce, NI Act &amp; Complaints)</option>
-                                    <option value="hearings">📅 hearings (Hearing Dates &amp; Session History)</option>
-                                    <option value="courts">🏛️ courts (Court Names &amp; Jurisdictions)</option>
-                                    <option value="court_helpers">🪪 court_helpers (Court Staff &amp; Workers Directory)</option>
-                                    <option value="case_todos">📝 case_todos (Case Tasks &amp; Deadlines)</option>
-                                    <option value="case_transfers">🔄 case_transfers (Court Transfers &amp; Audit Records)</option>
-                                </select>
-                            </div>
-                            <div class="db-search-box">
-                                <label for="dbManagerSearchInput" class="db-toolbar-label">Search Table Rows:</label>
-                                <div class="db-search-input-wrap">
-                                    <input type="text" id="dbManagerSearchInput" class="db-search-input" placeholder="Filter rows by any keyword, case number, or text...">
-                                    <button type="button" id="dbManagerSearchClearBtn" class="db-search-clear-btn" title="Clear search">✖</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="db-toolbar-actions-row">
-                            <div class="db-stats-group">
-                                <span id="dbManagerTableBadge" class="case-badge civil">Table: civilcases</span>
-                                <span id="dbManagerRowCountBadge" class="db-row-counter-badge">0 rows loaded</span>
-                                <span id="dbManagerLiveIndicator" class="db-live-badge">🟢 Supabase Live</span>
-                            </div>
-                            <div class="db-buttons-group">
-                                <button type="button" id="dbManagerRefreshBtn" class="secondary-btn db-action-btn" title="Fetch fresh records from Supabase">
-                                    🔄 Refresh
-                                </button>
-                                <button type="button" id="dbManagerAddBtn" class="primary-btn db-action-btn" title="Insert a new row into selected table">
-                                    ➕ Insert New Row
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dedicated Tool: Update Case Number, Filing Year & Filing Date -->
-                    <div class="db-case-modifier-card panel-enabled is-collapsed" id="dbCaseModifierCard">
-                        <div class="db-modifier-header">
-                            <div class="modifier-title-box">
-                                <span class="modifier-icon">🔄</span>
-                                <div>
-                                    <h4>Modify Case Number, Filing Year & Filing Date</h4>
-                                    <p class="modifier-subtitle">Select or type any Civil, State, Family, Revenue, Misc, or Complaint case to update its Case Number, Filing Year, and Filing Date with automatic cascading updates to linked hearings in Supabase.</p>
-                                </div>
-                            </div>
-                            <div class="db-modifier-header-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                                <span class="db-live-badge">⚡ Direct Supabase Sync</span>
-                                <label class="db-modifier-toggle-wrap" title="Toggle to enable or disable panel editing">
-                                    <input type="checkbox" id="dbModToggleCheckbox" onchange="toggleDbCaseModifierPanel(this.checked)">
-                                    <span class="db-modifier-toggle-slider"></span>
-                                    <span id="dbModToggleLabel" class="db-modifier-toggle-text"><i class="fa-solid fa-lock-open"></i> Enabled</span>
-                                </label>
-                                <button type="button" id="dbModifierCollapseBtn" class="db-modifier-collapse-btn" onclick="toggleDbModifierCollapse()" title="Collapse / Expand this card">
-                                    <i class="fa-solid fa-chevron-down collapse-chevron"></i> <span>Expand</span>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="db-modifier-form-grid" id="dbModFormGrid">
-                            <div class="modifier-form-group">
-                                <label for="dbModCaseType" class="db-toolbar-label">1. Case Category / Table:</label>
-                                <select id="dbModCaseType" class="form-select db-select" onchange="populateDbModifierCaseSelect()">
-                                    <option value="civil">⚖️ Civil Cases (civilcases)</option>
-                                    <option value="state">🚨 State Cases (statecases)</option>
-                                    <option value="criminal">🔒 Criminal Cases (criminalcases)</option>
-                                    <option value="family">👨‍👩‍👧 Family Cases (familycases)</option>
-                                    <option value="revenue">🌾 Revenue Cases (revenuecases)</option>
-                                    <option value="misc_civil">📑 Misc Civil (misccivilcases)</option>
-                                    <option value="misc_criminal">⚖️ Misc Criminal (misccriminalcases)</option>
-                                    <option value="complaint">📢 Complaint Cases (complaintcases)</option>
-                                </select>
-                            </div>
-
-                            <div class="modifier-form-group" style="grid-column: span 2;">
-                                <label for="dbModCaseSearchInput" class="db-toolbar-label">2. Search / Type or Select Existing Case:</label>
-                                <div class="modifier-case-picker-row" style="display: flex; gap: 8px;">
-                                    <input type="text" id="dbModCaseSearchInput" list="dbModCaseDatalist" class="db-search-input" placeholder="Type Case Number, Party Name, or choose..." oninput="onDbModifierCaseSearch(this.value)" autocomplete="off">
-                                    <datalist id="dbModCaseDatalist"></datalist>
-                                    <select id="dbModCaseSelect" class="form-select db-select" style="max-width: 220px;" onchange="onDbModifierCaseSelected(this.value)">
-                                        <option value="">-- Choose from List --</option>
-                                    </select>
-                                </div>
-                                <input type="hidden" id="dbModSelectedCaseId" value="">
-                            </div>
-
-                            <div class="modifier-form-group">
-                                <label for="dbModNewCaseNo" class="db-toolbar-label">3. New Case Number:</label>
-                                <input type="text" id="dbModNewCaseNo" class="db-search-input case-number-input" data-uppercase="true" placeholder="e.g. OS/45/2024 or CR-2024-102">
-                            </div>
-
-                            <div class="modifier-form-group">
-                                <label for="dbModNewYear" class="db-toolbar-label">4. New Filing / Case Year:</label>
-                                <input type="number" id="dbModNewYear" class="db-search-input" placeholder="e.g. 2024" min="1950" max="2099">
-                            </div>
-
-                            <div class="modifier-form-group">
-                                <label for="dbModNewFilingDate" class="db-toolbar-label">5. New Filing Date:</label>
-                                <input type="date" id="dbModNewFilingDate" class="db-search-input">
-                            </div>
-
-                            <div class="modifier-form-group modifier-checkbox-group" style="grid-column: 1 / -1;">
-                                <label class="remember-me-label" style="margin-top: 6px !important;">
-                                    <input type="checkbox" id="dbModSyncHearings" checked>
-                                    <span>Also update linked hearing records in <code>hearings</code> table</span>
-                                </label>
-                            </div>
-
-                            <div class="modifier-action-group" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; flex-wrap: wrap;">
-                                <span id="dbModStatusMsg" class="update-status-msg" style="margin: 0; text-align: left; flex: 1;"></span>
-                                <button type="button" id="dbModSubmitBtn" class="primary-btn db-action-btn" onclick="executeDbCaseNumberYearUpdate()" style="width: auto; padding: 10px 24px;">
-                                    💾 Save Case Number, Year & Filing Date
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Add/Edit Record Form Modal / Card -->
-                    <div id="dbManagerFormModal" class="db-modal-backdrop hidden">
-                        <div class="db-modal-card">
-                            <div class="db-modal-header">
-                                <div class="db-modal-title-box">
-                                    <span id="dbModalIcon" class="db-modal-icon">➕</span>
-                                    <div>
-                                        <h4 id="dbModalTitle">Insert Record into civilcases</h4>
-                                        <p id="dbModalSubtitle" class="db-modal-subtitle">Fill in field values according to PostgreSQL column schema.</p>
-                                    </div>
-                                </div>
-                                <button type="button" id="dbModalCloseBtn" class="db-modal-close-btn" title="Close modal">✕</button>
-                            </div>
-                            <form id="dbRecordForm" class="db-record-form" onsubmit="return handleDbRecordFormSubmit(event);">
-                                <input type="hidden" id="dbRecordId" value="">
-                                <input type="hidden" id="dbRecordAction" value="create">
-                                <div id="dbDynamicFieldsGrid" class="form-grid-2col db-dynamic-fields-container">
-                                    <!-- Populated dynamically based on chosen table schema -->
-                                </div>
-                                <div class="db-modal-footer">
-                                    <button type="button" id="dbModalCancelBtn" class="secondary-btn">Cancel</button>
-                                    <button type="submit" id="dbModalSubmitBtn" class="primary-btn">💾 Save Record to Database</button>
-                                </div>
-                            </form>
-                            <p id="dbModalStatusMsg" class="update-status-msg"></p>
-                        </div>
-                    </div>
-
-                    <!-- Table Data Container -->
-                    <div class="db-table-card">
-                        <div class="table-responsive db-table-wrapper overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                            <table id="dbManagerTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table db-raw-table">
-                                <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                                    <tr id="dbManagerTableHead">
-                                        <!-- Populated dynamically based on table columns -->
-                                    </tr>
-                                </thead>
-                                <tbody id="dbManagerTableBody" class="divide-y divide-slate-100 bg-white">
-                                    <tr>
-                                        <td colspan="10" class="no-results">Loading Supabase table data...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Live CRUD (Simple) Tab -->
             <div id="livecrud" class="tab">
                 <div class="form-container lc-container">
@@ -4768,7 +4580,7 @@
                                     <i class="fa-solid fa-calendar portal-ico-mint"></i>
                                     <span>Calendar</span>
                                 </a>
-                                <a href="javascript:void(0);" onclick="showTab('dbmanager')" class="footer-portal-link">
+                                <a href="javascript:void(0);" onclick="showTab('livecrud')" class="footer-portal-link">
                                     <i class="fa-solid fa-database portal-ico-blue"></i>
                                     <span>Database</span>
                                 </a>
