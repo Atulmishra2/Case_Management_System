@@ -22735,6 +22735,30 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 }
 .lc-row-secondary strong { color: #3A506B; font-weight: 700; }
 
+/* Desktop: show extended fields and the id/created-at footer chip row */
+.lc-row-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed #E0E8F9;
+  font-size: 11px;
+  color: #94a3b8;
+}
+.lc-row-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 1px 7px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lc-row-created i { font-size: 10px; margin-right: 3px; }
+
 .lc-row-actions {
   flex: 0 0 auto;
   display: flex;
@@ -22774,12 +22798,14 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   font-weight: 600;
 }
 
-/* Mobile: stack card, equal 2-button action row */
+/* Mobile: stack card, equal 2-button action row; keep only key fields */
 @media (max-width: 720px) {
   .lc-row-card { padding: 12px; border-radius: 14px; }
   .lc-row-main { flex-basis: 100%; min-width: 100%; }
   .lc-row-headline { font-size: 13.5px; white-space: normal; }
   .lc-row-secondary { max-width: 100%; }
+  .lc-row-secondary.lc-extra { display: none; }
+  .lc-row-footer { display: none; }
   .lc-row-actions {
     width: 100%;
     flex-direction: row;

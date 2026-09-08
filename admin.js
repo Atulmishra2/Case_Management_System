@@ -14499,13 +14499,15 @@ function getLiveCrudHeadlineFields(row) {
   const keys = Object.keys(row);
   const preferred = ['case_number', 'court_name', 'task_title', 'case_name', 'hearing_date', 'transfer_date', 'helper_name', 'name', 'title'];
   const headlineKey = preferred.find(p => keys.includes(p)) || keys.find(k => !['id', 'created_at'].includes(k)) || 'id';
+  // Desktop cards show up to 7 secondary fields; the ones past the first 3 get
+  // the .lc-extra class and are hidden on mobile by CSS
   const secondaryKeys = keys
     .filter(k => k !== headlineKey && !['id', 'created_at'].includes(k))
     .filter(k => {
       const v = row[k];
       return v !== null && v !== undefined && String(v).trim() !== '';
     })
-    .slice(0, 3);
+    .slice(0, 7);
   return { headlineKey, secondaryKeys };
 }
 
@@ -14536,16 +14538,24 @@ function renderLiveCrudRows() {
   container.innerHTML = rows.map(row => {
     const { headlineKey, secondaryKeys } = getLiveCrudHeadlineFields(row);
     const headline = String(row[headlineKey] ?? '—');
-    const secondaryHtml = secondaryKeys.map(k =>
-      `<span class="lc-row-secondary"><strong>${escapeHtml(k)}:</strong> ${escapeHtml(String(row[k]).slice(0, 80))}</span>`
+    const secondaryHtml = secondaryKeys.map((k, i) =>
+      `<span class="lc-row-secondary${i >= 3 ? ' lc-extra' : ''}"><strong>${escapeHtml(k)}:</strong> ${escapeHtml(String(row[k]).slice(0, 80))}</span>`
     ).join('');
     const rowId = String(row.id ?? '');
+    const createdAt = row.created_at ? String(row.created_at).slice(0, 10) : '';
+    const footerHtml = `
+      <div class="lc-row-footer">
+        <span class="lc-row-id" title="Row ID">${escapeHtml(rowId)}</span>
+        ${createdAt ? `<span class="lc-row-created"><i class="fa-regular fa-clock"></i> ${escapeHtml(createdAt)}</span>` : ''}
+      </div>
+    `;
 
     return `
       <div class="lc-row-card">
         <div class="lc-row-main">
           <div class="lc-row-headline" title="${escapeHtml(headline)}">${escapeHtml(headline)}</div>
           <div class="lc-row-secondary-group">${secondaryHtml}</div>
+          ${footerHtml}
         </div>
         <div class="lc-row-actions">
           <button type="button" class="table-view-btn" onclick="openLiveCrudModal('edit', ${escapeHtml(String(rowId)) ? `'${escapeHtml(rowId)}'` : 'null'})" title="Edit this row"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>
