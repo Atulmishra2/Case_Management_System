@@ -21079,26 +21079,36 @@ table.search-results-table td:last-child {
 
 /* Month / year dropdowns replace plain text for fast switching */
 .mdp-title select {
-  background: rgba(255, 255, 255, 0.14);
+  background-color: rgba(255, 255, 255, 0.14);
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23ffffff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
   color: #ffffff;
   border: 1px solid rgba(184, 211, 254, 0.45);
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
-  padding: 3px 6px;
+  padding: 4px 10px;
   cursor: pointer;
   outline: none;
+  color-scheme: light;
+  -webkit-appearance: none;
+  appearance: none;
+  text-align: center;
+  text-align-last: center;
 }
 .mdp-title select:hover,
 .mdp-title select:focus {
-  background: rgba(255, 255, 255, 0.26);
+  background-color: rgba(255, 255, 255, 0.26);
 }
 .mdp-title select option {
-  background: #0B132B;
-  color: #ffffff;
-  font-weight: 600;
+  background: #ffffff;
+  color: #1C2541;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 6px 10px;
 }
-.mdp-title .mdp-year { max-width: 76px; }
+.mdp-title .mdp-year { min-width: 74px; max-width: none; }
 
 .mdp-nav {
   width: 28px;
