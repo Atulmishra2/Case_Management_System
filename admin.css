@@ -22702,6 +22702,21 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 }
 .lc-row-card:hover { box-shadow: 0 4px 14px rgba(11, 19, 43, 0.12); }
 
+.lc-row-index {
+  flex: 0 0 auto;
+  min-width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #E0E8F9;
+  color: #0B132B;
+  font-weight: 800;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+}
+
 .lc-row-main {
   flex: 1 1 300px;
   min-width: 0;
@@ -22801,6 +22816,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 /* Mobile: stack card, equal 2-button action row; keep only key fields */
 @media (max-width: 720px) {
   .lc-row-card { padding: 12px; border-radius: 14px; }
+  .lc-row-index { min-width: 32px; height: 32px; font-size: 12px; border-radius: 8px; }
   .lc-row-main { flex-basis: 100%; min-width: 100%; }
   .lc-row-headline { font-size: 13.5px; white-space: normal; }
   .lc-row-secondary { max-width: 100%; }

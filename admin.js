@@ -14535,7 +14535,7 @@ function renderLiveCrudRows() {
     return;
   }
 
-  container.innerHTML = rows.map(row => {
+  container.innerHTML = rows.map((row, idx) => {
     const { headlineKey, secondaryKeys } = getLiveCrudHeadlineFields(row);
     const headline = String(row[headlineKey] ?? '—');
     const secondaryHtml = secondaryKeys.map((k, i) =>
@@ -14552,6 +14552,7 @@ function renderLiveCrudRows() {
 
     return `
       <div class="lc-row-card">
+        <div class="lc-row-index" title="Row #${idx + 1}">#${idx + 1}</div>
         <div class="lc-row-main">
           <div class="lc-row-headline" title="${escapeHtml(headline)}">${escapeHtml(headline)}</div>
           <div class="lc-row-secondary-group">${secondaryHtml}</div>
