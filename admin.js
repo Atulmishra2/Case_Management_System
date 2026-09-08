@@ -4273,9 +4273,16 @@ function populateHearingCaseDropdown(selectedCaseNoToInclude = '') {
   undatedCases.sort(sortFn);
   datedCases.sort(sortFn);
 
-  // Dropdown shows ALL active (non-disposed) cases: undated ones first
-  // (awaiting first schedule), then dated ones (for forwarding to a new date).
-  let html = `<option value="">-- Choose Case from List (${undatedCases.length} Undated, ${datedCases.length} Dated) --</option>`;
+  // Dropdown shows only cases that need a date forwarded:
+  // undated (no date yet) + overdue (next date already passed).
+  // Future-dated and disposed cases are excluded.
+  const todayISO = toISODate(new Date());
+  const overdueCases = datedCases.filter(c => {
+    const iso = toISODate(c.nextHearing);
+    return iso && iso < todayISO;
+  });
+
+  let html = `<option value="">-- Choose Case from List (${undatedCases.length} Undated, ${overdueCases.length} Overdue) --</option>`;
 
   if (undatedCases.length > 0) {
     html += `<optgroup label="❓ Undated Cases (${undatedCases.length} Awaiting First Schedule)">`;
@@ -4288,14 +4295,14 @@ function populateHearingCaseDropdown(selectedCaseNoToInclude = '') {
     html += `</optgroup>`;
   }
 
-  if (datedCases.length > 0) {
-    html += `<optgroup label="📅 Dated Cases (${datedCases.length} With Next Date — Forward to New Date)">`;
-    datedCases.forEach(c => {
+  if (overdueCases.length > 0) {
+    html += `<optgroup label="⏰ Overdue Cases (${overdueCases.length} Date Passed — Forward Now)">`;
+    overdueCases.forEach(c => {
       const caseNum = c.caseNo || c.criminalCaseNumber || '';
       const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : ''));
       const caseType = (c.caseType || 'civil').toUpperCase();
       const nextDt = formatDateDMY(c.nextHearing);
-      html += `<option value="${escapeHtml(caseNum)}">📅 ${escapeHtml(caseNum)} — ${escapeHtml(caseName)} [${caseType}] (${nextDt})</option>`;
+      html += `<option value="${escapeHtml(caseNum)}">⏰ ${escapeHtml(caseNum)} — ${escapeHtml(caseName)} [${caseType}] (${nextDt} — Passed)</option>`;
     });
     html += `</optgroup>`;
   }
