@@ -7261,8 +7261,21 @@ function renderTodoCaseDropdownItems(casesToRender) {
 
   const currentSelected = document.getElementById('todoCaseSelect')?.value || '';
 
+  const generalTaskOptionHtml = `
+    <div class="todo-combobox-item todo-general-item ${currentSelected === '__GENERAL__' ? 'selected' : ''}" onclick="selectTodoCase('__GENERAL__')">
+      <div class="combobox-item-top">
+        <span class="combobox-case-num">📌 General Task</span>
+        <span class="case-badge misc">GENERAL</span>
+      </div>
+      <div class="combobox-item-name">A task not linked to any specific case</div>
+      <div class="combobox-item-meta">
+        <span>🗂️ Office / personal work, reminders, filings…</span>
+      </div>
+    </div>
+  `;
+
   if (!casesToRender || casesToRender.length === 0) {
-    container.innerHTML = `
+    container.innerHTML = generalTaskOptionHtml + `
       <div class="todo-combobox-empty">
         <span>🔎 No matching cases found</span>
       </div>
@@ -7270,7 +7283,7 @@ function renderTodoCaseDropdownItems(casesToRender) {
     return;
   }
 
-  container.innerHTML = casesToRender.map(c => {
+  container.innerHTML = generalTaskOptionHtml + casesToRender.map(c => {
     const num = c.caseNo || c.criminalCaseNumber || '';
     const name = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
     const court = c.courtName || c.criminalCourtName || 'District Court';
@@ -7363,6 +7376,14 @@ function selectTodoCase(caseNo) {
 
   if (select) select.value = caseNo;
 
+  if (caseNo === '__GENERAL__') {
+    if (searchInput) searchInput.value = '📌 General Task (no case linked)';
+    if (clearBtn) clearBtn.style.display = 'flex';
+    closeTodoCaseDropdown();
+    onTodoCaseSelectChange();
+    return;
+  }
+
   const found = allCaseRecords.find(c => {
     const num1 = (c.caseNo || '').toLowerCase();
     const num2 = (c.criminalCaseNumber || '').toLowerCase();
@@ -7406,6 +7427,10 @@ function populateTodoCaseDropdown(selectedCaseNo = '') {
 
   if (select) {
     select.innerHTML = '<option value="">-- Choose Case to Link --</option>';
+    const generalOpt = document.createElement('option');
+    generalOpt.value = '__GENERAL__';
+    generalOpt.textContent = '📌 General Task (no case linked)';
+    select.appendChild(generalOpt);
     const sorted = [...allCaseRecords].sort((a, b) => {
       const numA = (a.caseNo || a.criminalCaseNumber || '').toUpperCase();
       const numB = (b.caseNo || b.criminalCaseNumber || '').toUpperCase();
@@ -7429,6 +7454,12 @@ function populateTodoCaseDropdown(selectedCaseNo = '') {
 
   if (currentVal) {
     if (select) select.value = currentVal;
+    if (currentVal === '__GENERAL__') {
+      if (searchInput) searchInput.value = '📌 General Task (no case linked)';
+      if (clearBtn) clearBtn.style.display = 'flex';
+      onTodoCaseSelectChange();
+      return;
+    }
     const found = allCaseRecords.find(c => {
       const num1 = (c.caseNo || '').toLowerCase();
       const num2 = (c.criminalCaseNumber || '').toLowerCase();
@@ -7460,6 +7491,19 @@ function onTodoCaseSelectChange() {
   const val = select?.value;
   if (!val) {
     if (banner) banner.classList.add('hidden');
+    return;
+  }
+
+  if (val === '__GENERAL__') {
+    if (banner) banner.classList.remove('hidden');
+    if (typeEl) {
+      typeEl.textContent = 'GENERAL';
+      typeEl.className = 'case-badge misc';
+    }
+    if (numEl) numEl.textContent = 'No Case';
+    if (nameEl) nameEl.textContent = '📌 General Task — not linked to any case';
+    if (courtEl) courtEl.textContent = 'Any / Not applicable';
+    if (hearingEl) hearingEl.textContent = '—';
     return;
   }
 
@@ -7546,18 +7590,20 @@ async function handleAddTodoSubmit(e) {
   const priorityInput = document.getElementById('todoPriority');
   const submitBtn = document.querySelector('#todoForm button[type="submit"]') || document.getElementById('addTodoSubmitBtn');
 
-  const caseNo = select?.value?.trim();
+  const caseNoRaw = select?.value?.trim();
+  const isGeneralTask = caseNoRaw === '__GENERAL__';
+  const caseNo = isGeneralTask ? 'GENERAL' : caseNoRaw;
   const title = titleInput?.value?.trim();
   const deadline = deadlineInput?.value;
   const priority = priorityInput?.value || 'medium';
 
-  if (!caseNo || !title || !deadline) {
+  if ((!caseNo && !isGeneralTask) || !title || !deadline) {
     alert('Please fill in all task fields.');
     return false;
   }
 
   // Prevent duplicate pending task (same case + same title + same deadline)
-  const isDuplicateTask = caseTasks.some(t => 
+  const isDuplicateTask = caseTasks.some(t =>
     t.status !== 'completed' &&
     (t.caseNo || '').trim().toLowerCase() === caseNo.toLowerCase() &&
     (t.taskTitle || '').trim().toLowerCase() === title.toLowerCase() &&
@@ -7565,17 +7611,17 @@ async function handleAddTodoSubmit(e) {
   );
 
   if (isDuplicateTask) {
-    alert(`⚠️ A pending task "${title}" with deadline ${deadline} already exists for case ${caseNo}.`);
+    alert(`⚠️ A pending task "${title}" with deadline ${deadline} already exists${isGeneralTask ? '' : ` for case ${caseNo}`}.`);
     return false;
   }
 
-  const found = allCaseRecords.find(c => {
+  const found = isGeneralTask ? null : allCaseRecords.find(c => {
     const num1 = (c.caseNo || '').toLowerCase();
     const num2 = (c.criminalCaseNumber || '').toLowerCase();
     return num1 === caseNo.toLowerCase() || num2 === caseNo.toLowerCase();
   });
 
-  const caseName = found ? (found.caseName || (found.plaintiff ? `${found.plaintiff} vs ${found.defendant}` : (found.victimName ? `${found.victimName} vs ${found.accusedName}` : '—'))) : '—';
+  const caseName = found ? (found.caseName || (found.plaintiff ? `${found.plaintiff} vs ${found.defendant}` : (found.victimName ? `${found.victimName} vs ${found.accusedName}` : '—'))) : (isGeneralTask ? 'General Task (no case)' : '—');
   const hearingDate = found?.nextHearing || null;
 
   try {
@@ -7583,7 +7629,7 @@ async function handleAddTodoSubmit(e) {
     if (submitBtn) submitBtn.disabled = true;
 
     // Check live Supabase for duplicate pending task
-    if (supabaseClient) {
+    if (supabaseClient && !isGeneralTask) {
       try {
         const { data: dupDb } = await supabaseClient
           .from('case_todos')
@@ -7659,14 +7705,14 @@ async function handleAddTodoSubmit(e) {
     const customContainerEl = document.getElementById('todoCustomStepsContainer');
     if (customContainerEl) customContainerEl.classList.add('hidden');
 
-    showToastNotification(`📝 Task scheduled for ${caseNo}!`);
+    showToastNotification(`📝 Task scheduled${isGeneralTask ? '' : ` for ${caseNo}`}!`);
 
     // Live Supabase Sync (if configured)
     if (supabaseClient) {
       try {
         const { data, error } = await supabaseClient.from('case_todos').insert([{
           case_number: newTask.caseNo,
-          case_name: newTask.caseName,
+          case_name: newTask.caseNo === 'GENERAL' ? 'General Task (no case)' : newTask.caseName,
           task_title: newTask.taskTitle,
           hearing_date: newTask.hearingDate && newTask.hearingDate !== '—' ? newTask.hearingDate : null,
           deadline_date: newTask.deadlineDate,
@@ -7825,6 +7871,36 @@ async function toggleTaskSubStep(taskId, stepId) {
 }
 window.toggleTaskSubStep = toggleTaskSubStep;
 
+function rescheduleCaseTask(taskId) {
+  const task = caseTasks.find(t => t.id === taskId);
+  if (!task) return;
+  const currentISO = toISODate(parseDateString(task.deadlineDate) || new Date());
+  const entered = prompt(
+    `Reschedule task:\n"${task.taskTitle}"\n\nEnter new deadline date (YYYY-MM-DD):`,
+    currentISO
+  );
+  if (entered === null) return;
+  const trimmed = entered.trim();
+  const parsed = parseDateString(trimmed) || parseDateString(toISODate(new Date(trimmed)));
+  if (!parsed) {
+    alert('⚠️ Please enter a valid date in YYYY-MM-DD format (e.g. 2026-09-15).');
+    return;
+  }
+  const newDeadline = toISODate(parsed);
+  task.deadlineDate = newDeadline;
+  saveCaseTasksLocally();
+  renderCaseTasks(currentTodoFilter);
+  if (supabaseClient) {
+    supabaseClient.from('case_todos').update({
+      deadline_date: newDeadline
+    }).eq('id', taskId).then(() => {
+      updateTodoSyncIndicator(true);
+    }).catch(e => console.warn('Supabase task reschedule fallback to local:', e));
+  }
+  showToastNotification(`📅 Task rescheduled to ${formatDateDMY(newDeadline)}!`);
+}
+window.rescheduleCaseTask = rescheduleCaseTask;
+
 function editTaskCopyNumber(taskId) {
   const task = caseTasks.find(t => t.id === taskId);
   if (!task) return;
@@ -7910,7 +7986,8 @@ function renderCaseTasks(filter = currentTodoFilter) {
       const num = (t.caseNo || '').toLowerCase();
       const name = (t.caseName || '').toLowerCase();
       const copy = (t.copyNumber || '').toLowerCase();
-      return title.includes(todoSearchQuery) || num.includes(todoSearchQuery) || name.includes(todoSearchQuery) || copy.includes(todoSearchQuery);
+      const general = t.caseNo ? '' : 'general task no case';
+      return title.includes(todoSearchQuery) || num.includes(todoSearchQuery) || name.includes(todoSearchQuery) || copy.includes(todoSearchQuery) || general.includes(todoSearchQuery);
     });
   }
 
@@ -7963,7 +8040,11 @@ function renderCaseTasks(filter = currentTodoFilter) {
 
     const priorityLabel = t.priority === 'high' ? '🔴 High (Urgent)' : (t.priority === 'normal' ? '🔵 Normal' : '🟡 Medium');
     const priorityClass = t.priority || 'medium';
-    const hearingFormatted = t.hearingDate && t.hearingDate !== '—' ? formatDateDMY(t.hearingDate) : 'Undated';
+    const isGeneralTask = !t.caseNo || t.caseNo === 'GENERAL' || t.caseNo === '—';
+    const hearingFormatted = isGeneralTask ? '—' : (t.hearingDate && t.hearingDate !== '—' ? formatDateDMY(t.hearingDate) : 'Undated');
+    const caseMetaHtml = isGeneralTask
+      ? `<span class="todo-general-tag"><i class="fa-solid fa-thumbtack"></i> <strong>General Task</strong> — not linked to any case</span>`
+      : `<span>Case: <a href="javascript:void(0);" class="todo-case-link" onclick="showTab('search'); document.getElementById('globalSearch').value='${t.caseNo}'; filterCaseTables(false);">${t.caseNo}</a> (${t.caseName})</span>`;
 
     let stepperHtml = '';
     if (t.steps && Array.isArray(t.steps) && t.steps.length > 0) {
@@ -7980,13 +8061,13 @@ function renderCaseTasks(filter = currentTodoFilter) {
           </div>
           <div class="task-steps-list">
             ${t.steps.map(step => `
-              <button type="button" 
-                      class="step-chip ${step.completed ? 'completed' : ''}" 
-                      onclick="toggleTaskSubStep('${t.id}', ${step.id})" 
+              <button type="button"
+                      class="step-chip ${step.completed ? 'completed' : ''}"
+                      onclick="toggleTaskSubStep('${t.id}', ${step.id})"
                       title="Click to toggle: ${step.name}">
-                <i class="fa-solid ${step.completed ? 'fa-circle-check' : 'fa-circle-dot'}"></i>
-                <span>${step.name}</span>
-                ${step.date ? `<small style="opacity:0.75; font-size:10px;">(${step.date})</small>` : ''}
+                <span class="step-num-badge">${step.completed ? '<i class="fa-solid fa-check"></i>' : step.id}</span>
+                <span class="step-chip-text">${step.name}</span>
+                ${step.date ? `<small class="step-date-chip">${step.date}</small>` : ''}
               </button>
             `).join('')}
           </div>
@@ -8009,13 +8090,14 @@ function renderCaseTasks(filter = currentTodoFilter) {
             </div>
           </div>
           <div class="todo-meta-row">
-            <span>Case: <a href="javascript:void(0);" class="todo-case-link" onclick="showTab('search'); document.getElementById('globalSearch').value='${t.caseNo}'; filterCaseTables(false);">${t.caseNo}</a> (${t.caseName})</span>
+            ${caseMetaHtml}
             <span>📅 Deadline: <strong>${formatDateDMY(t.deadlineDate)}</strong></span>
-            <span>⚖️ Court Hearing: <strong>${hearingFormatted}</strong></span>
+            ${isGeneralTask ? '' : `<span>⚖️ Court Hearing: <strong>${hearingFormatted}</strong></span>`}
           </div>
           ${stepperHtml}
         </div>
         <div class="todo-item-actions">
+          <button type="button" class="todo-reschedule-btn" onclick="rescheduleCaseTask('${t.id}')" title="Reschedule Deadline">📅</button>
           <button type="button" class="todo-delete-btn" onclick="deleteCaseTask('${t.id}')" title="Delete Task">🗑️</button>
         </div>
       </div>
