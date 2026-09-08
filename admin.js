@@ -11932,6 +11932,13 @@ function initializeApp() {
       return;
     }
 
+    // Block incomplete prefix-only case numbers (e.g. "HM-", "Cr.Rev./") at registration
+    // so they can't be saved and later trap the hearing-forward flow.
+    if (newCase.caseNo.endsWith('-') || newCase.caseNo.endsWith('/') || !/\d/.test(newCase.caseNo)) {
+      alert('⚠️ Incomplete Case Number: "' + newCase.caseNo + '"\nPlease enter the full case number (for example: CS.371/2025 or Cr.Rev./129/2026) including number/year before submitting.');
+      return;
+    }
+
     try {
       isSubmittingCase = true;
       if (submitBtn) {
@@ -12297,7 +12304,13 @@ function initializeApp() {
       }
 
       // Safeguard against incomplete case prefix inputs like "Cri-Rev-" or "CIV-"
-      if (rawCaseNumber.endsWith('-') || rawCaseNumber.endsWith('/') || rawCaseNumber.length < 3) {
+      // Skipped when the typed value IS the complete stored number of a registered
+      // case (a legacy record may legitimately look like a prefix).
+      const isRegisteredCaseNo = allCaseRecords.some(c =>
+        (c.caseNo || '').toLowerCase() === rawCaseNumber.toLowerCase() ||
+        (c.criminalCaseNumber || '').toLowerCase() === rawCaseNumber.toLowerCase()
+      );
+      if (!isRegisteredCaseNo && (rawCaseNumber.endsWith('-') || rawCaseNumber.endsWith('/') || rawCaseNumber.length < 3)) {
         if (statusEl) {
           statusEl.textContent = '⚠️ "' + rawCaseNumber + '" appears to be an incomplete case number prefix. Please select or enter the complete case number (e.g. Cr.Rev./129/2026).';
           statusEl.className = 'update-status-msg error';
