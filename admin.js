@@ -2092,11 +2092,34 @@ async function updateHearingInSupabase(caseNumber, hearingDate, process, actionT
 
         // Update the case row in every table it might live in; .select() makes each
         // update return its affected rows so failures and 0-row matches are visible.
-        const updateResults = await Promise.allSettled(
-          allCaseTables.map(tbl =>
-            supabaseClient.from(tbl).update(updatePayload).ilike('case_number', resolvedCaseNumber).select('id')
-          )
-        );
+        // Candidate match patterns: the resolved number, the raw stored variants from
+        // the matched local record, and a fuzzy pattern where punctuation runs become
+        // single-char wildcards (DB may store "CSCR/123/2024" vs "CSCR 123 2024").
+        const matchVariants = [resolvedCaseNumber];
+        if (matchedCase) {
+          [matchedCase.caseNo, matchedCase.criminalCaseNumber].forEach(v => {
+            const s = String(v || '').trim();
+            if (s && s.toUpperCase() !== resolvedCaseNumber) matchVariants.push(s.toUpperCase());
+          });
+        }
+        if (String(caseNumber).trim().toUpperCase() !== resolvedCaseNumber) {
+          matchVariants.push(String(caseNumber).trim().toUpperCase());
+        }
+        const fuzzy = resolvedCaseNumber.replace(/[^A-Z0-9]+/g, '_');
+        if (fuzzy !== resolvedCaseNumber) matchVariants.push(fuzzy);
+
+        let updateResults = [];
+        for (const variant of matchVariants) {
+          updateResults = await Promise.allSettled(
+            allCaseTables.map(tbl =>
+              supabaseClient.from(tbl).update(updatePayload).ilike('case_number', variant).select('id')
+            )
+          );
+          if (updateResults.some(res =>
+            res.status === 'fulfilled' && res.value && !res.value.error &&
+            Array.isArray(res.value.data) && res.value.data.length > 0
+          )) break; // matched — stop trying variants
+        }
 
         let anyError = false;
         let anyRowUpdated = false;
@@ -4773,7 +4796,13 @@ function filterCaseTables(forceShowAll = false) {
   const pendingCount = allCaseRecords.filter(c => !(c.caseStatus || '').toLowerCase().includes('dispose')).length;
   const disposedCount = allCaseRecords.filter(c => (c.caseStatus || '').toLowerCase().includes('dispose')).length;
   const todayCount = allCaseRecords.filter(c => c.nextHearing === todayStr).length;
-  const undatedCount = allCaseRecords.filter(c => !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !c.nextHearing.trim()).length;
+  const undatedCount = allCaseRecords.filter(c => {
+    if ((c.caseStatus || '').toLowerCase().includes('dispose')) return false; // disposed = closed, not undated
+    const nh = c.nextHearing;
+    if (!nh || nh === '—' || nh === 'null' || !String(nh).trim()) return true;
+    const iso = toISODate(nh);
+    return !iso || iso < todayStr; // passed without being forwarded
+  }).length;
 
   if (totalStatEl) totalStatEl.textContent = String(allCaseRecords.length);
   if (pendingStatEl) pendingStatEl.textContent = String(pendingCount);
@@ -4820,7 +4849,13 @@ function filterCaseTables(forceShowAll = false) {
         return c.nextHearing >= todayStr && c.nextHearing <= weekAheadStr;
       });
     } else if (selectedDate === 'undated') {
-      matches = matches.filter(c => !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || c.nextHearing.trim() === '');
+      matches = matches.filter(c => {
+        if ((c.caseStatus || '').toLowerCase().includes('dispose')) return false; // disposed = closed, not undated
+        const nh = c.nextHearing;
+        if (!nh || nh === '—' || nh === 'null' || String(nh).trim() === '') return true;
+        const iso = toISODate(nh);
+        return !iso || iso < new Date().toISOString().split('T')[0];
+      });
     } else if (selectedDate === 'scheduled') {
       matches = matches.filter(c => c.nextHearing && c.nextHearing !== '—' && c.nextHearing !== 'null' && c.nextHearing.trim() !== '');
     }
@@ -5256,7 +5291,13 @@ function renderHomeDashboard() {
 
   const disposedCount = allCaseRecords.filter(c => (c.caseStatus || '').toLowerCase().includes('dispose')).length;
   const pendingCount = totalCount - disposedCount;
-  const undatedCount = allCaseRecords.filter(c => !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !c.nextHearing.trim()).length;
+  const undatedCount = allCaseRecords.filter(c => {
+    if ((c.caseStatus || '').toLowerCase().includes('dispose')) return false; // disposed = closed, not undated
+    const nh = c.nextHearing;
+    if (!nh || nh === '—' || nh === 'null' || !String(nh).trim()) return true;
+    const iso = toISODate(nh);
+    return !iso || iso < new Date().toISOString().split('T')[0];
+  }).length;
 
   const pendingPercent = totalCount > 0 ? Math.round((pendingCount / totalCount) * 100) : 0;
   const disposedPercent = totalCount > 0 ? Math.round((disposedCount / totalCount) * 100) : 0;
@@ -5288,7 +5329,13 @@ function renderHomeDashboard() {
   if (shortcutRevenue) shortcutRevenue.textContent = `${revenueCount} Cases`;
 
   // 4b. Update Undated Cases Graph Card & Analytics
-  const undatedCasesList = allCaseRecords.filter(c => !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || !c.nextHearing.trim() || c.nextHearing.toLowerCase() === 'undated');
+  const undatedCasesList = allCaseRecords.filter(c => {
+    if ((c.caseStatus || '').toLowerCase().includes('dispose')) return false; // disposed = closed, not undated
+    const nh = c.nextHearing;
+    if (!nh || nh === '—' || nh === 'null' || !String(nh).trim() || String(nh).toLowerCase() === 'undated') return true;
+    const iso = toISODate(nh);
+    return !iso || iso < new Date().toISOString().split('T')[0];
+  });
   const undatedTotal = undatedCasesList.length;
   const undatedCivil = undatedCasesList.filter(c => (c.caseType || 'civil').toLowerCase() === 'civil').length;
   const undatedCriminal = undatedCasesList.filter(c => (c.caseType || '').toLowerCase() === 'criminal').length;
@@ -5841,17 +5888,35 @@ function refreshAllCaseTables() {
   }
 
   // 5. Undated Cases Table & Count (With Direct Update Hearing Action)
-  const undatedCases = allCaseRecords.filter(c => !c.nextHearing || c.nextHearing === '—' || c.nextHearing === 'null' || c.nextHearing.trim() === '');
+  // "Undated" = no next hearing at all, OR the scheduled date has already
+  // passed without being forwarded (needs a fresh date).
+  const todayISO = toISODate(new Date());
+  const isUndatedCase = (c) => {
+    // Disposed cases never count as undated — they're closed, not awaiting a date
+    if ((c.caseStatus || '').toLowerCase().includes('dispose')) return false;
+    const nh = c.nextHearing;
+    if (!nh || nh === '—' || nh === 'null' || String(nh).trim() === '') return true;
+    const iso = toISODate(nh);
+    if (!iso) return true;
+    return iso < todayISO; // hearing date passed, not forwarded
+  };
+  const undatedCases = allCaseRecords.filter(isUndatedCase);
   const undatedCountEl = document.getElementById('undatedCount');
   const undatedTable = document.querySelector('#undatedCasesTable tbody');
   if (undatedCountEl) undatedCountEl.textContent = String(undatedCases.length);
   if (undatedTable) {
     if (undatedCases.length === 0) {
-      undatedTable.innerHTML = '<tr><td colspan="7" class="no-results">🎉 No undated cases! All cases have hearing dates scheduled.</td></tr>';
+      undatedTable.innerHTML = '<tr><td colspan="8" class="no-results">🎉 No undated cases! All cases have hearing dates scheduled.</td></tr>';
     } else {
       undatedTable.innerHTML = undatedCases.map(c => {
         const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
         const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
+        const nextISO = toISODate(c.nextHearing);
+        const dateCell = nextISO
+          ? (nextISO < todayISO
+              ? `<span class="undated-overdue-chip" title="Hearing date passed — not yet forwarded"><i class="fa-solid fa-clock-rotate-left"></i> ${formatDateDMY(nextISO)}</span>`
+              : formatDateDMY(nextISO))
+          : '<span class="undated-never-chip"><i class="fa-solid fa-circle-question"></i> Never dated</span>';
         return `
           <tr>
             <td><strong>${escapeHtml(caseNumber)}</strong></td>
@@ -5860,6 +5925,7 @@ function refreshAllCaseTables() {
             <td><span class="case-badge ${c.caseType || 'civil'}">${(c.caseType || 'Civil').toUpperCase()}</span></td>
             <td>${escapeHtml(c.courtName || c.criminalCourtName || 'District Court')}</td>
             <td>${formatDateDMY(c.filingDate || c.crimeFilingDate)}</td>
+            <td>${dateCell}</td>
             <td class="table-actions-td" style="white-space: nowrap; text-align: center;">
               <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward Hearing Date">
                 <i class="fa-solid fa-calendar-plus"></i><span class="btn-text"> Date</span>
