@@ -23038,3 +23038,39 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   .fd-prog-date { font-size: 18px; }
   .fd-submit-btn { width: 100%; min-width: 0; }
 }
+
+/* Forward Dates: rectangular preset boxes + accent-coloured title */
+.fd-hero-text h3 {
+  background: linear-gradient(90deg, #6FFFE9 0%, #5BC0BE 45%, #FFFFFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #5BC0BE;
+}
+
+/* Date presets & stage pills become clearly-bordered rectangles */
+.fd-presets .preset-pill,
+.fd-stage-pills .stage-pill {
+  border-radius: 6px !important;
+  border: 1.5px solid #B8D3FE !important;
+  background: #ffffff !important;
+  color: #3A506B !important;
+  padding: 8px 13px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 2px rgba(58, 80, 107, 0.08);
+}
+
+.fd-presets .preset-pill:hover,
+.fd-stage-pills .stage-pill:hover {
+  border-color: #5BC0BE !important;
+  background: #E6F9F7 !important;
+  color: #0B7A6E !important;
+  transform: translateY(-1px);
+}
+
+.fd-stage-pills .stage-pill.stage-pill-specific {
+  background: linear-gradient(135deg, #6FFFE9, #5BC0BE) !important;
+  color: #0B132B !important;
+  border-color: #5BC0BE !important;
+  border-radius: 6px !important;
+}
