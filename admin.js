@@ -14552,11 +14552,13 @@ function renderLiveCrudRows() {
 
     return `
       <div class="lc-row-card">
-        <div class="lc-row-index" title="Row #${idx + 1}">#${idx + 1}</div>
-        <div class="lc-row-main">
-          <div class="lc-row-headline" title="${escapeHtml(headline)}">${escapeHtml(headline)}</div>
-          <div class="lc-row-secondary-group">${secondaryHtml}</div>
-          ${footerHtml}
+        <div class="lc-row-body">
+          <div class="lc-row-index" title="Row #${idx + 1}">#${idx + 1}</div>
+          <div class="lc-row-main">
+            <div class="lc-row-headline" title="${escapeHtml(headline)}">${escapeHtml(headline)}</div>
+            <div class="lc-row-secondary-group">${secondaryHtml}</div>
+            ${footerHtml}
+          </div>
         </div>
         <div class="lc-row-actions">
           <button type="button" class="table-view-btn" onclick="openLiveCrudModal('edit', ${escapeHtml(String(rowId)) ? `'${escapeHtml(rowId)}'` : 'null'})" title="Edit this row"><i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span></button>

@@ -22714,11 +22714,19 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  align-self: flex-start;
+}
+
+/* Sr-no column (left) and contents column (right) inside every card */
+.lc-row-body {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .lc-row-main {
-  flex: 1 1 300px;
+  flex: 1 1 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -22817,7 +22825,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 @media (max-width: 720px) {
   .lc-row-card { padding: 12px; border-radius: 14px; }
   .lc-row-index { min-width: 32px; height: 32px; font-size: 12px; border-radius: 8px; }
-  .lc-row-main { flex-basis: 100%; min-width: 100%; }
+  .lc-row-body { flex-basis: 100%; min-width: 100%; gap: 10px; }
   .lc-row-headline { font-size: 13.5px; white-space: normal; }
   .lc-row-secondary { max-width: 100%; }
   .lc-row-secondary.lc-extra { display: none; }
