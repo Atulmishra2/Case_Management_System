@@ -42,7 +42,7 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=7.54">
+    <link rel="stylesheet" href="admin.css?v=7.55">
     <link rel="stylesheet" href="admin-mint.css?v=7.41" id="mintThemeCss" disabled>
     <!-- PWA & Mobile Web App Meta Tags -->
     <meta name="theme-color" content="#502D55">
@@ -1322,28 +1322,10 @@
                         </div>
                     </div>
 
-                    <!-- Daily Cause List Table -->
+                    <!-- Daily Cause List — Linear Cards (replaces wide table) -->
                     <div class="causelist-table-card">
-                        <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                            <table id="causeListMainTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table causelist-table">
-                                <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                                    <tr>
-                                        <th style="width: 50px; text-align: center;">Item #</th>
-                                        <th style="width: 130px;">Case Number</th>
-                                        <th>Case Title / Parties</th>
-                                        <th style="width: 100px;">Type</th>
-                                        <th>Court & Complex</th>
-                                        <th>Stage / Purpose</th>
-                                        <th>Client & Contact</th>
-                                        <th class="table-actions-th" style="text-align: center; width: 140px;">Quick Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="causeListTableBody">
-                                    <tr>
-                                        <td colspan="8" class="no-results">Loading daily cause list...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div id="causeListCardsContainer" class="causelist-cards">
+                            <div class="causelist-empty">Loading daily cause list...</div>
                         </div>
                     </div>
                 </div>
@@ -5258,7 +5240,7 @@
          ========================================================================== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="components/chambers-footer.js" defer></script>
-    <script src="mint-datepicker.js?v=7.54" defer></script>
+    <script src="mint-datepicker.js?v=7.55" defer></script>
     <script src="theme-toggle.js" defer></script>
     <script src="admin.js" defer></script>
 </body>

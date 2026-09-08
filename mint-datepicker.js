@@ -46,7 +46,12 @@
     pickerEl.innerHTML =
       '<div class="mdp-header">' +
       '  <button type="button" class="mdp-nav mdp-prev" aria-label="Previous month"><i class="fa-solid fa-chevron-left"></i></button>' +
-      '  <div class="mdp-title"><span class="mdp-month"></span> <span class="mdp-year"></span></div>' +
+      '  <button type="button" class="mdp-nav mdp-prev-year" aria-label="Previous year"><i class="fa-solid fa-angles-left"></i></button>' +
+      '  <div class="mdp-title">' +
+      '    <select class="mdp-month" aria-label="Month"></select>' +
+      '    <select class="mdp-year" aria-label="Year"></select>' +
+      '  </div>' +
+      '  <button type="button" class="mdp-nav mdp-next-year" aria-label="Next year"><i class="fa-solid fa-angles-right"></i></button>' +
       '  <button type="button" class="mdp-nav mdp-next" aria-label="Next month"><i class="fa-solid fa-chevron-right"></i></button>' +
       '</div>' +
       '<div class="mdp-subtitle">Select a Date</div>' +
@@ -59,6 +64,16 @@
 
     pickerEl.querySelector('.mdp-prev').addEventListener('click', function () { shiftMonth(-1); });
     pickerEl.querySelector('.mdp-next').addEventListener('click', function () { shiftMonth(1); });
+    pickerEl.querySelector('.mdp-prev-year').addEventListener('click', function () { shiftMonth(-12); });
+    pickerEl.querySelector('.mdp-next-year').addEventListener('click', function () { shiftMonth(12); });
+    pickerEl.querySelector('.mdp-month').addEventListener('change', function () {
+      viewMonth = parseInt(this.value, 10);
+      renderGrid();
+    });
+    pickerEl.querySelector('.mdp-year').addEventListener('change', function () {
+      viewYear = parseInt(this.value, 10);
+      renderGrid();
+    });
     pickerEl.querySelector('.mdp-today-btn').addEventListener('click', function () {
       var now = new Date();
       if (activeInput) {
@@ -76,9 +91,9 @@
   }
 
   function shiftMonth(delta) {
-    viewMonth += delta;
-    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
-    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    var total = viewYear * 12 + viewMonth + delta;
+    viewYear = Math.floor(total / 12);
+    viewMonth = ((total % 12) + 12) % 12;
     renderGrid();
   }
 
@@ -91,8 +106,22 @@
     var daysEl = pickerEl.querySelector('.mdp-days');
     daysEl.innerHTML = '';
 
-    pickerEl.querySelector('.mdp-month').textContent = MONTHS[viewMonth];
-    pickerEl.querySelector('.mdp-year').textContent = viewYear;
+    // Month dropdown
+    var monthSel = pickerEl.querySelector('.mdp-month');
+    monthSel.innerHTML = MONTHS.map(function (nm, idx) {
+      return '<option value="' + idx + '"' + (idx === viewMonth ? ' selected' : '') + '>' + nm + '</option>';
+    }).join('');
+
+    // Year dropdown: current view year ± 10, expanding window if needed
+    var nowY = new Date().getFullYear();
+    var yMin = Math.min(nowY - 10, viewYear - 5);
+    var yMax = Math.max(nowY + 10, viewYear + 5);
+    var yearSel = pickerEl.querySelector('.mdp-year');
+    var yearHtml = '';
+    for (var y = yMin; y <= yMax; y++) {
+      yearHtml += '<option value="' + y + '"' + (y === viewYear ? ' selected' : '') + '>' + y + '</option>';
+    }
+    yearSel.innerHTML = yearHtml;
 
     var selected = activeInput ? isoToParts(activeInput.value) : null;
     var today = new Date();

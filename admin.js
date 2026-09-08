@@ -801,8 +801,9 @@ async function fetchAllDataFromSupabase() {
             const currentISO = toISODate(matchingCase.nextHearing);
             const todayISO = toISODate(new Date());
             const isMissing = !currentISO;
-            // Case row's next_hearing is in the past — a newer hearing record should take over
-            const isStale = !!currentISO && currentISO < todayISO;
+            // Case row's next_hearing is today or in the past — a newer future hearing
+            // record means the case was forwarded, so the record should take over
+            const isStale = !!currentISO && currentISO <= todayISO;
 
             if (isMissing || (isStale && hDate >= todayISO)) {
               if (currentISO && currentISO !== hDate) {
@@ -5069,6 +5070,7 @@ function renderCauseListTable(dateVal = currentCauseListDate, courtFilter = '') 
   currentCauseListDate = dateVal;
   currentCauseListCourt = (courtFilter || '').trim().toLowerCase();
 
+  const container = document.getElementById('causeListCardsContainer');
   const tbody = document.getElementById('causeListTableBody');
   const bannerDateText = document.getElementById('causeListBannerDateText');
   const bannerDayName = document.getElementById('causeListBannerDayName');
@@ -5118,17 +5120,17 @@ function renderCauseListTable(dateVal = currentCauseListDate, courtFilter = '') 
   const todayListedCount = allCaseRecords.filter(c => c.nextHearing === todayStr).length;
   if (navBadge) navBadge.textContent = String(todayListedCount);
 
-  if (!tbody) return;
+  if (!container && !tbody) return;
 
   if (listedCases.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="8" class="no-results" style="padding: 24px;">
-          🎉 No court appearances scheduled for <strong>${formattedLong}</strong> (${dayName.split(' ')[0]}).
-          <br><small style="color:#64748b; margin-top:4px; display:inline-block;">Select a different date above or pick a preset.</small>
-        </td>
-      </tr>
+    const emptyHtml = `
+      <div class="causelist-empty">
+        🎉 No court appearances scheduled for <strong>${formattedLong}</strong> (${dayName.split(' ')[0]}).
+        <small>Select a different date above or pick a preset.</small>
+      </div>
     `;
+    if (container) container.innerHTML = emptyHtml;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="no-results" style="padding: 24px;">${emptyHtml}</td></tr>`;
     return;
   }
 
@@ -5153,27 +5155,35 @@ function renderCauseListTable(dateVal = currentCauseListDate, courtFilter = '') 
     const clientPhone = c.clientNumber || c.criminalClientNumber || '';
 
     html += `
-      <tr>
-        <td style="text-align: center;"><span class="court-index-badge">#${idx + 1}</span></td>
-        <td class="copyable-case-no" title="Double-click to copy Case Number"><strong>${escapeHtml(caseNumber)}</strong></td>
-        <td><strong>${escapeHtml(caseName)}</strong></td>
-        <td><span class="case-badge ${caseType}">${caseType.toUpperCase()}</span></td>
-        <td>🏛️ ${escapeHtml(courtName)}</td>
-        <td><span style="font-weight:600; color:#1e40af;">${escapeHtml(stage)}</span></td>
-        <td>
-          <div>${escapeHtml(clientName)}</div>
-          ${clientPhone ? `<small style="color:#64748b;">📞 ${escapeHtml(clientPhone)}</small>` : ''}
-        </td>
-        <td class="table-actions-td" style="text-align: center; white-space: nowrap;">
+      <div class="cl-card cl-${escapeHtml(caseType)}">
+        <div class="cl-card-index">#${idx + 1}</div>
+        <div class="cl-card-main">
+          <div class="cl-card-top">
+            <span class="cl-card-caseno copyable-case-no" title="Double-click to copy Case Number"><i class="fa-solid fa-hashtag"></i> ${escapeHtml(caseNumber)}</span>
+            <span class="case-badge ${caseType}">${caseType.toUpperCase()}</span>
+            <span class="cl-card-stage"><i class="fa-solid fa-gavel"></i> ${escapeHtml(stage)}</span>
+          </div>
+          <div class="cl-card-title">${escapeHtml(caseName)}</div>
+          <div class="cl-card-meta">
+            <span class="cl-meta-court">🏛️ ${escapeHtml(courtName)}</span>
+            <span class="cl-meta-client">👤 ${escapeHtml(clientName)}${clientPhone ? ` · 📞 ${escapeHtml(clientPhone)}` : ''}</span>
+          </div>
+        </div>
+        <div class="cl-card-actions">
           <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View case proceedings history"><i class="fa-solid fa-scroll"></i><span class="btn-text"> Details</span></button>
           <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date"><i class="fa-solid fa-calendar-plus"></i><span class="btn-text"> Forward Date</span></button>
           <button type="button" class="table-view-btn whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="Send WhatsApp court notice to client"><i class="fa-brands fa-whatsapp"></i></button>
-        </td>
-      </tr>
+        </div>
+      </div>
     `;
   });
 
-  tbody.innerHTML = html;
+  if (container) container.innerHTML = html;
+  if (tbody) tbody.innerHTML = listedCases.map((c, idx) => {
+    const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+    const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
+    return `<tr><td>#${idx + 1}</td><td><strong>${escapeHtml(caseNumber)}</strong></td><td><strong>${escapeHtml(caseName)}</strong></td></tr>`;
+  }).join('');
 }
 
 window.renderCauseListTable = renderCauseListTable;

@@ -20972,7 +20972,36 @@ table.search-results-table td:last-child {
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
 }
+
+/* Month / year dropdowns replace plain text for fast switching */
+.mdp-title select {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  border: 1px solid rgba(184, 211, 254, 0.45);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 3px 6px;
+  cursor: pointer;
+  outline: none;
+}
+.mdp-title select:hover,
+.mdp-title select:focus {
+  background: rgba(255, 255, 255, 0.26);
+}
+.mdp-title select option {
+  background: #0B132B;
+  color: #ffffff;
+  font-weight: 600;
+}
+.mdp-title .mdp-year { max-width: 76px; }
 
 .mdp-nav {
   width: 28px;
@@ -20987,10 +21016,18 @@ table.search-results-table td:last-child {
   cursor: pointer;
   font-size: 12px;
   transition: background 0.15s ease;
+  flex: 0 0 auto;
 }
 
 .mdp-nav:hover {
   background: rgba(255, 255, 255, 0.25);
+}
+
+.mdp-nav.mdp-prev-year,
+.mdp-nav.mdp-next-year {
+  width: 24px;
+  font-size: 10px;
+  border-color: rgba(184, 211, 254, 0.25);
 }
 
 .mdp-subtitle {
@@ -22447,4 +22484,138 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   border-radius: 9999px;
   padding: 2px 10px;
   white-space: nowrap;
+}
+
+/* ============================================================
+   v7.55 — Daily Cause List: Linear Cards (replaces wide table)
+   One row per matter: index | info block | action buttons
+   ============================================================ */
+.causelist-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cl-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid #E0E8F9;
+  border-left: 4px solid #5BC0BE;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(11, 19, 43, 0.06);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  flex-wrap: wrap;
+}
+.cl-card:hover {
+  box-shadow: 0 4px 14px rgba(11, 19, 43, 0.12);
+  transform: translateY(-1px);
+}
+.cl-card.cl-criminal   { border-left-color: #b91c1c; }
+.cl-card.cl-revenue    { border-left-color: #b45309; }
+.cl-card.cl-family     { border-left-color: #7c3aed; }
+.cl-card.cl-state      { border-left-color: #1d4ed8; }
+.cl-card.cl-complaint  { border-left-color: #0f766e; }
+.cl-card.cl-misc_civil,
+.cl-card.cl-misc_criminal { border-left-color: #64748b; }
+
+.cl-card-index {
+  flex: 0 0 auto;
+  min-width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #E0E8F9;
+  color: #0B132B;
+  font-weight: 800;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cl-card-main {
+  flex: 1 1 320px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cl-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cl-card-caseno {
+  font-weight: 800;
+  font-size: 15px;
+  color: #1C2541;
+  letter-spacing: 0.01em;
+}
+.cl-card-caseno i { color: #5BC0BE; font-size: 12px; }
+
+.cl-card-stage {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e40af;
+  background: #E0E8F9;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.cl-card-stage i { font-size: 10px; margin-right: 2px; }
+
+.cl-card-title {
+  font-weight: 700;
+  color: #0B132B;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.cl-card-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: #3A506B;
+}
+.cl-meta-court i, .cl-meta-client i { font-size: 11px; }
+
+.cl-card-actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.causelist-empty {
+  background: #ffffff;
+  border: 1px dashed #A0C4FF;
+  border-radius: 12px;
+  padding: 28px 20px;
+  text-align: center;
+  color: #3A506B;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.causelist-empty small {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 12.5px;
+}
+
+/* Narrow screens: stack actions under info */
+@media (max-width: 720px) {
+  .cl-card { gap: 10px; }
+  .cl-card-actions { width: 100%; justify-content: flex-start; }
 }
