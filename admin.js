@@ -4273,8 +4273,9 @@ function populateHearingCaseDropdown(selectedCaseNoToInclude = '') {
   undatedCases.sort(sortFn);
   datedCases.sort(sortFn);
 
-  // Dropdown shows ONLY undated cases (awaiting first schedule)
-  let html = `<option value="">-- Choose Undated Case from List (${undatedCases.length} Undated) --</option>`;
+  // Dropdown shows ALL active (non-disposed) cases: undated ones first
+  // (awaiting first schedule), then dated ones (for forwarding to a new date).
+  let html = `<option value="">-- Choose Case from List (${undatedCases.length} Undated, ${datedCases.length} Dated) --</option>`;
 
   if (undatedCases.length > 0) {
     html += `<optgroup label="❓ Undated Cases (${undatedCases.length} Awaiting First Schedule)">`;
@@ -4283,6 +4284,18 @@ function populateHearingCaseDropdown(selectedCaseNoToInclude = '') {
       const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : ''));
       const caseType = (c.caseType || 'civil').toUpperCase();
       html += `<option value="${escapeHtml(caseNum)}">❓ ${escapeHtml(caseNum)} — ${escapeHtml(caseName)} [${caseType}] (Undated)</option>`;
+    });
+    html += `</optgroup>`;
+  }
+
+  if (datedCases.length > 0) {
+    html += `<optgroup label="📅 Dated Cases (${datedCases.length} With Next Date — Forward to New Date)">`;
+    datedCases.forEach(c => {
+      const caseNum = c.caseNo || c.criminalCaseNumber || '';
+      const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : ''));
+      const caseType = (c.caseType || 'civil').toUpperCase();
+      const nextDt = formatDateDMY(c.nextHearing);
+      html += `<option value="${escapeHtml(caseNum)}">📅 ${escapeHtml(caseNum)} — ${escapeHtml(caseName)} [${caseType}] (${nextDt})</option>`;
     });
     html += `</optgroup>`;
   }

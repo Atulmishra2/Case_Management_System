@@ -23074,3 +23074,8 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   border-color: #5BC0BE !important;
   border-radius: 6px !important;
 }
+
+/* Forward Dates hero subtitle — soft mint accent */
+.fd-hero-text p {
+  color: #9CE8DE;
+}
