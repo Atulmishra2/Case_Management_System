@@ -14494,6 +14494,13 @@ async function fetchLiveCrudRows() {
   }
 }
 
+// "case_name" -> "Case Name", "plaintiff" -> "Plaintiff", "next_hearing" -> "Next Hearing"
+function prettifyLiveCrudLabel(key) {
+  return String(key || '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, ch => ch.toUpperCase());
+}
+
 // Pick the most human-meaningful fields to headline each row card
 function getLiveCrudHeadlineFields(row) {
   const keys = Object.keys(row);
@@ -14539,7 +14546,7 @@ function renderLiveCrudRows() {
     const { headlineKey, secondaryKeys } = getLiveCrudHeadlineFields(row);
     const headline = String(row[headlineKey] ?? '—');
     const secondaryHtml = secondaryKeys.map((k, i) =>
-      `<span class="lc-row-secondary${i >= 3 ? ' lc-extra' : ''}"><strong>${escapeHtml(k)}:</strong> ${escapeHtml(String(row[k]).slice(0, 80))}</span>`
+      `<span class="lc-row-secondary${i >= 3 ? ' lc-extra' : ''}"><strong>${escapeHtml(prettifyLiveCrudLabel(k))}:</strong> ${escapeHtml(String(row[k]).slice(0, 80))}</span>`
     ).join('');
     const rowId = String(row.id ?? '');
     const createdAt = row.created_at ? String(row.created_at).slice(0, 10) : '';
@@ -14594,7 +14601,7 @@ function buildLiveCrudFieldHtml(key, value) {
 
   return `
     <div class="modifier-form-group">
-      <label for="lcField_${escapeHtml(key)}" class="db-toolbar-label">${escapeHtml(key)}:</label>
+      <label for="lcField_${escapeHtml(key)}" class="db-toolbar-label">${escapeHtml(prettifyLiveCrudLabel(key))}:</label>
       <input type="${inputType}" id="lcField_${escapeHtml(key)}" data-lc-column="${escapeHtml(key)}" class="db-search-input" ${valAttr} placeholder="— leave empty to skip —" autocomplete="off">
     </div>
   `;
