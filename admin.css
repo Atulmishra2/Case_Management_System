@@ -23248,6 +23248,17 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   gap: 5px;
 }
 
+/* Medium-dark date chips with white text */
+.todo-meta-row .todo-date-chip {
+  display: inline-block;
+  background: #3A506B;
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 5px;
+  padding: 1px 7px;
+  font-size: 12px;
+}
+
 /* Reschedule button on every task card */
 .todo-reschedule-btn {
   background: transparent;

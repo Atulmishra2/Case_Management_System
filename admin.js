@@ -8065,7 +8065,7 @@ function renderCaseTasks(filter = currentTodoFilter) {
                       class="step-chip ${step.completed ? 'completed' : ''}"
                       onclick="toggleTaskSubStep('${t.id}', ${step.id})"
                       title="Click to toggle: ${step.name}">
-                <span class="step-num-badge">${step.completed ? '<i class="fa-solid fa-check"></i>' : step.id}</span>
+                <span class="step-num-badge">${step.id}</span>
                 <span class="step-chip-text">${step.name}</span>
                 ${step.date ? `<small class="step-date-chip">${step.date}</small>` : ''}
               </button>
@@ -8091,8 +8091,8 @@ function renderCaseTasks(filter = currentTodoFilter) {
           </div>
           <div class="todo-meta-row">
             ${caseMetaHtml}
-            <span>📅 Deadline: <strong>${formatDateDMY(t.deadlineDate)}</strong></span>
-            ${isGeneralTask ? '' : `<span>⚖️ Court Hearing: <strong>${hearingFormatted}</strong></span>`}
+            <span>📅 Deadline: <span class="todo-date-chip">${formatDateDMY(t.deadlineDate)}</span></span>
+            ${isGeneralTask ? '' : `<span>⚖️ Court Hearing: <span class="todo-date-chip">${hearingFormatted}</span></span>`}
           </div>
           ${stepperHtml}
         </div>

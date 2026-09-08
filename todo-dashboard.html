@@ -318,11 +318,11 @@ function subtasks(t) {
         <div class="h-full bg-gradient-to-r from-teal-500 to-cyan-400 rounded-full transition-all" style="width:${pct}%"></div>
       </div>
       <div class="space-y-1.5">
-        ${t.steps.map(s => `
+        ${t.steps.map((s, si) => `
           <button type="button" onclick="toggleStep(this)" class="step flex items-center gap-2.5 w-full text-left group">
             <span class="w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center text-[10px] font-bold transition
               ${s.done ? 'bg-teal-500 border-teal-500 text-white' : 'bg-white border-slate-300 text-slate-500 group-hover:border-indigo-400'}">
-              ${s.done ? '<i class="fa-solid fa-check"></i>' : ''}
+              ${si + 1}
             </span>
             <span class="text-xs ${s.done ? 'text-slate-400 line-through decoration-teal-500' : 'text-slate-600 font-medium'}">${esc(s.name)}</span>
           </button>`).join('')}
@@ -347,8 +347,8 @@ function card(t, i) {
           ${t.caseNo
             ? `<span><i class="fa-solid fa-scale-balanced mr-1 text-slate-400"></i><span class="font-semibold text-indigo-700 cursor-pointer hover:underline">${esc(t.caseNo)}</span> <span class="text-slate-400">(${esc(t.caseName)})</span></span>`
             : `<span class="text-teal-700 bg-teal-50 border border-teal-200 rounded-md px-1.5 py-0.5 text-[11px] font-medium"><i class="fa-solid fa-thumbtack mr-1"></i>General Task — no case linked</span>`}
-          <span><i class="fa-regular fa-calendar mr-1 text-slate-400"></i>Deadline: <strong class="text-slate-700">${fmt(t.deadline)}</strong></span>
-          ${t.hearing ? `<span><i class="fa-solid fa-gavel mr-1 text-slate-400"></i>Hearing: <strong class="text-slate-700">${fmt(t.hearing)}</strong></span>` : ''}
+          <span><i class="fa-regular fa-calendar mr-1 text-slate-400"></i>Deadline: <span class="inline-block bg-slate-600 text-white font-semibold rounded-md px-2 py-0.5">${fmt(t.deadline)}</span></span>
+          ${t.hearing ? `<span><i class="fa-solid fa-gavel mr-1 text-slate-400"></i>Hearing: <span class="inline-block bg-slate-600 text-white font-semibold rounded-md px-2 py-0.5">${fmt(t.hearing)}</span></span>` : ''}
         </div>
         ${subtasks(t)}
       </div>
