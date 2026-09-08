@@ -22735,7 +22735,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 
 .lc-row-headline {
   font-weight: 800;
-  font-size: 14.5px;
+  font-size: 16px;
   color: #1C2541;
   white-space: nowrap;
   overflow: hidden;
@@ -22746,7 +22746,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   display: flex;
   flex-wrap: wrap;
   gap: 4px 14px;
-  font-size: 12px;
+  font-size: 13.5px;
   color: #64748b;
 }
 
@@ -22826,8 +22826,9 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   .lc-row-card { padding: 12px; border-radius: 14px; }
   .lc-row-index { min-width: 32px; height: 32px; font-size: 12px; border-radius: 8px; }
   .lc-row-body { flex-basis: 100%; min-width: 100%; gap: 10px; }
-  .lc-row-headline { font-size: 13.5px; white-space: normal; }
+  .lc-row-headline { font-size: 14.5px; white-space: normal; }
   .lc-row-secondary { max-width: 100%; }
+  .lc-row-secondary-group { font-size: 13px; }
   .lc-row-secondary.lc-extra { display: none; }
   .lc-row-footer { display: none; }
   .lc-row-actions {
