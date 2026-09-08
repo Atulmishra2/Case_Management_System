@@ -10198,6 +10198,7 @@ html.auth-guest #guestScreen {
   border-radius: 10px;
   padding: 9px 12px;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 10px;
@@ -10292,6 +10293,8 @@ html.auth-guest #guestScreen {
   flex-direction: column;
   gap: 5px;
   align-items: stretch;
+  min-width: 96px;
+  margin-left: auto;
   flex: 0 0 auto;
 }
 
@@ -22678,6 +22681,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 
 .lc-row-card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 14px;
   background: #ffffff;
@@ -22729,10 +22733,23 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   flex-direction: column;
   gap: 6px;
   align-items: stretch;
+  min-width: 118px;
+  margin-left: auto;
+}
+/* Buttons inside card action columns need real flex display to center
+   icon + label and stop text wrapping mid-button */
+.lc-row-actions .table-view-btn,
+.cl-card-actions .table-view-btn,
+.home-today-card-actions .table-view-btn,
+.home-today-card-actions .call-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
 }
 .lc-row-actions .table-view-btn {
   width: 100%;
-  justify-content: center;
   min-height: 38px;
 }
 .lc-delete-btn { color: #b91c1c; }
