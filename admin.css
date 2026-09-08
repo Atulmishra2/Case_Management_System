@@ -6747,11 +6747,11 @@ html.auth-guest #guestScreen {
 .task-stepper-container {
   margin-top: 10px;
   padding: 10px 14px 12px;
-  background: linear-gradient(180deg, #ffffff 0%, #F4F8FE 100%);
-  border: 1px solid #E0E8F9;
-  border-left: 3px solid #5BC0BE;
+  background: linear-gradient(180deg, #E0E8F9 0%, #F6F9FF 45%, #FFFFFF 100%);
+  border: 1px solid #B8D3FE;
+  border-left: 3px solid #3A506B;
   border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(28, 37, 65, 0.05);
+  box-shadow: 0 1px 3px rgba(28, 37, 65, 0.06);
 }
 
 .task-stepper-header {
@@ -6759,14 +6759,14 @@ html.auth-guest #guestScreen {
   justify-content: space-between;
   align-items: center;
   font-size: 11.5px;
-  font-weight: 600;
-  color: #3A506B;
+  font-weight: 700;
+  color: #1C2541;
   margin-bottom: 7px;
 }
 
 .task-stepper-pct {
-  color: #3A506B;
-  background: #E6F9F7;
+  color: #1C2541;
+  background: linear-gradient(135deg, #6FFFE9 0%, #5BC0BE 100%);
   border: 1px solid #5BC0BE;
   border-radius: 6px;
   padding: 1px 8px;
@@ -6784,7 +6784,7 @@ html.auth-guest #guestScreen {
 
 .task-stepper-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3A506B 0%, #5BC0BE 60%, #6FFFE9 100%);
+  background: linear-gradient(90deg, #1C2541 0%, #3A506B 35%, #5BC0BE 75%, #6FFFE9 100%);
   border-radius: 3px;
   transition: width 0.35s ease;
 }
@@ -6803,18 +6803,18 @@ html.auth-guest #guestScreen {
   font-size: 11.5px;
   font-weight: 600;
   border-radius: 7px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #3A506B;
+  border: 1px solid #B8D3FE;
+  background: #FFFFFF;
+  color: #1C2541;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .step-chip:hover {
-  border-color: #5BC0BE;
-  background: #F2FBFA;
+  border-color: #3A506B;
+  background: #E0E8F9;
   transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(58, 80, 107, 0.12);
+  box-shadow: 0 2px 5px rgba(28, 37, 65, 0.14);
 }
 
 .step-num-badge {
@@ -6827,9 +6827,9 @@ html.auth-guest #guestScreen {
   border-radius: 50%;
   font-size: 10.5px;
   font-weight: 700;
-  color: #3A506B;
-  background: #E0E8F9;
-  border: 1px solid #B8D3FE;
+  color: #1C2541;
+  background: #B8D3FE;
+  border: 1px solid #3A506B;
   transition: all 0.15s ease;
 }
 
@@ -6851,7 +6851,7 @@ html.auth-guest #guestScreen {
 .step-chip.completed .step-num-badge {
   background: linear-gradient(135deg, #5BC0BE 0%, #6FFFE9 100%);
   color: #1C2541;
-  border-color: #5BC0BE;
+  border-color: #3A506B;
 }
 
 .step-chip.completed .step-chip-text {
