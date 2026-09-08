@@ -12976,6 +12976,18 @@ function renderLiveCrudRows() {
   container.innerHTML = rows.map((row, idx) => {
     const { headlineKey, secondaryKeys } = getLiveCrudHeadlineFields(row);
     const headline = String(row[headlineKey] ?? '—');
+    // For the hearings table, show the case name right after the case number
+    let headlineSuffix = '';
+    if (liveCrudCurrentTable === 'hearings' && row.case_number) {
+      const matchedCase = (allCaseRecords || []).find(c =>
+        (c.caseNo || '').toLowerCase() === String(row.case_number).toLowerCase() ||
+        (c.criminalCaseNumber || '').toLowerCase() === String(row.case_number).toLowerCase()
+      );
+      const caseName = matchedCase?.caseName ||
+        (matchedCase?.plaintiff ? `${matchedCase.plaintiff} vs ${matchedCase.defendant}` : '') ||
+        (matchedCase?.victimName ? `${matchedCase.victimName} vs ${matchedCase.accusedName}` : '');
+      if (caseName) headlineSuffix = `<span class="lc-row-headline-name"> — ${escapeHtml(caseName)}</span>`;
+    }
     const secondaryHtml = secondaryKeys.map((k, i) =>
       `<span class="lc-row-secondary${i >= 3 ? ' lc-extra' : ''}"><strong>${escapeHtml(prettifyLiveCrudLabel(k))}:</strong> ${escapeHtml(String(row[k]).slice(0, 80))}</span>`
     ).join('');
@@ -12993,7 +13005,7 @@ function renderLiveCrudRows() {
         <div class="lc-row-body">
           <div class="lc-row-index" title="Row #${idx + 1}">#${idx + 1}</div>
           <div class="lc-row-main">
-            <div class="lc-row-headline" title="${escapeHtml(headline)}">${escapeHtml(headline)}</div>
+            <div class="lc-row-headline" title="${escapeHtml(headline)}">${escapeHtml(headline)}${headlineSuffix}</div>
             <div class="lc-row-secondary-group">${secondaryHtml}</div>
             ${footerHtml}
           </div>
