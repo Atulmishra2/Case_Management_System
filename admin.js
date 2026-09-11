@@ -2939,7 +2939,8 @@ function getOpenModalInfo() {
     { id: 'editCourtModal', close: () => (typeof closeEditCourtModal === 'function' ? closeEditCourtModal() : null) },
     { id: 'deleteCourtModal', close: () => (typeof closeDeleteCourtModal === 'function' ? closeDeleteCourtModal() : null) },
     { id: 'caseHistoryModal', close: () => (typeof closeCaseHistoryModal === 'function' ? closeCaseHistoryModal() : null) },
-    { id: 'pwaGuideModal', close: () => (typeof closePwaGuideModal === 'function' ? closePwaGuideModal() : null) }
+    { id: 'pwaGuideModal', close: () => (typeof closePwaGuideModal === 'function' ? closePwaGuideModal() : null) },
+    { id: 'todoReminderModal', close: () => (typeof closeTodoReminderModal === 'function' ? closeTodoReminderModal() : null) }
   ];
 
   for (let i = 0; i < modalList.length; i++) {
@@ -5490,10 +5491,10 @@ function renderHomeDashboard() {
             </div>
           </div>
           <div class="home-today-card-actions">
-            <button type="button" class="table-view-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View proceedings details"><i class="fa-solid fa-scroll"></i><span class="btn-text"> Details</span></button>
-            <button type="button" class="table-view-btn update-hearing-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date"><i class="fa-solid fa-calendar-plus"></i><span class="btn-text"> Forward</span></button>
-            ${clientPhone ? `<a href="tel:${escapeHtml(clientPhone)}" class="table-view-btn call-btn" title="Call Client directly: ${escapeHtml(clientPhone)}" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;"><i class="fa-solid fa-phone"></i></a>` : ''}
-            <button type="button" class="table-view-btn whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="WhatsApp notice to client"><i class="fa-brands fa-whatsapp"></i></button>
+            <button type="button" class="table-view-btn today-details-btn" onclick="openCaseHistoryModalByNo('${escapeHtml(caseNumber)}')" title="View proceedings details"><i class="fa-solid fa-scroll"></i><span class="btn-text"> Details</span></button>
+            <button type="button" class="table-view-btn update-hearing-btn today-forward-btn" onclick="openUpdateHearingForCase('${escapeHtml(caseNumber)}')" title="Forward next hearing date"><i class="fa-solid fa-calendar-plus"></i><span class="btn-text"> Forward</span></button>
+            ${clientPhone ? `<a href="tel:${escapeHtml(clientPhone)}" class="table-view-btn call-btn today-call-btn" title="Call Client directly: ${escapeHtml(clientPhone)}"><i class="fa-solid fa-phone"></i></a>` : ''}
+            <button type="button" class="table-view-btn whatsapp-btn today-whatsapp-btn" onclick="sendWhatsAppHearingNotice('${escapeHtml(caseNumber)}')" title="WhatsApp notice to client"><i class="fa-brands fa-whatsapp"></i></button>
           </div>
         </div>
       `;
@@ -7582,6 +7583,85 @@ function setTodoDeadlinePreset(preset) {
 }
 window.setTodoDeadlinePreset = setTodoDeadlinePreset;
 
+function toggleTodoReminderFields(isChecked) {
+  const toggle = document.getElementById('todoReminderToggle');
+  if (typeof isChecked !== 'boolean' && toggle) {
+    isChecked = toggle.checked;
+  } else if (toggle && toggle.checked !== isChecked) {
+    toggle.checked = isChecked;
+  }
+  const fields = document.getElementById('todoReminderFields');
+  const dtInput = document.getElementById('todoReminderDateTime');
+  if (!fields) return;
+
+  if (isChecked) {
+    fields.classList.remove('hidden');
+    fields.style.display = 'block';
+    if (dtInput && !dtInput.value) {
+      setTodoReminderPreset('deadline_9am');
+    }
+  } else {
+    fields.classList.add('hidden');
+    fields.style.display = 'none';
+    if (dtInput) dtInput.value = '';
+  }
+}
+window.toggleTodoReminderFields = toggleTodoReminderFields;
+
+function setTodoReminderPreset(preset) {
+  const deadlineInput = document.getElementById('todoDeadline');
+  const hearingInput = document.getElementById('todoHearingDate');
+  const reminderInput = document.getElementById('todoReminderDateTime');
+  if (!reminderInput) return;
+
+  let baseDate = null;
+  if (deadlineInput && deadlineInput.value) {
+    baseDate = new Date(deadlineInput.value + 'T09:00:00');
+  } else if (hearingInput && hearingInput.value) {
+    baseDate = new Date(hearingInput.value + 'T09:00:00');
+  }
+
+  const now = new Date();
+  let target;
+
+  if (baseDate && !isNaN(baseDate.getTime())) {
+    target = new Date(baseDate.getTime());
+    if (preset === '1day_9am') {
+      target.setDate(target.getDate() - 1);
+      target.setHours(9, 0, 0, 0);
+    } else if (preset === '2days_9am') {
+      target.setDate(target.getDate() - 2);
+      target.setHours(9, 0, 0, 0);
+    } else if (preset === 'deadline_9am') {
+      target.setHours(9, 0, 0, 0);
+    }
+    // Safeguard: if calculated target is in the past, default to tomorrow 9 AM
+    if (target.getTime() <= now.getTime()) {
+      target = new Date(now.getTime());
+      target.setDate(target.getDate() + 1);
+      target.setHours(9, 0, 0, 0);
+    }
+  } else {
+    // If no deadline or hearing selected yet, set to tomorrow or +2 days at 9 AM
+    target = new Date(now.getTime());
+    if (preset === '2days_9am') {
+      target.setDate(target.getDate() + 2);
+    } else {
+      target.setDate(target.getDate() + 1);
+    }
+    target.setHours(9, 0, 0, 0);
+  }
+
+  const yyyy = target.getFullYear();
+  const mm = String(target.getMonth() + 1).padStart(2, '0');
+  const dd = String(target.getDate()).padStart(2, '0');
+  const hh = String(target.getHours()).padStart(2, '0');
+  const min = String(target.getMinutes()).padStart(2, '0');
+
+  reminderInput.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+}
+window.setTodoReminderPreset = setTodoReminderPreset;
+
 let isSubmittingTodo = false;
 async function handleAddTodoSubmit(e) {
   if (e && e.preventDefault) e.preventDefault();
@@ -7591,7 +7671,7 @@ async function handleAddTodoSubmit(e) {
   const titleInput = document.getElementById('todoTitle');
   const deadlineInput = document.getElementById('todoDeadline');
   const priorityInput = document.getElementById('todoPriority');
-  const submitBtn = document.querySelector('#todoForm button[type="submit"]') || document.getElementById('addTodoSubmitBtn');
+  const submitBtn = document.getElementById('saveTodoBtn') || document.querySelector('#addTodoForm button[type="submit"]') || document.querySelector('#todoForm button[type="submit"]') || document.getElementById('addTodoSubmitBtn');
 
   const caseNoRaw = select?.value?.trim();
   const isGeneralTask = caseNoRaw === '__GENERAL__';
@@ -7681,6 +7761,13 @@ async function handleAddTodoSubmit(e) {
     const copyNumberInput = document.getElementById('todoCopyNumber');
     const copyNumber = copyNumberInput ? copyNumberInput.value.trim() : '';
 
+    const reminderToggle = document.getElementById('todoReminderToggle');
+    const reminderInput = document.getElementById('todoReminderDateTime');
+    let reminderDateTime = null;
+    if (reminderToggle && reminderToggle.checked && reminderInput && reminderInput.value) {
+      reminderDateTime = reminderInput.value;
+    }
+
     const newTask = {
       id: 'task_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       caseNo,
@@ -7692,6 +7779,9 @@ async function handleAddTodoSubmit(e) {
       status: 'pending',
       steps: taskSteps,
       copyNumber: copyNumber,
+      reminderDateTime: reminderDateTime,
+      reminderNotified: false,
+      reminderDismissed: false,
       createdAt: new Date().toISOString()
     };
 
@@ -7707,6 +7797,11 @@ async function handleAddTodoSubmit(e) {
     if (previewEl) previewEl.classList.add('hidden');
     const customContainerEl = document.getElementById('todoCustomStepsContainer');
     if (customContainerEl) customContainerEl.classList.add('hidden');
+
+    if (reminderToggle) reminderToggle.checked = false;
+    const reminderFieldsEl = document.getElementById('todoReminderFields');
+    if (reminderFieldsEl) reminderFieldsEl.classList.add('hidden');
+    if (reminderInput) reminderInput.value = '';
 
     showToastNotification(`📝 Task scheduled${isGeneralTask ? '' : ` for ${caseNo}`}!`);
 
@@ -8078,6 +8173,16 @@ function renderCaseTasks(filter = currentTodoFilter) {
       `;
     }
 
+    let reminderBadgeHtml = '';
+    if (t.reminderDateTime && !isDone) {
+      const remDate = new Date(t.reminderDateTime);
+      if (!isNaN(remDate.getTime())) {
+        const isPast = remDate.getTime() <= Date.now();
+        const remFmt = remDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) + ' ' + remDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        reminderBadgeHtml = `<span class="todo-reminder-badge ${isPast ? 'triggered' : 'scheduled'}" onclick="openTaskReminderModal('${t.id}')" title="Reminder: ${remFmt} (Click to edit)"><i class="fa-solid fa-bell"></i> ${remFmt}</span>`;
+      }
+    }
+
     return `
       <div class="todo-item priority-${priorityClass} ${isDone ? 'status-completed' : ''}" id="${t.id}">
         <div class="todo-checkbox-wrapper">
@@ -8089,6 +8194,7 @@ function renderCaseTasks(filter = currentTodoFilter) {
             <div class="todo-badges-row">
               ${t.copyNumber ? `<span class="todo-copy-badge" onclick="editTaskCopyNumber('${t.id}')" title="Click to edit Copy / Application No."><i class="fa-solid fa-stamp"></i> Copy No: <strong>${t.copyNumber}</strong> <i class="fa-solid fa-pen" style="font-size: 8.5px; margin-left: 2px; opacity: 0.7;"></i></span>` : (t.steps && t.steps.some(s => s.name.toLowerCase().includes('apply')) ? `<button type="button" class="todo-add-copy-btn" onclick="editTaskCopyNumber('${t.id}')" title="Add Application No. when applied"><i class="fa-solid fa-stamp"></i> + Add App No.</button>` : '')}
               ${deadlineBadgeHtml}
+              ${reminderBadgeHtml}
               <span class="todo-priority-pill ${priorityClass}">${priorityLabel}</span>
             </div>
           </div>
@@ -8100,6 +8206,7 @@ function renderCaseTasks(filter = currentTodoFilter) {
           ${stepperHtml}
         </div>
         <div class="todo-item-actions">
+          <button type="button" class="todo-reminder-btn ${t.reminderDateTime ? 'has-reminder' : ''}" onclick="openTaskReminderModal('${t.id}')" title="${t.reminderDateTime ? 'Edit Reminder Alert' : 'Set Reminder Alert'}" aria-label="Set or Edit Reminder"><i class="fa-solid fa-bell"></i></button>
           <button type="button" class="todo-reschedule-btn" onclick="rescheduleCaseTask('${t.id}')" title="Reschedule Deadline">📅</button>
           <button type="button" class="todo-delete-btn" onclick="deleteCaseTask('${t.id}')" title="Delete Task">🗑️</button>
         </div>
@@ -8109,6 +8216,406 @@ function renderCaseTasks(filter = currentTodoFilter) {
 }
 window.renderCaseTasks = renderCaseTasks;
 window.populateTodoCaseDropdown = populateTodoCaseDropdown;
+
+// ==============================================================================
+// Task Reminder & Alert Notification Engine
+// ==============================================================================
+
+function playReminderChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    // First tone (587.33 Hz - D5)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(587.33, now);
+    gain1.gain.setValueAtTime(0, now);
+    gain1.gain.linearRampToValueAtTime(0.22, now + 0.04);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.35);
+
+    // Second tone (880 Hz - A5, bright chime)
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(880, now + 0.16);
+    gain2.gain.setValueAtTime(0, now + 0.16);
+    gain2.gain.linearRampToValueAtTime(0.28, now + 0.20);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(now + 0.16);
+    osc2.stop(now + 0.65);
+  } catch (e) {
+    console.warn('Web Audio chime not allowed or supported:', e);
+  }
+}
+window.playReminderChime = playReminderChime;
+
+function initTodoNotificationBanner() {
+  const banner = document.getElementById('todoNotificationBanner');
+  if (!banner) return;
+  if (!('Notification' in window)) {
+    banner.style.display = 'none';
+    return;
+  }
+  const dismissed = safeStorage.get('cmDismissedNotifyBanner') === 'true';
+  if (Notification.permission === 'default' && !dismissed) {
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+async function requestTodoNotificationPermission() {
+  if (!('Notification' in window)) {
+    alert('Browser notifications are not supported in your current browser.');
+    return;
+  }
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      showToastNotification('🔔 Desktop alerts enabled successfully!');
+      const banner = document.getElementById('todoNotificationBanner');
+      if (banner) banner.style.display = 'none';
+      playReminderChime();
+    } else {
+      showToastNotification('Notification permission not granted.');
+    }
+  } catch (e) {
+    console.warn('Notification permission error:', e);
+  }
+}
+window.requestTodoNotificationPermission = requestTodoNotificationPermission;
+
+function dismissTodoNotificationBanner() {
+  const banner = document.getElementById('todoNotificationBanner');
+  if (banner) banner.style.display = 'none';
+  safeStorage.set('cmDismissedNotifyBanner', 'true', true);
+}
+window.dismissTodoNotificationBanner = dismissTodoNotificationBanner;
+
+function checkPendingTodoReminders() {
+  if (!Array.isArray(caseTasks) || caseTasks.length === 0) return;
+  const now = Date.now();
+
+  caseTasks.forEach(task => {
+    if (task.status === 'completed') return;
+    if (!task.reminderDateTime) return;
+    if (task.reminderDismissed || task.reminderNotified) return;
+
+    const remTime = new Date(task.reminderDateTime).getTime();
+    if (!isNaN(remTime) && remTime <= now) {
+      triggerTaskReminder(task);
+    }
+  });
+}
+
+function triggerTaskReminder(task) {
+  task.reminderNotified = true;
+  saveCaseTasksLocally();
+  renderCaseTasks(currentTodoFilter);
+
+  // Play audio chime
+  playReminderChime();
+
+  // Trigger Native Desktop / PWA Notification if permitted
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      const bodyText = `${task.caseNo && task.caseNo !== 'GENERAL' ? `[${task.caseNo}] ` : ''}Due: ${formatDateDMY(task.deadlineDate)}`;
+      const notif = new Notification(`⏰ Task Reminder: ${task.taskTitle}`, {
+        body: bodyText,
+        icon: 'icons/icon-192.png',
+        badge: 'icons/icon-192.png',
+        tag: task.id,
+        requireInteraction: true
+      });
+      notif.onclick = function() {
+        window.focus();
+        showTab('todo');
+        this.close();
+      };
+    } catch (e) {
+      console.warn('Native notification error:', e);
+    }
+  }
+
+  // Display In-App Floating Alert Banner
+  renderFloatingReminderAlert(task);
+}
+
+function renderFloatingReminderAlert(task) {
+  const container = document.getElementById('todoFloatingAlertContainer');
+  if (!container) return;
+
+  const alertId = `floating_rem_${task.id}`;
+  if (document.getElementById(alertId)) return;
+
+  const card = document.createElement('div');
+  card.id = alertId;
+  card.className = 'todo-floating-alert-card';
+
+  const caseLabel = (task.caseNo && task.caseNo !== 'GENERAL') ? `<span class="floating-rem-case">${task.caseNo}</span>` : '<span class="floating-rem-case general">General</span>';
+
+  card.innerHTML = `
+    <div class="floating-rem-top">
+      <div class="floating-rem-icon">⏰</div>
+      <div class="floating-rem-info">
+        <div class="floating-rem-badge-row">
+          <span class="floating-rem-tag">REMINDER ALERT</span>
+          ${caseLabel}
+        </div>
+        <div class="floating-rem-title">${task.taskTitle}</div>
+        <div class="floating-rem-deadline">📅 Deadline: <strong>${formatDateDMY(task.deadlineDate)}</strong></div>
+      </div>
+      <button type="button" class="floating-rem-close-btn" onclick="dismissTaskReminder('${task.id}')" title="Dismiss">✕</button>
+    </div>
+    <div class="floating-rem-actions">
+      <button type="button" class="floating-rem-btn snooze" onclick="snoozeTaskReminder('${task.id}', 60)">
+        <i class="fa-solid fa-clock-rotate-left"></i> Snooze 1h
+      </button>
+      <button type="button" class="floating-rem-btn complete" onclick="completeTaskFromReminder('${task.id}')">
+        <i class="fa-solid fa-check"></i> Mark Done
+      </button>
+      <button type="button" class="floating-rem-btn whatsapp" onclick="sendTaskWhatsAppReminder('${task.id}')">
+        <i class="fa-brands fa-whatsapp"></i> Share
+      </button>
+    </div>
+  `;
+
+  container.appendChild(card);
+}
+
+function snoozeTaskReminder(taskId, minutes = 60) {
+  const task = caseTasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const snoozeDate = new Date(Date.now() + minutes * 60 * 1000);
+  const yyyy = snoozeDate.getFullYear();
+  const mm = String(snoozeDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(snoozeDate.getDate()).padStart(2, '0');
+  const hh = String(snoozeDate.getHours()).padStart(2, '0');
+  const min = String(snoozeDate.getMinutes()).padStart(2, '0');
+
+  task.reminderDateTime = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+  task.reminderNotified = false;
+  task.reminderDismissed = false;
+
+  saveCaseTasksLocally();
+  renderCaseTasks(currentTodoFilter);
+
+  const el = document.getElementById(`floating_rem_${taskId}`);
+  if (el) el.remove();
+
+  showToastNotification(`⏰ Snoozed for ${minutes >= 60 ? (minutes / 60) + ' hour(s)' : minutes + ' minutes'}`);
+}
+window.snoozeTaskReminder = snoozeTaskReminder;
+
+function completeTaskFromReminder(taskId) {
+  const el = document.getElementById(`floating_rem_${taskId}`);
+  if (el) el.remove();
+  toggleTaskStatus(taskId);
+  showToastNotification('✅ Task completed!');
+}
+window.completeTaskFromReminder = completeTaskFromReminder;
+
+function dismissTaskReminder(taskId) {
+  const task = caseTasks.find(t => t.id === taskId);
+  if (task) {
+    task.reminderDismissed = true;
+    saveCaseTasksLocally();
+  }
+  const el = document.getElementById(`floating_rem_${taskId}`);
+  if (el) el.remove();
+}
+window.dismissTaskReminder = dismissTaskReminder;
+
+function sendTaskWhatsAppReminder(taskId) {
+  const task = caseTasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const caseInfo = (task.caseNo && task.caseNo !== 'GENERAL') ? `\n⚖️ Case: ${task.caseNo} (${task.caseName || '—'})` : '';
+  const text = `📌 *Case Task Reminder Alert*\n` +
+               `-------------------------------\n` +
+               `Task: *${task.taskTitle}*` +
+               caseInfo + `\n` +
+               `📅 Deadline: ${formatDateDMY(task.deadlineDate)}\n` +
+               `Priority: ${task.priority ? task.priority.toUpperCase() : 'MEDIUM'}\n\n` +
+               `Sent via CaseBook Management System`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+window.sendTaskWhatsAppReminder = sendTaskWhatsAppReminder;
+
+// Quick Modal Functions for Setting / Editing Reminders on Tasks
+function openTaskReminderModal(taskId) {
+  const task = caseTasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const modal = document.getElementById('todoReminderModal');
+  const idInput = document.getElementById('todoReminderModalTaskId');
+  const dtInput = document.getElementById('todoReminderModalInput');
+  const subtitle = document.getElementById('todoReminderModalTaskSubtitle');
+  const statusInfo = document.getElementById('todoReminderCurrentStatusText');
+  const removeBtn = document.getElementById('todoReminderRemoveBtn');
+
+  if (!modal) return;
+
+  idInput.value = taskId;
+  if (subtitle) {
+    subtitle.textContent = `${task.taskTitle} (Deadline: ${formatDateDMY(task.deadlineDate)})`;
+  }
+
+  if (task.reminderDateTime) {
+    if (dtInput) dtInput.value = task.reminderDateTime;
+    const remD = new Date(task.reminderDateTime);
+    const remFmt = !isNaN(remD.getTime()) ? remD.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : task.reminderDateTime;
+    if (statusInfo) statusInfo.innerHTML = `🟢 Current active reminder set for: <strong>${remFmt}</strong>`;
+    if (removeBtn) removeBtn.style.display = 'inline-flex';
+  } else {
+    // Default to deadline morning 9:00 AM or tomorrow morning
+    if (dtInput) {
+      const deadlineDate = parseDateString(task.deadlineDate);
+      if (deadlineDate) {
+        const y = deadlineDate.getFullYear();
+        const m = String(deadlineDate.getMonth() + 1).padStart(2, '0');
+        const d = String(deadlineDate.getDate()).padStart(2, '0');
+        dtInput.value = `${y}-${m}-${d}T09:00`;
+      } else {
+        const tom = new Date();
+        tom.setDate(tom.getDate() + 1);
+        const y = tom.getFullYear();
+        const m = String(tom.getMonth() + 1).padStart(2, '0');
+        const d = String(tom.getDate()).padStart(2, '0');
+        dtInput.value = `${y}-${m}-${d}T09:00`;
+      }
+    }
+    if (statusInfo) statusInfo.innerHTML = '⚪ No active reminder currently set for this task.';
+    if (removeBtn) removeBtn.style.display = 'none';
+  }
+
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+}
+window.openTaskReminderModal = openTaskReminderModal;
+
+function closeTodoReminderModal() {
+  const modal = document.getElementById('todoReminderModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+}
+window.closeTodoReminderModal = closeTodoReminderModal;
+
+function setModalReminderPreset(preset) {
+  const dtInput = document.getElementById('todoReminderModalInput');
+  const idInput = document.getElementById('todoReminderModalTaskId');
+  if (!dtInput) return;
+
+  const task = caseTasks.find(t => t.id === idInput?.value);
+  const now = new Date();
+  let target = new Date(now.getTime());
+
+  if (preset === 'in1hour') {
+    target = new Date(now.getTime() + 60 * 60 * 1000);
+  } else if (preset === 'today_evening') {
+    target.setHours(18, 0, 0, 0);
+    if (target.getTime() <= now.getTime()) {
+      target.setDate(target.getDate() + 1);
+    }
+  } else if (preset === 'tomorrow_9am') {
+    target.setDate(target.getDate() + 1);
+    target.setHours(9, 0, 0, 0);
+  } else if (preset === 'deadline_9am') {
+    const dl = parseDateString(task?.deadlineDate);
+    if (dl) {
+      target = new Date(dl.getTime());
+      target.setHours(9, 0, 0, 0);
+    } else {
+      target.setDate(target.getDate() + 1);
+      target.setHours(9, 0, 0, 0);
+    }
+  }
+
+  const yyyy = target.getFullYear();
+  const mm = String(target.getMonth() + 1).padStart(2, '0');
+  const dd = String(target.getDate()).padStart(2, '0');
+  const hh = String(target.getHours()).padStart(2, '0');
+  const min = String(target.getMinutes()).padStart(2, '0');
+
+  dtInput.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+}
+window.setModalReminderPreset = setModalReminderPreset;
+
+function saveTaskReminderFromModal() {
+  const idInput = document.getElementById('todoReminderModalTaskId');
+  const dtInput = document.getElementById('todoReminderModalInput');
+  if (!idInput || !idInput.value) return;
+
+  const task = caseTasks.find(t => t.id === idInput.value);
+  if (!task) return;
+
+  const val = dtInput ? dtInput.value : '';
+  if (!val) {
+    alert('Please choose a valid reminder date and time.');
+    return;
+  }
+
+  task.reminderDateTime = val;
+  task.reminderNotified = false;
+  task.reminderDismissed = false;
+
+  saveCaseTasksLocally();
+  renderCaseTasks(currentTodoFilter);
+  closeTodoReminderModal();
+
+  const remD = new Date(val);
+  const remFmt = !isNaN(remD.getTime()) ? remD.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : val;
+  showToastNotification(`⏰ Reminder set for ${remFmt}!`);
+
+  // Auto-request notification permission if not yet decided
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+window.saveTaskReminderFromModal = saveTaskReminderFromModal;
+
+function removeTaskReminderFromModal() {
+  const idInput = document.getElementById('todoReminderModalTaskId');
+  if (!idInput || !idInput.value) return;
+
+  const task = caseTasks.find(t => t.id === idInput.value);
+  if (!task) return;
+
+  task.reminderDateTime = null;
+  task.reminderNotified = false;
+  task.reminderDismissed = false;
+
+  saveCaseTasksLocally();
+  renderCaseTasks(currentTodoFilter);
+  closeTodoReminderModal();
+  showToastNotification('⏰ Reminder removed');
+}
+window.removeTaskReminderFromModal = removeTaskReminderFromModal;
+
+// Start interval checker for pending reminders (every 30 seconds)
+if (!window._todoReminderInterval) {
+  window._todoReminderInterval = setInterval(checkPendingTodoReminders, 30000);
+}
+// Run an immediate check 3 seconds after boot
+setTimeout(() => {
+  initTodoNotificationBanner();
+  checkPendingTodoReminders();
+}, 3000);
 
 // ==============================================================================
 // Calendar View Scheduler Logic
@@ -12715,6 +13222,16 @@ function initializeApp() {
     });
   }
 
+  // Todo Reminder Modal backdrop listener
+  const todoReminderModal = document.getElementById('todoReminderModal');
+  if (todoReminderModal) {
+    todoReminderModal.addEventListener('click', (e) => {
+      if (e.target === todoReminderModal) {
+        closeTodoReminderModal();
+      }
+    });
+  }
+
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       const delModal = document.getElementById('deleteCourtModal');
@@ -12728,6 +13245,10 @@ function initializeApp() {
       const delHModal = document.getElementById('deleteHelperModal');
       if (delHModal && !delHModal.classList.contains('hidden')) {
         closeDeleteHelperModal();
+      }
+      const remModal = document.getElementById('todoReminderModal');
+      if (remModal && !remModal.classList.contains('hidden')) {
+        closeTodoReminderModal();
       }
     }
   });

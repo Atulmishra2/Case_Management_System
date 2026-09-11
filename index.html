@@ -42,10 +42,10 @@
     </script>
     <!-- Font Awesome 6 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="admin.css?v=7.78">
+    <link rel="stylesheet" href="admin.css?v=7.99">
     <link rel="stylesheet" href="admin-mint.css?v=7.42" id="mintThemeCss" disabled>
     <!-- PWA & Mobile Web App Meta Tags -->
-    <meta name="theme-color" content="#502D55">
+    <meta name="theme-color" content="#0B132B">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -477,16 +477,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="kpi-rect-status-widget">
-                                            <div class="kpi-widget-icon"><i class="fa-solid fa-layer-group"></i></div>
-                                            <div class="kpi-widget-content">
-                                                <div class="kpi-widget-title">Master Registry</div>
-                                                <div class="kpi-widget-sub">All Judicial Files</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="kpi-card-meter-track">
-                                        <div class="kpi-card-meter-fill" style="width: 100%;"></div>
                                     </div>
                                 </div>
                                 <div class="card-action">
@@ -514,16 +504,6 @@
                                             </div>
                                             <div class="kpi-rect-sub">Cases listed for today</div>
                                         </div>
-                                        <div class="kpi-rect-status-widget">
-                                            <div class="kpi-widget-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
-                                            <div class="kpi-widget-content">
-                                                <div class="kpi-widget-title">Daily Cause List</div>
-                                                <div class="kpi-widget-sub">Court Appearances</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="kpi-card-meter-track">
-                                        <div class="kpi-card-meter-fill" style="width: 75%;"></div>
                                     </div>
                                 </div>
                                 <div class="card-action">
@@ -551,16 +531,6 @@
                                             </div>
                                             <div class="kpi-rect-sub">Scheduled within upcoming week</div>
                                         </div>
-                                        <div class="kpi-rect-status-widget">
-                                            <div class="kpi-widget-icon"><i class="fa-solid fa-calendar-days"></i></div>
-                                            <div class="kpi-widget-content">
-                                                <div class="kpi-widget-title">7-Day Horizon</div>
-                                                <div class="kpi-widget-sub">Hearings Scheduled</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="kpi-card-meter-track">
-                                        <div class="kpi-card-meter-fill" style="width: 60%;"></div>
                                     </div>
                                 </div>
                                 <div class="card-action">
@@ -588,16 +558,6 @@
                                             </div>
                                             <div class="kpi-rect-sub" id="homePendingPercent">0% of total caseload</div>
                                         </div>
-                                        <div class="kpi-rect-status-widget">
-                                            <div class="kpi-widget-icon"><i class="fa-solid fa-scale-balanced"></i></div>
-                                            <div class="kpi-widget-content">
-                                                <div class="kpi-widget-title">Active Matters</div>
-                                                <div class="kpi-widget-sub">Ongoing Litigation</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="kpi-card-meter-track">
-                                        <div class="kpi-card-meter-fill" style="width: 80%;"></div>
                                     </div>
                                 </div>
                                 <div class="card-action">
@@ -625,16 +585,6 @@
                                             </div>
                                             <div class="kpi-rect-sub">Awaiting hearing fixture</div>
                                         </div>
-                                        <div class="kpi-rect-status-widget">
-                                            <div class="kpi-widget-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                                            <div class="kpi-widget-content">
-                                                <div class="kpi-widget-title">Action Required</div>
-                                                <div class="kpi-widget-sub">Needs Court Listing</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="kpi-card-meter-track">
-                                        <div class="kpi-card-meter-fill" style="width: 45%;"></div>
                                     </div>
                                 </div>
                                 <div class="card-action">
@@ -662,16 +612,6 @@
                                             </div>
                                             <div class="kpi-rect-sub" id="homeDisposedPercent">0% Resolution Rate</div>
                                         </div>
-                                        <div class="kpi-rect-status-widget">
-                                            <div class="kpi-widget-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                                            <div class="kpi-widget-content">
-                                                <div class="kpi-widget-title">Concluded Files</div>
-                                                <div class="kpi-widget-sub">Resolved Matters</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="kpi-card-meter-track">
-                                        <div class="kpi-card-meter-fill" style="width: 100%;"></div>
                                     </div>
                                 </div>
                                 <div class="card-action">
@@ -1425,6 +1365,23 @@
                     </div>
                 </div>
 
+                <!-- Native Reminder Notification Permission Banner -->
+                <div id="todoNotificationBanner" class="todo-alert-promo-banner" style="display: none;">
+                    <div class="todo-promo-left">
+                        <span class="todo-promo-icon">🔔</span>
+                        <div>
+                            <strong>Never Miss a Court Filing or Preparation Deadline!</strong>
+                            <p>Enable native desktop and browser alerts to get real-time chime and push reminders even when working on other tabs.</p>
+                        </div>
+                    </div>
+                    <div class="todo-promo-actions">
+                        <button type="button" class="todo-enable-notify-btn" onclick="requestTodoNotificationPermission()">
+                            <i class="fa-solid fa-bell"></i> Enable Alerts
+                        </button>
+                        <button type="button" class="todo-dismiss-notify-btn" onclick="dismissTodoNotificationBanner()" title="Dismiss">✕</button>
+                    </div>
+                </div>
+
                 <!-- Live Summary Stats Row -->
                 <div class="todo-stats-bar">
                     <div class="todo-stat-card">
@@ -1602,6 +1559,33 @@
                                     <button type="button" class="todo-shortcut-pill" onclick="setTodoDeadlinePreset('hearing')" title="Set deadline on the exact hearing date">🎯 On Hearing Date</button>
                                     <button type="button" class="todo-shortcut-pill" onclick="setTodoDeadlinePreset('1day')" title="Set deadline 1 day before the hearing">⚡ 1 Day Before</button>
                                     <button type="button" class="todo-shortcut-pill" onclick="setTodoDeadlinePreset('3days')" title="Set deadline 3 days before the hearing">📋 3 Days Before</button>
+                                </div>
+                            </div>
+
+                            <!-- Reminder & Alert Notification Section -->
+                            <div class="form-group todo-reminder-group">
+                                <div class="todo-label-row">
+                                    <label for="todoReminderToggle" class="todo-reminder-label-flex" style="cursor: pointer;">
+                                        <span><i class="fa-solid fa-bell" style="color: #f59e0b; margin-right: 5px;"></i> Set Reminder Alert</span>
+                                    </label>
+                                    <label class="todo-switch">
+                                        <input type="checkbox" id="todoReminderToggle" onchange="toggleTodoReminderFields(this.checked)">
+                                        <span class="todo-slider round"></span>
+                                    </label>
+                                </div>
+                                <div id="todoReminderFields" class="todo-reminder-subbox hidden">
+                                    <div class="todo-input-icon-wrap" style="margin-bottom: 8px;">
+                                        <span class="todo-input-inner-icon"><i class="fa-solid fa-bell"></i></span>
+                                        <input type="datetime-local" id="todoReminderDateTime" class="todo-custom-input with-icon highlight-date-input">
+                                    </div>
+                                    <div class="todo-shortcuts-row">
+                                        <button type="button" class="todo-shortcut-pill" onclick="setTodoReminderPreset('deadline_9am')" title="Remind on deadline morning at 9:00 AM">🎯 Deadline 9 AM</button>
+                                        <button type="button" class="todo-shortcut-pill" onclick="setTodoReminderPreset('1day_9am')" title="Remind 1 day before deadline at 9:00 AM">⚡ 1 Day Before 9 AM</button>
+                                        <button type="button" class="todo-shortcut-pill" onclick="setTodoReminderPreset('2days_9am')" title="Remind 2 days before deadline at 9:00 AM">📋 2 Days Before 9 AM</button>
+                                    </div>
+                                    <span class="todo-field-hint" style="display: block; margin-top: 6px; font-size: 11px;">
+                                        💡 You will get a sound chime, desktop notification &amp; in-app prompt when this time arrives.
+                                    </span>
                                 </div>
                             </div>
 
@@ -4005,7 +3989,17 @@
 
             <!-- Undated Cases tab: cases that do not have a hearing date recorded yet -->
             <div id="undated" class="tab">
-                <h3>Undated Cases</h3>
+                <div class="section-header-row" style="margin-bottom: 12px;">
+                    <div class="section-title-box">
+                        <div class="section-icon-badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7;">
+                            <i class="fa-solid fa-calendar-xmark"></i>
+                        </div>
+                        <div>
+                            <h3>Undated Cases</h3>
+                            <p class="section-subtitle">Matters requiring immediate hearing fixtures or date updates. Scroll horizontally to view all particulars.</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
                     <table id="undatedCasesTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 case-table">
                         <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
@@ -5084,6 +5078,57 @@
         </div>
     </div>
 
+    <!-- Quick Set / Edit Task Reminder Modal -->
+    <div id="todoReminderModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="todoReminderModalTitle" onclick="if(event.target===this)closeTodoReminderModal()">
+        <div class="modal-card modal-card-sm todo-reminder-modal-box">
+            <div class="modal-header">
+                <div class="modal-header-info">
+                    <div class="modal-icon" style="background: rgba(245, 158, 11, 0.12); color: #d97706;"><i class="fa-solid fa-bell"></i></div>
+                    <div>
+                        <h3 id="todoReminderModalTitle" style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">Task Reminder Alert</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;" id="todoReminderModalTaskSubtitle" class="modal-subtitle">Set audio chime and desktop notification</p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeTodoReminderModal()" aria-label="Close" title="Close">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 18px 20px;">
+                <input type="hidden" id="todoReminderModalTaskId">
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label for="todoReminderModalInput" style="font-size: 13px; font-weight: 600; color: #1e293b; display: block; margin-bottom: 6px;">
+                        Reminder Date &amp; Time
+                    </label>
+                    <div class="todo-input-icon-wrap">
+                        <span class="todo-input-inner-icon"><i class="fa-solid fa-bell"></i></span>
+                        <input type="datetime-local" id="todoReminderModalInput" class="todo-custom-input with-icon highlight-date-input">
+                    </div>
+                </div>
+                <div class="todo-shortcuts-row" style="margin-bottom: 14px;">
+                    <button type="button" class="todo-shortcut-pill" onclick="setModalReminderPreset('in1hour')">⏱️ In 1 Hour</button>
+                    <button type="button" class="todo-shortcut-pill" onclick="setModalReminderPreset('today_evening')">🌆 Today 6 PM</button>
+                    <button type="button" class="todo-shortcut-pill" onclick="setModalReminderPreset('tomorrow_9am')">🌅 Tomorrow 9 AM</button>
+                    <button type="button" class="todo-shortcut-pill" onclick="setModalReminderPreset('deadline_9am')">🎯 Deadline 9 AM</button>
+                </div>
+                <div class="todo-reminder-status-info" id="todoReminderCurrentStatusText" style="font-size: 12px; color: #475569; background: #f1f5f9; padding: 10px 12px; border-radius: 8px;">
+                    No reminder active for this task.
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 12px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <button type="button" class="table-view-btn" id="todoReminderRemoveBtn" onclick="removeTaskReminderFromModal()" style="color: #dc2626; border-color: #fecaca; background: #fff5f5; display: none;">
+                    <i class="fa-solid fa-trash-can"></i> Remove Alert
+                </button>
+                <div style="display: flex; gap: 8px; margin-left: auto;">
+                    <button type="button" class="table-view-btn" onclick="closeTodoReminderModal()">Cancel</button>
+                    <button type="button" class="primary-btn" id="saveTaskReminderBtn" onclick="saveTaskReminderFromModal()" style="padding: 8px 18px; border-radius: 8px;">
+                        <i class="fa-solid fa-check"></i> Save Reminder
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating In-App Reminder Alerts Container -->
+    <div id="todoFloatingAlertContainer" class="todo-floating-alert-container" aria-live="polite"></div>
+
     <!-- ==========================================================================
          SECTION 6: FLOATING CONTROLS & BACKDROPS
          Raw Format:
@@ -5108,8 +5153,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="components/chambers-footer.js" defer></script>
     <script src="mint-datepicker.js?v=7.55" defer></script>
-    <script src="theme-toggle.js" defer></script>
-    <script src="admin.js" defer></script>
+    <script src="theme-toggle.js?v=7.80" defer></script>
+    <script src="admin.js?v=7.99" defer></script>
 </body>
 
 </html>

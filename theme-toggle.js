@@ -17,16 +17,20 @@
   var CUSTOM_KEY = 'casebook-custom-themes';
 
   var THEMES = [
-    { id: 'azure',   name: 'CaseBook Azure',           desc: 'Ambient blue — soft periwinkle, sky blue, deep navy (default)', icon: 'fa-circle-half-stroke',
-      palette: ['#0B132B', '#1C2541', '#5BC0BE', '#6FFFE9', '#A0C4FF', '#E0E8F9'] },
-    { id: 'mint',    name: 'CaseBook Mint',            desc: 'Emerald-mint family (the original 2026 restyle)',                icon: 'fa-leaf',
+    { id: 'azure',     name: 'CaseBook Azure',       desc: 'Ambient blue — soft periwinkle, sky blue, deep navy (default)', icon: 'fa-circle-half-stroke',
+      palette: ['#0B132B', '#1C2541', '#5BC0BE', '#0284C7', '#A0C4FF', '#E0E8F9'] },
+    { id: 'executive', name: 'Chambers Executive',    desc: 'Oxford navy + warm brass & gold — high-court prestige',          icon: 'fa-scale-balanced',
+      palette: ['#0F172A', '#1E293B', '#D97706', '#B45309', '#F8FAFC', '#E2E8F0'] },
+    { id: 'midnight',  name: 'Judicial Midnight',     desc: 'OLED dark mode — midnight canvas, cyan highlights, high contrast', icon: 'fa-moon',
+      palette: ['#0A0E17', '#141B2D', '#38BDF8', '#60A5FA', '#1F293D', '#F8FAFC'] },
+    { id: 'forest',    name: 'Cambridge Forest',      desc: 'British racing green + warm linen & amber — scholarly & calm',  icon: 'fa-feather-pointed',
+      palette: ['#064E3B', '#04392B', '#059669', '#D97706', '#F9F9F6', '#E7E5E4'] },
+    { id: 'mint',      name: 'CaseBook Mint',         desc: 'Emerald-mint family (the classic fresh restyle)',               icon: 'fa-leaf',
       palette: ['#064e3b', '#065f46', '#059669', '#10b981', '#6ee7b7', '#d1fae5'] },
-    { id: 'classic', name: 'Classic Legal',            desc: 'Deep navy + muted gold — traditional law-chambers prestige',     icon: 'fa-scale-balanced',
-      palette: ['#1B2A47', '#0F172A', '#C5A880', '#A8895F', '#F8FAFC', '#1E293B'] },
-    { id: 'corporate', name: 'Modern Corporate',       desc: 'Dark charcoal + teal — calm SaaS dashboard feel',                icon: 'fa-building',
+    { id: 'corporate', name: 'Modern Corporate',      desc: 'Dark charcoal + teal — calm enterprise dashboard feel',        icon: 'fa-building',
       palette: ['#202124', '#18181B', '#0D9488', '#0F766E', '#0EA5E9', '#F1F5F9'] },
-    { id: 'judicial', name: 'Minimalist Judicial',     desc: 'Monochrome paper + judicial red accent',                         icon: 'fa-gavel',
-      palette: ['#111827', '#000000', '#991B1B', '#FAFAFA', '#E5E7EB', '#6B7280'] }
+    { id: 'classic',   name: 'Classic Chambers',      desc: 'Traditional navy + muted gold chambers styling',                icon: 'fa-landmark',
+      palette: ['#1B2A47', '#0F172A', '#C5A880', '#A8895F', '#F8FAFC', '#1E293B'] }
   ];
 
   /* ---------- user-made themes ---------- */
@@ -161,10 +165,24 @@
     root.className = keep.join(' ');
     if (id !== 'azure' && id !== 'mint') root.classList.add('theme-' + id);
     root.setAttribute('data-theme', id);
-    // Sidenav quick-toggle label shows the "other" of Azure/Mint
+
+    // Sync browser/OS status bar meta theme-color
+    var themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeMeta) {
+      var activeTheme = findTheme(id);
+      var headerColor = (activeTheme && activeTheme.palette && activeTheme.palette[0]) ? activeTheme.palette[0] : '#0B132B';
+      themeMeta.setAttribute('content', headerColor);
+    }
+
+    // Update quick toggle button label with the next theme in cycle
+    var cycle = ['azure', 'executive', 'midnight', 'forest', 'mint'];
+    var idx = cycle.indexOf(id);
+    var nextId = (idx !== -1 && idx < cycle.length - 1) ? cycle[idx + 1] : cycle[0];
+    var nextTheme = findTheme(nextId);
     var labels = document.querySelectorAll('#themeToggleLabel');
-    var next = (id === 'mint') ? 'Azure' : 'Mint';
-    for (var j = 0; j < labels.length; j++) { labels[j].textContent = next; }
+    var labelText = nextTheme ? (nextTheme.name.replace('CaseBook ', '').replace('Chambers ', '').replace('Judicial ', '')) : 'Theme';
+    for (var j = 0; j < labels.length; j++) { labels[j].textContent = labelText; }
+
     // Mark selected card in Themes tab (if rendered)
     var cards = document.querySelectorAll('.theme-option-card');
     for (var k = 0; k < cards.length; k++) {
@@ -192,11 +210,13 @@
     applyTheme(id);
   };
 
-  /* Legacy quick toggle in sidenav: Azure <-> Mint only */
+  /* Quick cycle toggle in sidenav */
   window.toggleAppTheme = function (ev) {
     if (ev && ev.preventDefault) ev.preventDefault();
     var current = getStoredTheme();
-    var next = (current === 'mint') ? 'azure' : 'mint';
+    var cycle = ['azure', 'executive', 'midnight', 'forest', 'mint'];
+    var idx = cycle.indexOf(current);
+    var next = (idx !== -1 && idx < cycle.length - 1) ? cycle[idx + 1] : cycle[0];
     window.setAppTheme(next);
     var sidebar = document.querySelector('.sidebar');
     var overlay = document.getElementById('sidebarOverlay');

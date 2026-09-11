@@ -10363,38 +10363,140 @@ html.auth-guest #guestScreen {
 }
 
 .home-today-card-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-items: stretch;
-  min-width: 96px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-left: auto;
   flex: 0 0 auto;
 }
 
 .home-today-card-actions .table-view-btn,
+.home-today-card-actions .call-btn,
+.home-today-card-actions .whatsapp-btn {
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+  box-sizing: border-box !important;
+}
+
+/* 1. Details Button: Clean secondary button */
+.home-today-card-actions .today-details-btn,
+.home-today-card-actions .table-view-btn:not(.update-hearing-btn):not(.call-btn):not(.whatsapp-btn) {
+  background: #FFFFFF !important;
+  color: #1E293B !important;
+  border: 1px solid #CBD5E1 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+.home-today-card-actions .today-details-btn:hover,
+.home-today-card-actions .table-view-btn:not(.update-hearing-btn):not(.call-btn):not(.whatsapp-btn):hover {
+  background: #EEF3FE !important;
+  border-color: #0284C7 !important;
+  color: #0284C7 !important;
+}
+
+/* 2. Forward Hearing Button: Accent primary action */
+.home-today-card-actions .update-hearing-btn,
+.home-today-card-actions .today-forward-btn {
+  background: #0284C7 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #0284C7 !important;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25) !important;
+}
+
+.home-today-card-actions .update-hearing-btn:hover,
+.home-today-card-actions .today-forward-btn:hover {
+  background: #0369A1 !important;
+  border-color: #0369A1 !important;
+}
+
+/* 3. Call Client Button: 32x32 square phone button */
+.home-today-card-actions .call-btn,
+.home-today-card-actions .today-call-btn {
+  width: 32px !important;
+  min-width: 32px !important;
+  padding: 0 !important;
+  background: #EFF6FF !important;
+  color: #0284C7 !important;
+  border: 1px solid #BFDBFE !important;
+}
+
+.home-today-card-actions .call-btn:hover,
+.home-today-card-actions .today-call-btn:hover {
+  background: #0284C7 !important;
+  color: #FFFFFF !important;
+  border-color: #0284C7 !important;
+}
+
+/* 4. WhatsApp Notice Button: 32x32 square WhatsApp button */
 .home-today-card-actions .whatsapp-btn,
-.home-today-card-actions .call-btn {
-  width: 100%;
-  justify-content: center;
+.home-today-card-actions .today-whatsapp-btn {
+  width: 32px !important;
+  min-width: 32px !important;
+  padding: 0 !important;
+  background: #F0FDF4 !important;
+  color: #16A34A !important;
+  border: 1px solid #BBF7D0 !important;
 }
 
-.home-today-card-actions .table-view-btn {
-  padding: 5px 9px;
-  font-size: 11.5px;
+.home-today-card-actions .whatsapp-btn:hover,
+.home-today-card-actions .today-whatsapp-btn:hover {
+  background: #16A34A !important;
+  color: #FFFFFF !important;
+  border-color: #16A34A !important;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25) !important;
 }
 
-@media (max-width: 640px) {
-  .home-today-card { flex-direction: column; align-items: stretch; }
-  .home-today-card-actions {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding-top: 8px;
-    border-top: 1px solid #E0E8F9;
+/* Responsive: 1-line balanced footer on mobile & narrow cards */
+@media (max-width: 680px) {
+  .home-today-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
   }
-  .home-today-card-actions .btn-text { display: none; }
-  .home-today-card-actions .table-view-btn { width: 100%; justify-content: center; min-height: 40px; }
+  .home-today-card-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    padding-top: 8px !important;
+    border-top: 1px solid #E0E8F9 !important;
+  }
+  .home-today-card-actions .today-details-btn,
+  .home-today-card-actions .today-forward-btn,
+  .home-today-card-actions .table-view-btn:not(.call-btn):not(.whatsapp-btn) {
+    flex: 1 1 0 !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 12px !important;
+  }
+  .home-today-card-actions .today-details-btn .btn-text,
+  .home-today-card-actions .today-forward-btn .btn-text,
+  .home-today-card-actions .table-view-btn .btn-text {
+    display: inline !important;
+  }
+  .home-today-card-actions .call-btn,
+  .home-today-card-actions .today-call-btn,
+  .home-today-card-actions .whatsapp-btn,
+  .home-today-card-actions .today-whatsapp-btn {
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 14px !important;
+    flex: 0 0 36px !important;
+  }
   .home-today-list { max-height: none; }
 }
 
@@ -16954,10 +17056,10 @@ input[readonly] {
 
 .sidebar .author-avatar,
 .sidenav .user-view .circle {
-  background: linear-gradient(135deg, #502D55 0%, #935073 100%) !important;
-  color: #F6DBC0 !important;
-  border: 1.5px solid rgba(246, 219, 192, 0.4) !important;
-  box-shadow: 0 2px 8px rgba(80, 45, 85, 0.22) !important;
+  background: linear-gradient(135deg, #0B132B 0%, #3A506B 100%) !important;
+  color: #6FFFE9 !important;
+  border: 1.5px solid #5BC0BE !important;
+  box-shadow: 0 2px 8px rgba(11, 19, 43, 0.22) !important;
   border-radius: 10px !important;
   font-size: 18px !important;
   width: 40px !important;
@@ -16970,7 +17072,7 @@ input[readonly] {
 
 .sidebar .author-name,
 .sidenav .user-view .name {
-  color: #502D55 !important;
+  color: #FFFFFF !important;
   font-size: 14px !important;
   font-weight: 800 !important;
   letter-spacing: -0.01em !important;
@@ -16978,14 +17080,14 @@ input[readonly] {
 
 .sidebar .author-title,
 .sidenav .user-view .email {
-  color: #935073 !important;
+  color: #B8D3FE !important;
   font-size: 11.5px !important;
   font-weight: 600 !important;
 }
 
 .sidebar .author-jurisdiction,
 .sidenav .author-jurisdiction {
-  color: rgba(80, 45, 85, 0.72) !important;
+  color: #8FD3F4 !important;
   font-size: 10.5px !important;
   font-weight: 500 !important;
 }
@@ -16993,7 +17095,7 @@ input[readonly] {
 /* Sidenav Subheaders */
 .sidebar h2,
 .sidenav .subheader {
-  color: #935073 !important;
+  color: #5BC0BE !important;
   font-size: 10.5px !important;
   font-weight: 800 !important;
   letter-spacing: 0.1em !important;
@@ -17007,7 +17109,7 @@ input[readonly] {
 /* Sidenav Dividers */
 .sidebar .divider,
 .sidenav .divider {
-  background-color: rgba(80, 45, 85, 0.1) !important;
+  background-color: rgba(184, 211, 254, 0.15) !important;
   height: 1px !important;
   margin: 6px 12px !important;
 }
@@ -17015,7 +17117,7 @@ input[readonly] {
 /* Sidenav Links */
 .sidebar a,
 .sidenav a {
-  color: #502D55 !important;
+  color: #EEF3FE !important;
   font-size: 13.5px !important;
   font-weight: 600 !important;
   display: flex !important;
@@ -17035,7 +17137,7 @@ input[readonly] {
 .sidenav a i.nav-icon,
 .sidebar a i,
 .sidenav a i {
-  color: #935073 !important;
+  color: #8FD3F4 !important;
   font-size: 15px !important;
   width: 22px !important;
   min-width: 22px !important;
@@ -17057,67 +17159,57 @@ input[readonly] {
 
 .sidebar a:hover,
 .sidenav a:hover {
-  background-color: rgba(147, 80, 115, 0.12) !important;
-  color: #502D55 !important;
+  background-color: rgba(91, 192, 190, 0.14) !important;
+  color: #6FFFE9 !important;
   transform: translateX(3px) !important;
 }
 
 .sidebar a:hover i.nav-icon,
 .sidenav a:hover i.nav-icon {
-  color: #502D55 !important;
+  color: #6FFFE9 !important;
   transform: scale(1.1) !important;
 }
 
 /* Active Sidenav Link */
 .sidebar a.active,
 .sidenav a.active {
-  background: linear-gradient(90deg, rgba(80, 45, 85, 0.15) 0%, rgba(147, 80, 115, 0.08) 100%) !important;
-  color: #502D55 !important;
+  background: linear-gradient(90deg, rgba(91, 192, 190, 0.22) 0%, rgba(91, 192, 190, 0.08) 100%) !important;
+  color: #6FFFE9 !important;
   font-weight: 800 !important;
-  box-shadow: inset 4px 0 0 #502D55 !important;
+  box-shadow: inset 4px 0 0 #5BC0BE !important;
 }
 
 .sidebar a.active i.nav-icon,
 .sidenav a.active i.nav-icon {
-  color: #502D55 !important;
+  color: #5BC0BE !important;
 }
 
-/* Sidenav Badges */
+/* Sidenav Badges - High-Contrast Floating Pill */
 .sidebar a .badge,
-.sidenav a .badge {
-  font-size: 10.5px !important;
-  font-weight: 800 !important;
-  border-radius: 12px !important;
-  padding: 2px 8px !important;
-  min-width: 20px !important;
-  text-align: center !important;
-  background-color: #502D55 !important;
-  color: #ffffff !important;
-}
-
+.sidenav a .badge,
 .sidebar a .badge.badge-upcoming,
-.sidenav a .badge.badge-upcoming {
-  background-color: #502D55 !important;
-  color: #F6DBC0 !important;
-}
-
+.sidenav a .badge.badge-upcoming,
 .sidebar a .badge.badge-todo,
-.sidenav a .badge.badge-todo {
-  background-color: #935073 !important;
-  color: #ffffff !important;
-}
-
+.sidenav a .badge.badge-todo,
 .sidebar a .badge.badge-undated,
-.sidenav a .badge.badge-undated {
-  background-color: #F6DBC0 !important;
-  color: #502D55 !important;
-  font-weight: 800 !important;
-}
-
+.sidenav a .badge.badge-undated,
 .sidebar a .badge.badge-disposed,
 .sidenav a .badge.badge-disposed {
-  background-color: #502D55 !important;
-  color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  border-radius: 9999px !important;
+  padding: 2px 8px !important;
+  min-width: 22px !important;
+  height: 20px !important;
+  line-height: 16px !important;
+  text-align: center !important;
+  background-color: #EEF3FE !important;
+  color: #0B132B !important;
+  border: 1px solid #B8D3FE !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 1px 3px rgba(11, 19, 43, 0.15) !important;
 }
 
 /* Sidebar Desktop Install App Widget */
@@ -20185,49 +20277,53 @@ input[type="text"]#editCourtInput,
 
 .court-card-head {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
   min-width: 0;
 }
 
 .court-card-index {
   flex-shrink: 0;
-  background: #E0E8F9;
+  background: #EEF3FE;
   border: 1px solid #B8D3FE;
-  color: #3A506B;
+  color: #0284C7;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 10px;
+  padding: 3px 9px;
+  line-height: 1.2;
+  margin-top: 2px;
 }
 
 .court-card-icon {
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: #EEF3FE;
   border: 1px solid #B8D3FE;
-  border-radius: 10px;
-  color: #5BC0BE;
-  font-size: 15px;
+  border-radius: 8px;
+  color: #0284C7;
+  font-size: 14px;
 }
 
 .court-card-name {
   font-size: 14.5px;
-  font-weight: 800;
+  font-weight: 700;
   color: #0B132B;
-  line-height: 1.3;
+  line-height: 1.35;
   word-break: break-word;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .court-card-body {
   display: flex;
   align-items: center;
-  padding-left: 46px;
+  padding-left: 0;
+  margin-top: 2px;
 }
 
 .court-card-count {
@@ -20235,89 +20331,87 @@ input[type="text"]#editCourtInput,
   align-items: center;
   gap: 6px;
   border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 3px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  line-height: 1.2;
 }
 
 .court-card-count.has-cases {
   background: #EEF3FE;
   border: 1px solid #B8D3FE;
-  color: #3A506B;
+  color: #0284C7;
 }
 
 .court-card-count.zero-cases {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #94a3b8;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #64748B;
 }
 
 .court-card-actions {
   display: flex;
   gap: 8px;
-  padding-left: 46px;
-  flex: 1 1 auto;
-  margin-top: auto; /* pin to card bottom */
+  padding-left: 0;
+  width: 100%;
+  margin-top: 6px;
 }
 
-/* Buttons stretch evenly across the full remaining width */
+/* Buttons stretch evenly across the full card width */
 .court-card-actions .court-btn-edit,
 .court-card-actions .court-btn-delete {
   flex: 1 1 0;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
 .court-card-actions .court-btn-edit {
-  background: #ffffff;
-  color: #3A506B;
-  border: 1px solid #B8D3FE;
-  border-radius: 10px;
-  padding: 6px 12px;
-  font-size: 12.5px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  background: #FFFFFF;
+  color: #1E293B;
+  border: 1px solid #CBD5E1;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .court-card-actions .court-btn-edit:hover {
-  background: #E0E8F9;
-  border-color: #A0C4FF;
-  color: #0B132B;
+  background: #EEF3FE;
+  border-color: #0284C7;
+  color: #0284C7;
 }
 
 .court-card-actions .court-btn-delete {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  padding: 6px 12px;
-  font-size: 12.5px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
 }
 
 .court-card-actions .court-btn-delete:hover {
-  background: #ef4444;
-  border-color: #ef4444;
-  color: #ffffff;
+  background: #DC2626;
+  border-color: #DC2626;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
 }
 
 .courts-cards-empty {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 24px 16px;
-  border: 1.5px dashed #A0C4FF;
+  padding: 28px 16px;
+  border: 1.5px dashed #CBD5E1;
   border-radius: 12px;
-  background: #EEF3FE;
-  color: #3A506B;
-  font-weight: 700;
+  background: #F8FAFC;
+  color: #64748B;
+  font-weight: 600;
+  font-size: 13.5px;
 }
 
 @media (max-width: 767.98px) {
@@ -23296,4 +23390,2438 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   color: #3A506B;
   background: #E0E8F9;
 }
+
+/* ============================================================
+   ★ CASEBOOK AZURE: HIGH-CONTRAST ACCESSIBILITY FIXES ★
+   Ensures WCAG AA compliance (4.5:1+) for icons & text on light surfaces
+   ============================================================ */
+.home-today-card-meta i { color: #0284C7 !important; font-size: 10px; }
+.case-card-court i { color: #0284C7 !important; margin-right: 4px; }
+.case-card-type-revenue .case-card-section-title i { color: #0284C7 !important; }
+.nav-case-search-toggle:hover i { color: #0284C7 !important; }
+.kpi-theme-upcoming .kpi-visual-icon { color: #0284C7 !important; }
+
+/* Streamlined KPI Card Layout */
+.card.kpi-rect-card .kpi-rect-content-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  margin-top: 4px !important;
+}
+.card.kpi-rect-card .kpi-rect-metric-col {
+  width: 100% !important;
+}
+.card.kpi-rect-card .kpi-rect-val-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+/* ============================================================
+   THEME: CHAMBERS EXECUTIVE (html.theme-executive)
+   Oxford Navy #0F172A + Warm Brass / Gold #D97706, Crisp Canvas #F8FAFC
+   ============================================================ */
+html.theme-executive body { background: #F8FAFC !important; color: #0F172A !important; }
+html.theme-executive .content { color: #0F172A !important; }
+html.theme-executive .materialize-nav,
+html.theme-executive .top-header,
+html.theme-executive .guest-header-bar {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;
+  color: #FFFFFF !important;
+  border-bottom: 1px solid rgba(217, 119, 6, 0.35) !important;
+}
+html.theme-executive .sidebar,
+html.theme-executive .sidenav {
+  background: linear-gradient(180deg, #0F172A 0%, #172238 100%) !important;
+  border-right: 1px solid #E2E8F0 !important;
+}
+html.theme-executive .sidenav a { color: #CBD5E1 !important; }
+html.theme-executive .sidenav a:hover {
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: #FBBF24 !important;
+}
+html.theme-executive .sidenav a.active {
+  background: linear-gradient(90deg, rgba(217, 119, 6, 0.22) 0%, rgba(217, 119, 6, 0.08) 100%) !important;
+  color: #FBBF24 !important;
+  box-shadow: inset 3.5px 0 0 #D97706 !important;
+}
+html.theme-executive .subheader { color: #D97706 !important; font-weight: 700 !important; }
+html.theme-executive .fixed-bottom-nav {
+  background: linear-gradient(135deg, #0F172A, #1E293B) !important;
+  border-top: 1px solid rgba(217, 119, 6, 0.35) !important;
+}
+html.theme-executive .case-card,
+html.theme-executive .home-today-card,
+html.theme-executive .court-directory-card,
+html.theme-executive .card,
+html.theme-executive .panel,
+html.theme-executive .form-container,
+html.theme-executive .theme-option-card,
+html.theme-executive .about-card,
+html.theme-executive .home-hero-card,
+html.theme-executive .home-panel-card,
+html.theme-executive .kpi-rect-card {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+}
+html.theme-executive .case-card::before,
+html.theme-executive .court-directory-card::before {
+  background: linear-gradient(180deg, #D97706, #B45309) !important;
+}
+html.theme-executive .case-card-name,
+html.theme-executive .court-card-name,
+html.theme-executive .panel-main-title {
+  color: #0F172A !important;
+}
+html.theme-executive button,
+html.theme-executive .btn,
+html.theme-executive .primary-btn,
+html.theme-executive .hero-btn-primary,
+html.theme-executive .action-btn,
+html.theme-executive .dossier-action-btn,
+html.theme-executive .mini-court-btn,
+html.theme-executive .panel-action-btn,
+html.theme-executive .type-pill-btn,
+html.theme-executive .todo-filter-btn,
+html.theme-executive .case-cards-pill,
+html.theme-executive .stage-pill,
+html.theme-executive .court-btn-edit,
+html.theme-executive .detail-action-btn {
+  background: linear-gradient(135deg, #0F172A, #1E293B) !important;
+  color: #F8FAFC !important;
+  border: 1px solid #334155 !important;
+}
+html.theme-executive .primary-btn,
+html.theme-executive .hero-btn-primary,
+html.theme-executive .form-submit-btn,
+html.theme-executive .type-pill-btn.active,
+html.theme-executive .todo-filter-btn.active,
+html.theme-executive .case-cards-pill.active,
+html.theme-executive .stage-pill-specific.active {
+  background: linear-gradient(135deg, #D97706, #B45309) !important;
+  color: #FFFFFF !important;
+  border-color: #D97706 !important;
+}
+html.theme-executive button:hover,
+html.theme-executive .btn:hover,
+html.theme-executive .primary-btn:hover,
+html.theme-executive .hero-btn-primary:hover {
+  background: linear-gradient(135deg, #F59E0B, #D97706) !important;
+  color: #FFFFFF !important;
+}
+html.theme-executive th,
+html.theme-executive thead th {
+  background: #F1F5F9 !important;
+  color: #0F172A !important;
+  border-color: #E2E8F0 !important;
+}
+html.theme-executive #themeToggleBtn {
+  background: linear-gradient(135deg, #D97706, #B45309) !important;
+  color: #FFFFFF !important;
+  border: 1px solid #D97706 !important;
+}
+html.theme-executive .badge,
+html.theme-executive .kpi-rect-badge {
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: #B45309 !important;
+}
+
+/* ============================================================
+   THEME: CAMBRIDGE FOREST (html.theme-forest)
+   British Racing Green #064E3B + Warm Linen #F9F9F6 & Gold #D97706
+   ============================================================ */
+html.theme-forest body { background: #F9F9F6 !important; color: #1C1917 !important; }
+html.theme-forest .content { color: #1C1917 !important; }
+html.theme-forest .materialize-nav,
+html.theme-forest .top-header,
+html.theme-forest .guest-header-bar {
+  background: linear-gradient(135deg, #064E3B 0%, #033528 100%) !important;
+  color: #FFFFFF !important;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+html.theme-forest .sidebar,
+html.theme-forest .sidenav {
+  background: linear-gradient(180deg, #064E3B 0%, #02251C 100%) !important;
+  border-right: 1px solid #E7E5E4 !important;
+}
+html.theme-forest .sidenav a { color: #D1FAE5 !important; }
+html.theme-forest .sidenav a:hover {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #6EE7B7 !important;
+}
+html.theme-forest .sidenav a.active {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.08) 100%) !important;
+  color: #A7F3D0 !important;
+  box-shadow: inset 3.5px 0 0 #10B981 !important;
+}
+html.theme-forest .subheader { color: #F59E0B !important; font-weight: 700 !important; }
+html.theme-forest .fixed-bottom-nav {
+  background: linear-gradient(135deg, #064E3B, #033528) !important;
+  border-top: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+html.theme-forest .case-card,
+html.theme-forest .home-today-card,
+html.theme-forest .court-directory-card,
+html.theme-forest .card,
+html.theme-forest .panel,
+html.theme-forest .form-container,
+html.theme-forest .theme-option-card,
+html.theme-forest .about-card,
+html.theme-forest .home-hero-card,
+html.theme-forest .home-panel-card,
+html.theme-forest .kpi-rect-card {
+  background: #FFFFFF !important;
+  border-color: #E7E5E4 !important;
+  box-shadow: 0 2px 8px rgba(6, 78, 59, 0.06) !important;
+}
+html.theme-forest .case-card::before,
+html.theme-forest .court-directory-card::before {
+  background: linear-gradient(180deg, #059669, #064E3B) !important;
+}
+html.theme-forest .case-card-name,
+html.theme-forest .court-card-name,
+html.theme-forest .panel-main-title {
+  color: #064E3B !important;
+}
+html.theme-forest .primary-btn,
+html.theme-forest .hero-btn-primary,
+html.theme-forest .form-submit-btn,
+html.theme-forest .type-pill-btn.active,
+html.theme-forest .todo-filter-btn.active,
+html.theme-forest .case-cards-pill.active,
+html.theme-forest .stage-pill-specific.active {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  color: #FFFFFF !important;
+  border-color: #059669 !important;
+}
+html.theme-forest .primary-btn:hover,
+html.theme-forest .hero-btn-primary:hover {
+  background: linear-gradient(135deg, #10B981, #059669) !important;
+}
+html.theme-forest th,
+html.theme-forest thead th {
+  background: #F0FDF4 !important;
+  color: #064E3B !important;
+  border-color: #E7E5E4 !important;
+}
+html.theme-forest #themeToggleBtn {
+  background: linear-gradient(135deg, #059669, #064E3B) !important;
+  color: #FFFFFF !important;
+  border: 1px solid #10B981 !important;
+}
+
+/* ============================================================
+   THEME: JUDICIAL MIDNIGHT (html.theme-midnight)
+   OLED True Dark Mode: Obsidian Canvas #0A0E17, Elevated Cards #141B2D,
+   Crisp Cyan/Sky Highlights #38BDF8, Slate Borders #1F293D,
+   Crisp White Text #F8FAFC
+   ============================================================ */
+html.theme-midnight body {
+  background: #0A0E17 !important;
+  color: #F1F5F9 !important;
+}
+html.theme-midnight .content {
+  background: #0A0E17 !important;
+  color: #F1F5F9 !important;
+}
+html.theme-midnight .materialize-nav,
+html.theme-midnight .top-header,
+html.theme-midnight .guest-header-bar {
+  background: linear-gradient(135deg, #0D121F 0%, #141B2D 100%) !important;
+  color: #F8FAFC !important;
+  border-bottom: 1px solid #1F293D !important;
+}
+html.theme-midnight .sidebar,
+html.theme-midnight .sidenav {
+  background: #0D121F !important;
+  border-right: 1px solid #1F293D !important;
+}
+html.theme-midnight .sidebar-author-card {
+  border-bottom: 1px solid #1F293D !important;
+}
+html.theme-midnight .author-name {
+  color: #F8FAFC !important;
+}
+html.theme-midnight .author-title,
+html.theme-midnight .author-jurisdiction {
+  color: #94A3B8 !important;
+}
+html.theme-midnight .sidenav a {
+  color: #94A3B8 !important;
+}
+html.theme-midnight .sidenav a:hover {
+  background: rgba(56, 189, 248, 0.10) !important;
+  color: #38BDF8 !important;
+}
+html.theme-midnight .sidenav a.active {
+  background: rgba(56, 189, 248, 0.16) !important;
+  color: #38BDF8 !important;
+  box-shadow: inset 3.5px 0 0 #38BDF8 !important;
+}
+html.theme-midnight .subheader {
+  color: #38BDF8 !important;
+  font-weight: 700 !important;
+}
+html.theme-midnight .divider {
+  background-color: #1F293D !important;
+}
+html.theme-midnight .fixed-bottom-nav {
+  background: #0D121F !important;
+  border-top: 1px solid #1F293D !important;
+}
+html.theme-midnight .bottom-nav-btn {
+  color: #94A3B8 !important;
+}
+html.theme-midnight .bottom-nav-btn.active,
+html.theme-midnight .bottom-nav-btn:hover {
+  color: #38BDF8 !important;
+}
+html.theme-midnight .case-card,
+html.theme-midnight .home-today-card,
+html.theme-midnight .court-directory-card,
+html.theme-midnight .card,
+html.theme-midnight .panel,
+html.theme-midnight .form-container,
+html.theme-midnight .theme-option-card,
+html.theme-midnight .about-card,
+html.theme-midnight .home-hero-card,
+html.theme-midnight .home-panel-card,
+html.theme-midnight .kpi-rect-card,
+html.theme-midnight .login-card,
+html.theme-midnight .dossier-card,
+html.theme-midnight .modal-dialog,
+html.theme-midnight .modal-content,
+html.theme-midnight .pwa-modal-shell {
+  background: #141B2D !important;
+  border: 1px solid #1F293D !important;
+  color: #F1F5F9 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+html.theme-midnight .case-card:hover,
+html.theme-midnight .court-directory-card:hover {
+  background: #182238 !important;
+  border-color: #38BDF8 !important;
+}
+html.theme-midnight .case-card::before,
+html.theme-midnight .court-directory-card::before {
+  background: linear-gradient(180deg, #38BDF8, #0284C7) !important;
+}
+html.theme-midnight .case-card-name,
+html.theme-midnight .court-card-name,
+html.theme-midnight .panel-main-title,
+html.theme-midnight h1,
+html.theme-midnight h2,
+html.theme-midnight h3,
+html.theme-midnight h4 {
+  color: #F8FAFC !important;
+}
+html.theme-midnight p,
+html.theme-midnight .panel-subtitle,
+html.theme-midnight .hero-subtext {
+  color: #94A3B8 !important;
+}
+html.theme-midnight .kpi-rect-value {
+  color: #38BDF8 !important;
+}
+html.theme-midnight input[type="text"],
+html.theme-midnight input[type="password"],
+html.theme-midnight input[type="email"],
+html.theme-midnight input[type="date"],
+html.theme-midnight select,
+html.theme-midnight textarea {
+  background: #0F172A !important;
+  color: #F8FAFC !important;
+  border: 1px solid #334155 !important;
+}
+html.theme-midnight input:focus,
+html.theme-midnight select:focus,
+html.theme-midnight textarea:focus {
+  border-color: #38BDF8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
+}
+html.theme-midnight th,
+html.theme-midnight thead th {
+  background: #0F172A !important;
+  color: #94A3B8 !important;
+  border-color: #1F293D !important;
+}
+html.theme-midnight td {
+  border-color: #1F293D !important;
+  color: #E2E8F0 !important;
+}
+html.theme-midnight tr:hover td {
+  background: rgba(56, 189, 248, 0.06) !important;
+}
+html.theme-midnight button,
+html.theme-midnight .btn,
+html.theme-midnight .secondary-btn,
+html.theme-midnight .hero-btn-secondary,
+html.theme-midnight .action-btn,
+html.theme-midnight .dossier-action-btn,
+html.theme-midnight .mini-court-btn,
+html.theme-midnight .panel-action-btn,
+html.theme-midnight .type-pill-btn,
+html.theme-midnight .todo-filter-btn,
+html.theme-midnight .case-cards-pill,
+html.theme-midnight .stage-pill,
+html.theme-midnight .court-btn-edit,
+html.theme-midnight .detail-action-btn {
+  background: #1E293B !important;
+  color: #E2E8F0 !important;
+  border: 1px solid #334155 !important;
+}
+html.theme-midnight .primary-btn,
+html.theme-midnight .hero-btn-primary,
+html.theme-midnight .form-submit-btn,
+html.theme-midnight .type-pill-btn.active,
+html.theme-midnight .todo-filter-btn.active,
+html.theme-midnight .case-cards-pill.active,
+html.theme-midnight .stage-pill-specific.active {
+  background: linear-gradient(135deg, #0284C7, #0369A1) !important;
+  color: #FFFFFF !important;
+  border-color: #38BDF8 !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3) !important;
+}
+html.theme-midnight .primary-btn:hover,
+html.theme-midnight .hero-btn-primary:hover {
+  background: linear-gradient(135deg, #38BDF8, #0284C7) !important;
+  color: #0A0E17 !important;
+}
+html.theme-midnight #themeToggleBtn {
+  background: linear-gradient(135deg, #0284C7, #141B2D) !important;
+  color: #38BDF8 !important;
+  border: 1px solid #38BDF8 !important;
+}
+html.theme-midnight .badge,
+html.theme-midnight .kpi-rect-badge {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38BDF8 !important;
+}
+html.theme-midnight .nav-case-search-box {
+  background: #141B2D !important;
+  border: 1px solid #1F293D !important;
+}
+html.theme-midnight .nav-case-search-results {
+  background: #141B2D !important;
+  border: 1px solid #1F293D !important;
+}
+
+/* ============================================================
+   ★ UNIVERSAL FIX: SIDEBAR ICONS & BADGES CONTRAST (IMAGE 1) ★
+   Eliminates all dark-on-dark unreadable badge text and clashing purple icons
+   ============================================================ */
+.sidebar a .badge,
+.sidenav a .badge,
+.sidebar a .badge.badge-upcoming,
+.sidenav a .badge.badge-upcoming,
+.sidebar a .badge.badge-todo,
+.sidenav a .badge.badge-todo,
+.sidebar a .badge.badge-undated,
+.sidenav a .badge.badge-undated,
+.sidebar a .badge.badge-disposed,
+.sidenav a .badge.badge-disposed {
+  background: #EEF3FE !important;
+  color: #0B132B !important;
+  border: 1px solid #B8D3FE !important;
+  border-radius: 9999px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  padding: 2px 8px !important;
+  min-width: 22px !important;
+  height: 20px !important;
+  line-height: 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 1px 3px rgba(11, 19, 43, 0.15) !important;
+}
+
+/* Specific theme badges: always high-contrast text on bright chip */
+html.theme-classic .sidebar a i.nav-icon,
+html.theme-classic .sidenav a i.nav-icon {
+  color: #C5A880 !important;
+}
+html.theme-classic .sidebar a .badge,
+html.theme-classic .sidenav a .badge {
+  background: #FEF3C7 !important;
+  color: #78350F !important;
+  border: 1px solid #FDE68A !important;
+}
+
+html.theme-executive .sidebar a i.nav-icon,
+html.theme-executive .sidenav a i.nav-icon {
+  color: #FBBF24 !important;
+}
+html.theme-executive .sidebar a .badge,
+html.theme-executive .sidenav a .badge {
+  background: #FEF3C7 !important;
+  color: #92400E !important;
+  border: 1px solid #FDE68A !important;
+}
+
+html.theme-midnight .sidebar a i.nav-icon,
+html.theme-midnight .sidenav a i.nav-icon {
+  color: #38BDF8 !important;
+}
+html.theme-midnight .sidebar a .badge,
+html.theme-midnight .sidenav a .badge {
+  background: #1E293B !important;
+  color: #38BDF8 !important;
+  border: 1px solid #38BDF8 !important;
+}
+
+html.theme-forest .sidebar a i.nav-icon,
+html.theme-forest .sidenav a i.nav-icon {
+  color: #34D399 !important;
+}
+html.theme-forest .sidebar a .badge,
+html.theme-forest .sidenav a .badge {
+  background: #D1FAE5 !important;
+  color: #065F46 !important;
+  border: 1px solid #A7F3D0 !important;
+}
+
+html[data-theme="mint"] .sidebar a i.nav-icon,
+html[data-theme="mint"] .sidenav a i.nav-icon {
+  color: #10B981 !important;
+}
+html[data-theme="mint"] .sidebar a .badge,
+html[data-theme="mint"] .sidenav a .badge {
+  background: #D1FAE5 !important;
+  color: #065F46 !important;
+  border: 1px solid #A7F3D0 !important;
+}
+
+/* ============================================================
+   ★ UNIVERSAL FIX: SUB-STEPS CHECKLIST STYLING (IMAGES 2 & 3) ★
+   Removes generic dark button theme interference from .step-chip
+   and creates a clean, elegant, readable checklist
+   ============================================================ */
+.task-stepper-container {
+  background: #FFFFFF !important;
+  border: 1.5px solid #E2E8F0 !important;
+  border-radius: 12px !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
+}
+
+.task-stepper-header {
+  color: #1E293B !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.task-stepper-pct {
+  background: #ECFDF5 !important;
+  color: #059669 !important;
+  border: 1px solid #A7F3D0 !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 2px 8px !important;
+}
+
+.task-stepper-bar-bg {
+  background: #F1F5F9 !important;
+  height: 5px !important;
+  border-radius: 9999px !important;
+  overflow: hidden !important;
+  margin-bottom: 10px !important;
+}
+
+.task-stepper-bar-fill {
+  background: linear-gradient(90deg, #3B82F6, #10B981) !important;
+  height: 100% !important;
+  border-radius: 9999px !important;
+}
+
+.task-steps-list::before {
+  display: none !important;
+}
+
+/* Base Sub-step Row - Light, Clean Checklist Item (Overrides theme button rules) */
+button.step-chip,
+.task-steps-list button.step-chip,
+.task-steps-list .step-chip,
+.step-chip {
+  background: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 8px !important;
+  padding: 7px 12px !important;
+  margin-bottom: 6px !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease !important;
+}
+
+button.step-chip:hover,
+.task-steps-list button.step-chip:hover,
+.step-chip:hover {
+  background: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+  transform: none !important;
+}
+
+/* Number Badge */
+button.step-chip .step-num-badge,
+.step-chip .step-num-badge {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  border-radius: 50% !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #FFFFFF !important;
+  color: #334155 !important;
+  border: 1.5px solid #CBD5E1 !important;
+  box-shadow: none !important;
+  flex-shrink: 0 !important;
+}
+
+/* Step Text (Active / Incomplete) */
+button.step-chip .step-chip-text,
+.step-chip .step-chip-text {
+  color: #1E293B !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  flex: 1 1 auto !important;
+  text-decoration: none !important;
+}
+
+/* Date Chip */
+button.step-chip .step-date-chip,
+.step-chip .step-date-chip {
+  background: #FFFFFF !important;
+  color: #64748B !important;
+  border: 1px solid #E2E8F0 !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  padding: 2px 7px !important;
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+}
+
+/* Completed Sub-step State */
+button.step-chip.completed,
+.task-steps-list button.step-chip.completed,
+.step-chip.completed {
+  background: #F0FDF4 !important;
+  border-color: #BBF7D0 !important;
+}
+
+button.step-chip.completed .step-num-badge,
+.step-chip.completed .step-num-badge {
+  background: #10B981 !important;
+  color: #FFFFFF !important;
+  border-color: #10B981 !important;
+}
+
+button.step-chip.completed .step-chip-text,
+.step-chip.completed .step-chip-text {
+  color: #64748B !important;
+  text-decoration: line-through !important;
+  text-decoration-color: #059669 !important;
+  text-decoration-thickness: 1.5px !important;
+}
+
+button.step-chip.completed .step-date-chip,
+.step-chip.completed .step-date-chip {
+  background: #DCFCE7 !important;
+  color: #166534 !important;
+  border-color: #86EFAC !important;
+}
+
+/* Dark Mode Sub-steps */
+html.theme-midnight .task-stepper-container {
+  background: #141B2D !important;
+  border-color: #1F293D !important;
+}
+html.theme-midnight .task-stepper-header {
+  color: #F8FAFC !important;
+}
+html.theme-midnight button.step-chip,
+html.theme-midnight .task-steps-list button.step-chip,
+html.theme-midnight .step-chip {
+  background: #0F172A !important;
+  border-color: #1E293B !important;
+}
+html.theme-midnight button.step-chip:hover,
+html.theme-midnight .step-chip:hover {
+  background: #1E293B !important;
+  border-color: #38BDF8 !important;
+}
+html.theme-midnight button.step-chip .step-num-badge,
+html.theme-midnight .step-chip .step-num-badge {
+  background: #1E293B !important;
+  color: #94A3B8 !important;
+  border-color: #334155 !important;
+}
+html.theme-midnight button.step-chip .step-chip-text,
+html.theme-midnight .step-chip .step-chip-text {
+  color: #F1F5F9 !important;
+}
+html.theme-midnight button.step-chip .step-date-chip,
+html.theme-midnight .step-chip .step-date-chip {
+  background: #1E293B !important;
+  color: #94A3B8 !important;
+  border-color: #334155 !important;
+}
+html.theme-midnight button.step-chip.completed,
+html.theme-midnight .step-chip.completed {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+html.theme-midnight button.step-chip.completed .step-num-badge,
+html.theme-midnight .step-chip.completed .step-num-badge {
+  background: #10B981 !important;
+  color: #0A0E17 !important;
+}
+html.theme-midnight button.step-chip.completed .step-chip-text,
+html.theme-midnight .step-chip.completed .step-chip-text {
+  color: #94A3B8 !important;
+  text-decoration-color: #10B981 !important;
+}
+
+/* ==============================================================================
+   MASTER COMPONENT DESIGN SYSTEM (MCDS) - UNIFIED COMPONENT ENGINE
+   Enforces identical geometry, typography, elevation, and interactions
+   across ALL tabs, screens, and themes.
+   ============================================================================== */
+
+/* --- 1. UNIFIED CARDS & CONTAINERS --- */
+.card,
+.case-card,
+.home-today-card,
+.court-directory-card,
+.kpi-rect-card,
+.home-panel-card,
+.form-container,
+.panel,
+.about-card,
+.dossier-card,
+.theme-option-card,
+.theme-maker-card,
+.login-card,
+.task-stepper-container,
+.court-add-card,
+.modal-dialog,
+.modal-content,
+.pwa-modal-shell,
+.todo-item {
+  border-radius: 14px !important;
+  border: 1px solid var(--border-default, #E2E8F0) !important;
+  background: var(--surface-card, #FFFFFF) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease !important;
+}
+
+/* Hover elevation on clickable cards */
+.card.hoverable:hover,
+.case-card:hover,
+.court-directory-card:hover,
+.home-today-card:hover,
+.theme-option-card:hover,
+.kpi-rect-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08), 0 3px 6px rgba(15, 23, 42, 0.04) !important;
+  border-color: var(--border-strong, #CBD5E1) !important;
+}
+
+/* --- 2. UNIFIED BUTTON SYSTEM --- */
+/* Standard Button Scale */
+.btn,
+.primary-btn,
+.secondary-btn,
+.form-submit-btn,
+.hero-btn-primary,
+.hero-btn-secondary,
+.search-action-btn,
+.action-btn,
+.panel-action-btn,
+.dossier-action-btn,
+.detail-action-btn,
+.today-empty-btn {
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 16px !important;
+  border-radius: 8px !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn:active,
+.primary-btn:active,
+.secondary-btn:active,
+.action-btn:active {
+  transform: scale(0.98) !important;
+}
+
+/* Primary Button Styling */
+.primary-btn,
+.form-submit-btn,
+.hero-btn-primary,
+.search-action-btn,
+.today-cause-list-btn {
+  background: var(--btn-primary-bg, linear-gradient(135deg, #0B132B 0%, #1C2541 100%)) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--btn-primary-border, #1C2541) !important;
+  box-shadow: 0 1px 3px rgba(11, 19, 43, 0.12) !important;
+}
+
+.primary-btn:hover,
+.form-submit-btn:hover,
+.hero-btn-primary:hover,
+.search-action-btn:hover,
+.today-cause-list-btn:hover {
+  background: var(--btn-primary-hover, linear-gradient(135deg, #1C2541 0%, #3A506B 100%)) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(11, 19, 43, 0.18) !important;
+}
+
+/* Secondary Button Styling */
+.secondary-btn,
+.hero-btn-secondary,
+.action-btn,
+.panel-action-btn,
+.dossier-action-btn,
+.detail-action-btn {
+  background: #FFFFFF !important;
+  color: var(--text-primary, #1C2541) !important;
+  border: 1px solid var(--border-default, #CBD5E1) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+.secondary-btn:hover,
+.hero-btn-secondary:hover,
+.action-btn:hover,
+.panel-action-btn:hover,
+.dossier-action-btn:hover,
+.detail-action-btn:hover {
+  background: var(--surface-subtle, #F8FAFC) !important;
+  border-color: var(--border-strong, #94A3B8) !important;
+  color: var(--text-primary, #0B132B) !important;
+}
+
+/* Danger / Delete Buttons */
+.danger-btn,
+.btn-delete,
+.court-btn-delete,
+.todo-delete-btn {
+  background: #FEF2F2 !important;
+  color: #DC2626 !important;
+  border: 1px solid #FECACA !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+}
+
+.danger-btn:hover,
+.btn-delete:hover,
+.court-btn-delete:hover,
+.todo-delete-btn:hover {
+  background: #DC2626 !important;
+  color: #FFFFFF !important;
+  border-color: #DC2626 !important;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25) !important;
+}
+
+/* Compact / Mini Buttons */
+.mini-court-btn,
+.type-pill-btn,
+.todo-filter-btn {
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+/* --- 3. UNIFIED BADGES, PILLS & CHIPS --- */
+/* Rounded Status / Filter Pills */
+.case-cards-pill,
+.kpi-aesthetic-chip,
+.todo-priority-pill,
+.todo-general-tag {
+  border-radius: 9999px !important;
+  padding: 3px 10px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  border: 1px solid transparent !important;
+}
+
+/* Stage & Category Badges */
+.stage-pill,
+.case-badge,
+.tag-badge,
+.section-title-badge {
+  border-radius: 6px !important;
+  padding: 4px 10px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1.2 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+/* Active Pill State */
+.case-cards-pill.active,
+.type-pill-btn.active,
+.todo-filter-btn.active,
+.stage-pill-specific.active {
+  background: var(--accent, #0B132B) !important;
+  color: #FFFFFF !important;
+  border-color: var(--accent, #0B132B) !important;
+  box-shadow: 0 2px 6px rgba(11, 19, 43, 0.15) !important;
+}
+
+/* --- 4. UNIFIED FORM INPUTS & SELECTS --- */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+input[type="number"],
+input[type="tel"],
+select,
+.browser-default select,
+textarea {
+  height: 38px !important;
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--border-default, #CBD5E1) !important;
+  background: #FFFFFF !important;
+  color: var(--text-primary, #0F172A) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 13.5px !important;
+  padding: 0 12px !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+textarea {
+  height: auto !important;
+  min-height: 80px !important;
+  padding: 10px 12px !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: #0284C7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18) !important;
+}
+
+/* Form Labels */
+.auth-form label,
+.form-group label,
+.form-container label,
+.add-form label,
+label {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
+  color: #475569 !important;
+  margin-bottom: 5px !important;
+  display: block !important;
+}
+
+/* --- 5. UNIFIED DATA TABLES --- */
+table.search-results-table,
+table.cause-print-table,
+table.history-table,
+table.min-w-full,
+#guestCasesTable,
+#allCasesTable,
+#courtsTable,
+#helpersTable,
+#undatedCasesTable,
+#disposedCasesTable {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+}
+
+/* Table Head */
+table thead th,
+table.search-results-table thead th,
+#guestCasesTable thead th,
+#allCasesTable thead th {
+  height: 38px !important;
+  padding: 9px 14px !important;
+  background: #F8FAFC !important;
+  color: #475569 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 1.5px solid #E2E8F0 !important;
+  border-top: none !important;
+  white-space: nowrap !important;
+}
+
+/* Table Rows & Cells */
+table tbody tr {
+  transition: background-color 0.15s ease !important;
+}
+
+table tbody td {
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  color: #1E293B !important;
+  border-bottom: 1px solid #F1F5F9 !important;
+  vertical-align: middle !important;
+}
+
+table tbody tr:hover td {
+  background-color: #F8FAFC !important;
+}
+
+/* Table Card Container Wrapper */
+.table-responsive,
+.overflow-x-auto {
+  border-radius: 12px !important;
+  border: 1px solid #E2E8F0 !important;
+  background: #FFFFFF !important;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* --- 6. UNIFIED MODALS & DIALOGS --- */
+.modal-overlay {
+  background: rgba(15, 23, 42, 0.55) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+.modal-dialog,
+.modal-content,
+.pwa-modal-shell {
+  border-radius: 14px !important;
+  border: 1px solid #E2E8F0 !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18) !important;
+  overflow: hidden !important;
+}
+
+.modal-header,
+.pwa-modal-header {
+  padding: 14px 20px !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.modal-body,
+.pwa-modal-body {
+  padding: 18px 20px !important;
+}
+
+.modal-footer {
+  padding: 12px 20px !important;
+  border-top: 1px solid #E2E8F0 !important;
+  background: #F8FAFC !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+}
+
+/* --- 7. THEME HARMONIZATION OVERRIDES --- */
+/* Judicial Midnight (Dark Mode) unified component overrides */
+html.theme-midnight .card,
+html.theme-midnight .case-card,
+html.theme-midnight .home-today-card,
+html.theme-midnight .court-directory-card,
+html.theme-midnight .kpi-rect-card,
+html.theme-midnight .home-panel-card,
+html.theme-midnight .form-container,
+html.theme-midnight .panel,
+html.theme-midnight .about-card,
+html.theme-midnight .dossier-card,
+html.theme-midnight .theme-option-card,
+html.theme-midnight .theme-maker-card,
+html.theme-midnight .login-card,
+html.theme-midnight .task-stepper-container,
+html.theme-midnight .modal-dialog,
+html.theme-midnight .modal-content,
+html.theme-midnight .modal-card,
+html.theme-midnight .modal-card-sm,
+html.theme-midnight .db-modal-card,
+html.theme-midnight .pwa-modal-shell,
+html.theme-midnight .todo-item,
+html.theme-midnight .table-responsive {
+  background: #141B2D !important;
+  border-color: #1F293D !important;
+  color: #F1F5F9 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Court directory cards in Midnight Theme */
+html.theme-midnight .court-card-index {
+  background: rgba(56, 189, 248, 0.12) !important;
+  border-color: rgba(56, 189, 248, 0.28) !important;
+  color: #38BDF8 !important;
+}
+
+html.theme-midnight .court-card-icon {
+  background: rgba(56, 189, 248, 0.12) !important;
+  border-color: rgba(56, 189, 248, 0.28) !important;
+  color: #38BDF8 !important;
+}
+
+html.theme-midnight .court-card-name {
+  color: #F8FAFC !important;
+}
+
+html.theme-midnight .court-card-count.has-cases {
+  background: rgba(56, 189, 248, 0.12) !important;
+  border-color: rgba(56, 189, 248, 0.28) !important;
+  color: #38BDF8 !important;
+}
+
+html.theme-midnight .court-card-count.zero-cases {
+  background: rgba(148, 163, 184, 0.1) !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
+  color: #94A3B8 !important;
+}
+
+html.theme-midnight .court-card-actions .court-btn-edit {
+  background: #1E293B !important;
+  border: 1px solid #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+html.theme-midnight .court-card-actions .court-btn-edit:hover {
+  background: #283548 !important;
+  border-color: #38BDF8 !important;
+  color: #38BDF8 !important;
+}
+
+html.theme-midnight .court-card-actions .court-btn-delete,
+html.theme-midnight .danger-btn,
+html.theme-midnight .btn-delete,
+html.theme-midnight .todo-delete-btn,
+html.theme-midnight .btn-danger-action {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  color: #F87171 !important;
+}
+
+html.theme-midnight .court-card-actions .court-btn-delete:hover,
+html.theme-midnight .danger-btn:hover,
+html.theme-midnight .btn-delete:hover,
+html.theme-midnight .todo-delete-btn:hover,
+html.theme-midnight .btn-danger-action:hover {
+  background: #EF4444 !important;
+  border-color: #EF4444 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.4) !important;
+}
+
+html.theme-midnight .courts-cards-empty {
+  background: rgba(30, 41, 59, 0.5) !important;
+  border-color: #334155 !important;
+  color: #94A3B8 !important;
+}
+
+/* Court form and search controls in Midnight */
+html.theme-midnight .court-table-toolbar .court-search-box input,
+html.theme-midnight .court-input-action-row .search-field-box input,
+html.theme-midnight #courtInput,
+html.theme-midnight #courtSearchInput {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.theme-midnight .court-table-toolbar .court-search-box input:focus,
+html.theme-midnight .court-input-action-row .search-field-box input:focus,
+html.theme-midnight #courtInput:focus,
+html.theme-midnight #courtSearchInput:focus {
+  border-color: #38BDF8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22) !important;
+}
+
+html.theme-midnight .court-table-toolbar .court-refresh-btn {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+html.theme-midnight .court-table-toolbar .court-refresh-btn:hover {
+  background: #283548 !important;
+  border-color: #38BDF8 !important;
+  color: #38BDF8 !important;
+}
+
+/* Court Helpers Directory in Midnight */
+html.theme-midnight .helper-avatar {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38BDF8 !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+html.theme-midnight .helper-user-name {
+  color: #F8FAFC !important;
+}
+
+html.theme-midnight .helper-user-role {
+  color: #38BDF8 !important;
+}
+
+html.theme-midnight .helper-court-tag {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #CBD5E1 !important;
+}
+
+html.theme-midnight .helper-call-btn {
+  background: rgba(56, 189, 248, 0.12) !important;
+  border-color: rgba(56, 189, 248, 0.28) !important;
+  color: #38BDF8 !important;
+}
+
+html.theme-midnight .helper-call-btn:hover {
+  background: #0284C7 !important;
+  border-color: #0284C7 !important;
+  color: #FFFFFF !important;
+}
+
+html.theme-midnight .helper-wa-btn {
+  background: rgba(34, 197, 94, 0.15) !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
+  color: #4ADE80 !important;
+}
+
+html.theme-midnight .helper-wa-btn:hover {
+  background: #16A34A !important;
+  border-color: #16A34A !important;
+  color: #FFFFFF !important;
+}
+
+/* Modals & Dialogs in Midnight Theme */
+html.theme-midnight .modal-body {
+  background: #141B2D !important;
+  color: #E2E8F0 !important;
+}
+
+html.theme-midnight .modal-card h3,
+html.theme-midnight .modal-card h4,
+html.theme-midnight .modal-header h3,
+html.theme-midnight .modal-header h4 {
+  color: #F8FAFC !important;
+}
+
+html.theme-midnight .modal-card p,
+html.theme-midnight .modal-subtitle {
+  color: #94A3B8 !important;
+}
+
+html.theme-midnight .modal-card label {
+  color: #CBD5E1 !important;
+}
+
+html.theme-midnight .modal-close-btn {
+  color: #94A3B8 !important;
+}
+
+html.theme-midnight .modal-close-btn:hover {
+  color: #F8FAFC !important;
+}
+
+html.theme-midnight #editCourtWarningNotice {
+  background: rgba(56, 189, 248, 0.12) !important;
+  border-color: rgba(56, 189, 248, 0.25) !important;
+  color: #7DD3FC !important;
+}
+
+html.theme-midnight #deleteCourtActiveCasesNotice {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border-color: rgba(245, 158, 11, 0.25) !important;
+  color: #FCD34D !important;
+}
+
+html.theme-midnight #deleteCourtDisplayName {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #F87171 !important;
+}
+
+html.theme-midnight #deleteCourtModal .modal-body p {
+  color: #E2E8F0 !important;
+}
+
+html.theme-midnight input[type="text"],
+html.theme-midnight input[type="password"],
+html.theme-midnight input[type="email"],
+html.theme-midnight input[type="date"],
+html.theme-midnight input[type="number"],
+html.theme-midnight input[type="tel"],
+html.theme-midnight select,
+html.theme-midnight .browser-default select,
+html.theme-midnight textarea {
+  background: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.theme-midnight input:focus,
+html.theme-midnight select:focus,
+html.theme-midnight textarea:focus {
+  border-color: #38BDF8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22) !important;
+}
+
+html.theme-midnight table thead th {
+  background: #0F172A !important;
+  color: #94A3B8 !important;
+  border-bottom-color: #1F293D !important;
+}
+
+html.theme-midnight table tbody td {
+  color: #E2E8F0 !important;
+  border-bottom-color: #1F293D !important;
+}
+
+html.theme-midnight table tbody tr:hover td {
+  background-color: rgba(56, 189, 248, 0.05) !important;
+}
+
+html.theme-midnight .secondary-btn,
+html.theme-midnight .hero-btn-secondary,
+html.theme-midnight .action-btn,
+html.theme-midnight .panel-action-btn,
+html.theme-midnight .dossier-action-btn,
+html.theme-midnight .detail-action-btn {
+  background: #1E293B !important;
+  color: #E2E8F0 !important;
+  border-color: #334155 !important;
+}
+
+html.theme-midnight .modal-header,
+html.theme-midnight .modal-footer,
+html.theme-midnight .pwa-modal-header {
+  border-color: #1F293D !important;
+  background: #0F172A !important;
+}
+
+html.theme-midnight label {
+  color: #94A3B8 !important;
+}
+
+/* Chambers Executive theme unified component overrides */
+html.theme-executive .primary-btn,
+html.theme-executive .form-submit-btn,
+html.theme-executive .hero-btn-primary,
+html.theme-executive .search-action-btn,
+html.theme-executive .today-cause-list-btn,
+html.theme-executive .court-submit-btn,
+html.theme-executive .type-pill-btn.active,
+html.theme-executive .todo-filter-btn.active,
+html.theme-executive .case-cards-pill.active {
+  background: linear-gradient(135deg, #D97706, #B45309) !important;
+  border-color: #D97706 !important;
+  color: #FFFFFF !important;
+}
+
+html.theme-executive .primary-btn:hover,
+html.theme-executive .form-submit-btn:hover,
+html.theme-executive .hero-btn-primary:hover,
+html.theme-executive .court-submit-btn:hover {
+  background: linear-gradient(135deg, #F59E0B, #D97706) !important;
+}
+
+html.theme-executive .court-card-index {
+  background: rgba(217, 119, 6, 0.12) !important;
+  border-color: rgba(217, 119, 6, 0.28) !important;
+  color: #B45309 !important;
+}
+
+html.theme-executive .court-card-icon {
+  background: rgba(217, 119, 6, 0.12) !important;
+  border-color: rgba(217, 119, 6, 0.28) !important;
+  color: #D97706 !important;
+}
+
+html.theme-executive .court-card-count.has-cases {
+  background: rgba(217, 119, 6, 0.12) !important;
+  border-color: rgba(217, 119, 6, 0.28) !important;
+  color: #B45309 !important;
+}
+
+html.theme-executive .court-card-actions .court-btn-edit:hover {
+  border-color: #D97706 !important;
+  color: #D97706 !important;
+  background: #FEF3C7 !important;
+}
+
+html.theme-executive .helper-avatar {
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: #B45309 !important;
+  border-color: rgba(217, 119, 6, 0.25) !important;
+}
+
+/* Cambridge Forest theme unified component overrides */
+html.theme-forest .primary-btn,
+html.theme-forest .form-submit-btn,
+html.theme-forest .hero-btn-primary,
+html.theme-forest .search-action-btn,
+html.theme-forest .today-cause-list-btn,
+html.theme-forest .court-submit-btn,
+html.theme-forest .type-pill-btn.active,
+html.theme-forest .todo-filter-btn.active,
+html.theme-forest .case-cards-pill.active {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  border-color: #059669 !important;
+  color: #FFFFFF !important;
+}
+
+html.theme-forest .primary-btn:hover,
+html.theme-forest .form-submit-btn:hover,
+html.theme-forest .hero-btn-primary:hover,
+html.theme-forest .court-submit-btn:hover {
+  background: linear-gradient(135deg, #10B981, #059669) !important;
+}
+
+html.theme-forest .court-card-index {
+  background: rgba(5, 150, 105, 0.12) !important;
+  border-color: rgba(5, 150, 105, 0.28) !important;
+  color: #047857 !important;
+}
+
+html.theme-forest .court-card-icon {
+  background: rgba(5, 150, 105, 0.12) !important;
+  border-color: rgba(5, 150, 105, 0.28) !important;
+  color: #059669 !important;
+}
+
+html.theme-forest .court-card-count.has-cases {
+  background: rgba(5, 150, 105, 0.12) !important;
+  border-color: rgba(5, 150, 105, 0.28) !important;
+  color: #047857 !important;
+}
+
+html.theme-forest .court-card-actions .court-btn-edit:hover {
+  border-color: #059669 !important;
+  color: #059669 !important;
+  background: #ECFDF5 !important;
+}
+
+html.theme-forest .helper-avatar {
+  background: rgba(5, 150, 105, 0.12) !important;
+  color: #047857 !important;
+  border-color: rgba(5, 150, 105, 0.25) !important;
+}
+
+/* ==============================================================================
+   UNDATED CASES TAB — HIGH-VISIBILITY SCROLLBAR & HORIZONTAL SCROLL ENGINE
+   ============================================================================== */
+#undated .table-responsive {
+  width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  max-height: calc(100vh - 200px) !important;
+  min-height: 280px !important;
+  border-radius: 14px !important;
+  border: 1.5px solid #CBD5E1 !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06) !important;
+  position: relative !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: auto !important;
+  scrollbar-color: #0284C7 #E2E8F0 !important;
+  margin-top: 10px !important;
+  margin-bottom: 24px !important;
+}
+
+/* Highly visible custom horizontal and vertical scrollbars for Undated Cases */
+#undated .table-responsive::-webkit-scrollbar {
+  width: 10px !important;
+  height: 10px !important;
+  display: block !important;
+}
+
+#undated .table-responsive::-webkit-scrollbar-track {
+  background: #F1F5F9 !important;
+  border-radius: 6px !important;
+  margin: 0 4px !important;
+}
+
+#undated .table-responsive::-webkit-scrollbar-thumb {
+  background: #0284C7 !important;
+  border-radius: 6px !important;
+  border: 2px solid #F1F5F9 !important;
+  min-width: 40px !important;
+}
+
+#undated .table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #0369A1 !important;
+}
+
+/* Minimum table width to ensure all 8 columns fit comfortably without squishing or overlapping */
+#undatedCasesTable {
+  width: 100% !important;
+  min-width: 1180px !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+#undatedCasesTable th,
+#undatedCasesTable td {
+  padding: 12px 14px !important;
+  vertical-align: middle !important;
+  font-size: 13px !important;
+}
+
+/* Column 1: Case Number */
+#undatedCasesTable th:nth-child(1),
+#undatedCasesTable td:nth-child(1) {
+  min-width: 140px !important;
+  width: 150px !important;
+  white-space: nowrap !important;
+}
+
+/* Column 2: Case Name (Wrapped for readability) */
+#undatedCasesTable th:nth-child(2),
+#undatedCasesTable td:nth-child(2) {
+  min-width: 220px !important;
+  width: 240px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+/* Column 3: Client */
+#undatedCasesTable th:nth-child(3),
+#undatedCasesTable td:nth-child(3) {
+  min-width: 130px !important;
+  width: 140px !important;
+  white-space: nowrap !important;
+}
+
+/* Column 4: Case Type Badge */
+#undatedCasesTable th:nth-child(4),
+#undatedCasesTable td:nth-child(4) {
+  min-width: 100px !important;
+  width: 100px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+/* Column 5: Court / Judicial Forum (Wrapped for readability) */
+#undatedCasesTable th:nth-child(5),
+#undatedCasesTable td:nth-child(5) {
+  min-width: 200px !important;
+  width: 220px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+/* Column 6: Filing Date */
+#undatedCasesTable th:nth-child(6),
+#undatedCasesTable td:nth-child(6) {
+  min-width: 110px !important;
+  width: 120px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+/* Column 7: Last / Scheduled Date */
+#undatedCasesTable th:nth-child(7),
+#undatedCasesTable td:nth-child(7) {
+  min-width: 150px !important;
+  width: 160px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+/* Column 8: Sticky Action Column */
+#undatedCasesTable th:nth-child(8),
+#undatedCasesTable td:nth-child(8) {
+  min-width: 160px !important;
+  width: 160px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+#undatedCasesTable thead th:last-child {
+  position: sticky !important;
+  right: 0 !important;
+  top: 0 !important;
+  z-index: 35 !important;
+  background-color: #EEF3FE !important;
+  color: #1C2541 !important;
+  box-shadow: -6px 0 12px -2px rgba(58, 80, 107, 0.16) !important;
+  border-left: 1px solid #E0E8F9 !important;
+}
+
+#undatedCasesTable tbody td:last-child {
+  position: sticky !important;
+  right: 0 !important;
+  z-index: 15 !important;
+  background-color: #FFFFFF !important;
+  box-shadow: -6px 0 12px -2px rgba(15, 23, 42, 0.08) !important;
+  border-left: 1px solid #E2E8F0 !important;
+}
+
+#undatedCasesTable tbody tr:hover td:last-child {
+  background-color: #F8FAFC !important;
+}
+
+/* Action button sizing inside Undated Cases */
+#undatedCasesTable .table-view-btn {
+  height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  cursor: pointer !important;
+}
+
+#undatedCasesTable .table-view-btn.update-hearing-btn {
+  background: #0284C7 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #0284C7 !important;
+}
+
+#undatedCasesTable .table-view-btn.update-hearing-btn:hover {
+  background: #0369A1 !important;
+  border-color: #0369A1 !important;
+}
+
+#undatedCasesTable .table-view-btn.edit-case-btn {
+  background: #1E293B !important;
+  color: #FFFFFF !important;
+  border: 1px solid #1E293B !important;
+}
+
+#undatedCasesTable .table-view-btn.edit-case-btn:hover {
+  background: #334155 !important;
+  border-color: #334155 !important;
+}
+
+/* Theme: Judicial Midnight (Dark Mode) overrides for Undated Cases Table */
+html.theme-midnight #undated .table-responsive {
+  border-color: #1F293D !important;
+  background: #141B2D !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  scrollbar-color: #38BDF8 #0F172A !important;
+}
+
+html.theme-midnight #undated .table-responsive::-webkit-scrollbar-track {
+  background: #0F172A !important;
+}
+
+html.theme-midnight #undated .table-responsive::-webkit-scrollbar-thumb {
+  background: #38BDF8 !important;
+  border: 2px solid #0F172A !important;
+}
+
+html.theme-midnight #undated .table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #7DD3FC !important;
+}
+
+html.theme-midnight #undatedCasesTable thead th {
+  background: #0F172A !important;
+  color: #94A3B8 !important;
+  border-bottom-color: #1F293D !important;
+}
+
+html.theme-midnight #undatedCasesTable tbody td {
+  color: #E2E8F0 !important;
+  border-bottom-color: #1F293D !important;
+}
+
+html.theme-midnight #undatedCasesTable thead th:last-child {
+  background-color: #0F172A !important;
+  color: #94A3B8 !important;
+  border-left-color: #1F293D !important;
+  box-shadow: -6px 0 12px -2px rgba(0, 0, 0, 0.45) !important;
+}
+
+html.theme-midnight #undatedCasesTable tbody td:last-child {
+  background-color: #141B2D !important;
+  border-left-color: #1F293D !important;
+  box-shadow: -6px 0 12px -2px rgba(0, 0, 0, 0.45) !important;
+}
+
+html.theme-midnight #undatedCasesTable tbody tr:hover td {
+  background-color: rgba(56, 189, 248, 0.05) !important;
+}
+
+html.theme-midnight #undatedCasesTable tbody tr:hover td:last-child {
+  background-color: #182238 !important;
+}
+
+/* Theme: Chambers Executive overrides */
+html.theme-executive #undated .table-responsive {
+  scrollbar-color: #D97706 #FEF3C7 !important;
+}
+
+html.theme-executive #undated .table-responsive::-webkit-scrollbar-track {
+  background: #FEF3C7 !important;
+}
+
+html.theme-executive #undated .table-responsive::-webkit-scrollbar-thumb {
+  background: #D97706 !important;
+  border: 2px solid #FEF3C7 !important;
+}
+
+html.theme-executive #undatedCasesTable .table-view-btn.update-hearing-btn {
+  background: linear-gradient(135deg, #D97706, #B45309) !important;
+  border-color: #D97706 !important;
+}
+
+/* Theme: Cambridge Forest overrides */
+html.theme-forest #undated .table-responsive {
+  scrollbar-color: #059669 #ECFDF5 !important;
+}
+
+html.theme-forest #undated .table-responsive::-webkit-scrollbar-track {
+  background: #ECFDF5 !important;
+}
+
+html.theme-forest #undated .table-responsive::-webkit-scrollbar-thumb {
+  background: #059669 !important;
+  border: 2px solid #ECFDF5 !important;
+}
+
+html.theme-forest #undatedCasesTable .table-view-btn.update-hearing-btn {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  border-color: #059669 !important;
+}
+
+/* Theme: Judicial Midnight overrides for Today's Court Appearance Board Actions */
+html.theme-midnight .home-today-card-actions .today-details-btn,
+html.theme-midnight .home-today-card-actions .table-view-btn:not(.update-hearing-btn):not(.call-btn):not(.whatsapp-btn) {
+  background: #1E293B !important;
+  color: #E2E8F0 !important;
+  border-color: #334155 !important;
+}
+
+html.theme-midnight .home-today-card-actions .today-details-btn:hover,
+html.theme-midnight .home-today-card-actions .table-view-btn:not(.update-hearing-btn):not(.call-btn):not(.whatsapp-btn):hover {
+  background: #283548 !important;
+  border-color: #38BDF8 !important;
+  color: #38BDF8 !important;
+}
+
+html.theme-midnight .home-today-card-actions .update-hearing-btn,
+html.theme-midnight .home-today-card-actions .today-forward-btn {
+  background: #0284C7 !important;
+  color: #FFFFFF !important;
+  border-color: #38BDF8 !important;
+}
+
+html.theme-midnight .home-today-card-actions .update-hearing-btn:hover,
+html.theme-midnight .home-today-card-actions .today-forward-btn:hover {
+  background: #0369A1 !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3) !important;
+}
+
+html.theme-midnight .home-today-card-actions .call-btn,
+html.theme-midnight .home-today-card-actions .today-call-btn {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38BDF8 !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+html.theme-midnight .home-today-card-actions .call-btn:hover,
+html.theme-midnight .home-today-card-actions .today-call-btn:hover {
+  background: #0284C7 !important;
+  color: #FFFFFF !important;
+}
+
+html.theme-midnight .home-today-card-actions .whatsapp-btn,
+html.theme-midnight .home-today-card-actions .today-whatsapp-btn {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #4ADE80 !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+html.theme-midnight .home-today-card-actions .whatsapp-btn:hover,
+html.theme-midnight .home-today-card-actions .today-whatsapp-btn:hover {
+  background: #16A34A !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.35) !important;
+}
+
+@media (max-width: 680px) {
+  html.theme-midnight .home-today-card-actions {
+    border-top-color: #1F293D !important;
+  }
+}
+
+/* Theme: Chambers Executive overrides for Today's Appearance Board Actions */
+html.theme-executive .home-today-card-actions .update-hearing-btn,
+html.theme-executive .home-today-card-actions .today-forward-btn {
+  background: linear-gradient(135deg, #D97706, #B45309) !important;
+  border-color: #D97706 !important;
+}
+
+/* Theme: Cambridge Forest overrides for Today's Appearance Board Actions */
+html.theme-forest .home-today-card-actions .update-hearing-btn,
+html.theme-forest .home-today-card-actions .today-forward-btn {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  border-color: #059669 !important;
+}
+
+/* ==========================================================================
+   TO-DO TASK REMINDER & ALERT ENGINE STYLING
+   Master Component Design System compliant (Dark Mode, Executive & Forest)
+   ========================================================================== */
+
+/* Toggle Switch */
+.todo-reminder-group {
+  margin-bottom: 16px;
+}
+
+.todo-reminder-label-flex {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #1E293B;
+  cursor: pointer;
+}
+
+.todo-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.todo-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.todo-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #CBD5E1;
+  transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+}
+
+.todo-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.todo-switch input:checked + .todo-slider {
+  background-color: #3B82F6;
+}
+
+.todo-switch input:checked + .todo-slider:before {
+  transform: translateX(20px);
+}
+
+.todo-reminder-subbox {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+}
+
+/* Promotional Notification Banner */
+.todo-alert-promo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  border: 1px solid #BFDBFE;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.08);
+}
+
+.todo-promo-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.todo-promo-icon {
+  font-size: 24px;
+  background: #FFFFFF;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+}
+
+.todo-promo-left strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1E40AF;
+  margin-bottom: 2px;
+}
+
+.todo-promo-left p {
+  margin: 0;
+  font-size: 12px;
+  color: #3B82F6;
+  line-height: 1.4;
+}
+
+.todo-promo-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.todo-enable-notify-btn {
+  background: #2563EB;
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.todo-enable-notify-btn:hover {
+  background: #1D4ED8;
+  transform: translateY(-1px);
+}
+
+.todo-dismiss-notify-btn {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px;
+  line-height: 1;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.todo-dismiss-notify-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #0F172A;
+}
+
+/* Reminder Badge on Task Cards */
+.todo-reminder-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.todo-reminder-badge.scheduled {
+  background: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+}
+
+.todo-reminder-badge.scheduled:hover {
+  background: #DBEAFE;
+  border-color: #93C5FD;
+}
+
+.todo-reminder-badge.triggered {
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+/* Action Button on Task Item */
+.todo-reminder-btn {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #475569;
+}
+
+.todo-reminder-btn:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+  transform: translateY(-1px);
+}
+
+.todo-reminder-btn.has-reminder {
+  background: #EFF6FF;
+  border-color: #93C5FD;
+  color: #2563EB;
+}
+
+/* Quick Reminder Modal Styling */
+.todo-reminder-modal-box {
+  max-width: 480px;
+  width: 90%;
+  border-radius: 14px;
+  background: #FFFFFF;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+/* Floating Alerts Container */
+.todo-floating-alert-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10050;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  width: calc(100% - 48px);
+  pointer-events: none;
+}
+
+.todo-floating-alert-card {
+  pointer-events: auto;
+  background: #FFFFFF;
+  border-radius: 14px;
+  border-left: 5px solid #3B82F6;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15), 0 1px 3px rgba(15, 23, 42, 0.1);
+  padding: 14px 16px;
+  animation: slide-up-alert 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border-top: 1px solid #E2E8F0;
+  border-right: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+@keyframes slide-up-alert {
+  from {
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.floating-rem-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+}
+
+.floating-rem-icon {
+  font-size: 22px;
+  background: #EFF6FF;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.floating-rem-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.floating-rem-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.floating-rem-tag {
+  font-size: 10px;
+  font-weight: 800;
+  color: #2563EB;
+  background: #DBEAFE;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.floating-rem-case {
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  background: #F1F5F9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.floating-rem-case.general {
+  color: #7C3AED;
+  background: #EDE9FE;
+}
+
+.floating-rem-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 4px;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.floating-rem-deadline {
+  font-size: 12px;
+  color: #64748B;
+}
+
+.floating-rem-close-btn {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 6px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.floating-rem-close-btn:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.floating-rem-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #E2E8F0;
+}
+
+.floating-rem-btn {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.floating-rem-btn.snooze {
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+}
+
+.floating-rem-btn.snooze:hover {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+
+.floating-rem-btn.complete {
+  background: #16A34A;
+  color: #FFFFFF;
+}
+
+.floating-rem-btn.complete:hover {
+  background: #15803D;
+}
+
+.floating-rem-btn.whatsapp {
+  background: #22C55E;
+  color: #FFFFFF;
+}
+
+.floating-rem-btn.whatsapp:hover {
+  background: #16A34A;
+}
+
+/* ==========================================================================
+   THEME OVERRIDES: MIDNIGHT / DARK MODE (html.theme-midnight)
+   ========================================================================== */
+html.theme-midnight .todo-reminder-label-flex {
+  color: #F1F5F9 !important;
+}
+
+html.theme-midnight .todo-reminder-subbox {
+  background: #111827 !important;
+  border-color: #1F293D !important;
+}
+
+html.theme-midnight .todo-alert-promo-banner {
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
+  border-color: #334155 !important;
+}
+
+html.theme-midnight .todo-promo-icon {
+  background: #1E293B !important;
+  color: #60A5FA !important;
+}
+
+html.theme-midnight .todo-promo-left strong {
+  color: #93C5FD !important;
+}
+
+html.theme-midnight .todo-promo-left p {
+  color: #CBD5E1 !important;
+}
+
+html.theme-midnight .todo-reminder-badge.scheduled {
+  background: rgba(59, 130, 246, 0.15) !important;
+  color: #60A5FA !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+html.theme-midnight .todo-reminder-badge.triggered {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #F87171 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+html.theme-midnight .todo-reminder-btn {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #94A3B8 !important;
+}
+
+html.theme-midnight .todo-reminder-btn:hover {
+  background: #26354D !important;
+  color: #F1F5F9 !important;
+}
+
+html.theme-midnight .todo-reminder-btn.has-reminder {
+  background: rgba(59, 130, 246, 0.2) !important;
+  border-color: #3B82F6 !important;
+  color: #60A5FA !important;
+}
+
+html.theme-midnight .todo-reminder-modal-box {
+  background: #0F172A !important;
+  border: 1px solid #1F293D !important;
+  color: #F1F5F9 !important;
+}
+
+html.theme-midnight .todo-reminder-modal-box h3 {
+  color: #F1F5F9 !important;
+}
+
+html.theme-midnight .todo-reminder-modal-box label {
+  color: #E2E8F0 !important;
+}
+
+html.theme-midnight .todo-reminder-status-info {
+  background: #1E293B !important;
+  color: #CBD5E1 !important;
+}
+
+html.theme-midnight .todo-reminder-modal-box .modal-footer {
+  background: #111C33 !important;
+  border-top-color: #1F293D !important;
+}
+
+html.theme-midnight .todo-floating-alert-card {
+  background: #0F172A !important;
+  border-color: #1F293D !important;
+  border-left-color: #3B82F6 !important;
+  color: #F1F5F9 !important;
+}
+
+html.theme-midnight .floating-rem-icon {
+  background: #1E293B !important;
+}
+
+html.theme-midnight .floating-rem-title {
+  color: #F1F5F9 !important;
+}
+
+html.theme-midnight .floating-rem-deadline {
+  color: #94A3B8 !important;
+}
+
+html.theme-midnight .floating-rem-case {
+  background: #1E293B !important;
+  color: #CBD5E1 !important;
+}
+
+html.theme-midnight .floating-rem-btn.snooze {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #CBD5E1 !important;
+}
+
+html.theme-midnight .floating-rem-btn.snooze:hover {
+  background: #26354D !important;
+  color: #FFFFFF !important;
+}
+
+/* ==========================================================================
+   THEME OVERRIDES: CHAMBERS EXECUTIVE (html.theme-executive)
+   ========================================================================== */
+html.theme-executive .todo-switch input:checked + .todo-slider {
+  background-color: #D97706 !important;
+}
+
+html.theme-executive .todo-alert-promo-banner {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%) !important;
+  border-color: #FCD34D !important;
+}
+
+html.theme-executive .todo-promo-left strong {
+  color: #92400E !important;
+}
+
+html.theme-executive .todo-promo-left p {
+  color: #B45309 !important;
+}
+
+html.theme-executive .todo-enable-notify-btn {
+  background: linear-gradient(135deg, #D97706, #B45309) !important;
+}
+
+html.theme-executive .todo-reminder-badge.scheduled {
+  background: #FEF3C7 !important;
+  color: #B45309 !important;
+  border-color: #FDE68A !important;
+}
+
+html.theme-executive .floating-rem-tag {
+  background: #FEF3C7 !important;
+  color: #B45309 !important;
+}
+
+html.theme-executive .todo-reminder-modal-box .modal-footer {
+  background: #FAF8F5 !important;
+  border-top-color: #E7E0D6 !important;
+}
+
+/* ==========================================================================
+   THEME OVERRIDES: CAMBRIDGE FOREST (html.theme-forest)
+   ========================================================================== */
+html.theme-forest .todo-switch input:checked + .todo-slider {
+  background-color: #059669 !important;
+}
+
+html.theme-forest .todo-alert-promo-banner {
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%) !important;
+  border-color: #A7F3D0 !important;
+}
+
+html.theme-forest .todo-promo-left strong {
+  color: #065F46 !important;
+}
+
+html.theme-forest .todo-promo-left p {
+  color: #047857 !important;
+}
+
+html.theme-forest .todo-enable-notify-btn {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+}
+
+html.theme-forest .todo-reminder-badge.scheduled {
+  background: #ECFDF5 !important;
+  color: #047857 !important;
+  border-color: #A7F3D0 !important;
+}
+
+html.theme-forest .floating-rem-tag {
+  background: #ECFDF5 !important;
+  color: #047857 !important;
+}
+
+html.theme-forest .todo-reminder-modal-box .modal-footer {
+  background: #F4F7F5 !important;
+  border-top-color: #DDE5E0 !important;
+}
+
+
 
