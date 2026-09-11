@@ -7152,6 +7152,9 @@ function updateSupabaseStatusIndicator(isConnected) {
 }
 window.updateSupabaseStatusIndicator = updateSupabaseStatusIndicator;
 
+// Reflect connection state on initial page load (event listeners only fire on changes)
+updateSupabaseStatusIndicator(navigator.onLine && !!supabaseClient);
+
 window.addEventListener('online', () => {
   if (supabaseClient) {
     updateSupabaseStatusIndicator(true);

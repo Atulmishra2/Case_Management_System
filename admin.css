@@ -8903,6 +8903,14 @@ html.auth-guest #guestScreen {
   color: #dc2626;
 }
 
+/* Disconnected State: Red Button Look */
+.hero-status-pill.disconnected {
+  background: #fee2e2 !important;
+  border: 1px solid #fca5a5 !important;
+  padding: 4px 12px !important;
+  border-radius: 9999px !important;
+}
+
 @keyframes pulseDotGreen {
   0% { transform: scale(0.95); opacity: 0.85; box-shadow: 0 0 0 0 rgba(111, 255, 233, 0.7); }
   70% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 0 6px rgba(111, 255, 233, 0); }
@@ -19252,7 +19260,14 @@ input[type="text"]#editCourtInput,
    ============================================================================== */
 
 /* 1. Container & Section Header Spacing */
-#courts .form-container,
+/* Widen Manage Courts (#courts) container to match the Upcoming Court Hearings
+   tab content width (1380px, centered) */
+#courts .form-container {
+  max-width: 1380px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
 #helpers .form-container {
   padding: 16px 18px !important;
 }
