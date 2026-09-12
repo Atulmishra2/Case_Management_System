@@ -3108,6 +3108,135 @@ html.auth-guest #guestScreen {
   gap: 12px;
 }
 
+/* Court Helpers directory card grid */
+.helper-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.helper-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.helper-card:hover {
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.12);
+  border-color: rgba(2, 132, 199, 0.35);
+  transform: translateY(-2px);
+}
+
+.helper-card-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 36px 16px;
+  color: #64748b;
+  background: #f8fafc;
+  border-style: dashed;
+}
+
+.helper-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.helper-card-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(2, 132, 199, 0.2);
+}
+
+.helper-card-id {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.helper-card-name {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.helper-card-role {
+  font-size: 12px;
+  color: #0284c7;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.helper-card-court {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.helper-card-court i {
+  color: #0284c7;
+}
+
+.helper-card-contact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 2px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.helper-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.helper-card-actions .court-btn-edit,
+.helper-card-actions .court-btn-delete {
+  flex: 1;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .helper-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .helper-avatar {
   width: 38px;
   height: 38px;
@@ -6912,6 +7041,15 @@ html.auth-guest #guestScreen {
   margin-bottom: 12px;
 }
 
+/* Application No. field shown for multi-step workflow tasks */
+.todo-copy-number-group {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
 .custom-step-tips-row {
   margin-top: 4px;
   font-size: 11px;
@@ -7047,6 +7185,18 @@ html.auth-guest #guestScreen {
 .step-chip:hover {
   background: #E0E8F9;
   border-color: #B8D3FE;
+}
+
+/* Steps locked until earlier steps are completed (ascending-order enforcement) */
+.step-chip.locked {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: grayscale(0.3);
+}
+
+.step-chip.locked:hover {
+  background: transparent;
+  border-color: transparent;
 }
 
 .step-num-badge {
@@ -19568,7 +19718,12 @@ input[type="text"]#editCourtInput,
 /* 1. Container & Section Header Spacing */
 /* Widen Manage Courts (#courts) container to match the Upcoming Court Hearings
    tab content width (1380px, centered) */
-#courts .form-container {
+#courts .form-container,
+#helpers .form-container,
+#delete .form-container,
+#add .form-container,
+#update .form-container,
+#transfer .form-container {
   max-width: 1380px !important;
   margin-left: auto !important;
   margin-right: auto !important;
@@ -19678,7 +19833,11 @@ input[type="text"]#editCourtInput,
 /* 4. Mobile Refinements (<= 768px and <= 480px) */
 @media (max-width: 768px) {
   #courts .form-container,
-  #helpers .form-container {
+  #helpers .form-container,
+  #delete .form-container,
+  #add .form-container,
+  #update .form-container,
+  #transfer .form-container {
     padding: 12px 10px !important;
   }
 

@@ -1496,7 +1496,7 @@
                                 </select>
                             </div>
 
-                            <!-- Multi-step workflow preview banner -->
+                            <!-- multi-step workflow preview banner -->
                             <div id="todoWorkflowStepsPreview" class="todo-workflow-preview hidden">
                                 <div class="workflow-preview-header">
                                     <i class="fa-solid fa-layer-group"></i> <strong>Certified Copy (4 Steps):</strong>
@@ -1507,16 +1507,17 @@
                                     <span class="preview-step-tag">3. Preparation in copy office</span>
                                     <span class="preview-step-tag">4. Receive</span>
                                 </div>
+                            </div>
 
-                                <div class="todo-copy-number-group" style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #86efac;">
-                                    <div class="todo-label-row">
-                                        <label for="todoCopyNumber" style="color: #166534; font-weight: 600; font-size: 12px;">Certified Copy / Application No. <span style="font-weight: 400; font-size: 11px; color: #15803d;">(Fill when applied)</span></label>
-                                        <span class="todo-field-hint" style="color: #15803d;">Optional now</span>
-                                    </div>
-                                    <div class="todo-input-icon-wrap" style="margin-top: 4px;">
-                                        <span class="todo-input-inner-icon" style="color: #166534;"><i class="fa-solid fa-stamp"></i></span>
-                                        <input type="text" id="todoCopyNumber" class="todo-custom-input with-icon" placeholder="Leave empty now — fill when applied (e.g. 12344/12)" oninput="onTodoCopyNumberInput(this.value)">
-                                    </div>
+                            <!-- Application No. (required for all multi-step workflows) -->
+                            <div id="todoCopyNumberGroup" class="todo-copy-number-group hidden">
+                                <div class="todo-label-row">
+                                    <label for="todoCopyNumber" style="color: #166534; font-weight: 600; font-size: 12px;">Application No. <span class="required-star">*</span></label>
+                                    <span class="todo-field-hint" style="color: #15803d;">Required for multi-step tasks</span>
+                                </div>
+                                <div class="todo-input-icon-wrap" style="margin-top: 4px;">
+                                    <span class="todo-input-inner-icon" style="color: #166534;"><i class="fa-solid fa-stamp"></i></span>
+                                    <input type="text" id="todoCopyNumber" class="todo-custom-input with-icon" placeholder="Enter application number (e.g. 12344/12)" oninput="onTodoCopyNumberInput(this.value)">
                                 </div>
                             </div>
 
@@ -2567,22 +2568,9 @@
                         </div>
                     </div>
 
-                    <!-- Helpers Table -->
-                    <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5">
-                        <table id="helpersTable" class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 helper-table">
-                            <thead class="bg-slate-50 text-slate-700 font-semibold text-xs uppercase tracking-wider">
-                                <tr>
-                                    <th style="width: 60px; text-align: center;">Sr.</th>
-                                    <th>Staff Member &amp; Position</th>
-                                    <th>Assigned Court / Forum</th>
-                                    <th>Mobile &amp; Quick Contact</th>
-                                    <th class="table-actions-th" style="width: 170px; text-align: right;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="helpersTableBody">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
+                    <!-- Helpers Directory Cards -->
+                    <div id="helpersCardsGrid" class="helper-cards-grid">
+                        <!-- Populated dynamically -->
                     </div>
                 </div>
             </div>

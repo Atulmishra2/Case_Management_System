@@ -7748,6 +7748,15 @@ async function handleAddTodoSubmit(e) {
     const copyNumberInput = document.getElementById('todoCopyNumber');
     const copyNumber = copyNumberInput ? copyNumberInput.value.trim() : '';
 
+    // Application number is mandatory for every multi-step workflow task
+    if (taskSteps.length > 0 && !copyNumber) {
+      if (typeof showToastNotification === 'function') {
+        showToastNotification('⚠️ Application No. is required for multi-step tasks. Please enter it above.', 3000);
+      }
+      copyNumberInput?.focus();
+      return false;
+    }
+
     const reminderToggle = document.getElementById('todoReminderToggle');
     const reminderInput = document.getElementById('todoReminderDateTime');
     let reminderDateTime = null;
@@ -7830,6 +7839,8 @@ function onTodoCopyNumberInput(val) {
   const titleInput = document.getElementById('todoTitle');
   if (!titleInput) return;
   const trimmed = (val || '').trim();
+  // Only auto-format the title for the Certified Copy workflow
+  if (titleInput.value.trim() && !titleInput.value.startsWith('Certified Copy')) return;
   if (trimmed) {
     titleInput.value = 'Certified Copy (App No. ' + trimmed + ')';
   } else {
@@ -7841,9 +7852,12 @@ window.onTodoCopyNumberInput = onTodoCopyNumberInput;
 function onTodoWorkflowTypeChange(val) {
   const preview = document.getElementById('todoWorkflowStepsPreview');
   const customContainer = document.getElementById('todoCustomStepsContainer');
+  const copyNumberGroup = document.getElementById('todoCopyNumberGroup');
   const customInput = document.getElementById('todoCustomStepsInput');
   const copyNumberInput = document.getElementById('todoCopyNumber');
   const titleInput = document.getElementById('todoTitle');
+
+  const isMultiStep = val === 'certified_copy' || val === 'custom';
 
   if (val === 'certified_copy') {
     if (preview) preview.classList.remove('hidden');
@@ -7856,12 +7870,15 @@ function onTodoWorkflowTypeChange(val) {
     if (preview) preview.classList.add('hidden');
     if (customContainer) customContainer.classList.remove('hidden');
     if (customInput) customInput.focus();
-    if (copyNumberInput) copyNumberInput.value = '';
   } else {
     if (preview) preview.classList.add('hidden');
     if (customContainer) customContainer.classList.add('hidden');
     if (copyNumberInput) copyNumberInput.value = '';
   }
+
+  // Application No. is required for every multi-step workflow task
+  if (copyNumberGroup) copyNumberGroup.classList.toggle('hidden', !isMultiStep);
+  if (!isMultiStep && copyNumberInput) copyNumberInput.value = '';
 }
 window.onTodoWorkflowTypeChange = onTodoWorkflowTypeChange;
 
@@ -7914,17 +7931,26 @@ async function toggleTaskSubStep(taskId, stepId) {
   if (!task || !Array.isArray(task.steps)) return;
 
   const step = task.steps.find(s => s.id === stepId);
-  if (step) {
-    step.completed = !step.completed;
-    step.date = step.completed ? new Date().toISOString().split('T')[0] : null;
+  if (!step) return;
 
-    if (step.completed && step.name.toLowerCase().includes('apply') && !task.copyNumber) {
-      const entered = prompt('Step "Apply" completed! Enter Certified Copy / Application No. (or cancel to add later):');
-      if (entered && entered.trim()) {
-        task.copyNumber = entered.trim();
-        if (task.taskTitle && task.taskTitle.startsWith('Certified Copy')) {
-          task.taskTitle = 'Certified Copy (App No. ' + task.copyNumber + ')';
-        }
+  // Steps must be completed strictly in ascending order — block random ticks
+  if (!step.completed) {
+    const prevIncomplete = task.steps.some(s => s.id < step.id && !s.completed);
+    if (prevIncomplete) {
+      showToastNotification('⚠️ Steps must be completed in order. Finish earlier steps first.');
+      return;
+    }
+  }
+
+  step.completed = !step.completed;
+  step.date = step.completed ? new Date().toISOString().split('T')[0] : null;
+
+  if (step.completed && step.name.toLowerCase().includes('apply') && !task.copyNumber) {
+    const entered = prompt('Step "Apply" completed! Enter Certified Copy / Application No. (or cancel to add later):');
+    if (entered && entered.trim()) {
+      task.copyNumber = entered.trim();
+      if (task.taskTitle && task.taskTitle.startsWith('Certified Copy')) {
+        task.taskTitle = 'Certified Copy (App No. ' + task.copyNumber + ')';
       }
     }
   }
@@ -8145,16 +8171,20 @@ function renderCaseTasks(filter = currentTodoFilter) {
             <div class="task-stepper-bar-fill" style="width: ${pct}%;"></div>
           </div>
           <div class="task-steps-list">
-            ${t.steps.map(step => `
+            ${t.steps.map(step => {
+              const isNextStep = !step.completed && !t.steps.some(s => s.id < step.id && !s.completed);
+              return `
               <button type="button"
-                      class="step-chip ${step.completed ? 'completed' : ''}"
+                      class="step-chip ${step.completed ? 'completed' : ''} ${!step.completed && !isNextStep ? 'locked' : ''}"
+                      ${!step.completed && !isNextStep ? 'disabled' : ''}
                       onclick="toggleTaskSubStep('${t.id}', ${step.id})"
-                      title="Click to toggle: ${step.name}">
-                <span class="step-num-badge">${step.id}</span>
+                      title="${step.completed ? 'Click to re-open this step' : (isNextStep ? 'Click to complete: ' + step.name : 'Complete earlier steps first — ' + step.name)}">
+                <span class="step-num-badge">${step.completed ? '✓' : step.id}</span>
                 <span class="step-chip-text">${step.name}</span>
                 ${step.date ? `<small class="step-date-chip">${step.date}</small>` : ''}
+                ${!step.completed && !isNextStep ? '<i class="fa-solid fa-lock" style="font-size: 10px; opacity: 0.6;"></i>' : ''}
               </button>
-            `).join('')}
+            `;}).join('')}
           </div>
         </div>
       `;
@@ -11535,8 +11565,8 @@ function populateHelperCourtDropdowns() {
 }
 
 function renderHelpersTable(searchQuery = '') {
-  const tbody = document.getElementById('helpersTableBody');
-  if (!tbody) return;
+  const grid = document.getElementById('helpersCardsGrid');
+  if (!grid) return;
 
   populateHelperCourtDropdowns();
   const helpers = getCourtHelpersList();
@@ -11555,72 +11585,63 @@ function renderHelpersTable(searchQuery = '') {
     return textMatch && courtDropMatch;
   });
 
-  tbody.innerHTML = '';
+  grid.innerHTML = '';
 
   if (filtered.length === 0) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td colspan="5" style="text-align: center; padding: 32px 16px; color: #64748b;">
+    grid.innerHTML = `
+      <div class="helper-card helper-card-empty">
         <div style="font-size: 32px; margin-bottom: 8px; opacity: 0.6;"><i class="fa-solid fa-users-slash"></i></div>
         <div style="font-weight: 700; font-size: 15px; color: #334155;">No court helpers or workers found</div>
         <div style="font-size: 13px; margin-top: 4px;">${query || courtFilterVal ? 'Try adjusting your search or court filter.' : 'Add your first court staff member using the form above.'}</div>
-      </td>
+      </div>
     `;
-    tbody.appendChild(tr);
     updateHelpersBadges();
     return;
   }
 
-  filtered.forEach((h, index) => {
-    const tr = document.createElement('tr');
+  filtered.forEach((h) => {
     const initial = (h.name || 'W').trim().charAt(0).toUpperCase();
     const cleanMobile = (h.mobile || '').trim();
     const waDigits = cleanMobile.replace(/\D/g, '');
     const waLink = waDigits.length === 10 ? `https://wa.me/91${waDigits}` : `https://wa.me/${waDigits}`;
 
-    tr.innerHTML = `
-      <td style="text-align: center; font-weight: 700; color: #64748b;">${index + 1}</td>
-      <td>
-        <div class="helper-user-cell">
-          <div class="helper-avatar">${escapeHtml(initial)}</div>
-          <div class="helper-user-info">
-            <div class="helper-user-name">${escapeHtml(h.name || '—')}</div>
-            <div class="helper-user-role"><i class="fa-solid fa-briefcase"></i> ${escapeHtml(h.position || 'Staff')}</div>
-          </div>
+    const card = document.createElement('div');
+    card.className = 'helper-card';
+
+    card.innerHTML = `
+      <div class="helper-card-top">
+        <div class="helper-card-avatar">${escapeHtml(initial)}</div>
+        <div class="helper-card-id">
+          <div class="helper-card-name">${escapeHtml(h.name || '—')}</div>
+          <div class="helper-card-role"><i class="fa-solid fa-briefcase"></i> ${escapeHtml(h.position || 'Staff')}</div>
         </div>
-      </td>
-      <td>
-        <div class="helper-court-tag">
-          <i class="fa-solid fa-landmark" style="color: #0284c7;"></i>
-          <span>${escapeHtml(h.court || 'General')}</span>
-        </div>
-      </td>
-      <td>
-        <div class="helper-contact-cell">
-          ${cleanMobile ? `
-            <a href="tel:${escapeHtml(cleanMobile)}" class="helper-call-btn" title="Call ${escapeHtml(h.name)}">
-              <i class="fa-solid fa-phone"></i> <span>${escapeHtml(cleanMobile)}</span>
-            </a>
-            <a href="${escapeHtml(waLink)}" target="_blank" rel="noopener noreferrer" class="helper-wa-btn" title="Chat on WhatsApp">
-              <i class="fa-brands fa-whatsapp"></i>
-            </a>
-          ` : '<span style="color: #94a3b8; font-size: 13px;">No mobile provided</span>'}
-        </div>
-      </td>
-      <td style="text-align: right;">
-        <div class="court-actions-cell" style="justify-content: flex-end;">
-          <button type="button" class="court-btn-edit edit-helper-btn" title="Edit Staff Details">
-            <i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span>
-          </button>
-          <button type="button" class="court-btn-delete delete-helper-btn" title="Delete Staff Member">
-            <i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span>
-          </button>
-        </div>
-      </td>
+      </div>
+      <div class="helper-card-court">
+        <i class="fa-solid fa-landmark"></i>
+        <span>${escapeHtml(h.court || 'General')}</span>
+      </div>
+      <div class="helper-card-contact">
+        ${cleanMobile ? `
+          <a href="tel:${escapeHtml(cleanMobile)}" class="helper-call-btn" title="Call ${escapeHtml(h.name)}">
+            <i class="fa-solid fa-phone"></i> <span>${escapeHtml(cleanMobile)}</span>
+          </a>
+          <a href="${escapeHtml(waLink)}" target="_blank" rel="noopener noreferrer" class="helper-wa-btn" title="Chat on WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+        ` : '<span style="color: #94a3b8; font-size: 13px;">No mobile provided</span>'}
+      </div>
+      <div class="helper-card-actions">
+        <button type="button" class="court-btn-edit edit-helper-btn" title="Edit Staff Details">
+          <i class="fa-solid fa-pen-to-square"></i><span class="btn-text"> Edit</span>
+        </button>
+        <button type="button" class="court-btn-delete delete-helper-btn" title="Delete Staff Member">
+          <i class="fa-solid fa-trash-can"></i><span class="btn-text"> Delete</span>
+        </button>
+      </div>
     `;
 
-    const editBtn = tr.querySelector('.edit-helper-btn');
-    const delBtn = tr.querySelector('.delete-helper-btn');
+    const editBtn = card.querySelector('.edit-helper-btn');
+    const delBtn = card.querySelector('.delete-helper-btn');
 
     if (editBtn) {
       editBtn.addEventListener('click', () => openEditHelperModal(h.id));
@@ -11629,7 +11650,7 @@ function renderHelpersTable(searchQuery = '') {
       delBtn.addEventListener('click', () => openDeleteHelperModal(h.id));
     }
 
-    tbody.appendChild(tr);
+    grid.appendChild(card);
   });
 
   updateHelpersBadges();
