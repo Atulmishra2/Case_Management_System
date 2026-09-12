@@ -7230,7 +7230,7 @@ function updateTodoCounters() {
   const progressBar = document.getElementById('todoProgressBar');
   const progressText = document.getElementById('todoProgressPercentage');
   if (progressBar) progressBar.style.width = `${pct}%`;
-  if (progressText) progressText.textContent = `${pct}% Completed (${completed} of ${total})`;
+  if (progressText) progressText.textContent = `${pct}%`;
 }
 
 function setTodoPriority(level) {
@@ -7884,10 +7884,13 @@ window.onTodoWorkflowTypeChange = onTodoWorkflowTypeChange;
 
 function filterTodoTasks(filterType, btnEl = null) {
   currentTodoFilter = filterType;
-  if (btnEl) {
-    document.querySelectorAll('.todo-filter-btn').forEach(b => b.classList.remove('active'));
-    btnEl.classList.add('active');
-  }
+  const filterBtns = document.querySelectorAll('.todo-filter-tab, .todo-filter-btn');
+  filterBtns.forEach(b => {
+    b.classList.remove('active');
+    if (btnEl ? b === btnEl : b.dataset.filter === filterType) {
+      b.classList.add('active');
+    }
+  });
   renderCaseTasks(filterType);
 }
 window.filterTodoTasks = filterTodoTasks;
@@ -8112,7 +8115,10 @@ function renderCaseTasks(filter = currentTodoFilter) {
       : 'No case preparation tasks found. Choose a case on the left to schedule your first appearance deadline.';
     container.innerHTML = `
       <div class="todo-empty-state">
-        <span>📝</span>
+        <div class="todo-empty-icon-wrap">
+          <i class="fa-solid fa-clipboard-list"></i>
+        </div>
+        <h4 class="todo-empty-title">${filter === 'completed' ? 'No completed tasks' : filter === 'dueSoon' ? 'All clear!' : 'No tasks yet'}</h4>
         <p>${msg}</p>
       </div>
     `;
@@ -8134,7 +8140,7 @@ function renderCaseTasks(filter = currentTodoFilter) {
     if (isDone) {
       deadlineBadgeHtml = `<span class="todo-deadline-badge completed">✅ Completed</span>`;
     } else if (d) {
-      d.setHours(0, 0, 0, 0);
+      d.setHours(0, 0, 0);
       const diffDays = Math.round((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       if (diffDays < 0) {
         deadlineBadgeHtml = `<span class="todo-deadline-badge overdue">🔴 Overdue (${Math.abs(diffDays)}d late)</span>`;
@@ -8149,7 +8155,7 @@ function renderCaseTasks(filter = currentTodoFilter) {
       }
     }
 
-    const priorityLabel = t.priority === 'high' ? '🔴 High (Urgent)' : (t.priority === 'normal' ? '🔵 Normal' : '🟡 Medium');
+    const priorityLabel = t.priority === 'high' ? '🔴 High' : (t.priority === 'normal' ? '🔵 Normal' : '🟡 Medium');
     const priorityClass = t.priority || 'medium';
     const isGeneralTask = !t.caseNo || t.caseNo === 'GENERAL' || t.caseNo === '—';
     const hearingFormatted = isGeneralTask ? '—' : (t.hearingDate && t.hearingDate !== '—' ? formatDateDMY(t.hearingDate) : 'Undated');
@@ -8202,30 +8208,33 @@ function renderCaseTasks(filter = currentTodoFilter) {
 
     return `
       <div class="todo-item priority-${priorityClass} ${isDone ? 'status-completed' : ''}" id="${t.id}">
-        <div class="todo-checkbox-wrapper">
-          <input type="checkbox" class="todo-checkbox" ${isDone ? 'checked' : ''} onchange="toggleTaskStatus('${t.id}')" title="Mark as ${isDone ? 'Pending' : 'Completed'}">
-        </div>
-        <div class="todo-item-content">
-          <div class="todo-item-top">
-            <span class="todo-item-title">${t.taskTitle}</span>
-            <div class="todo-badges-row">
-              ${t.copyNumber ? `<span class="todo-copy-badge" onclick="editTaskCopyNumber('${t.id}')" title="Click to edit Copy / Application No."><i class="fa-solid fa-stamp"></i> Copy No: <strong>${t.copyNumber}</strong> <i class="fa-solid fa-pen" style="font-size: 8.5px; margin-left: 2px; opacity: 0.7;"></i></span>` : (t.steps && t.steps.some(s => s.name.toLowerCase().includes('apply')) ? `<button type="button" class="todo-add-copy-btn" onclick="editTaskCopyNumber('${t.id}')" title="Add Application No. when applied"><i class="fa-solid fa-stamp"></i> + Add App No.</button>` : '')}
-              ${deadlineBadgeHtml}
-              ${reminderBadgeHtml}
-              <span class="todo-priority-pill ${priorityClass}">${priorityLabel}</span>
+        <div class="todo-item-accent-bar"></div>
+        <div class="todo-item-inner">
+          <div class="todo-checkbox-wrapper">
+            <input type="checkbox" class="todo-checkbox" ${isDone ? 'checked' : ''} onchange="toggleTaskStatus('${t.id}')" title="Mark as ${isDone ? 'Pending' : 'Completed'}">
+          </div>
+          <div class="todo-item-content">
+            <div class="todo-item-top">
+              <span class="todo-item-title">${t.taskTitle}</span>
+              <div class="todo-badges-row">
+                ${t.copyNumber ? `<span class="todo-copy-badge" onclick="editTaskCopyNumber('${t.id}')" title="Click to edit Copy / Application No."><i class="fa-solid fa-stamp"></i> Copy No: <strong>${t.copyNumber}</strong> <i class="fa-solid fa-pen" style="font-size: 8.5px; margin-left: 2px; opacity: 0.7;"></i></span>` : (t.steps && t.steps.some(s => s.name.toLowerCase().includes('apply')) ? `<button type="button" class="todo-add-copy-btn" onclick="editTaskCopyNumber('${t.id}')" title="Add Application No. when applied"><i class="fa-solid fa-stamp"></i> + Add App No.</button>` : '')}
+                ${deadlineBadgeHtml}
+                ${reminderBadgeHtml}
+                <span class="todo-priority-pill ${priorityClass}">${priorityLabel}</span>
+              </div>
             </div>
+            <div class="todo-meta-row">
+              ${caseMetaHtml}
+              <span>📅 Deadline: <span class="todo-date-chip">${formatDateDMY(t.deadlineDate)}</span></span>
+              ${isGeneralTask ? '' : `<span>⚖️ Hearing: <span class="todo-date-chip">${hearingFormatted}</span></span>`}
+            </div>
+            ${stepperHtml}
           </div>
-          <div class="todo-meta-row">
-            ${caseMetaHtml}
-            <span>📅 Deadline: <span class="todo-date-chip">${formatDateDMY(t.deadlineDate)}</span></span>
-            ${isGeneralTask ? '' : `<span>⚖️ Court Hearing: <span class="todo-date-chip">${hearingFormatted}</span></span>`}
+          <div class="todo-item-actions">
+            <button type="button" class="todo-reminder-btn ${t.reminderDateTime ? 'has-reminder' : ''}" onclick="openTaskReminderModal('${t.id}')" title="${t.reminderDateTime ? 'Edit Reminder' : 'Set Reminder'}" aria-label="Set or Edit Reminder"><i class="fa-solid fa-bell"></i></button>
+            <button type="button" class="todo-reschedule-btn" onclick="rescheduleCaseTask('${t.id}')" title="Reschedule Deadline"><i class="fa-solid fa-calendar-days"></i></button>
+            <button type="button" class="todo-delete-btn" onclick="deleteCaseTask('${t.id}')" title="Delete Task"><i class="fa-solid fa-trash"></i></button>
           </div>
-          ${stepperHtml}
-        </div>
-        <div class="todo-item-actions">
-          <button type="button" class="todo-reminder-btn ${t.reminderDateTime ? 'has-reminder' : ''}" onclick="openTaskReminderModal('${t.id}')" title="${t.reminderDateTime ? 'Edit Reminder Alert' : 'Set Reminder Alert'}" aria-label="Set or Edit Reminder"><i class="fa-solid fa-bell"></i></button>
-          <button type="button" class="todo-reschedule-btn" onclick="rescheduleCaseTask('${t.id}')" title="Reschedule Deadline">📅</button>
-          <button type="button" class="todo-delete-btn" onclick="deleteCaseTask('${t.id}')" title="Delete Task">🗑️</button>
         </div>
       </div>
     `;

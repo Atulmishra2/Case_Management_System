@@ -1356,7 +1356,7 @@
                     <div class="section-title-box">
                         <div class="section-icon-badge todo-gradient-badge">📝</div>
                         <div>
-                            <h3>Case To-Do & Hearing Deadline Tracker</h3>
+                            <h3>Case To-Do &amp; Hearing Deadline Tracker</h3>
                             <p class="section-subtitle">Link case preparation tasks, compliance filings, and evidence deadlines directly to court hearing dates with Supabase cloud sync.</p>
                         </div>
                     </div>
@@ -1382,58 +1382,55 @@
                     </div>
                 </div>
 
-                <!-- Live Summary Stats Row -->
-                <div class="todo-stats-bar">
-                    <div class="todo-stat-card">
-                        <div class="todo-stat-icon-wrap all">📋</div>
-                        <div>
+                <!-- Stat Cards Grid -->
+                <div class="todo-stats-grid">
+                    <div class="todo-stat-card total">
+                        <div class="todo-stat-icon-wrap all"><i class="fa-solid fa-layer-group"></i></div>
+                        <div class="todo-stat-info">
                             <span class="todo-stat-num" id="todoStatTotal">0</span>
                             <span class="todo-stat-lbl">Total Tasks</span>
                         </div>
+                        <div class="todo-stat-bg-icon"><i class="fa-solid fa-layer-group"></i></div>
                     </div>
                     <div class="todo-stat-card pending">
-                        <div class="todo-stat-icon-wrap pending">⏳</div>
-                        <div>
+                        <div class="todo-stat-icon-wrap pending"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div class="todo-stat-info">
                             <span class="todo-stat-num" id="todoStatPending">0</span>
-                            <span class="todo-stat-lbl">Pending Tasks</span>
+                            <span class="todo-stat-lbl">Pending</span>
                         </div>
+                        <div class="todo-stat-bg-icon"><i class="fa-solid fa-hourglass-half"></i></div>
                     </div>
                     <div class="todo-stat-card urgent">
-                        <div class="todo-stat-icon-wrap urgent">⚠️</div>
-                        <div>
+                        <div class="todo-stat-icon-wrap urgent"><i class="fa-solid fa-fire"></i></div>
+                        <div class="todo-stat-info">
                             <span class="todo-stat-num" id="todoStatDueSoon">0</span>
-                            <span class="todo-stat-lbl">Due Soon / Overdue</span>
+                            <span class="todo-stat-lbl">Due Soon</span>
                         </div>
+                        <div class="todo-stat-bg-icon"><i class="fa-solid fa-fire"></i></div>
                     </div>
                     <div class="todo-stat-card completed">
-                        <div class="todo-stat-icon-wrap completed">✅</div>
-                        <div>
-                            <span class="todo-stat-num" id="todoStatCompleted">0</span>
-                            <span class="todo-stat-lbl">Completed Tasks</span>
+                        <div class="todo-stat-icon-wrap completed"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="todo-stat-info">
+                            <div class="todo-stat-num-row">
+                                <span class="todo-stat-num" id="todoStatCompleted">0</span>
+                                <span class="todo-stat-pct-text" id="todoProgressPercentage">0%</span>
+                            </div>
+                            <span class="todo-stat-lbl">Completed</span>
+                            <div class="todo-progress-track"><div id="todoProgressBar" class="todo-progress-fill" style="width: 0%;"></div></div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Overall Task Progress Bar -->
-                <div class="todo-progress-card">
-                    <div class="todo-progress-header">
-                        <span class="todo-progress-label">🎯 Goal Completion Rate</span>
-                        <span id="todoProgressPercentage" class="todo-progress-pct">0% Completed</span>
-                    </div>
-                    <div class="todo-progress-track">
-                        <div id="todoProgressBar" class="todo-progress-fill" style="width: 0%;"></div>
+                        <div class="todo-stat-bg-icon"><i class="fa-solid fa-circle-check"></i></div>
                     </div>
                 </div>
 
                 <div class="todo-layout-grid">
-                    <!-- Left Column: Add New Task Form (Beautified & Searchable) -->
+                    <!-- Left Column: Add New Task Form -->
                     <div class="todo-form-panel">
                         <div class="todo-panel-header">
-                            <div class="todo-panel-title-wrap">
-                                <span class="todo-panel-icon">⚖️</span>
+                            <div class="todo-panel-header-gradient">
+                                <div class="todo-panel-header-icon"><i class="fa-solid fa-scale-balanced"></i></div>
                                 <div>
-                                    <h4>Link Task to Case Hearing</h4>
-                                    <p class="todo-panel-subtitle">Schedule filings & preparation deadlines tied to court appearances</p>
+                                    <h4>New Task</h4>
+                                    <p class="todo-panel-subtitle">Link a task to a case hearing or general to-do</p>
                                 </div>
                             </div>
                         </div>
@@ -1443,7 +1440,7 @@
                             <div class="form-group todo-searchable-group">
                                 <div class="todo-label-row">
                                     <label for="todoCaseSearchInput">Link to Case</label>
-                                    <span class="todo-field-hint">Type Case No. / Name — or pick 📌 General Task</span>
+                                    <span class="todo-field-hint">Type to search — or pick 📌 General Task</span>
                                 </div>
                                 <div class="todo-combobox-wrapper" id="todoComboboxWrapper">
                                     <div class="todo-combobox-input-wrap">
@@ -1496,7 +1493,7 @@
                                 </select>
                             </div>
 
-                            <!-- Multi-step workflow preview banner -->
+                            <!-- multi-step workflow preview banner -->
                             <div id="todoWorkflowStepsPreview" class="todo-workflow-preview hidden">
                                 <div class="workflow-preview-header">
                                     <i class="fa-solid fa-layer-group"></i> <strong>Certified Copy (4 Steps):</strong>
@@ -1539,7 +1536,7 @@
                             <div class="form-group">
                                 <div class="todo-label-row">
                                     <label for="todoTitle">Task / Action Item <span class="required-star">*</span></label>
-                                    <span class="todo-field-hint">Preparation or Filing</span>
+                                    <span class="todo-field-hint">Preparation or filing</span>
                                 </div>
                                 <div class="todo-input-icon-wrap">
                                     <span class="todo-input-inner-icon"><i class="fa-solid fa-pen"></i></span>
@@ -1557,9 +1554,9 @@
                                     <input type="date" id="todoDeadline" class="todo-custom-input with-icon highlight-date-input" required>
                                 </div>
                                 <div class="todo-shortcuts-row">
-                                    <button type="button" class="todo-shortcut-pill" onclick="setTodoDeadlinePreset('hearing')" title="Set deadline on the exact hearing date">🎯 On Hearing Date</button>
-                                    <button type="button" class="todo-shortcut-pill" onclick="setTodoDeadlinePreset('1day')" title="Set deadline 1 day before the hearing">⚡ 1 Day Before</button>
-                                    <button type="button" class="todo-shortcut-pill" onclick="setTodoDeadlinePreset('3days')" title="Set deadline 3 days before the hearing">📋 3 Days Before</button>
+                                    <button type="button" class="todo-shortcut-pill" onclick="setTodoDeadlinePreset('hearing')" title="Set deadline on the exact hearing date">🎯 Hearing Date</button>
+                                    <button type="button" class="todo-shortcut-pill" onclick="setTodoDeadlinePreset('1day')" title="Set deadline 1 day before the hearing">⚡ 1 Day</button>
+                                    <button type="button" class="todo-shortcut-pill" onclick="setTodoDeadlinePreset('3days')" title="Set deadline 3 days before the hearing">📋 3 Days</button>
                                 </div>
                             </div>
 
@@ -1581,11 +1578,11 @@
                                     </div>
                                     <div class="todo-shortcuts-row">
                                         <button type="button" class="todo-shortcut-pill" onclick="setTodoReminderPreset('deadline_9am')" title="Remind on deadline morning at 9:00 AM">🎯 Deadline 9 AM</button>
-                                        <button type="button" class="todo-shortcut-pill" onclick="setTodoReminderPreset('1day_9am')" title="Remind 1 day before deadline at 9:00 AM">⚡ 1 Day Before 9 AM</button>
-                                        <button type="button" class="todo-shortcut-pill" onclick="setTodoReminderPreset('2days_9am')" title="Remind 2 days before deadline at 9:00 AM">📋 2 Days Before 9 AM</button>
+                                        <button type="button" class="todo-shortcut-pill" onclick="setTodoReminderPreset('1day_9am')" title="Remind 1 day before deadline at 9:00 AM">⚡ 1 Day Before</button>
+                                        <button type="button" class="todo-shortcut-pill" onclick="setTodoReminderPreset('2days_9am')" title="Remind 2 days before deadline at 9:00 AM">📋 2 Days Before</button>
                                     </div>
                                     <span class="todo-field-hint" style="display: block; margin-top: 6px; font-size: 11px;">
-                                        💡 You will get a sound chime, desktop notification &amp; in-app prompt when this time arrives.
+                                        💡 Sound chime + desktop notification when the time arrives.
                                     </span>
                                 </div>
                             </div>
@@ -1622,18 +1619,29 @@
                                 </div>
                             </div>
 
-                            <div class="todo-filter-group">
-                                <button type="button" class="todo-filter-btn active" data-filter="all" onclick="filterTodoTasks('all', this)">All (<span id="todoFilterAllCount">0</span>)</button>
-                                <button type="button" class="todo-filter-btn" data-filter="pending" onclick="filterTodoTasks('pending', this)">⏳ Pending (<span id="todoFilterPendingCount">0</span>)</button>
-                                <button type="button" class="todo-filter-btn" data-filter="dueSoon" onclick="filterTodoTasks('dueSoon', this)">⚠️ Due Soon / Today (<span id="todoFilterDueSoonCount">0</span>)</button>
-                                <button type="button" class="todo-filter-btn" data-filter="completed" onclick="filterTodoTasks('completed', this)">✅ Completed (<span id="todoFilterCompletedCount">0</span>)</button>
+                            <div class="todo-filter-strip">
+                                <button type="button" class="todo-filter-tab active" data-filter="all" onclick="filterTodoTasks('all', this)">
+                                    <i class="fa-solid fa-grid-2"></i> All <span class="todo-filter-count" id="todoFilterAllCount">0</span>
+                                </button>
+                                <button type="button" class="todo-filter-tab" data-filter="pending" onclick="filterTodoTasks('pending', this)">
+                                    <i class="fa-solid fa-hourglass-half"></i> Pending <span class="todo-filter-count" id="todoFilterPendingCount">0</span>
+                                </button>
+                                <button type="button" class="todo-filter-tab tab-urgent" data-filter="dueSoon" onclick="filterTodoTasks('dueSoon', this)">
+                                    <i class="fa-solid fa-fire"></i> Due Soon <span class="todo-filter-count" id="todoFilterDueSoonCount">0</span>
+                                </button>
+                                <button type="button" class="todo-filter-tab tab-done" data-filter="completed" onclick="filterTodoTasks('completed', this)">
+                                    <i class="fa-solid fa-circle-check"></i> Done <span class="todo-filter-count" id="todoFilterCompletedCount">0</span>
+                                </button>
                             </div>
                         </div>
 
                         <div id="todoListContainer" class="todo-items-list">
                             <div class="todo-empty-state">
-                                <span>📝</span>
-                                <p>No tasks added yet. Select a case on the left to schedule your first deadline.</p>
+                                <div class="todo-empty-icon-wrap">
+                                    <i class="fa-solid fa-clipboard-list"></i>
+                                </div>
+                                <h4 class="todo-empty-title">No Tasks Yet</h4>
+                                <p>Select a case on the left to schedule your first deadline.</p>
                             </div>
                         </div>
                     </div>

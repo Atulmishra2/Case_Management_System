@@ -37,8 +37,8 @@
   /* --- Text --- */
   --text-primary: #1C2541;
   --text-secondary: #3A506B;
-  --text-muted: #5A6B87;   /* 5.02:1 on white — AA at 11px uppercase labels */
-  --text-disabled: #96A3B5; /* inactive controls only — WCAG-exempt, kept light on purpose */
+  --text-muted: #5A6B87;   /* 5.02:1 on white â€” AA at 11px uppercase labels */
+  --text-disabled: #96A3B5; /* inactive controls only â€” WCAG-exempt, kept light on purpose */
   --text-on-accent: #FFFFFF;
 
   /* --- Accent (ambient navy) --- */
@@ -63,6 +63,96 @@
   --theme-accent-tint: var(--surface-tint);
   --theme-text-primary: var(--text-primary);
   --theme-text-secondary: var(--text-secondary);
+
+  /* --- Todo Tracker & Datepicker Theme Variables (Default: Azure) --- */
+  --todo-accent-gradient: linear-gradient(135deg, #0B132B 0%, #0284C7 100%);
+  --todo-accent-primary: #0284C7;
+  --todo-accent-hover: #0369A1;
+  --todo-accent-light: #EFF6FF;
+  --todo-accent-border: #BFDBFE;
+  --todo-accent-text: #1D4ED8;
+  --todo-accent-glow: rgba(2, 132, 199, 0.35);
+
+  --mdp-header-gradient: linear-gradient(135deg, #0B132B 0%, #3A506B 100%);
+  --mdp-selected-bg: #0284C7;
+  --mdp-today-bg: #EFF6FF;
+  --mdp-today-color: #1D4ED8;
+}
+
+/* --- Theme Overrides for Todo & Datepicker Tokens --- */
+html.theme-forest {
+  --todo-accent-gradient: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+  --todo-accent-primary: #059669;
+  --todo-accent-hover: #047857;
+  --todo-accent-light: #F0FDF4;
+  --todo-accent-border: #A7F3D0;
+  --todo-accent-text: #065F46;
+  --todo-accent-glow: rgba(5, 150, 105, 0.35);
+
+  --mdp-header-gradient: linear-gradient(135deg, #064E3B 0%, #033528 100%);
+  --mdp-selected-bg: #059669;
+  --mdp-today-bg: #F0FDF4;
+  --mdp-today-color: #065F46;
+}
+
+html.theme-executive {
+  --todo-accent-gradient: linear-gradient(135deg, #0F172A 0%, #D97706 100%);
+  --todo-accent-primary: #D97706;
+  --todo-accent-hover: #B45309;
+  --todo-accent-light: #FFFBEB;
+  --todo-accent-border: #FDE68A;
+  --todo-accent-text: #B45309;
+  --todo-accent-glow: rgba(217, 119, 6, 0.35);
+
+  --mdp-header-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  --mdp-selected-bg: #D97706;
+  --mdp-today-bg: #FFFBEB;
+  --mdp-today-color: #B45309;
+}
+
+html.theme-midnight {
+  --todo-accent-gradient: linear-gradient(135deg, #0D121F 0%, #0284C7 100%);
+  --todo-accent-primary: #38BDF8;
+  --todo-accent-hover: #0284C7;
+  --todo-accent-light: #1E293B;
+  --todo-accent-border: #334155;
+  --todo-accent-text: #38BDF8;
+  --todo-accent-glow: rgba(56, 189, 248, 0.35);
+
+  --mdp-header-gradient: linear-gradient(135deg, #0D121F 0%, #141B2D 100%);
+  --mdp-selected-bg: #0284C7;
+  --mdp-today-bg: #1E293B;
+  --mdp-today-color: #38BDF8;
+}
+
+html.theme-corporate {
+  --todo-accent-gradient: linear-gradient(135deg, #18181B 0%, #0D9488 100%);
+  --todo-accent-primary: #0D9488;
+  --todo-accent-hover: #0F766E;
+  --todo-accent-light: #F0FDFA;
+  --todo-accent-border: #99F6E4;
+  --todo-accent-text: #0F766E;
+  --todo-accent-glow: rgba(13, 148, 136, 0.35);
+
+  --mdp-header-gradient: linear-gradient(135deg, #202124 0%, #18181B 100%);
+  --mdp-selected-bg: #0D9488;
+  --mdp-today-bg: #F0FDFA;
+  --mdp-today-color: #0F766E;
+}
+
+html.theme-classic {
+  --todo-accent-gradient: linear-gradient(135deg, #0F172A 0%, #C5A880 100%);
+  --todo-accent-primary: #C5A880;
+  --todo-accent-hover: #A8895F;
+  --todo-accent-light: #FFFBEB;
+  --todo-accent-border: #FDE68A;
+  --todo-accent-text: #92400E;
+  --todo-accent-glow: rgba(197, 168, 128, 0.35);
+
+  --mdp-header-gradient: linear-gradient(135deg, #1B2A47 0%, #0F172A 100%);
+  --mdp-selected-bg: #A8895F;
+  --mdp-today-bg: #FFFBEB;
+  --mdp-today-color: #92400E;
 }
 
 /* --- Reset & Base --- */
@@ -3220,15 +3310,60 @@ html.auth-guest #guestScreen {
 }
 
 .helper-card-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: auto;
+  display: flex !important;
+  gap: 8px !important;
+  margin-top: auto !important;
 }
 
-.helper-card-actions .court-btn-edit,
+.helper-card-actions .court-btn-edit {
+  flex: 1 !important;
+  justify-content: center !important;
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  height: 34px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.helper-card-actions .court-btn-edit:hover {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+  color: #1d4ed8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15) !important;
+}
+
 .helper-card-actions .court-btn-delete {
-  flex: 1;
-  justify-content: center;
+  flex: 1 !important;
+  justify-content: center !important;
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fecaca !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  height: 34px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.helper-card-actions .court-btn-delete:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25) !important;
 }
 
 @media (max-width: 640px) {
@@ -3319,9 +3454,9 @@ html.auth-guest #guestScreen {
   width: 34px !important;
   height: 34px !important;
   border-radius: 8px !important;
-  background: #EEF3FE !important;
-  border: 1px solid #B8D3FE !important;
-  color: #5BC0BE !important;
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
+  color: #16a34a !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -3331,9 +3466,10 @@ html.auth-guest #guestScreen {
 }
 
 .helper-wa-btn:hover {
-  background: #6FFFE9 !important;
+  background: #22c55e !important;
   color: #ffffff !important;
-  border-color: #6FFFE9 !important;
+  border-color: #22c55e !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3) !important;
   transform: translateY(-1px) !important;
 }
 
@@ -6022,12 +6158,12 @@ html.auth-guest #guestScreen {
 }
 
 /* ==============================================================================
-   Case To-Do List & Deadline Tracker Module (Beautified & Modernized)
+   Case To-Do List & Deadline Tracker Module â€” Redesigned
    ============================================================================== */
 .todo-gradient-badge {
-  background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+  background: var(--todo-accent-gradient) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px var(--todo-accent-glow) !important;
 }
 
 .todo-header-sync-status {
@@ -6064,80 +6200,84 @@ html.auth-guest #guestScreen {
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
 
-.todo-stats-bar {
+/* â”€â”€ Stat Cards Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.todo-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 20px;
 }
 
 .todo-stat-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 16px 20px;
-  border: 1px solid #DDE3E6;
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 14px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s ease;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.25s ease;
+  cursor: default;
 }
 
 .todo-stat-card:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 }
 
-.todo-stat-card.pending {
-  border-left: 4px solid #f59e0b;
-}
-
-.todo-stat-card.urgent {
-  border-left: 4px solid #ef4444;
-  background: #fffafa;
-}
-
-.todo-stat-card.completed {
-  border-left: 4px solid #6FFFE9;
-}
+/* Color accent: top border per card type */
+.todo-stat-card.total   { border-top: 3px solid #6366f1; }
+.todo-stat-card.pending { border-top: 3px solid #f59e0b; }
+.todo-stat-card.urgent  { border-top: 3px solid #ef4444; }
+.todo-stat-card.completed { border-top: 3px solid #22c55e; }
 
 .todo-stat-icon-wrap {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 12px;
+  font-size: 18px;
 }
 
 .todo-stat-icon-wrap.all {
-  background: #ECEFF1;
-  color: #232F34;
+  background: linear-gradient(135deg, #ede9fe, #c7d2fe);
+  color: #4f46e5;
 }
 
 .todo-stat-icon-wrap.pending {
-  background: #fffbeb;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
   color: #d97706;
 }
 
 .todo-stat-icon-wrap.urgent {
-  background: #fef2f2;
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
   color: #dc2626;
 }
 
 .todo-stat-icon-wrap.completed {
-  background: #f0fdf4;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
   color: #16a34a;
 }
 
+.todo-stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
 .todo-stat-num {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
-  color: #232F34;
-  line-height: 1.1;
-  display: block;
+  color: #0f172a;
+  line-height: 1;
+  letter-spacing: -0.5px;
 }
 
 .todo-stat-card.urgent .todo-stat-num {
@@ -6147,53 +6287,57 @@ html.auth-guest #guestScreen {
 .todo-stat-lbl {
   font-size: 12px;
   font-weight: 600;
-  color: #4A6572;
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
-/* Overall Progress Card */
-.todo-progress-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 14px 20px;
-  border: 1px solid #DDE3E6;
-  margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.todo-progress-header {
+/* /* Progress inside completed card */
+.todo-stat-num-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  align-items: baseline;
+  gap: 8px;
 }
 
-.todo-progress-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: #2E3B41;
-}
-
-.todo-progress-pct {
-  font-size: 12.5px;
+.todo-stat-pct-text {
+  font-size: 11.5px;
   font-weight: 700;
   color: #16a34a;
+  background: #dcfce7;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  border: 1px solid #bbf7d0;
+  line-height: 1.2;
 }
 
 .todo-progress-track {
   width: 100%;
-  height: 8px;
-  background: #FAFBFC;
+  max-width: 130px;
+  height: 5px;
+  background: #dcfce7;
   border-radius: 9999px;
   overflow: hidden;
+  margin-top: 5px;
 }
 
 .todo-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #6FFFE9, #5BC0BE);
+  background: linear-gradient(90deg, #22c55e, #16a34a);
   border-radius: 9999px;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+
+/* Ghost background icon for decoration */
+.todo-stat-bg-icon {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 56px;
+  opacity: 0.05;
+  pointer-events: none;
+  color: #1e293b;
 }
 
 /* Layout Grid */
@@ -6210,22 +6354,67 @@ html.auth-guest #guestScreen {
   }
 }
 
-/* Form Panel (Beautified & Modernized) */
+/* â”€â”€ Form Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .todo-form-panel {
   background: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
-  border: 1px solid #DDE3E6;
-  border-top: 4px solid #4f46e5;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  overflow: hidden;
 }
 
 .todo-panel-header {
-  margin-bottom: 20px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #FAFBFC;
+  padding: 0;
+  margin-bottom: 0;
 }
 
+.todo-panel-header-gradient {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 22px 18px;
+  background: var(--todo-accent-gradient) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.todo-panel-header-gradient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='18' fill='none' stroke='%23ffffff' stroke-width='0.4' opacity='0.15'/%3E%3C/svg%3E") repeat;
+  pointer-events: none;
+}
+
+.todo-panel-header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  font-size: 18px;
+  color: #ffffff;
+  backdrop-filter: blur(4px);
+}
+
+.todo-panel-header-gradient h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.todo-panel-subtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+  margin: 2px 0 0;
+  line-height: 1.4;
+}
+
+/* Existing panel title wrap (kept for backward compat) */
 .todo-panel-title-wrap {
   display: flex;
   align-items: center;
@@ -6233,230 +6422,137 @@ html.auth-guest #guestScreen {
 }
 
 .todo-panel-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #ECEFF1, #ECEFF1);
-  color: #4f46e5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 19px;
-  flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
+  font-size: 26px;
 }
 
 .todo-panel-header h4 {
-  margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #232F34;
+  color: #1e293b;
+  margin: 0;
 }
 
-.todo-panel-subtitle {
-  margin: 2px 0 0 0;
-  font-size: 12px;
-  color: #4A6572;
+/* Form content area */
+.todo-form-panel form,
+.todo-form-panel > form {
+  padding: 20px 22px 22px;
 }
 
-/* Searchable Combobox */
 .todo-searchable-group {
-  position: relative;
+  margin-bottom: 0;
 }
 
 .todo-combobox-wrapper {
   position: relative;
-  width: 100%;
 }
 
 .todo-combobox-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
 }
 
 .todo-combobox-search-icon {
   position: absolute;
   left: 12px;
-  font-size: 14px;
+  font-size: 13px;
   color: #94a3b8;
   pointer-events: none;
+  z-index: 1;
 }
 
 .todo-combobox-input {
   width: 100%;
-  padding: 11px 54px 11px 36px;
+  padding: 10px 70px 10px 34px;
   border-radius: 10px;
-  border: 1.5px solid #ECEFF1;
-  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
   font-size: 13.5px;
-  color: #232F34;
-  font-weight: 500;
+  color: #1e293b;
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
 .todo-combobox-input:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3.5px rgba(79, 70, 229, 0.15);
+  background: #ffffff;
+  border-color: var(--todo-accent-primary) !important;
+  box-shadow: 0 0 0 3px var(--todo-accent-glow) !important;
 }
 
 .todo-combobox-clear-btn {
   position: absolute;
-  right: 32px;
-  background: #DDE3E6;
+  right: 36px;
+  background: #e2e8f0;
   border: none;
-  font-size: 10px;
-  font-weight: 800;
-  color: #4A6572;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
+  font-size: 11px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.15s ease;
+  color: #475569;
+  transition: all 0.15s ease;
 }
 
 .todo-combobox-clear-btn:hover {
-  background: #ECEFF1;
-  color: #232F34;
+  background: #cbd5e1;
 }
 
 .todo-combobox-toggle-btn {
   position: absolute;
   right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
   background: transparent;
   border: none;
-  font-size: 15px;
-  color: #4A6572;
+  font-size: 14px;
+  color: #94a3b8;
   cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 6px;
-  transition: color 0.15s ease;
-  z-index: 5;
+  padding: 4px;
+  transition: all 0.15s ease;
 }
 
 .todo-combobox-toggle-btn:hover {
-  color: #232F34;
+  color: #475569;
 }
 
-/* Combobox Results Dropdown */
 .todo-combobox-results {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
-  max-height: 290px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   background: #ffffff;
-  border: 1.5px solid #DDE3E6;
+  border: 1.5px solid #e2e8f0;
   border-radius: 12px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-  z-index: 1000;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  box-sizing: border-box;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+  z-index: 200;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px;
 }
 
 .todo-combobox-results.hidden {
-  display: none !important;
+  display: none;
 }
 
 .todo-combobox-item {
-  flex-shrink: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  height: auto !important;
-  box-sizing: border-box !important;
-  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 12px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s ease;
-  border: 1px solid #E2E8F0;
-  background-color: #ffffff;
+  transition: background 0.15s ease;
 }
 
 .todo-combobox-item:hover {
-  background-color: #F8FAFC;
-  border-color: #CBD5E1;
-  transform: translateX(2px);
+  background: #f1f5f9;
+  transform: none;
 }
 
 .todo-combobox-item.selected {
-  background-color: #EFF6FF;
-  border-color: #93C5FD;
-}
-
-.combobox-item-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.combobox-case-num {
-  font-family: monospace;
-  font-size: 13px;
-  font-weight: 800;
-  color: #192226;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.combobox-item-top .case-badge {
-  flex-shrink: 0;
-}
-
-.combobox-item-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #2E3B41;
-  margin-bottom: 5px;
-  line-height: 1.35;
-  word-break: break-word;
-}
-
-.combobox-item-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 11.5px;
-  color: #4A6572;
-  line-height: 1.35;
-}
-
-.combobox-item-meta > span:first-child {
-  flex: 1;
-  min-width: 0;
-  word-break: break-word;
-}
-
-.combobox-hearing-badge {
-  flex-shrink: 0;
-  white-space: nowrap;
-  background: #EEF3FE;
-  color: #1C2541;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 11px;
-}
-
-.combobox-hearing-badge.undated {
-  background: #fef2f2;
-  color: #991b1b;
+  background: #ede9fe;
 }
 
 .todo-combobox-empty {
@@ -6466,184 +6562,222 @@ html.auth-guest #guestScreen {
   color: #94a3b8;
 }
 
-/* Inputs with Inner Icons */
+/* Inputs */
 .todo-input-icon-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
 }
 
 .todo-input-inner-icon {
   position: absolute;
   left: 12px;
-  font-size: 14px;
+  font-size: 13px;
   color: #94a3b8;
   pointer-events: none;
+  z-index: 1;
 }
 
 .todo-custom-input {
   width: 100%;
-  padding: 11px 14px;
+  padding: 10px 14px;
   border-radius: 10px;
-  border: 1.5px solid #ECEFF1;
-  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
   font-size: 13.5px;
-  color: #192226;
+  color: #1e293b;
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
 .todo-custom-input.with-icon {
-  padding-left: 38px;
+  padding-left: 34px;
 }
 
 .todo-custom-input:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3.5px rgba(79, 70, 229, 0.15);
+  background: #ffffff;
+  border-color: var(--todo-accent-primary) !important;
+  box-shadow: 0 0 0 3px var(--todo-accent-glow) !important;
 }
 
-/* Case Preview Card (Beautified) */
+/* Case preview card */
 .todo-case-preview-card {
-  background: linear-gradient(135deg, #FAFBFC 0%, #ECEFF1 100%);
-  border: 1px solid #ECEFF1;
-  border-left: 4px solid #4f46e5;
+  background: linear-gradient(135deg, #ede9fe 0%, #f0f9ff 100%);
+  border: 1px solid #c7d2fe;
   border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s ease;
+  padding: 12px 14px;
+  margin-bottom: 14px;
 }
 
 .todo-preview-card-badge-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2px;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 .todo-preview-caseno {
   font-size: 13px;
-  font-weight: 800;
-  color: #192226;
-  font-family: monospace;
+  font-weight: 700;
+  color: #3730a3;
 }
 
 .todo-preview-change-btn {
-  background: #ffffff;
-  border: 1px solid #ECEFF1;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 11px;
+  margin-left: auto;
+  font-size: 11.5px;
   font-weight: 600;
   color: #4f46e5;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 2px 8px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .todo-preview-change-btn:hover {
-  background: #ECEFF1;
+  background: #ffffff;
   border-color: #a5b4fc;
 }
 
 .todo-preview-title {
-  margin: 0;
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #232F34;
-  line-height: 1.35;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 8px;
+  line-height: 1.3;
 }
 
 .todo-preview-meta-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 6px;
 }
 
 .todo-meta-pill {
-  background: #ffffff;
-  border: 1px solid #DDE3E6;
-  padding: 3px 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: #475569;
+  background: rgba(255,255,255,0.8);
   border-radius: 6px;
-  font-size: 12px;
-  color: #2E3B41;
-  font-weight: 500;
+  padding: 3px 8px;
 }
 
 .todo-meta-pill.hearing {
-  background: #fefce8;
-  border-color: #fef08a;
-  color: #854d0e;
-  font-weight: 700;
+  color: #1d4ed8;
+  background: rgba(219,234,254,0.8);
 }
 
+/* Labels and hints */
 .todo-label-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 6px;
+  gap: 8px;
+}
+
+.todo-label-row label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #374151;
 }
 
 .todo-field-hint {
-  font-size: 11.5px;
+  font-size: 11px;
   color: #94a3b8;
-  font-weight: 500;
+  white-space: nowrap;
 }
 
+/* Shortcut pills */
 .todo-shortcuts-row {
   display: flex;
-  gap: 6px;
   flex-wrap: wrap;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: 6px;
 }
 
+#todo .todo-shortcut-pill,
 .todo-shortcut-pill {
-  background: #FAFBFC;
-  border: 1px solid #ECEFF1;
-  color: #2E3B41;
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 5px 11px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.15s ease;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 20px !important;
+  padding: 4px 10px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: none !important;
 }
 
+#todo .todo-shortcut-pill:hover,
 .todo-shortcut-pill:hover {
-  background: #DDE3E6;
-  color: #232F34;
-  border-color: #94a3b8;
-  transform: translateY(-1px);
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  transform: translateY(-1px) !important;
 }
 
-/* Priority Selector Chips */
+/* Priority selector */
+#todo .todo-priority-selector,
 .todo-priority-selector {
   display: grid !important;
   grid-template-columns: repeat(3, 1fr) !important;
-  gap: 8px;
-  margin-top: 6px;
-  width: 100%;
+  gap: 8px !important;
+  margin-top: 6px !important;
 }
 
+#todo .todo-priority-chip,
 .todo-priority-chip {
-  background: #ffffff;
-  border: 1.5px solid #DDE3E6;
-  border-radius: 10px;
-  padding: 8px 10px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #4A6572;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.15s ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 8px 6px !important;
+  border-radius: 10px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  color: #64748b !important;
+  background: #f8fafc !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+#todo .todo-priority-chip:hover,
+.todo-priority-chip:hover {
+  border-color: #cbd5e1 !important;
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+#todo .todo-priority-chip.high.active,
+.todo-priority-chip.high.active {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  color: #dc2626 !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15) !important;
+}
+
+#todo .todo-priority-chip.medium.active,
+.todo-priority-chip.medium.active {
+  background: #fffbeb !important;
+  border-color: #fcd34d !important;
+  color: #d97706 !important;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15) !important;
+}
+
+#todo .todo-priority-chip.normal.active,
+.todo-priority-chip.normal.active {
+  background: var(--todo-accent-light) !important;
+  border-color: var(--todo-accent-border) !important;
+  color: var(--todo-accent-text) !important;
+  box-shadow: 0 2px 6px var(--todo-accent-glow) !important;
 }
 
 .chip-dot {
@@ -6653,76 +6787,76 @@ html.auth-guest #guestScreen {
   flex-shrink: 0;
 }
 
-.chip-dot.red { background-color: #ef4444; }
-.chip-dot.amber { background-color: #f59e0b; }
-.chip-dot.blue { background-color: #232F34; }
+.chip-dot.red   { background: #ef4444; }
+.chip-dot.amber { background: #f59e0b; }
+.chip-dot.blue  { background: #3b82f6; }
 
-.todo-priority-chip:hover {
-  background: #FAFBFC;
-  border-color: #ECEFF1;
-}
-
-.todo-priority-chip.high.active {
-  background: #fef2f2;
-  border-color: #ef4444;
-  color: #b91c1c;
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
-}
-
-.todo-priority-chip.medium.active {
-  background: #fffbeb;
-  border-color: #f59e0b;
-  color: #b45309;
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
-}
-
-.todo-priority-chip.normal.active {
-  background: #ECEFF1;
-  border-color: #232F34;
-  color: #192226;
-  box-shadow: 0 0 0 2px rgba(102, 164, 192, 0.2);
-}
-
-/* Submit Button */
+/* Submit button */
+#todo .todo-submit-btn,
 .todo-submit-btn {
-  width: 100%;
-  margin-top: 10px;
-  background: linear-gradient(135deg, #232F34, #192226);
-  color: #ffffff;
-  border: none;
-  padding: 13px 20px;
-  border-radius: 10px;
-  font-size: 14.5px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(47, 104, 161, 0.3);
-  transition: all 0.2s ease;
+  width: 100% !important;
+  padding: 12px 20px !important;
+  background: var(--todo-accent-gradient) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 4px 14px var(--todo-accent-glow) !important;
+  margin-top: 4px !important;
+  position: relative !important;
+  overflow: hidden !important;
 }
 
+#todo .todo-submit-btn:hover,
 .todo-submit-btn:hover {
-  background: linear-gradient(135deg, #192226, #192226);
-  box-shadow: 0 6px 18px rgba(47, 104, 161, 0.4);
-  transform: translateY(-1px);
+  background: var(--todo-accent-gradient) !important;
+  filter: brightness(1.1) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px var(--todo-accent-glow) !important;
+}
+
+.todo-submit-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -75%;
+  width: 50%;
+  height: 200%;
+  background: rgba(255,255,255,0.15);
+  transform: skewX(-20deg);
+  transition: left 0.4s ease;
+}
+
+.todo-submit-btn:hover::after {
+  left: 130%;
 }
 
 .todo-submit-btn:active {
-  transform: translateY(1px);
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px var(--todo-accent-glow) !important;
 }
 
-/* Right List Panel */
+/* â”€â”€ Task List Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .todo-list-panel {
   background: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
-  border: 1px solid #DDE3E6;
+  border-radius: 18px;
+  padding: 22px;
+  border: 1px solid #e2e8f0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   min-height: 520px;
 }
 
 .todo-list-header {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #FAFBFC;
+  border-bottom: 1px solid #f1f5f9;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -6735,7 +6869,7 @@ html.auth-guest #guestScreen {
 
 .todo-search-icon {
   position: absolute;
-  left: 12px;
+  left: 13px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 14px;
@@ -6745,12 +6879,12 @@ html.auth-guest #guestScreen {
 
 .todo-search-input {
   width: 100%;
-  padding: 10px 14px 10px 36px;
-  border-radius: 10px;
-  border: 1.5px solid #DDE3E6;
-  background: #FAFBFC;
+  padding: 10px 14px 10px 38px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
   font-size: 13.5px;
-  color: #192226;
+  color: #1e293b;
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
@@ -6758,41 +6892,110 @@ html.auth-guest #guestScreen {
 .todo-search-input:focus {
   outline: none;
   background: #ffffff;
-  border-color: #F9AA33;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  border-color: var(--todo-accent-primary) !important;
+  box-shadow: 0 0 0 3px var(--todo-accent-glow) !important;
 }
 
-.todo-filter-group {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+/* â”€â”€ Filter Strip (pill toggle) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+#todo .todo-filter-strip,
+.todo-filter-strip {
+  display: flex !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 5px !important;
 }
 
-.todo-filter-btn {
-  background: #FAFBFC;
-  border: 1px solid #DDE3E6;
-  color: #4A6572;
-  padding: 7px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+#todo .todo-filter-tab,
+.todo-filter-tab {
+  flex: 1 !important;
+  min-width: 70px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: transparent !important;
+  border: 1.5px solid transparent !important;
+  color: #64748b !important;
+  padding: 7px 12px !important;
+  border-radius: 9px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
-.todo-filter-btn:hover {
-  background: #FAFBFC;
-  color: #192226;
+#todo .todo-filter-tab:hover,
+.todo-filter-tab:hover {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
-.todo-filter-btn.active {
-  background: #232F34;
-  color: #ffffff;
-  border-color: #232F34;
-  box-shadow: 0 2px 8px rgba(47, 104, 161, 0.25);
+#todo .todo-filter-tab.active,
+.todo-filter-tab.active {
+  background: #ffffff !important;
+  color: var(--todo-accent-text) !important;
+  border-color: var(--todo-accent-border) !important;
+  box-shadow: 0 2px 8px var(--todo-accent-glow) !important;
+  font-weight: 700 !important;
 }
 
-/* Tasks List Items */
+#todo .todo-filter-tab.tab-urgent.active,
+.todo-filter-tab.tab-urgent.active {
+  background: #ffffff !important;
+  color: #dc2626 !important;
+  border-color: #fca5a5 !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2) !important;
+}
+
+#todo .todo-filter-tab.tab-done.active,
+.todo-filter-tab.tab-done.active {
+  background: #ffffff !important;
+  color: #16a34a !important;
+  border-color: #86efac !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2) !important;
+}
+
+#todo .todo-filter-count,
+.todo-filter-count {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 20px !important;
+  height: 20px !important;
+  padding: 0 6px !important;
+  border-radius: 9999px !important;
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+#todo .todo-filter-tab.active .todo-filter-count,
+.todo-filter-tab.active .todo-filter-count {
+  background: var(--todo-accent-light) !important;
+  color: var(--todo-accent-text) !important;
+}
+
+#todo .todo-filter-tab.tab-urgent.active .todo-filter-count,
+.todo-filter-tab.tab-urgent.active .todo-filter-count {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+#todo .todo-filter-tab.tab-done.active .todo-filter-count,
+.todo-filter-tab.tab-done.active .todo-filter-count {
+  background: #dcfce7 !important;
+  color: #16a34a !important;
+}
+
+/* â”€â”€ Tasks List Items â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .todo-items-list {
   display: flex;
   flex-direction: column;
@@ -6801,39 +7004,43 @@ html.auth-guest #guestScreen {
 
 .todo-item {
   background: #ffffff;
-  border: 1px solid #DDE3E6;
-  border-left: 5px solid #232F34;
-  border-radius: 12px;
-  padding: 16px 18px;
+  border: 1px solid #e8edf2;
+  border-radius: 14px;
+  padding: 0;
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s ease;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.22s ease;
 }
 
 .todo-item:hover {
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
-  border-color: #ECEFF1;
+  border-color: #dde3ea;
 }
 
-.todo-item.priority-high {
-  border-left-color: #ef4444;
+/* Priority gradient top accent bar */
+.todo-item-accent-bar {
+  height: 4px;
+  border-radius: 0;
+  flex-shrink: 0;
 }
 
-.todo-item.priority-medium {
-  border-left-color: #f59e0b;
-}
+.todo-item.priority-high  .todo-item-accent-bar { background: linear-gradient(90deg, #ef4444, #f97316); }
+.todo-item.priority-medium .todo-item-accent-bar { background: linear-gradient(90deg, #f59e0b, #eab308); }
+.todo-item.priority-normal .todo-item-accent-bar { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+.todo-item.status-completed .todo-item-accent-bar { background: linear-gradient(90deg, #22c55e, #10b981); }
 
-.todo-item.priority-normal {
-  border-left-color: #232F34;
+.todo-item-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px 14px 16px;
 }
 
 .todo-item.status-completed {
-  border-left-color: #6FFFE9;
   background: #fafbfc;
-  opacity: 0.8;
 }
 
 .todo-item.status-completed .todo-item-title {
@@ -6841,15 +7048,30 @@ html.auth-guest #guestScreen {
   color: #94a3b8;
 }
 
+/* Checkbox */
 .todo-checkbox-wrapper {
   margin-top: 3px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
 }
 
+.todo-checkbox-wrapper input[type="checkbox"],
 .todo-checkbox {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: #6FFFE9;
+  display: block !important;
+  appearance: auto !important;
+  -webkit-appearance: checkbox !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  cursor: pointer !important;
+  accent-color: var(--todo-accent-primary, #10b981) !important;
+  border-radius: 6px !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .todo-item-content {
@@ -6857,6 +7079,7 @@ html.auth-guest #guestScreen {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .todo-item-top {
@@ -6868,15 +7091,15 @@ html.auth-guest #guestScreen {
 }
 
 .todo-item-title {
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 700;
-  color: #232F34;
+  color: #0f172a;
   line-height: 1.35;
 }
 
 .todo-badges-row {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -6884,32 +7107,38 @@ html.auth-guest #guestScreen {
 .todo-meta-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   font-size: 12.5px;
-  color: #4A6572;
+  color: #64748b;
   flex-wrap: wrap;
 }
 
 .todo-case-link {
   font-weight: 700;
-  color: #232F34;
+  color: #1e293b;
   cursor: pointer;
   text-decoration: none;
-  background: #ECEFF1;
+  background: #f1f5f9;
   padding: 2px 8px;
   border-radius: 6px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
 }
 
 .todo-case-link:hover {
-  background: #ECEFF1;
+  background: #e2e8f0;
   text-decoration: none;
 }
 
-.todo-deadline-badge {
-  font-size: 12px;
+.todo-date-chip {
   font-weight: 700;
-  padding: 4px 10px;
+  color: #1e293b;
+}
+
+.todo-deadline-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 9px;
   border-radius: 8px;
   display: inline-flex;
   align-items: center;
@@ -6929,15 +7158,15 @@ html.auth-guest #guestScreen {
 }
 
 .todo-deadline-badge.soon {
-  background: #ECEFF1;
-  color: #192226;
-  border: 1px solid #ECEFF1;
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
 }
 
 .todo-deadline-badge.normal {
-  background: #FAFBFC;
-  color: #4A6572;
-  border: 1px solid #DDE3E6;
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
 }
 
 .todo-deadline-badge.completed {
@@ -6947,9 +7176,9 @@ html.auth-guest #guestScreen {
 }
 
 .todo-priority-pill {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  padding: 3px 8px;
+  padding: 2px 8px;
   border-radius: 6px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -6968,34 +7197,73 @@ html.auth-guest #guestScreen {
 }
 
 .todo-priority-pill.normal {
-  background: #ECEFF1;
-  color: #232F34;
-  border: 1px solid #ECEFF1;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
 }
 
+/* Action buttons — inline icon-buttons */
+#todo .todo-item-actions,
 .todo-item-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 6px;
-  margin-left: auto;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 5px !important;
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
 }
 
-.todo-delete-btn {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  transition: all 0.15s ease;
+#todo .todo-action-btn,
+#todo .todo-delete-btn,
+#todo .todo-reschedule-btn,
+#todo .todo-reminder-btn,
+.todo-action-btn,
+.todo-delete-btn,
+.todo-reschedule-btn,
+.todo-reminder-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  color: #64748b !important;
+  font-size: 13.5px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
+#todo .todo-delete-btn:hover,
 .todo-delete-btn:hover {
-  color: #ef4444;
-  background: #fee2e2;
+  color: #dc2626 !important;
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+}
+
+#todo .todo-reschedule-btn:hover,
+.todo-reschedule-btn:hover {
+  color: #0284c7 !important;
+  background: #e0f2fe !important;
+  border-color: #bae6fd !important;
+}
+
+#todo .todo-reminder-btn:hover,
+.todo-reminder-btn:hover {
+  color: #d97706 !important;
+  background: #fffbeb !important;
+  border-color: #fcd34d !important;
+}
+
+#todo .todo-reminder-btn.has-reminder,
+.todo-reminder-btn.has-reminder {
+  color: #d97706 !important;
+  border-color: #fcd34d !important;
+  background: #fffbeb !important;
 }
 
 /* Multi-Step Workflow Preview & Stepper Styles */
@@ -7041,7 +7309,6 @@ html.auth-guest #guestScreen {
   margin-bottom: 12px;
 }
 
-/* Application No. field shown for multi-step workflow tasks */
 .todo-copy-number-group {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
@@ -7096,6 +7363,7 @@ html.auth-guest #guestScreen {
   border-color: #4ade80;
 }
 
+/* Task Stepper */
 .task-stepper-container {
   margin-top: 10px;
   padding: 10px 14px 12px;
@@ -7149,7 +7417,6 @@ html.auth-guest #guestScreen {
   padding-left: 0;
 }
 
-/* Vertical flow line connecting the step badges */
 .task-steps-list::before {
   content: '';
   position: absolute;
@@ -7187,7 +7454,6 @@ html.auth-guest #guestScreen {
   border-color: #B8D3FE;
 }
 
-/* Steps locked until earlier steps are completed (ascending-order enforcement) */
 .step-chip.locked {
   cursor: not-allowed;
   opacity: 0.55;
@@ -7249,24 +7515,96 @@ html.auth-guest #guestScreen {
   color: #94a3b8;
 }
 
-.todo-empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #94a3b8;
+/* General task tag */
+.todo-general-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748b;
 }
 
-.todo-empty-state span {
+/* â”€â”€ Empty State (Illustrated) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.todo-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 56px 24px 60px;
+}
+
+.todo-empty-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%);
+  font-size: 30px;
+  color: #6366f1;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+}
+
+.todo-empty-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px;
+}
+
+.todo-empty-state p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #94a3b8;
+  max-width: 320px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Legacy empty state (used by JS) */
+.todo-empty-state > span:first-child {
   font-size: 44px;
   display: block;
   margin-bottom: 12px;
 }
 
-.todo-empty-state p {
-  font-size: 14.5px;
-  font-weight: 500;
-  max-width: 380px;
-  margin: 0 auto;
-  line-height: 1.5;
+
+.todo-header-sync-status {
+  display: flex;
+  align-items: center;
+}
+
+.todo-sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+  animation: syncPulse 2s infinite ease-in-out;
+}
+
+@keyframes syncPulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
 
 /* ==============================================================================
@@ -7274,7 +7612,7 @@ html.auth-guest #guestScreen {
    Breakpoints: 1024px (tablet), 768px (mobile), 480px (small phone), 360px (xs)
    ============================================================================== */
 
-/* ── Tablet (≤ 1024px) ────────────────────────────────────────────────────── */
+/* â”€â”€ Tablet (â‰¤ 1024px) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 1024px) {
 
   .section-header-row {
@@ -7312,7 +7650,7 @@ html.auth-guest #guestScreen {
   }
 }
 
-/* ── Mobile (≤ 768px) — master block ─────────────────────────────────────── */
+/* â”€â”€ Mobile (â‰¤ 768px) â€” master block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 768px) {
 
   /* === Stats / Summary Row === */
@@ -7630,19 +7968,24 @@ html.auth-guest #guestScreen {
     font-size: 12px;
   }
 
-  .todo-filter-group {
-    gap: 6px;
+  .todo-filter-strip {
+    gap: 4px;
+    padding: 4px;
   }
 
-  .todo-filter-btn {
-    padding: 6px 10px;
+  .todo-filter-tab {
+    padding: 6px 8px;
     font-size: 12px;
+    min-width: 60px;
   }
 
   .todo-item {
-    padding: 12px 12px;
+    border-radius: 12px;
+  }
+
+  .todo-item-inner {
+    padding: 12px;
     gap: 10px;
-    border-radius: 10px;
   }
 
   .todo-item-top {
@@ -7703,7 +8046,7 @@ html.auth-guest #guestScreen {
   }
 }
 
-/* ── Small phones (≤ 480px) ───────────────────────────────────────────────── */
+/* â”€â”€ Small phones (â‰¤ 480px) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 480px) {
 
   /* Stats: stack to single column on very small phones */
@@ -7711,6 +8054,20 @@ html.auth-guest #guestScreen {
   .summary-stats-row {
     grid-template-columns: 1fr 1fr;
     gap: 8px;
+  }
+
+  /* Todo stat cards: 2 columns on phones */
+  .todo-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .todo-stat-num {
+    font-size: 22px;
+  }
+
+  .todo-stat-lbl {
+    font-size: 10.5px;
   }
 
   .stat-card,
@@ -7838,7 +8195,7 @@ html.auth-guest #guestScreen {
   }
 }
 
-/* ── Extra-small (≤ 360px) ────────────────────────────────────────────────── */
+/* â”€â”€ Extra-small (â‰¤ 360px) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 360px) {
 
   .stats-row,
@@ -7879,7 +8236,7 @@ html.auth-guest #guestScreen {
   }
 }
 
-/* ── Touch friendliness: ensure all tap targets ≥ 44px ────────────────────── */
+/* â”€â”€ Touch friendliness: ensure all tap targets â‰¥ 44px â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (hover: none) and (pointer: coarse) {
 
   .sidebar a {
@@ -7900,9 +8257,9 @@ html.auth-guest #guestScreen {
     padding: 10px 14px;
   }
 
-  .todo-filter-btn {
+  .todo-filter-tab {
     min-height: 40px;
-    padding: 8px 14px;
+    padding: 8px 12px;
   }
 
   .todo-shortcut-pill {
@@ -8609,7 +8966,7 @@ html.auth-guest #guestScreen {
   transform: translateY(-1px);
 }
 
-/* CaseBook Azure — stage pills */
+/* CaseBook Azure â€” stage pills */
 .stage-pill {
   background: #EEF3FE !important;
   color: #3A506B !important;
@@ -8625,7 +8982,7 @@ html.auth-guest #guestScreen {
   border-color: #A0C4FF !important;
 }
 
-/* Type-specific stages (civil/criminal/family/...) — azure fill */
+/* Type-specific stages (civil/criminal/family/...) â€” azure fill */
 .stage-pill.stage-pill-specific {
   background: linear-gradient(135deg, #6FFFE9, #5BC0BE) !important;
   color: #ffffff !important;
@@ -10613,7 +10970,7 @@ html.auth-guest #guestScreen {
   margin-bottom: 4px;
 }
 
-/* ── Today's Court Appearance Board — list cards (matches Priority Tasks) ── */
+/* â”€â”€ Today's Court Appearance Board â€” list cards (matches Priority Tasks) â”€â”€ */
 .home-today-list {
   display: flex;
   flex-direction: column;
@@ -16386,7 +16743,7 @@ body.workflow-active-tab [data-chambers-footer],
   }
 }
 
-/* --- Fixed Bottom Navigation Bar on Compact Screens (≤ 380px) --- */
+/* --- Fixed Bottom Navigation Bar on Compact Screens (â‰¤ 380px) --- */
 @media (max-width: 380px) {
   .fixed-bottom-nav {
     padding: 6px 8px !important;
@@ -17129,7 +17486,7 @@ input[readonly] {
 }
 
 /* ==============================================================================
-   Expandable Nav Case Search (search icon in top header → slides open)
+   Expandable Nav Case Search (search icon in top header â†’ slides open)
    ============================================================================== */
 .nav-case-search {
   position: relative;
@@ -17334,7 +17691,7 @@ input[readonly] {
 @media (max-width: 768px) {
   .nav-case-search-toggle { min-height: 56px; width: 48px; min-width: 48px; touch-action: manipulation; }
   /* Anchor to the viewport, not the toggle button (which sits left of other
-     nav buttons) — otherwise a full-width box overflows off the left edge */
+     nav buttons) â€” otherwise a full-width box overflows off the left edge */
   .nav-case-search-box {
     position: fixed;
     top: 64px;
@@ -18758,23 +19115,12 @@ table.all-cases-fixed-table tbody tr:last-child td:last-child,
     border-radius: 12px !important;
   }
 
-  .todo-stats-bar {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 8px !important;
-    margin-bottom: 14px !important;
+  .todo-summary-bar {
+    padding: 8px 10px !important;
   }
 
-  .todo-stat-card {
-    padding: 10px 10px !important;
-    gap: 8px !important;
-  }
-
-  .todo-stat-num {
-    font-size: 18px !important;
-  }
-
-  .todo-stat-lbl {
-    font-size: 10.5px !important;
+  .todo-summary-progress {
+    max-width: none !important;
   }
 }
 
@@ -19657,7 +20003,7 @@ input[type="text"]#editCourtInput,
 /* 3. Mobile Spacing & Bottom Nav Clearance */
 @media (max-width: 767.98px) {
   /* Hide sidebar nav links not needed on mobile (My Cases / All Cases)
-     — those registers are reachable via Home KPI cards and Case Cards tab */
+     â€” those registers are reachable via Home KPI cards and Case Cards tab */
   .sidenav a.nav-hide-mobile,
   nav a.nav-hide-mobile {
     display: none !important;
@@ -19919,7 +20265,7 @@ input[type="text"]#editCourtInput,
 }
 
 /* ==============================================================================
-   ★ CASEBOOK AZURE — Design System ★
+   â˜… CASEBOOK AZURE â€” Design System â˜…
    The app-wide visual language (applied Sept 2026): an Azure family
    built on ambient-blue scale, paired with amber for criminal accents.
 
@@ -19934,12 +20280,12 @@ input[type="text"]#editCourtInput,
    COMPONENTS USING IT: Case Cards Board (cards + pills), Home KPI cards
    (all 6 themes), Today's Court Appearance Board (list cards), filter pills,
    hearing chips, action buttons.
-   Keep new UI in this palette — see .case-card block for the reference
+   Keep new UI in this palette â€” see .case-card block for the reference
    implementation of borders (#E0E8F9), gradients, and chip styling.
    ============================================================================== */
 
 /* ==============================================================================
-   Case Cards Board — 3-line expandable cards (Case Name / Case No + Next Date / Court)
+   Case Cards Board â€” 3-line expandable cards (Case Name / Case No + Next Date / Court)
    ============================================================================== */
 .case-cards-grid {
   display: grid;
@@ -20024,7 +20370,7 @@ input[type="text"]#editCourtInput,
   user-select: none;
 }
 
-/* Line 1 — Case Name */
+/* Line 1 â€” Case Name */
 .case-card-name {
   font-weight: 700;
   font-size: 1rem;
@@ -20038,7 +20384,7 @@ input[type="text"]#editCourtInput,
   word-break: break-word;
 }
 
-/* Line 2 — Case Number chip + Next Hearing Date chip */
+/* Line 2 â€” Case Number chip + Next Hearing Date chip */
 .case-card-line2 {
   display: flex;
   align-items: center;
@@ -20087,7 +20433,7 @@ input[type="text"]#editCourtInput,
   border-color: #A0C4FF;
 }
 
-/* Line 3 — Court */
+/* Line 3 â€” Court */
 .case-card-court {
   margin-top: 7px;
   font-size: 0.82rem;
@@ -20117,7 +20463,7 @@ input[type="text"]#editCourtInput,
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Sub-card details: two-column grid — all titles in the 1st column, all contents in the 2nd */
+/* Sub-card details: two-column grid â€” all titles in the 1st column, all contents in the 2nd */
 .case-card-detail-grid {
   display: grid;
   grid-template-columns: minmax(150px, max-content) 1fr;
@@ -20194,7 +20540,7 @@ input[type="text"]#editCourtInput,
   .case-card-hearing-history { gap: 8px; margin-top: 8px; padding-top: 8px; }
 }
 
-/* ── Case Cards filter pills (quick filters under search bar) ── */
+/* â”€â”€ Case Cards filter pills (quick filters under search bar) â”€â”€ */
 .case-cards-pill-row {
   display: flex;
   flex-wrap: wrap;
@@ -20350,7 +20696,7 @@ input[type="text"]#editCourtInput,
   }
 }
 
-/* Case Cards — collapsible detail sections inside expanded card (flat, borderless) */
+/* Case Cards â€” collapsible detail sections inside expanded card (flat, borderless) */
 .case-card-section {
   border-top: 1px dashed #E0E8F9;
   border-radius: 0;
@@ -20430,7 +20776,7 @@ input[type="text"]#editCourtInput,
   animation: caseCardExpand 0.2s ease;
 }
 
-/* Case Cards — Parties/Client line + always-visible actions bar */
+/* Case Cards â€” Parties/Client line + always-visible actions bar */
 .case-card-line4 {
   display: flex;
   align-items: center;
@@ -20500,7 +20846,7 @@ input[type="text"]#editCourtInput,
 }
 
 /* ==============================================================================
-   CASEBOOK AZURE — Manage Courts Directory Table
+   CASEBOOK AZURE â€” Manage Courts Directory Table
    (scoped to #courtsTable so other tables keep their existing look)
    ============================================================================== */
 
@@ -20603,7 +20949,7 @@ input[type="text"]#editCourtInput,
 }
 
 /* ==========================================================================
-   CASEBOOK AZURE — #courts directory CARDS GRID
+   CASEBOOK AZURE â€” #courts directory CARDS GRID
    Converts the old courts table into CaseBook Azure cards
    ========================================================================== */
 .courts-cards-grid {
@@ -20799,7 +21145,7 @@ input[type="text"]#editCourtInput,
 }
 
 /* ==========================================================================
-   CASEBOOK AZURE — SIDENAV / SIDEBAR
+   CASEBOOK AZURE â€” SIDENAV / SIDEBAR
    Re-tints the left navigation to match the Azure project theme
    (overrides the older #3A506B teal + slate treatment)
    ========================================================================== */
@@ -20892,7 +21238,7 @@ input[type="text"]#editCourtInput,
   background-color: #E0E8F9 !important;
 }
 
-/* Badges → sky chips */
+/* Badges â†’ sky chips */
 .sidebar a .badge,
 .sidenav a .badge {
   background-color: #EEF3FE !important;
@@ -20926,9 +21272,9 @@ input[type="text"]#editCourtInput,
 }
 
 /* ==========================================================================
-   CASEBOOK AZURE — TOP NAV / HEADER BAR
+   CASEBOOK AZURE â€” TOP NAV / HEADER BAR
    Re-tints the fixed top header from purple gradient to deep Azure
-   (overrides the #502D55→#935073 purple treatment)
+   (overrides the #502D55â†’#935073 purple treatment)
    ========================================================================== */
 .top-header,
 .materialize-nav,
@@ -21043,7 +21389,7 @@ input[type="text"]#editCourtInput,
 }
 
 /* ==========================================================================
-   CASEBOOK AZURE — COURT HEARING CALENDAR & SCHEDULER
+   CASEBOOK AZURE â€” COURT HEARING CALENDAR & SCHEDULER
    Re-tints the #calendar tab from purple #502D55/#935073 to Azure
    (top bar, stats chips, grid container, day cells, hearing pills,
    day-schedule card, schedule case cards, print/cause list actions)
@@ -21177,7 +21523,7 @@ input[type="text"]#editCourtInput,
   border: 1px solid rgba(111, 255, 233, 0.35) !important;
 }
 
-/* criminal/state → amber (the one amber exception in the system) */
+/* criminal/state â†’ amber (the one amber exception in the system) */
 .day-hearing-pill.criminal,
 .day-hearing-pill.state {
   background: #fef3c7 !important;
@@ -21191,14 +21537,14 @@ input[type="text"]#editCourtInput,
   border: 1px solid #fde68a !important;
 }
 
-/* revenue → soft azure */
+/* revenue â†’ soft azure */
 .day-hearing-pill.revenue {
   background: rgba(143, 211, 244, 0.18) !important;
   color: #3A506B !important;
   border: 1px solid rgba(143, 211, 244, 0.45) !important;
 }
 
-/* family → sky */
+/* family â†’ sky */
 .day-hearing-pill.family {
   background: #E0E8F9 !important;
   color: #1C2541 !important;
@@ -21237,7 +21583,7 @@ input[type="text"]#editCourtInput,
   color: #1C2541 !important;
 }
 
-/* Print Cause List button → azure gradient */
+/* Print Cause List button â†’ azure gradient */
 .print-cause-btn {
   background: linear-gradient(135deg, #6FFFE9, #5BC0BE) !important;
   border: 1.5px solid #5BC0BE !important;
@@ -21313,7 +21659,7 @@ input[type="text"]#editCourtInput,
 }
 
 /* ==========================================================================
-   CASEBOOK AZURE — FIXED BOTTOM NAV
+   CASEBOOK AZURE â€” FIXED BOTTOM NAV
    Re-tints the bottom quick-nav bar from purple/teal to deep Azure
    and re-asserts full-width fixed placement ON TOP of the sidenav
    (wins over the older z-index: 1000 / #3A506B overrides)
@@ -21392,7 +21738,7 @@ input[type="text"]#editCourtInput,
   transform: none !important;
 }
 
-/* Center Home tab — azure highlight */
+/* Center Home tab â€” azure highlight */
 .fixed-bottom-nav .bottom-nav-btn.home-nav-btn {
   background: rgba(184, 211, 254, 0.16) !important;
 }
@@ -21452,9 +21798,9 @@ input[type="text"]#editCourtInput,
 }
 
 /* ==========================================================================
-   CASEBOOK AZURE — DATA TABLE HEADERS (unified, incl. sticky Quick Actions)
-   Fixes the mismatched "Quick Actions" column header: every header cell —
-   regular or sticky-pinned — now shares ONE azure treatment.
+   CASEBOOK AZURE â€” DATA TABLE HEADERS (unified, incl. sticky Quick Actions)
+   Fixes the mismatched "Quick Actions" column header: every header cell â€”
+   regular or sticky-pinned â€” now shares ONE azure treatment.
    ========================================================================== */
 table.case-table thead th,
 table.causelist-table thead th,
@@ -21508,18 +21854,18 @@ table.search-results-table td:last-child {
 }
 
 /* ==========================================================================
-   CASEBOOK AZURE — CUSTOM DATE PICKER (mint-datepicker.js)
+   CASEBOOK — CUSTOM DATE PICKER (mint-datepicker.js)
    ========================================================================== */
 .mint-date-picker {
   position: fixed;
-  width: 280px;
+  width: 316px;
   display: none;
   flex-direction: column;
   background: #ffffff;
-  border: 1.5px solid #E0E8F9;
+  border: 1.5px solid #E2E8F0;
   border-radius: 16px;
-  box-shadow: 0 16px 40px rgba(91, 192, 190, 0.22);
-  padding: 12px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+  padding: 14px;
   z-index: 3000; /* above bottom nav (2000) and modals' headers */
   box-sizing: border-box;
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
@@ -21535,12 +21881,13 @@ table.search-results-table td:last-child {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Header: deep navy like the top nav */
+/* Header: theme-driven gradient */
 .mdp-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, #0B132B, #3A506B);
+  gap: 4px;
+  background: var(--mdp-header-gradient, linear-gradient(135deg, #0B132B, #3A506B)) !important;
   border-radius: 12px;
   padding: 8px 10px;
   margin-bottom: 8px;
@@ -21561,59 +21908,76 @@ table.search-results-table td:last-child {
 
 /* Month / year dropdowns replace plain text for fast switching */
 .mdp-title select {
-  background-color: rgba(255, 255, 255, 0.14);
-  color: #ffffff;
-  border: 1px solid rgba(184, 211, 254, 0.45);
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 800;
-  padding: 4px 10px;
-  cursor: pointer;
-  outline: none;
-  color-scheme: light;
-  -webkit-appearance: none;
-  appearance: none;
-  text-align: center;
-  text-align-last: center;
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  border-radius: 8px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  padding: 4px 8px !important;
+  cursor: pointer !important;
+  outline: none !important;
+  color-scheme: light !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  text-align: center !important;
+  text-align-last: center !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
+
 .mdp-title select:hover,
 .mdp-title select:focus {
-  background-color: rgba(255, 255, 255, 0.26);
+  background-color: rgba(255, 255, 255, 0.28) !important;
 }
+
 .mdp-title select option {
-  background: #ffffff;
-  color: #1C2541;
-  font-weight: 700;
-  font-size: 14px;
-  padding: 6px 10px;
+  background: #ffffff !important;
+  color: #1C2541 !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  padding: 6px 10px !important;
 }
-.mdp-title .mdp-year { min-width: 74px; max-width: none; }
+
+.mdp-title .mdp-month {
+  min-width: 104px;
+  max-width: 114px;
+}
+
+.mdp-title .mdp-year {
+  min-width: 68px;
+  max-width: 74px;
+}
 
 .mdp-nav {
-  width: 28px;
-  height: 28px;
-  border: 1px solid rgba(184, 211, 254, 0.4);
-  background: rgba(255, 255, 255, 0.12);
-  color: #EEF3FE;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 12px;
-  transition: background 0.15s ease;
-  flex: 0 0 auto;
+  width: 28px !important;
+  height: 28px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  transition: background 0.15s ease !important;
+  flex: 0 0 auto !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .mdp-nav:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
 }
 
 .mdp-nav.mdp-prev-year,
 .mdp-nav.mdp-next-year {
-  width: 24px;
-  font-size: 10px;
-  border-color: rgba(184, 211, 254, 0.25);
+  width: 24px !important;
+  font-size: 10px !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 .mdp-subtitle {
@@ -21630,7 +21994,7 @@ table.search-results-table td:last-child {
 .mdp-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 3px;
   margin-bottom: 4px;
 }
 
@@ -21638,7 +22002,7 @@ table.search-results-table td:last-child {
   text-align: center;
   font-size: 10.5px;
   font-weight: 800;
-  color: #3A506B;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 4px 0;
@@ -21648,54 +22012,66 @@ table.search-results-table td:last-child {
 .mdp-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 3px;
 }
 
+.mint-date-picker button.mdp-day,
 .mdp-day {
-  height: 32px;
-  border: 1px solid transparent;
-  background: #ffffff;
-  border-radius: 9px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #1e293b;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  box-sizing: border-box;
-  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  height: 34px !important;
+  border: 1px solid transparent !important;
+  background: #ffffff !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: all 0.15s ease !important;
 }
 
+.mint-date-picker button.mdp-day:hover,
 .mdp-day:hover {
-  background: #EEF3FE;
-  border-color: #B8D3FE;
-  color: #1C2541;
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
 }
 
+.mint-date-picker button.mdp-day.mdp-blank,
 .mdp-day.mdp-blank {
-  background: transparent;
-  cursor: default;
-  pointer-events: none;
+  background: transparent !important;
+  border: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
 }
 
+.mint-date-picker button.mdp-day.mdp-today,
 .mdp-day.mdp-today {
-  background: #E0E8F9;
-  border-color: #A0C4FF;
-  color: #0B132B;
-  font-weight: 800;
+  background: var(--mdp-today-bg, #eff6ff) !important;
+  border-color: var(--mdp-accent-border, #93c5fd) !important;
+  color: var(--mdp-today-color, #1d4ed8) !important;
+  font-weight: 800 !important;
 }
 
+.mint-date-picker button.mdp-day.mdp-selected,
 .mdp-day.mdp-selected {
-  background: linear-gradient(135deg, #6FFFE9, #5BC0BE);
-  border-color: #5BC0BE;
-  color: #ffffff;
-  box-shadow: 0 2px 6px rgba(91, 192, 190, 0.3);
+  background: var(--mdp-selected-bg, #059669) !important;
+  border-color: var(--mdp-selected-bg, #059669) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
 }
 
+.mint-date-picker button.mdp-day.mdp-selected.mdp-today,
 .mdp-day.mdp-selected.mdp-today {
-  background: linear-gradient(135deg, #5BC0BE, #3A506B);
+  background: var(--mdp-selected-bg, #059669) !important;
+  border-color: var(--mdp-selected-bg, #059669) !important;
+  color: #ffffff !important;
 }
 
 /* Footer */
@@ -21704,45 +22080,54 @@ table.search-results-table td:last-child {
   gap: 8px;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px dashed #E0E8F9;
+  border-top: 1px dashed #e2e8f0;
 }
 
+.mint-date-picker button.mdp-btn,
 .mdp-btn {
-  flex: 1;
-  height: 34px;
-  border-radius: 10px;
-  font-size: 12.5px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  flex: 1 !important;
+  height: 34px !important;
+  border-radius: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  padding: 0 12px !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: all 0.15s ease !important;
 }
 
+.mint-date-picker button.mdp-today-btn,
 .mdp-today-btn {
-  background: #EEF3FE;
-  border: 1px solid #B8D3FE;
-  color: #3A506B;
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
+  color: #166534 !important;
 }
 
+.mint-date-picker button.mdp-today-btn:hover,
 .mdp-today-btn:hover {
-  background: #E0E8F9;
-  border-color: #A0C4FF;
-  color: #0B132B;
+  background: #dcfce7 !important;
+  color: #14532d !important;
+  border-color: #86efac !important;
 }
 
+.mint-date-picker button.mdp-clear-btn,
 .mdp-clear-btn {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
 }
 
+.mint-date-picker button.mdp-clear-btn:hover,
 .mdp-clear-btn:hover {
-  background: #f1f5f9;
-  color: #475569;
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  border-color: #fca5a5 !important;
 }
 
 /* Date inputs get a azure focus ring + calendar cursor hint */
@@ -21786,8 +22171,8 @@ input[type="date"][data-mint-datepicker]::-moz-calendar-picker-indicator {
 }
 
 /* ==========================================================================
-   CASEBOOK AZURE — CAUSE LIST TOOLBAR (inline desktop layout)
-   Desktop: 1. Appearance Date  2. Filter by Court  3. Quick Date — all
+   CASEBOOK AZURE â€” CAUSE LIST TOOLBAR (inline desktop layout)
+   Desktop: 1. Appearance Date  2. Filter by Court  3. Quick Date â€” all
    inline (label beside control) in one row; stacked on mobile as before.
    ========================================================================== */
 @media (min-width: 901px) {
@@ -21893,7 +22278,7 @@ input[type="date"][data-mint-datepicker]::-moz-calendar-picker-indicator {
 }
 
 /* ==========================================================================
-   CASEBOOK AZURE — #courts .court-add-card
+   CASEBOOK AZURE â€” #courts .court-add-card
    Restyles "Add New Court to Directory" to match the Today's Court
    Appearance Board panel card (.home-panel-card / .home-panel-header)
    ========================================================================== */
@@ -21917,7 +22302,7 @@ input[type="date"][data-mint-datepicker]::-moz-calendar-picker-indicator {
   margin-bottom: 12px;
 }
 
-/* Badge icon → sky tile like .panel-icon.court-icon */
+/* Badge icon â†’ sky tile like .panel-icon.court-icon */
 #courts .court-add-card .search-card-badge-icon {
   background: #E0E8F9 !important;
   border: 1px solid #C5D8FB !important;
@@ -21959,7 +22344,7 @@ input[type="date"][data-mint-datepicker]::-moz-calendar-picker-indicator {
   color: #94a3b8 !important;
 }
 
-/* Submit button → azure, matching Today's board action button */
+/* Submit button â†’ azure, matching Today's board action button */
 #courts .court-add-card .court-submit-btn {
   background: linear-gradient(135deg, #6FFFE9, #5BC0BE) !important;
   color: #ffffff !important;
@@ -21987,7 +22372,7 @@ input[type="date"][data-mint-datepicker]::-moz-calendar-picker-indicator {
 }
 
 /* ============================================================
-   CASEBOOK AZURE — DARK BUTTON PASS (v7.36)
+   CASEBOOK AZURE â€” DARK BUTTON PASS (v7.36)
    All action buttons become solid dark navy with white text,
    per user preference. Destructive buttons stay red.
    ============================================================ */
@@ -22023,7 +22408,7 @@ button:hover, .btn:hover, .primary-btn:hover, .secondary-btn:hover,
   transform: translateY(-1px);
 }
 
-/* Active/selected pill states — brighter azure so selection stays visible */
+/* Active/selected pill states â€” brighter azure so selection stays visible */
 .type-pill-btn.active, .todo-filter-btn.active, .case-cards-pill.active,
 .stage-pill-specific.active {
   background: linear-gradient(135deg, #5BC0BE, #3A506B) !important;
@@ -22067,19 +22452,32 @@ button.danger:hover, .btn.danger:hover {
   color: #ffffff !important;
 }
 
-/* Plain unstyled <button> tags (calendar day cells, picker days, etc.)
+/* Plain unstyled <button> tags (calendar day cells, picker days, todo interactive pills, etc.)
    get a reset — they are NOT action buttons */
 .mint-date-picker button,
 .calendar-day, .cal-day, .datepicker-day,
-.month-grid button, .day-cell {
-  background: initial !important;
-  color: initial !important;
-  border: none !important;
-  transform: none !important;
-  box-shadow: none !important;
+.month-grid button, .day-cell,
+#todo button,
+#todo .todo-filter-tab,
+#todo .todo-priority-chip,
+#todo .todo-shortcut-pill,
+#todo .step-chip,
+#todo .todo-action-btn,
+#todo .todo-delete-btn,
+#todo .todo-reschedule-btn,
+#todo .todo-reminder-btn,
+#todo .todo-combobox-clear-btn,
+#todo .todo-combobox-toggle-btn,
+#todo .todo-preview-change-btn,
+#todo .todo-add-copy-btn {
+  background: initial;
+  color: initial;
+  border: none;
+  transform: none;
+  box-shadow: none;
 }
 
-/* Theme toggle button itself — branded pill */
+/* Theme toggle button itself â€” branded pill */
 #themeToggleBtn {
   background: linear-gradient(135deg, #5BC0BE, #1C2541) !important;
   color: #ffffff !important;
@@ -22102,7 +22500,7 @@ button.danger:hover, .btn.danger:hover {
 }
 
 /* ============================================================
-   CASEBOOK AZURE — MINT THEME OVERRIDE (via admin-mint.css)
+   CASEBOOK AZURE â€” MINT THEME OVERRIDE (via admin-mint.css)
    Loaded only when <html data-theme="mint">. See theme-toggle.js.
    ============================================================ */
 
@@ -22137,9 +22535,9 @@ button.danger:hover, .btn.danger:hover {
 #themeToggleBtn:active { transform: translateY(1px); }
 
 /* ============================================================
-   v7.38 — REFINEMENTS
+   v7.38 â€” REFINEMENTS
    1) Delete/destructive buttons: soft outline treatment (cleaner
-      than saturated red fills) — pale red bg, deep red text,
+      than saturated red fills) â€” pale red bg, deep red text,
       red hairline border. Fill appears only on hover.
    2) Global text darkened: meta/label/muted text in cards,
       tables, and forms goes deep navy for contrast.
@@ -22165,7 +22563,7 @@ button.danger:hover, .btn.danger:hover {
 
 /* --- 2. Darker global text (navy, higher contrast) ---
    Scoped: reading surfaces only (body copy, tables, labels, cards).
-   Buttons/chips/pills keep their white text — re-asserted below. --- */
+   Buttons/chips/pills keep their white text â€” re-asserted below. --- */
 body, .content, .tab, table, th, td, label, p, li,
 .form-group label, .section-label, .field-label, .caseno, .meta,
 .case-card-name, .case-card-client, .case-card-meta, .home-today-card,
@@ -22212,7 +22610,7 @@ button.danger, .btn.danger {
 }
 
 /* ============================================================
-   v7.40 — CASE CARD ICONS → DARK
+   v7.40 â€” CASE CARD ICONS â†’ DARK
    Bright aqua/azure icons on Case Cards Board are hard to read;
    switch to deep navy (amber criminal exception kept).
    ============================================================ */
@@ -22241,7 +22639,7 @@ button.danger, .btn.danger {
 }
 
 /* ============================================================
-   v7.41 — CASE CARDS FILTER PILLS: dark fill, white text
+   v7.41 â€” CASE CARDS FILTER PILLS: dark fill, white text
    Match the dark button system for clear, legible labels.
    ============================================================ */
 .case-cards-pill {
@@ -22270,13 +22668,13 @@ button.danger, .btn.danger {
   color: #ffffff !important;
 }
 /* ============================================================
-   v7.43 — MULTI-THEME ENGINE
+   v7.43 â€” MULTI-THEME ENGINE
    Classic Legal / Modern Corporate / Minimalist Judicial
    Each theme is a class on <html> and overrides the core
    surfaces, navs, buttons, pills and accents.
    ============================================================ */
 
-/* Shared: theme option cards (Settings → Themes) */
+/* Shared: theme option cards (Settings â†’ Themes) */
 .theme-settings-section { margin-top: 22px; }
 #themeOptionsGrid {
   display: grid;
@@ -22523,7 +22921,7 @@ html.theme-judicial #themeToggleBtn {
 }
 
 /* ============================================================
-   v7.44 — THEMES TAB + PALETTE SWATCHES
+   v7.44 â€” THEMES TAB + PALETTE SWATCHES
    Dedicated #themes tab; each card shows its primary palette.
    ============================================================ */
 #themes .form-container { margin-bottom: 20px; }
@@ -22558,7 +22956,7 @@ html.theme-judicial #themeToggleBtn {
 .theme-swatch:hover { transform: scale(1.12); transition: transform 0.12s ease; }
 
 /* ============================================================
-   v7.45 — NAV SEARCH TOGGLE blends into the navbar
+   v7.45 â€” NAV SEARCH TOGGLE blends into the navbar
    Same gradient family as .materialize-nav so the search button
    reads as part of the bar, not an overlay patch.
    ============================================================ */
@@ -22608,7 +23006,7 @@ html[data-theme="mint"] .nav-case-search-toggle:hover {
 }
 
 /* ============================================================
-   v7.46 — NAV SEARCH TOGGLE refined
+   v7.46 â€” NAV SEARCH TOGGLE refined
    No left border divider; dark bg + light icon on hover/active.
    ============================================================ */
 .nav-case-search-toggle,
@@ -22688,8 +23086,8 @@ html[data-theme="mint"] .nav-case-search-toggle i { color: inherit !important; }
 html[data-theme="mint"] .nav-case-search-toggle:hover i { color: #6ee7b7 !important; }
 
 /* ============================================================
-   v7.47 — SIDENAV HOVER FIX
-   Hover was a light tint (#EEF3FE) — under themed sidenav rails
+   v7.47 â€” SIDENAV HOVER FIX
+   Hover was a light tint (#EEF3FE) â€” under themed sidenav rails
    with light link text this became white-on-white. Now: subtle
    translucent overlay per theme, text stays light & readable.
    ============================================================ */
@@ -22725,7 +23123,7 @@ html[data-theme="mint"] .sidenav a:hover {
 html[data-theme="mint"] .sidenav a:hover .nav-icon,
 html[data-theme="mint"] .sidenav a:hover i { color: #6ee7b7 !important; }
 
-/* Azure sidenav: LIGHT rail, dark text → hover = periwinkle tint, navy text */
+/* Azure sidenav: LIGHT rail, dark text â†’ hover = periwinkle tint, navy text */
 .sidebar a:hover,
 .sidenav a:hover {
   background-color: rgba(160, 196, 255, 0.16) !important;
@@ -22736,7 +23134,7 @@ html[data-theme="mint"] .sidenav a:hover i { color: #6ee7b7 !important; }
 .sidebar a:hover i,
 .sidenav a:hover i { color: #6FFFE9 !important; }
 
-/* v7.47b — Azure sidenav is a light rail; dark text on tint hover */
+/* v7.47b â€” Azure sidenav is a light rail; dark text on tint hover */
 html:not([class*="theme-"])[data-theme="azure"] .sidebar a:hover,
 html:not([class*="theme-"])[data-theme="azure"] .sidenav a:hover,
 html[data-theme="azure"] .sidebar a:hover,
@@ -22748,11 +23146,11 @@ html[data-theme="azure"] .sidenav a:hover .nav-icon,
 html[data-theme="azure"] .sidenav a:hover i { color: #1C2541 !important; }
 
 /* ============================================================
-   v7.49 — FIX: nav search ✕ button & password visibility buttons
-   Both are small in-field icon buttons, NOT action buttons —
+   v7.49 â€” FIX: nav search âœ• button & password visibility buttons
+   Both are small in-field icon buttons, NOT action buttons â€”
    the global dark-button pass (v7.36/7.39) restyled them into
    opaque navy squares that cover the input and hide their glyphs.
-   Restore: transparent bg, no border, slate icon, red ✕ hover.
+   Restore: transparent bg, no border, slate icon, red âœ• hover.
    ============================================================ */
 .nav-case-search-close,
 .pwd-toggle-btn,
@@ -22800,11 +23198,11 @@ html.theme-judicial .nav-case-search-close *,
 html.theme-judicial .pwd-toggle-btn * { color: #111827 !important; }
 
 /* ============================================================
-   v7.50 — NAVS ABOVE SCROLLBARS + UNIVERSAL CONTRAST RULE
+   v7.50 â€” NAVS ABOVE SCROLLBARS + UNIVERSAL CONTRAST RULE
    1) Top nav & bottom nav sit above every scrollable content
       layer (but still below modals/toasts which use 9999+).
    2) Every theme follows one contrast law:
-      light background → dark text/icons; dark background →
+      light background â†’ dark text/icons; dark background â†’
       light text/icons.
    ============================================================ */
 
@@ -22876,9 +23274,9 @@ html.theme-classic .content i, html.theme-corporate .content i,
 html.theme-judicial .content i, html[data-theme="mint"] .content i { color: inherit; }
 
 /* ============================================================
-   v7.51 — STRUCTURED REMARKS / CO-PARTIES VIEW
+   v7.51 â€” STRUCTURED REMARKS / CO-PARTIES VIEW
    Raw remark text is parsed into sections (Co-Defendants,
-   Proposed Defendants, …) with numbered party rows and status
+   Proposed Defendants, â€¦) with numbered party rows and status
    badges (Deceased / Minor / Major).
    ============================================================ */
 .rmk-list {
@@ -22969,7 +23367,7 @@ html.theme-judicial .rmk-num { background: #F3F4F6; color: #111827; }
 html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 
 /* ============================================================
-   v7.52 — THEME MAKER (custom theme builder in Themes tab)
+   v7.52 â€” THEME MAKER (custom theme builder in Themes tab)
    5 color pickers + name + Preview / Save / Reset. Custom themes
    are injected at runtime by theme-toggle.js.
    ============================================================ */
@@ -23043,7 +23441,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 }
 
 /* ============================================================
-   v7.54 — UNDATED CASES: overdue + never-dated chips
+   v7.54 â€” UNDATED CASES: overdue + never-dated chips
    ============================================================ */
 .undated-overdue-chip {
   display: inline-flex;
@@ -23073,7 +23471,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 }
 
 /* ============================================================
-   v7.55 — Daily Cause List: Linear Cards (replaces wide table)
+   v7.55 â€” Daily Cause List: Linear Cards (replaces wide table)
    One row per matter: index | info block | action buttons
    ============================================================ */
 .causelist-cards {
@@ -23227,7 +23625,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 }
 
 /* ==============================================================================
-   Live CRUD (Simple) Tab — row cards, mobile-first
+   Live CRUD (Simple) Tab â€” row cards, mobile-first
    ============================================================================== */
 
 .lc-container {
@@ -23406,7 +23804,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 }
 
 /* ==============================================================================
-   Forward Dates tab — complete redesign (fd-*)
+   Forward Dates tab â€” complete redesign (fd-*)
    ============================================================================== */
 
 .fd-container {
@@ -23630,12 +24028,12 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   border-radius: 6px !important;
 }
 
-/* Forward Dates hero subtitle — soft mint accent */
+/* Forward Dates hero subtitle â€” soft mint accent */
 .fd-hero-text p {
   color: #9CE8DE;
 }
 
-/* Forward Dates: compact preset boxes — radio-style, minimal footprint */
+/* Forward Dates: compact preset boxes â€” radio-style, minimal footprint */
 .fd-presets {
   gap: 6px;
 }
@@ -23666,7 +24064,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   box-shadow: none;
 }
 
-/* Case-type-specific stage pills (loaded on case change) — same compact size */
+/* Case-type-specific stage pills (loaded on case change) â€” same compact size */
 .fd-stage-pills .stage-pill.stage-pill-specific {
   padding: 5px 9px !important;
   font-size: 11px !important;
@@ -23710,7 +24108,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
   min-height: 30px;
 }
 
-/* Forward Dates hero subtitle — white */
+/* Forward Dates hero subtitle â€” white */
 .fd-hero-text p {
   color: #ffffff;
 }
@@ -23765,7 +24163,7 @@ html.theme-judicial .rmk-party { background: #ffffff; border-color: #E5E7EB; }
 }
 
 /* ============================================================
-   ★ CASEBOOK AZURE: HIGH-CONTRAST ACCESSIBILITY FIXES ★
+   â˜… CASEBOOK AZURE: HIGH-CONTRAST ACCESSIBILITY FIXES â˜…
    Ensures WCAG AA compliance (4.5:1+) for icons & text on light surfaces
    ============================================================ */
 .home-today-card-meta i { color: #0284C7 !important; font-size: 10px; }
@@ -24182,8 +24580,90 @@ html.theme-midnight .nav-case-search-results {
   border: 1px solid #1F293D !important;
 }
 
+/* Midnight Dark Mode Overrides for Custom Date Picker & Todo */
+html.theme-midnight .mint-date-picker {
+  background: #141B2D !important;
+  border-color: #1F293D !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
+}
+html.theme-midnight .mdp-subtitle {
+  color: #64748B !important;
+}
+html.theme-midnight .mdp-wd {
+  color: #94A3B8 !important;
+}
+html.theme-midnight .mint-date-picker button.mdp-day,
+html.theme-midnight .mdp-day {
+  background: #141B2D !important;
+  color: #F1F5F9 !important;
+}
+html.theme-midnight .mint-date-picker button.mdp-day:hover,
+html.theme-midnight .mdp-day:hover {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #38BDF8 !important;
+}
+html.theme-midnight .mint-date-picker button.mdp-day.mdp-today,
+html.theme-midnight .mdp-day.mdp-today {
+  background: #1E293B !important;
+  border-color: #38BDF8 !important;
+  color: #38BDF8 !important;
+}
+html.theme-midnight .mint-date-picker button.mdp-day.mdp-selected,
+html.theme-midnight .mdp-day.mdp-selected {
+  background: #0284C7 !important;
+  border-color: #0284C7 !important;
+  color: #FFFFFF !important;
+}
+html.theme-midnight .mdp-footer {
+  border-top-color: #1F293D !important;
+}
+html.theme-midnight .mint-date-picker button.mdp-clear-btn,
+html.theme-midnight .mdp-clear-btn {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #94A3B8 !important;
+}
+html.theme-midnight .mint-date-picker button.mdp-clear-btn:hover,
+html.theme-midnight .mdp-clear-btn:hover {
+  background: #7F1D1D !important;
+  color: #FCA5A5 !important;
+  border-color: #EF4444 !important;
+}
+html.theme-midnight .todo-form-panel,
+html.theme-midnight .todo-list-panel {
+  background: #141B2D !important;
+  border-color: #1F293D !important;
+}
+html.theme-midnight .todo-item {
+  background: #141B2D !important;
+  border-color: #1F293D !important;
+}
+html.theme-midnight .todo-item:hover {
+  background: #182238 !important;
+  border-color: #38BDF8 !important;
+}
+html.theme-midnight .todo-item-title {
+  color: #F8FAFC !important;
+}
+html.theme-midnight .todo-custom-input,
+html.theme-midnight .todo-combobox-input,
+html.theme-midnight .todo-search-input {
+  background: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+html.theme-midnight .todo-filter-strip {
+  background: #0F172A !important;
+  border-color: #1F293D !important;
+}
+html.theme-midnight #todo .todo-filter-tab.active,
+html.theme-midnight .todo-filter-tab.active {
+  background: #1E293B !important;
+}
+
 /* ============================================================
-   ★ UNIVERSAL FIX: SIDEBAR ICONS & BADGES CONTRAST (IMAGE 1) ★
+   â˜… UNIVERSAL FIX: SIDEBAR ICONS & BADGES CONTRAST (IMAGE 1) â˜…
    Eliminates all dark-on-dark unreadable badge text and clashing purple icons
    ============================================================ */
 .sidebar a .badge,
@@ -24269,7 +24749,7 @@ html[data-theme="mint"] .sidenav a .badge {
 }
 
 /* ============================================================
-   ★ UNIVERSAL FIX: SUB-STEPS CHECKLIST STYLING (IMAGES 2 & 3) ★
+   â˜… UNIVERSAL FIX: SUB-STEPS CHECKLIST STYLING (IMAGES 2 & 3) â˜…
    Removes generic dark button theme interference from .step-chip
    and creates a clean, elegant, readable checklist
    ============================================================ */
@@ -25225,7 +25705,7 @@ html.theme-forest .helper-avatar {
 }
 
 /* ==============================================================================
-   UNDATED CASES TAB — HIGH-VISIBILITY SCROLLBAR & HORIZONTAL SCROLL ENGINE
+   UNDATED CASES TAB â€” HIGH-VISIBILITY SCROLLBAR & HORIZONTAL SCROLL ENGINE
    ============================================================================== */
 #undated .table-responsive {
   width: 100% !important;

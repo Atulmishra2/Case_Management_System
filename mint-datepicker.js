@@ -161,7 +161,7 @@
   function positionPicker(input) {
     var rect = input.getBoundingClientRect();
     // measure the real picker size (falls back to estimates pre-layout)
-    var popW = pickerEl.offsetWidth || 280;
+    var popW = pickerEl.offsetWidth || 316;
     var popH = pickerEl.offsetHeight || 360;
     var left = rect.left;
     var top = rect.bottom + 6;

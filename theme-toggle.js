@@ -128,7 +128,21 @@
       // Sidenav theme toggle
       sel + ' #themeToggleBtn { background: linear-gradient(135deg, ' + accent + ', ' + active + ') !important;' +
       '  color: ' + onDark + ' !important; border-color: ' + hover + ' !important; }' +
-      sel + ' #themeToggleBtn:hover { background: linear-gradient(135deg, ' + hover + ', ' + accent + ') !important; color: ' + hoverOn + ' !important; }';
+      sel + ' #themeToggleBtn:hover { background: linear-gradient(135deg, ' + hover + ', ' + accent + ') !important; color: ' + hoverOn + ' !important; }' +
+      // --- TODO & DATEPICKER DYNAMIC THEME TOKENS ---
+      sel + ' {' +
+      '  --todo-accent-gradient: linear-gradient(135deg, ' + nav + ' 0%, ' + accent + ' 100%) !important;' +
+      '  --todo-accent-primary: ' + accent + ' !important;' +
+      '  --todo-accent-hover: ' + hover + ' !important;' +
+      '  --todo-accent-light: ' + L(surface, -6) + ' !important;' +
+      '  --todo-accent-border: ' + L(accent, 40) + ' !important;' +
+      '  --todo-accent-text: ' + accent + ' !important;' +
+      '  --todo-accent-glow: ' + hexToRgba(accent, 0.35) + ' !important;' +
+      '  --mdp-header-gradient: linear-gradient(135deg, ' + nav + ' 0%, ' + navAccent + ' 100%) !important;' +
+      '  --mdp-selected-bg: ' + accent + ' !important;' +
+      '  --mdp-today-bg: ' + L(surface, -6) + ' !important;' +
+      '  --mdp-today-color: ' + accent + ' !important;' +
+      '}';
   }
 
   function hexToRgba(hex, alpha) {
