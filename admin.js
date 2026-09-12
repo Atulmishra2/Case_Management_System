@@ -3664,8 +3664,9 @@ function renderSelectedCaseDetails(caseObj) {
   const remarkEl = document.getElementById('detailCaseRemark');
   if (remarkEl) {
     const remark = caseObj.remark || caseObj.remarks || '';
-    if (remark && remark.trim()) {
-      remarkEl.innerHTML = renderStructuredRemarks(remark.trim());
+    const norm = normalizeRemarksData(remark);
+    if (norm.type !== 'empty') {
+      remarkEl.innerHTML = renderStructuredRemarks(remark);
     } else {
       remarkEl.innerHTML = '<span style="color:#94a3b8; font-style:italic;">No co-parties or remarks recorded for this case.</span>';
     }
@@ -4924,7 +4925,7 @@ function filterCaseTables(forceShowAll = false) {
         c.crimeNumber,
         c.caseType,
         c.caseStatus,
-        c.remark,
+        remarksToPlainText(c.remark || c.remarks),
         c.hearingProcess
       ].filter(Boolean).join(' ').toLowerCase();
 
@@ -4958,9 +4959,7 @@ function filterCaseTables(forceShowAll = false) {
       : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
     const nextHearing = formatDateDMY(item.nextHearing);
     const remark = item.remark || item.remarks || '';
-    const remarkHtml = remark
-      ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}">📝 ${escapeHtml(remark)}</span>`
-      : '<span style="color: #94a3b8;">—</span>';
+    const remarkHtml = renderCaseTableRemarks(remark, caseNumber, caseName);
 
     tr.innerHTML = `
       <td style="text-align: center;"><strong>${index + 1}</strong></td>
@@ -5570,14 +5569,12 @@ function renderCivilCasesTable(cases = null) {
       : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
 
     const partiesRemark = item.remark || item.remarks || '';
-    const partiesRemarkHtml = partiesRemark
-      ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
-      : '<span style="color: #94a3b8;">—</span>';
+    const partiesRemarkHtml = renderCaseTableRemarks(partiesRemark, caseNumber, caseName);
 
     const disposalComment = item.disposalComment || item.disposal_comment || '';
     const disposalCommentHtml = disposalComment
       ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
-      : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+      : (isDisposed && remarksToPlainText(partiesRemark) ? `<span class="case-disposal-clamp" title="${escapeHtml(remarksToPlainText(partiesRemark))}">⚖️ ${escapeHtml(remarksToPlainText(partiesRemark))}</span>` : '<span style="color: #94a3b8;">—</span>');
 
     return `
       <tr>
@@ -5620,14 +5617,13 @@ function refreshAllCaseTables() {
       ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
       : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
     const partiesRemark = c.remark || c.remarks || '';
-    const partiesRemarkHtml = partiesRemark
-      ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
-      : '<span style="color: #94a3b8;">—</span>';
+    const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+    const caseName = c.caseName || (c.firstParty ? `${c.firstParty} vs ${c.accusedName}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
+    const partiesRemarkHtml = renderCaseTableRemarks(partiesRemark, caseNumber, caseName);
     const disposalComment = c.disposalComment || c.disposal_comment || '';
     const disposalCommentHtml = disposalComment
       ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
-      : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
-    const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
+      : (isDisposed && remarksToPlainText(partiesRemark) ? `<span class="case-disposal-clamp" title="${escapeHtml(remarksToPlainText(partiesRemark))}">⚖️ ${escapeHtml(remarksToPlainText(partiesRemark))}</span>` : '<span style="color: #94a3b8;">—</span>');
 
     return `
       <tr>
@@ -5678,14 +5674,13 @@ function refreshAllCaseTables() {
           ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
           : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
         const partiesRemark = c.remark || c.remarks || '';
-        const partiesRemarkHtml = partiesRemark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
-          : '<span style="color: #94a3b8;">—</span>';
+        const caseNumber = c.caseNo || '—';
+        const caseName = c.caseName || `${c.petitioner} vs ${c.respondent}`;
+        const partiesRemarkHtml = renderCaseTableRemarks(partiesRemark, caseNumber, caseName);
         const disposalComment = c.disposalComment || c.disposal_comment || '';
         const disposalCommentHtml = disposalComment
           ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
-          : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
-        const caseNumber = c.caseNo || '—';
+          : (isDisposed && remarksToPlainText(partiesRemark) ? `<span class="case-disposal-clamp" title="${escapeHtml(remarksToPlainText(partiesRemark))}">⚖️ ${escapeHtml(remarksToPlainText(partiesRemark))}</span>` : '<span style="color: #94a3b8;">—</span>');
 
         return `
           <tr>
@@ -5724,14 +5719,13 @@ function refreshAllCaseTables() {
           ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
           : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
         const partiesRemark = c.remark || c.remarks || '';
-        const partiesRemarkHtml = partiesRemark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
-          : '<span style="color: #94a3b8;">—</span>';
+        const caseNumber = c.caseNo || '—';
+        const caseName = c.caseName || `${c.applicant} vs ${c.oppositeParty}`;
+        const partiesRemarkHtml = renderCaseTableRemarks(partiesRemark, caseNumber, caseName);
         const disposalComment = c.disposalComment || c.disposal_comment || '';
         const disposalCommentHtml = disposalComment
           ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
-          : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
-        const caseNumber = c.caseNo || '—';
+          : (isDisposed && remarksToPlainText(partiesRemark) ? `<span class="case-disposal-clamp" title="${escapeHtml(remarksToPlainText(partiesRemark))}">⚖️ ${escapeHtml(remarksToPlainText(partiesRemark))}</span>` : '<span style="color: #94a3b8;">—</span>');
 
         return `
           <tr>
@@ -5770,14 +5764,13 @@ function refreshAllCaseTables() {
           ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
           : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
         const partiesRemark = c.remark || c.remarks || '';
-        const partiesRemarkHtml = partiesRemark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
-          : '<span style="color: #94a3b8;">—</span>';
+        const caseNumber = c.caseNo || '—';
+        const caseName = c.caseName || `${c.applicant} vs ${c.oppositeParty}`;
+        const partiesRemarkHtml = renderCaseTableRemarks(partiesRemark, caseNumber, caseName);
         const disposalComment = c.disposalComment || c.disposal_comment || '';
         const disposalCommentHtml = disposalComment
           ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
-          : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
-        const caseNumber = c.caseNo || '—';
+          : (isDisposed && remarksToPlainText(partiesRemark) ? `<span class="case-disposal-clamp" title="${escapeHtml(remarksToPlainText(partiesRemark))}">⚖️ ${escapeHtml(remarksToPlainText(partiesRemark))}</span>` : '<span style="color: #94a3b8;">—</span>');
 
         return `
           <tr>
@@ -5817,14 +5810,13 @@ function refreshAllCaseTables() {
           ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
           : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
         const partiesRemark = c.remark || c.remarks || '';
-        const partiesRemarkHtml = partiesRemark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
-          : '<span style="color: #94a3b8;">—</span>';
+        const caseNumber = c.caseNo || '—';
+        const caseName = c.caseName || `${c.applicant} vs ${c.oppositeParty}`;
+        const partiesRemarkHtml = renderCaseTableRemarks(partiesRemark, caseNumber, caseName);
         const disposalComment = c.disposalComment || c.disposal_comment || '';
         const disposalCommentHtml = disposalComment
           ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
-          : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
-        const caseNumber = c.caseNo || '—';
+          : (isDisposed && remarksToPlainText(partiesRemark) ? `<span class="case-disposal-clamp" title="${escapeHtml(remarksToPlainText(partiesRemark))}">⚖️ ${escapeHtml(remarksToPlainText(partiesRemark))}</span>` : '<span style="color: #94a3b8;">—</span>');
 
         return `
           <tr>
@@ -5864,14 +5856,13 @@ function refreshAllCaseTables() {
           ? '<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>'
           : '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
         const partiesRemark = c.remark || c.remarks || '';
-        const partiesRemarkHtml = partiesRemark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
-          : '<span style="color: #94a3b8;">—</span>';
+        const caseNumber = c.caseNo || '—';
+        const caseName = c.caseName || `${c.complainant} vs ${c.accusedName}`;
+        const partiesRemarkHtml = renderCaseTableRemarks(partiesRemark, caseNumber, caseName);
         const disposalComment = c.disposalComment || c.disposal_comment || '';
         const disposalCommentHtml = disposalComment
           ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
-          : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
-        const caseNumber = c.caseNo || '—';
+          : (isDisposed && remarksToPlainText(partiesRemark) ? `<span class="case-disposal-clamp" title="${escapeHtml(remarksToPlainText(partiesRemark))}">⚖️ ${escapeHtml(remarksToPlainText(partiesRemark))}</span>` : '<span style="color: #94a3b8;">—</span>');
 
         return `
           <tr>
@@ -5910,13 +5901,11 @@ function refreshAllCaseTables() {
         const caseNumber = c.caseNo || c.criminalCaseNumber || '—';
         const caseName = c.caseName || (c.plaintiff ? `${c.plaintiff} vs ${c.defendant}` : (c.victimName ? `${c.victimName} vs ${c.accusedName}` : '—'));
         const partiesRemark = c.remark || c.remarks || '';
-        const partiesRemarkHtml = partiesRemark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
-          : '<span style="color: #94a3b8;">—</span>';
+        const partiesRemarkHtml = renderCaseTableRemarks(partiesRemark, caseNumber, caseName);
         const disposalComment = c.disposalComment || c.disposal_comment || '';
         const disposalCommentHtml = disposalComment
           ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
-          : (partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+          : (remarksToPlainText(partiesRemark) ? `<span class="case-disposal-clamp" title="${escapeHtml(remarksToPlainText(partiesRemark))}">⚖️ ${escapeHtml(remarksToPlainText(partiesRemark))}</span>` : '<span style="color: #94a3b8;">—</span>');
 
         return `
           <tr>
@@ -6068,7 +6057,7 @@ function exportAllCasesToCSV() {
     const hearing = formatDateDMY(c.nextHearing);
     const stage = c.hearingProcess || c.process || '';
     const status = (c.caseStatus || '').toLowerCase().includes('dispose') ? 'Disposed Off' : 'Pending';
-    const remark = c.remark || c.remarks || '';
+    const remark = remarksToPlainText(c.remark || c.remarks);
     const docLink = c.docLink || c.doc_link || '';
 
     return [
@@ -6298,7 +6287,7 @@ function renderAllCasesTableWithFilters(resetPage = true) {
       const client = (c.clientName || c.criminalClientName || '').toLowerCase();
       const phone = (c.clientNumber || c.criminalClientNumber || '').toLowerCase();
       const court = (c.courtName || c.criminalCourtName || '').toLowerCase();
-      const remark = (c.remark || c.remarks || '').toLowerCase();
+      const remark = remarksToSearchString(c.remark || c.remarks);
       const police = (c.policeStation || '').toLowerCase();
       const crimeNo = (c.crimeNumber || c.firNumber || '').toLowerCase();
 
@@ -6392,14 +6381,12 @@ function renderAllCasesTableWithFilters(resetPage = true) {
       : `<strong>${formatDateDMY(c.nextHearing)}</strong>`;
 
     const partiesRemark = c.remark || c.remarks || '';
-    const partiesRemarkHtml = partiesRemark
-      ? `<span class="case-remark-clamp" title="${escapeHtml(partiesRemark)}">👥 ${escapeHtml(partiesRemark)}</span>`
-      : '<span style="color: #94a3b8;">—</span>';
+    const partiesRemarkHtml = renderCaseTableRemarks(partiesRemark, caseNumber, caseName);
 
     const disposalComment = c.disposalComment || c.disposal_comment || '';
     const disposalCommentHtml = disposalComment
       ? `<span class="case-disposal-clamp" title="${escapeHtml(disposalComment)}">⚖️ ${escapeHtml(disposalComment)}</span>`
-      : (isDisposed && partiesRemark ? `<span class="case-disposal-clamp" title="${escapeHtml(partiesRemark)}">⚖️ ${escapeHtml(partiesRemark)}</span>` : '<span style="color: #94a3b8;">—</span>');
+      : (isDisposed && remarksToPlainText(partiesRemark) ? `<span class="case-disposal-clamp" title="${escapeHtml(remarksToPlainText(partiesRemark))}">⚖️ ${escapeHtml(remarksToPlainText(partiesRemark))}</span>` : '<span style="color: #94a3b8;">—</span>');
 
     return `
       <tr>
@@ -6515,10 +6502,10 @@ function buildCaseCardSections(c) {
   if (clientName) client.push(['Client', clientName]);
   const clientPhone = c.clientNumber || c.criminalClientNumber || '';
   if (clientPhone) client.push(['Client Phone', clientPhone]);
-  const remark = c.remark || c.remarks || '';
-  if (remark.trim()) client.push(['Remarks', remark.trim()]);
-  const disposal = c.disposalComment || c.disposal_comment || '';
-  if (disposal.trim()) client.push(['Disposal Order', disposal.trim()]);
+  const remarkText = remarksToPlainText(c.remark || c.remarks);
+  if (remarkText) client.push(['Remarks', remarkText]);
+  const disposal = String(c.disposalComment || c.disposal_comment || '').trim();
+  if (disposal) client.push(['Disposal Order', disposal]);
 
   return [
     { num: 1, icon: 'fa-landmark',          title: 'Courts & Case Info', rows: info },
@@ -6609,7 +6596,7 @@ function renderCaseCards() {
       const client = (c.clientName || c.criminalClientName || '').toLowerCase();
       const phone = (c.clientNumber || c.criminalClientNumber || '').toLowerCase();
       const court = (c.courtName || c.criminalCourtName || '').toLowerCase();
-      const remark = (c.remark || c.remarks || '').toLowerCase();
+      const remark = remarksToSearchString(c.remark || c.remarks);
       const police = (c.policeStation || '').toLowerCase();
       const crimeNo = (c.crimeNumber || c.firNumber || '').toLowerCase();
       return caseNo.includes(query) || caseName.includes(query) || plaintiff.includes(query) ||
@@ -6887,7 +6874,7 @@ function exportAllCasesCsv() {
     const status = isDisposed ? 'Disposed Off' : 'Pending';
     const filing = formatDateDMY(c.filingDate || c.crimeFilingDate);
     const hearing = formatDateDMY(c.nextHearing);
-    const remark = c.remark || c.remarks || '';
+    const remark = remarksToPlainText(c.remark || c.remarks);
 
     return [
       idx + 1,
@@ -9124,8 +9111,8 @@ function populatePrintableCaseDossier(caseObj) {
   if (cPhoneEl) cPhoneEl.textContent = clientPhone ? clientPhone : '—';
 
   const remEl = document.getElementById('casePrintRemarks');
-  const remarkVal = caseObj.remark || caseObj.remarks || '';
-  if (remEl) remEl.textContent = remarkVal.trim() ? remarkVal.trim() : 'None recorded.';
+  const remarkVal = remarksToPlainText(caseObj.remark || caseObj.remarks);
+  if (remEl) remEl.textContent = remarkVal ? remarkVal : 'None recorded.';
 
   const dispRow = document.getElementById('casePrintDisposalRow');
   const dispEl = document.getElementById('casePrintDisposalComment');
@@ -9583,7 +9570,8 @@ function loadCaseForUpdate(caseNoToFind) {
   }
   const remarkInput = document.getElementById('updateCaseRemark');
   if (remarkInput) {
-    remarkInput.value = found.remark || found.remarks || '';
+    const r = found.remark || found.remarks || '';
+    remarkInput.value = typeof r === 'object' && r !== null ? remarksToPlainText(r) : r;
   }
   const disposalCommentInput = document.getElementById('updateCaseDisposalComment');
   if (disposalCommentInput) {
@@ -13379,8 +13367,436 @@ function toggleDossierSection(elementId, forceState = null) {
 
 window.toggleDossierSection = toggleDossierSection;
 
+// ==============================================================================
+// Beautified Case Remarks & Structured Object Data Engine
+// ==============================================================================
+
+/**
+ * Normalizes any remark value (Object, Array, JSON string, or plain string)
+ * into a structured object representation.
+ */
+function normalizeRemarksData(raw) {
+  if (raw === null || raw === undefined) {
+    return { type: 'empty', items: [], raw: '', text: '' };
+  }
+
+  let parsed = raw;
+
+  // If string, try JSON parse if it looks like JSON
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (!trimmed) {
+      return { type: 'empty', items: [], raw: '', text: '' };
+    }
+    if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+      try {
+        parsed = JSON.parse(trimmed);
+      } catch (e) {
+        // Not valid JSON, keep as plain string
+        parsed = trimmed;
+      }
+    } else {
+      parsed = trimmed;
+    }
+  }
+
+  // If Array
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) {
+      return { type: 'empty', items: [], raw, text: '' };
+    }
+    const items = parsed.map((item, idx) => {
+      if (typeof item === 'object' && item !== null) {
+        return { key: `#${idx + 1}`, value: remarksToPlainText(item), rawValue: item };
+      }
+      return { key: `#${idx + 1}`, value: String(item).trim(), rawValue: item };
+    }).filter(i => i.value);
+
+    return {
+      type: 'array',
+      items,
+      raw,
+      text: items.map(i => `${i.key}: ${i.value}`).join('; ')
+    };
+  }
+
+  // If Object
+  if (typeof parsed === 'object' && parsed !== null) {
+    const keys = Object.keys(parsed);
+    if (keys.length === 0) {
+      return { type: 'empty', items: [], raw, text: '' };
+    }
+
+    const items = [];
+    keys.forEach(k => {
+      const v = parsed[k];
+      if (v !== null && v !== undefined && v !== '') {
+        const valStr = typeof v === 'object' ? JSON.stringify(v) : String(v).trim();
+        if (valStr) {
+          items.push({
+            key: formatRemarkKeyLabel(k),
+            rawKey: k,
+            value: valStr,
+            rawValue: v
+          });
+        }
+      }
+    });
+
+    if (items.length === 0) {
+      return { type: 'empty', items: [], raw, text: '' };
+    }
+
+    return {
+      type: 'object',
+      items,
+      raw,
+      text: items.map(i => `${i.key}: ${i.value}`).join('; ')
+    };
+  }
+
+  // Plain string
+  const str = String(parsed).trim();
+  if (!str) {
+    return { type: 'empty', items: [], raw: '', text: '' };
+  }
+
+  return {
+    type: 'string',
+    items: [{ key: 'Remark', value: str, rawValue: str }],
+    raw: str,
+    text: str
+  };
+}
+
+/**
+ * Converts camelCase or snake_case key to Human Readable Title.
+ */
+function formatRemarkKeyLabel(key) {
+  if (!key) return 'Remark';
+  if (/^\d+$/.test(String(key))) return `#${Number(key) + 1}`;
+
+  const commonMap = {
+    codefendants: 'Co-Defendants',
+    co_defendants: 'Co-Defendants',
+    coplaintiffs: 'Co-Plaintiffs',
+    co_plaintiffs: 'Co-Plaintiffs',
+    coparties: 'Co-Parties',
+    co_parties: 'Co-Parties',
+    oppositeparty: 'Opposite Party',
+    oppositeparties: 'Opposite Parties',
+    chambernote: 'Chamber Note',
+    chambernotes: 'Chamber Notes',
+    nexthearing: 'Next Hearing',
+    next_hearing: 'Next Hearing',
+    hearingdate: 'Hearing Date',
+    hearing_date: 'Hearing Date',
+    casestatus: 'Case Status',
+    case_status: 'Case Status',
+    courtorder: 'Court Order',
+    court_order: 'Court Order',
+    actiontaken: 'Action Taken',
+    action_taken: 'Action Taken',
+    doclink: 'Document Link',
+    doc_link: 'Document Link'
+  };
+
+  const lower = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (commonMap[lower]) return commonMap[lower];
+
+  const upper = String(key).toUpperCase();
+  if (upper === 'ID' || upper === 'PS' || upper === 'FIR') return upper;
+
+  let formatted = String(key).replace(/[_\-]+/g, ' ');
+  formatted = formatted.replace(/([a-z0-9])([A-Z])/g, '$1 $2');
+
+  return formatted
+    .split(' ')
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+/**
+ * Maps field key to FontAwesome icon
+ */
+function getRemarkKeyIcon(key) {
+  const k = String(key || '').toLowerCase();
+  if (k.includes('party') || k.includes('parties') || k.includes('defend') || k.includes('plaintiff') || k.includes('accused') || k.includes('victim') || k.includes('petitioner') || k.includes('respondent') || k.includes('witness')) {
+    return '<i class="fa-solid fa-users" style="color: #6366f1;"></i>';
+  }
+  if (k.includes('hear') || k.includes('date') || k.includes('time') || k.includes('dead') || k.includes('sched')) {
+    return '<i class="fa-solid fa-calendar-day" style="color: #f59e0b;"></i>';
+  }
+  if (k.includes('court') || k.includes('bench') || k.includes('judge') || k.includes('forum')) {
+    return '<i class="fa-solid fa-landmark" style="color: #8b5cf6;"></i>';
+  }
+  if (k.includes('order') || k.includes('status') || k.includes('stage') || k.includes('process') || k.includes('dispos') || k.includes('decree') || k.includes('judgment')) {
+    return '<i class="fa-solid fa-scale-balanced" style="color: #10b981;"></i>';
+  }
+  if (k.includes('phone') || k.includes('mobile') || k.includes('contact') || k.includes('tel') || k.includes('call')) {
+    return '<i class="fa-solid fa-phone" style="color: #06b6d4;"></i>';
+  }
+  if (k.includes('note') || k.includes('remark') || k.includes('comment') || k.includes('detail') || k.includes('desc') || k.includes('action') || k.includes('summary')) {
+    return '<i class="fa-solid fa-note-sticky" style="color: #0ea5e9;"></i>';
+  }
+  if (k.includes('urg') || k.includes('prior') || k.includes('alert') || k.includes('warn')) {
+    return '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>';
+  }
+  return '<i class="fa-solid fa-circle-dot" style="color: #64748b;"></i>';
+}
+
+/**
+ * Decorates parenthetical badges like (Deceased), (Minor), (Major)
+ */
+function decorateRemarkBadges(text) {
+  if (!text) return '';
+  let out = escapeHtml(String(text));
+  const flags = [
+    { re: /\((?:Disceasd|Deceased|Expired)\s*\)/i, label: 'Deceased', cls: 'rmk-badge-deceased' },
+    { re: /\(\s*Minor\s*\)/i, label: 'Minor', cls: 'rmk-badge-minor' },
+    { re: /\(\s*(?:Major|Adult)\s*\)/i, label: 'Major', cls: 'rmk-badge-major' }
+  ];
+  flags.forEach(f => {
+    if (f.re.test(out)) {
+      out = out.replace(f.re, `<span class="rmk-badge ${f.cls}">${f.label}</span>`);
+    }
+  });
+  return out;
+}
+
+/**
+ * Renders HTML for remarks column inside any Case Table.
+ */
+function renderCaseTableRemarks(raw, caseNo = '', caseTitle = '') {
+  const norm = normalizeRemarksData(raw);
+
+  if (norm.type === 'empty') {
+    return '<span class="case-remark-empty">—</span>';
+  }
+
+  const safeCaseNo = escapeHtml(String(caseNo || ''));
+  const safeTitle = escapeHtml(String(caseTitle || ''));
+  const fullTooltip = escapeHtml(norm.text);
+
+  // If structured Object or Array
+  if (norm.type === 'object' || norm.type === 'array') {
+    const totalCount = norm.items.length;
+    const tagLabel = norm.type === 'array' ? 'List Data' : 'Structured Data';
+    const tagIcon = norm.type === 'array' ? 'fa-list-ol' : 'fa-layer-group';
+
+    // Show up to 2 items in compact cell
+    const displayItems = norm.items.slice(0, 2);
+    const hasMore = totalCount > 2;
+
+    const kvRowsHtml = displayItems.map(item => `
+      <div class="case-remark-kv-row">
+        <span class="case-remark-k">${getRemarkKeyIcon(item.rawKey || item.key)} ${escapeHtml(item.key)}:</span>
+        <span class="case-remark-v">${decorateRemarkBadges(item.value)}</span>
+      </div>
+    `).join('');
+
+    const moreHintHtml = hasMore
+      ? `<span class="case-remark-more-hint">+${totalCount - 2} more fields...</span>`
+      : '';
+
+    return `
+      <div class="case-remark-card" title="${fullTooltip}" onclick="event.stopPropagation(); openCaseRemarkModal('${safeCaseNo}', '${safeTitle}')">
+        <div class="case-remark-header-bar">
+          <span class="case-remark-tag-pill"><i class="fa-solid ${tagIcon}"></i> ${tagLabel}</span>
+          <span class="case-remark-count-tag">${totalCount} ${totalCount === 1 ? 'field' : 'fields'}</span>
+        </div>
+        <div class="case-remark-kv-list">
+          ${kvRowsHtml}
+        </div>
+        ${moreHintHtml}
+      </div>
+    `;
+  }
+
+  // Plain string remark
+  const rawText = norm.text;
+  const isParties = /co[- ]?(?:defendant|plaintiff|party|accused)/i.test(rawText);
+  const icon = isParties ? 'fa-solid fa-users' : 'fa-solid fa-note-sticky';
+
+  return `
+    <div class="case-remark-card" title="${fullTooltip}" onclick="event.stopPropagation(); openCaseRemarkModal('${safeCaseNo}', '${safeTitle}')">
+      <div class="case-remark-single-wrap">
+        <i class="${icon}"></i>
+        <span class="case-remark-text-clamp">${decorateRemarkBadges(rawText)}</span>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Extracts plain text string for search indexing and CSV export.
+ */
+function remarksToPlainText(raw) {
+  const norm = normalizeRemarksData(raw);
+  return norm.text || '';
+}
+
+/**
+ * Extracts lowercase string for search haystack matching.
+ */
+function remarksToSearchString(raw) {
+  return remarksToPlainText(raw).toLowerCase();
+}
+
+/**
+ * Currently active remark data in the modal for clipboard operations
+ */
+let currentModalRemarkData = null;
+
+/**
+ * Opens the Case Remark Modal with beautified structured inspection
+ */
+function openCaseRemarkModal(caseNo, caseTitle = '') {
+  const modal = document.getElementById('caseRemarkModal');
+  if (!modal) return;
+
+  const targetCase = (allCaseRecords || []).find(c => {
+    const num = (c.caseNo || c.criminalCaseNumber || '').trim().toLowerCase();
+    const target = (caseNo || '').trim().toLowerCase();
+    return num === target || (num && target && (num.includes(target) || target.includes(num)));
+  });
+
+  const rawRemark = targetCase ? (targetCase.remark || targetCase.remarks || '') : '';
+  const caseNumberText = caseNo || (targetCase ? (targetCase.caseNo || targetCase.criminalCaseNumber) : '—');
+  const titleText = caseTitle || (targetCase ? (targetCase.caseName || `${targetCase.plaintiff || targetCase.victimName || ''} vs ${targetCase.defendant || targetCase.accusedName || ''}`) : '');
+
+  const norm = normalizeRemarksData(rawRemark);
+  currentModalRemarkData = {
+    caseNo: caseNumberText,
+    caseTitle: titleText,
+    norm,
+    raw: rawRemark
+  };
+
+  const caseNoEl = document.getElementById('caseRemarkModalCaseNo');
+  if (caseNoEl) caseNoEl.textContent = `${caseNumberText}${titleText && titleText !== '—' ? ' — ' + titleText : ''}`;
+
+  const contentEl = document.getElementById('caseRemarkModalContent');
+  if (contentEl) {
+    if (norm.type === 'empty') {
+      contentEl.innerHTML = `
+        <div style="text-align: center; padding: 30px 15px; color: #94a3b8;">
+          <i class="fa-regular fa-folder-open" style="font-size: 32px; margin-bottom: 8px; opacity: 0.6;"></i>
+          <p style="margin: 0; font-size: 14px;">No remarks or structured object data recorded for this case.</p>
+        </div>
+      `;
+    } else if (norm.type === 'object' || norm.type === 'array') {
+      contentEl.innerHTML = norm.items.map(item => `
+        <div class="remark-modal-card-item">
+          <div class="remark-modal-key-title">
+            ${getRemarkKeyIcon(item.rawKey || item.key)}
+            <span>${escapeHtml(item.key)}</span>
+          </div>
+          <div class="remark-modal-val-body">${decorateRemarkBadges(item.value)}</div>
+        </div>
+      `).join('');
+    } else {
+      contentEl.innerHTML = `
+        <div class="remark-modal-card-item">
+          <div class="remark-modal-key-title">
+            <i class="fa-solid fa-note-sticky" style="color: #0ea5e9;"></i>
+            <span>Case Remarks</span>
+          </div>
+          <div class="remark-modal-val-body">${decorateRemarkBadges(norm.text)}</div>
+        </div>
+      `;
+    }
+  }
+
+  modal.classList.remove('hidden');
+}
+
+/**
+ * Closes Case Remark Modal
+ */
+function closeCaseRemarkModal() {
+  const modal = document.getElementById('caseRemarkModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+/**
+ * Copies remark data to clipboard as formatted text or JSON
+ */
+function copyRemarkDataToClipboard(format = 'text') {
+  if (!currentModalRemarkData) return;
+  let textToCopy = '';
+
+  if (format === 'json') {
+    if (typeof currentModalRemarkData.raw === 'object' && currentModalRemarkData.raw !== null) {
+      textToCopy = JSON.stringify(currentModalRemarkData.raw, null, 2);
+    } else {
+      try {
+        const parsed = JSON.parse(currentModalRemarkData.raw);
+        textToCopy = JSON.stringify(parsed, null, 2);
+      } catch (e) {
+        textToCopy = JSON.stringify({ remark: currentModalRemarkData.norm.text }, null, 2);
+      }
+    }
+  } else {
+    if (currentModalRemarkData.norm.type === 'object' || currentModalRemarkData.norm.type === 'array') {
+      textToCopy = currentModalRemarkData.norm.items.map(i => `${i.key}: ${i.value}`).join('\n');
+    } else {
+      textToCopy = currentModalRemarkData.norm.text;
+    }
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      if (typeof showToast === 'function') {
+        showToast('Remarks copied to clipboard!', 'success');
+      } else {
+        alert('Remarks copied to clipboard!');
+      }
+    }).catch(() => {
+      if (typeof showToast === 'function') {
+        showToast('Failed to copy to clipboard', 'error');
+      }
+    });
+  } else {
+    if (typeof showToast === 'function') {
+      showToast('Clipboard access not available', 'error');
+    }
+  }
+}
+
+window.normalizeRemarksData = normalizeRemarksData;
+window.renderCaseTableRemarks = renderCaseTableRemarks;
+window.remarksToPlainText = remarksToPlainText;
+window.remarksToSearchString = remarksToSearchString;
+window.openCaseRemarkModal = openCaseRemarkModal;
+window.closeCaseRemarkModal = closeCaseRemarkModal;
+window.copyRemarkDataToClipboard = copyRemarkDataToClipboard;
+
 function renderStructuredRemarks(raw) {
-  const text = String(raw || '');
+  const norm = normalizeRemarksData(raw);
+  if (norm.type === 'empty') {
+    return '<span style="color:#94a3b8; font-style:italic;">No co-parties or remarks recorded for this case.</span>';
+  }
+
+  // If structured Object or Array, render aesthetic cards in dossier
+  if (norm.type === 'object' || norm.type === 'array') {
+    return `
+      <div class="remark-modal-grid" style="gap: 10px;">
+        ${norm.items.map(item => `
+          <div class="remark-modal-card-item" style="background: #ffffff; padding: 12px 14px;">
+            <div class="remark-modal-key-title">
+              ${getRemarkKeyIcon(item.rawKey || item.key)}
+              <span>${escapeHtml(item.key)}</span>
+            </div>
+            <div class="remark-modal-val-body">${decorateRemarkBadges(item.value)}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  const text = String(norm.text || '');
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   const htmlParts = [];
   let plainFallback = [];
@@ -13440,7 +13856,7 @@ function renderStructuredRemarks(raw) {
   // old single-block rendering so familiar layouts don't regress.
   const structured = htmlParts.filter(h => /rmk-section|rmk-party/.test(h)).length;
   if (structured === 0) {
-    return `<span style="color:#1e293b; font-weight:500;">${escapeHtml(text)}</span>`;
+    return `<span style="color:#1e293b; font-weight:500;">${decorateRemarkBadges(text)}</span>`;
   }
   return `<div class="rmk-list">${htmlParts.join('')}</div>`;
 }

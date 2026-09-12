@@ -5126,6 +5126,40 @@
         </div>
     </div>
 
+    <!-- Case Remarks & Structured Data Quick View Modal -->
+    <div id="caseRemarkModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="caseRemarkModalTitle" onclick="if(event.target===this)closeCaseRemarkModal()">
+        <div class="modal-card modal-card-sm case-remark-modal-box">
+            <div class="modal-header">
+                <div class="modal-header-info">
+                    <div class="modal-icon" style="background: rgba(59, 130, 246, 0.12); color: #2563eb;"><i class="fa-solid fa-layer-group"></i></div>
+                    <div>
+                        <h3 id="caseRemarkModalTitle" style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">Case Remarks &amp; Structured Details</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;" id="caseRemarkModalSubtitle" class="modal-subtitle">Case: <strong id="caseRemarkModalCaseNo">—</strong></p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeCaseRemarkModal()" aria-label="Close" title="Close">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 18px 20px; max-height: 65vh; overflow-y: auto;">
+                <div id="caseRemarkModalContent" class="remark-modal-grid">
+                    <!-- Populated dynamically with beautified cards -->
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 12px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="table-view-btn" id="caseRemarkCopyTextBtn" onclick="copyRemarkDataToClipboard('text')" title="Copy Remarks as formatted text">
+                        <i class="fa-regular fa-copy"></i> Copy Text
+                    </button>
+                    <button type="button" class="table-view-btn" id="caseRemarkCopyJsonBtn" onclick="copyRemarkDataToClipboard('json')" title="Copy raw remarks JSON">
+                        <i class="fa-solid fa-code"></i> Copy JSON
+                    </button>
+                </div>
+                <button type="button" class="primary-btn" onclick="closeCaseRemarkModal()" style="padding: 8px 18px; border-radius: 8px;">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Floating In-App Reminder Alerts Container -->
     <div id="todoFloatingAlertContainer" class="todo-floating-alert-container" aria-live="polite"></div>
 

@@ -553,7 +553,9 @@ class App {
           c.clientNumber, c.criminalClientNumber,
           c.courtName, c.criminalCourtName,
           c.partyName, c.policeStation, c.crimeSection, c.crimeNumber,
-          c.caseType, c.caseStatus, c.remark, c.hearingProcess
+          c.caseType, c.caseStatus,
+          (typeof c.remark === 'object' && c.remark !== null ? (typeof window !== 'undefined' && window.remarksToPlainText ? window.remarksToPlainText(c.remark) : JSON.stringify(c.remark)) : c.remark),
+          c.hearingProcess
         ].filter(Boolean).join(' ').toLowerCase();
         return haystack.includes(query);
       });
@@ -564,37 +566,32 @@ class App {
     }
 
     if (matches.length === 0) {
-      if (resultsBody) {
-        resultsBody.innerHTML = `<tr><td colspan="9" class="no-results">
-          <i class="fa-solid fa-magnifying-glass"></i> No cases found matching the specified filters. Try clearing or changing your filters.
-        </td></tr>`;
-      }
-      this.ui.renderSelectedCaseDetails(null);
+      resultsBody.innerHTML = '<tr><td colspan="10" class="no-results">No cases found matching the specified filters. Try clearing or changing your filters.</td></tr>';
+      this.renderSelectedCaseDetails(null);
       return;
     }
 
-    if (resultsBody) {
-      resultsBody.innerHTML = '';
-      matches.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        tr.className = `clickable-row ${index === 0 ? 'selected-row' : ''}`;
+    resultsBody.innerHTML = '';
+    matches.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.className = `clickable-row ${index === 0 ? 'selected-row' : ''}`;
 
-        const caseNumber = item.caseNo || item.criminalCaseNumber || '—';
-        const caseName = item.caseName || 
-          (item.plaintiff ? `${item.plaintiff} vs ${item.defendant}` : 
-          (item.victimName ? `${item.victimName} vs ${item.accusedName}` : '—'));
-        const courtName = item.courtName || item.criminalCourtName || '—';
-        const clientName = item.clientName || item.criminalClientName || '—';
-        const caseType = (item.caseType || 'civil').toLowerCase();
-        const isDisposed = (item.caseStatus || '').toLowerCase().includes('dispose');
-        const statusBadge = isDisposed
-          ? `<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>`
-          : `<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>`;
-        const nextHearing = formatDateDMY(item.nextHearing);
-        const remark = item.remark || item.remarks || '';
-        const remarkHtml = remark
-          ? `<span class="case-remark-clamp" title="${escapeHtml(remark)}"><i class="fa-solid fa-note-sticky"></i> ${escapeHtml(remark)}</span>`
-          : '<span style="color: #94a3b8;">—</span>';
+      const caseNumber = item.caseNo || item.criminalCaseNumber || '—';
+      const caseName = item.caseName ||
+        (item.plaintiff ? `${item.plaintiff} vs ${item.defendant}` :
+        (item.victimName ? `${item.victimName} vs ${item.accusedName}` : '—'));
+      const courtName = item.courtName || item.criminalCourtName || '—';
+      const clientName = item.clientName || item.criminalClientName || '—';
+      const caseType = (item.caseType || 'civil').toLowerCase();
+      const isDisposed = (item.caseStatus || '').toLowerCase().includes('dispose');
+      const statusBadge = isDisposed
+        ? `<span class="status-badge disposed"><i class="fa-solid fa-circle-check"></i> Disposed</span>`
+        : `<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>`;
+      const nextHearing = formatDateDMY(item.nextHearing);
+      const remark = item.remark || item.remarks || '';
+      const remarkHtml = typeof window !== 'undefined' && typeof window.renderCaseTableRemarks === 'function'
+        ? window.renderCaseTableRemarks(remark, caseNumber, caseName)
+        : (remark ? `<span class="case-remark-clamp" title="${escapeHtml(typeof remark === 'object' ? JSON.stringify(remark) : remark)}"><i class="fa-solid fa-note-sticky"></i> ${escapeHtml(typeof remark === 'object' ? JSON.stringify(remark) : remark)}</span>` : '<span style="color: #94a3b8;">—</span>');
 
         tr.innerHTML = `
           <td style="text-align: center;"><strong>${index + 1}</strong></td>
@@ -624,7 +621,6 @@ class App {
 
         resultsBody.appendChild(tr);
       });
-    }
 
     if (matches[0]) {
       this.ui.renderSelectedCaseDetails(matches[0]);

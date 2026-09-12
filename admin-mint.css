@@ -1467,8 +1467,222 @@ html.auth-guest #guestScreen {
 }
 
 .case-remark-cell {
-  max-width: 260px;
-  min-width: 140px;
+  max-width: 290px;
+  min-width: 150px;
+  vertical-align: middle;
+}
+
+.case-remark-empty {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-style: italic;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Master container for remark item in table cells */
+.case-remark-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 9px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: #334155;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  text-align: left;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.case-remark-card:hover {
+  border-color: #5eead4;
+  box-shadow: 0 3px 8px -1px rgba(13, 148, 136, 0.14), 0 2px 4px -2px rgba(13, 148, 136, 0.08);
+  background: #f0fdfa;
+  transform: translateY(-1px);
+}
+
+/* Header badge for object remarks */
+.case-remark-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.case-remark-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  background: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #ccfbf1;
+}
+
+.case-remark-count-tag {
+  font-size: 10px;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Key-Value rows */
+.case-remark-kv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+
+.case-remark-kv-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.case-remark-k {
+  font-weight: 700;
+  color: #134e4a;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.case-remark-k i {
+  font-size: 10px;
+  opacity: 0.95;
+}
+
+.case-remark-v {
+  color: #475569;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.case-remark-more-hint {
+  font-size: 10px;
+  font-weight: 600;
+  color: #0d9488;
+  margin-top: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.case-remark-more-hint:hover {
+  text-decoration: underline;
+}
+
+/* Single string remark card */
+.case-remark-single-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+}
+
+.case-remark-single-wrap i {
+  font-size: 11px;
+  color: #0d9488;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.case-remark-text-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: #334155;
+  word-break: break-word;
+}
+
+/* Modal styles for structured remark full inspection */
+.case-remark-modal-box {
+  max-width: 640px !important;
+  width: 92% !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+
+.remark-modal-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.remark-modal-card-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  transition: all 0.15s ease;
+}
+
+.remark-modal-card-item:hover {
+  background: #ffffff;
+  border-color: #99f6e4;
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.08);
+}
+
+.remark-modal-key-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #0f766e;
+  margin-bottom: 6px;
+}
+
+.remark-modal-val-body {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #334155;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.remark-raw-json-box {
+  background: #042f2e;
+  color: #ccfbf1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 12px 14px;
+  border-radius: 8px;
+  overflow-x: auto;
+  max-height: 200px;
 }
 
 .case-remark-clamp {
